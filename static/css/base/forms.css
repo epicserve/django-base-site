@@ -1,0 +1,126 @@
+/**
+ * FORM BASE STYLES
+ * -------------------------------------------------------------------- */
+form .input-field {
+    clear: both;
+    padding: 0px;
+    margin: 0px 0px 10px 0px;
+    line-height: normal;
+}
+.label_1 label, .label_1 dl dt { width: 60px;  } .label_1 dl.vert dd { margin-left: 60px;  }
+.label_2 label, .label_2 dl dt { width: 120px; } .label_2 dl.vert dd { margin-left: 120px; }
+.label_3 label, .label_3 dl dt { width: 180px; } .label_3 dl.vert dd { margin-left: 180px; }
+.label_4 label, .label_4 dl dt { width: 240px; } .label_4 dl.vert dd { margin-left: 240px; }
+.label_5 label, .label_5 dl dt { width: 300px; } .label_5 dl.vert dd { margin-left: 300px; }
+.label_6 label, .label_6 dl dt { width: 360px; } .label_6 dl.vert dd { margin-left: 360px; }
+.label_7 label, .label_7 dl dt { width: 420px; } .label_7 dl.vert dd { margin-left: 420px; }
+.label_8 label, .label_8 dl dt { width: 480px; } .label_8 dl.vert dd { margin-left: 480px; }
+
+input.text-desc, input[type=text], input[type=password], textarea {
+    color: #727272;
+    font-size: 20px;
+    width: 270px;
+    font-family: Helvetica, Arial, sans-serif;
+    border: 1px solid #cecece;
+    background: #e5e5e5;
+    margin: 0px;
+    padding: 8px 4px;
+    border-radius: 4px;
+    -webkit-border-radius: 4px;
+    -moz-border-radius: 4px;
+}
+.input-desc {
+    color: #898989;
+}
+textarea {
+    width: 278px;
+    height: 100px;
+    padding: 0px;
+}
+label, form dt {
+    color: #666;
+    font-size: 20px;
+    text-shadow: 0 1px 0 #fff;
+    font-weight: normal;
+    padding-top: 8px;
+}
+label, form dl dt {
+    clear: both;
+    width: 120px;
+    display: block;
+    float: left;
+    margin: 0px;
+}
+
+
+/**
+ * BUTTONS
+ * -------------------------------------------------------------------- */
+a.btn {
+    text-decoration: none;
+}
+/* Code to remove Firefox's dotted outline when you click on links and buttons */
+a, :focus {
+   outline: none;
+}
+button::-moz-focus-inner,
+input[type="reset"]::-moz-focus-inner,
+input[type="button"]::-moz-focus-inner,
+input[type="submit"]::-moz-focus-inner,
+select::-moz-focus-inner,
+input[type="file"] > input[type="button"]::-moz-focus-inner {
+    border: none;
+}
+a.btn, button, input[type=submit], input[type=button] {
+    cursor: pointer;
+    padding: 10px;
+    border: none;
+    border-top: 1px solid rgba(255, 255, 255, .65);
+    border-radius: 6px;
+    -webkit-border-radius: 6px;
+    -moz-border-radius: 6px;
+    background: #ddd; /* for non-css3 browsers */
+    /* The following is the filter for IE. Color is expressed in #AARRGGBB
+    format, where AA is the alpha opacity hexadecimal value, RR is the red
+    hexadecimal value, GG is the green hexadecimal value, and BB is the
+    blue hexadecimal value. Use FF for 100% and 00 for 0% opacity. */
+    filter:  progid:DXImageTransform.Microsoft.gradient(startColorstr='#ffdddddd', endColorstr='#ff999999'); /* for IE */
+    background: -webkit-gradient(linear, left top, left bottom, from(#fff), to(#cecece)); /* for webkit browsers */
+    background: -moz-linear-gradient(top,  #fff,  #cecece); /* for firefox 3.6+ */
+    color: #727272;
+    -webkit-box-shadow: 1px 2px 2px rgba(0, 0, 0, .3);
+    -moz-box-shadow: 1px 2px 2px rgba(0, 0, 0, .3);
+    box-shadow: 1px 2px 2px rgba(0, 0, 0, .3);
+    text-shadow: 0 1px 0 rgba(255, 255, 255, .8);
+}
+a.btn:hover, button:hover, input[type=submit]:hover, input[type=button]:hover {
+    background: #b9b9b9; /* for non-css3 browsers */
+    filter:  progid:DXImageTransform.Microsoft.gradient(startColorstr='#FFFFFFFF', endColorstr='#ffb9b9b9'); /* for IE */
+    background: -webkit-gradient(linear, left top, left bottom, from(#fff), to(#b9b9b9)); /* for webkit browsers */
+    background: -moz-linear-gradient(top,  #fff,  #b9b9b9); /* for firefox 3.6+ */
+    color: rgba(0, 0, 0, 0.5);
+    border-top: solid 1px rgba(255, 255, 255, 0.9);
+    text-shadow: 0 1px 0 rgba(255, 255, 255, 0.8);
+}
+a.btn:active, button:active, input[type=submit]:active, input[type=button]:active {
+    background: #b9b9b9; /* for non-css3 browsers */
+    filter:  progid:DXImageTransform.Microsoft.gradient(startColorstr='#ffb9b9b9', endColorstr='#ffffffff'); /* for IE */
+    background: -webkit-gradient(linear, left top, left bottom, from(#b9b9b9), to(#fff)); /* for webkit browsers */
+    background: -moz-linear-gradient(top,  #b9b9b9,  #fff); /* for firefox 3.6+ */
+    color: rgba(0, 0, 0, 0.5);
+    border-top: solid 1px rgba(255, 255, 255, 0.9);
+    text-shadow: 0 1px 0 rgba(255, 255, 255, .8);
+}
+
+
+/**
+ * DJANGO ERRORS
+ * ------------------------------------------------------------------------ */
+ul.errorlist, ul.errorlist li {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+}
+ul.errorlist {
+    margin: 0 0 10px;
+}

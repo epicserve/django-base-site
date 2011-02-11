@@ -1,0 +1,56 @@
+<!DOCTYPE HTML>
+{% load compress %}
+<html lang="en-US" class="no-js">
+<head>
+    {% block head %}{% block title_tag %}<title>{% block title %}{% if page.title %}{{ page.title }}{% endif %}{% endblock %}{% if site_name %} - {{ site_name }}{% endif %}</title>{% endblock %}
+    {% block meta %}<meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge, chrome=1" />{% endblock %}
+    {% block link %}<link rel="shortcut icon" href="{{ MEDIA_URL }}img/ui/favicon.ico" />
+    {% compress css %}<link rel="stylesheet" type="text/css" href="{{ MEDIA_URL }}css/960/reset.css" media="all" />
+    <link rel="stylesheet" type="text/css" href="{{ MEDIA_URL }}css/960/text.css" media="all" />
+    <link rel="stylesheet" type="text/css" href="{{ MEDIA_URL }}css/960/960.css" media="all" />
+    <link rel="stylesheet" type="text/css" href="{{ MEDIA_URL }}css/base/forms.css" media="all" />
+    <link rel="stylesheet" type="text/css" href="{{ MEDIA_URL }}css/base/base.css" media="all" />{% endcompress %}{% endblock %}
+    {% block script %}<script type="text/javascript" src="{{ MEDIA_URL }}js/html5/modernizr-1.6.min.js" charset="utf-8"></script>
+    <script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/1.4.4/jquery.min.js" charset="utf-8"></script>
+    {% compress js %}<script type="text/javascript" src="{{ MEDIA_URL }}js/ie6/jquery.reject.min.js"></script>
+    <script type="text/javascript" src="{{ MEDIA_URL }}js/base/base.js"></script>{% endcompress %}{% endblock %}
+    <!--[if !IE 7]>
+    <style type="text/css">
+        #page-container {display:table;height:100%}
+    </style>
+    <![endif]-->
+    <!--[if lte IE 6]>
+    <link rel="stylesheet" type="text/css" href="http://universal-ie6-css.googlecode.com/files/ie6.0.3.css" media="screen" title="No Style for IE 6" charset="utf-8">
+    <![endif]-->{% include "google-analytics.html" %}{% endblock %}
+</head>
+<body{% block body_attr %} class="{% block body_class %}{% endblock %}" id="{% block body_id %}{% endblock %}"{% endblock %}>
+    <div id="page-container">
+        <div id="sticky-wrap">
+            {% block base_header %}
+            <header class="main container_16 clearfix">
+                <div class="grid_16">
+                    <h1 id="logo"><a href="#">{{ site_name }}</a></h1>
+                    <nav class="main btm-line">
+                        <ul>
+                            <li class="first"><a href="#">Home</a></li>
+                            <li><a href="#">About</a></li>
+                            <li class="last"><a href="#">Contact</a></li>
+                        </ul>
+                    </nav>
+                </div>
+            </header>
+            <div id="noscript-warning" class="error">This website has visual enhancements and is best viewed with javascript enabled. Check your browsers preferences in order to enable javascript.</div>
+            {% endblock %}
+
+            {% block base_content %}
+            {% endblock %}
+        </div>
+    </div>
+    {% block base_footer %}
+    <footer class="main container_16 clearfix">
+        <div class="grid_16 top-line">&#169; {% now "Y" %} <a href="#">{{ site_name }}</a></div>
+    </footer>
+    {% endblock %}
+</body>
+</html>

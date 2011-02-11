@@ -1,0 +1,185 @@
+/* BASIC STYLES
+---------------------------------------- */
+body {
+    color: #333;
+}
+a, a:visited {
+    color: #777;
+    text-decoration: none;
+}
+a:active, a:focus {
+   outline: none; /* Remove the dotted line for clicked links in Firefox */
+}
+a:hover {
+    color: #CCC;
+}
+h1, h2, h3 {
+    color: #777;
+}
+hr { clear: both; border-bottom: 1px solid #e5e5e5; border-top: none; border-left: none; border-right: none; margin: 20px 0px;padding: 0px 0px 2px;}
+.btm-line {
+    border-bottom: 1px solid #e5e5e5;
+}
+.top-line {
+    border-top: 1px solid #e5e5e5;
+}
+.right {
+    float: right;
+}
+.center {
+    text-align: center;
+}
+
+
+/* MESSAGES
+---------------------------------------- */
+.info, .success, .warning, .error {
+    clear: both;
+    width: 878px;
+    border: 1px solid;
+    margin: 20px auto 20px;
+    padding:15px 10px 15px 50px;
+    background-repeat: no-repeat;
+    background-position: 10px center;
+}
+.info {
+    color: #00529B;
+    background-color: #BDE5F8;
+    background-image: url('/static/img/icons/info.png');
+}
+.success {
+    color: #4F8A10;
+    background-color: #DFF2BF;
+    background-image:url('/static/img/icons/success.png');
+}
+.warning {
+    color: #9F6000;
+    background-color: #FEEFB3;
+    background-image: url('/static/img/icons/warning.png');
+}
+.error {
+    color: #D8000C;
+    background-color: #FFBABA;
+    background-image: url('/static/img/icons/error.png');
+}
+html #noscript-warning { display: none; }
+html.no-js #noscript-warning { display: block; }
+
+
+/* HEADER
+---------------------------------------- */
+header.main {
+    margin-bottom: 10px;
+}
+header.main #logo {
+    margin: 0px;
+}
+nav.main {
+    padding-bottom: 6px;
+}
+nav.main ul, nav.main ul li {
+    list-style: none;
+    margin: 0px;
+    padding: 0px;
+}
+nav.main ul li {
+    display: inline;
+    padding-right: 6px;
+    margin-right: 2px;
+    border-right: 1px solid #e5e5e5;
+}
+nav.main ul li.last {
+    padding-right: 0px;
+    margin-right: 0px;
+    border-right: none;
+}
+#user-nav {
+    display: block;
+    background-color: #e5e5e5;
+    margin: 0px;
+    padding: 10px 0px;
+    -webkit-box-shadow: 0px 0px 10px #999;
+    -moz-box-shadow: 0px 0px 10px #999;
+    box-shadow: 0px 0px 10px #999;
+}
+#user-nav ul, #user-nav li {
+    list-style: none;
+    margin: 0px;
+    padding: 0px;
+}
+#user-nav ul {
+    float: right;
+}
+#user-nav li.em {
+    font-style: italic;
+}
+#user-nav li {
+    display: inline;
+    padding-right: 8px;
+}
+
+
+/*  
+Sticky Footer Solution
+by Steve Hatcher 
+http://stever.ca
+http://www.cssstickyfooter.com
+*/
+html, body {height: 100%;}
+#page-container {min-height: 100%;}
+#sticky-wrap {
+    overflow:auto;
+    padding-bottom: 30px;   /* must be same height as the footer */
+}
+
+footer.main {
+    position: relative;
+    margin-top: -30px; /* negative value of footer height */
+    height: 30px;
+    clear:both;
+} 
+
+/*Opera Fix*/
+body:before {/* thanks to Maleika (Kohoutec)*/
+    content:"";
+    height:100%;
+    float:left;
+    width:0;
+    margin-top:-32767px;/* thank you Erik J - negate effect of float*/
+}
+
+
+/* FOOTER
+---------------------------------------- */
+footer.main {
+    font-size: 0.85em;
+}
+
+
+/* BIZOX
+---------------------------------------- */
+.bizox {
+    width: 400px;
+    margin: 20px auto;
+    padding: 20px;
+    background-color: #e5e5e5;
+    /*--CSS3 Box Shadows--*/
+    -webkit-box-shadow: 0px 0px 10px #999;
+    -moz-box-shadow: 0px 0px 10px #999;
+    box-shadow: 0px 0px 10px #999;
+    /*--CSS3 Rounded Corners--*/
+    -webkit-border-radius: 10px;
+    -moz-border-radius: 10px;
+    border-radius: 10px;
+}
+.bizox .wrap {
+    background-color: #FFF;
+    padding: 20px;
+    -webkit-border-radius: 6px;
+    -moz-border-radius: 6px;
+    border-radius: 6px;
+}
+.bizox .btm-section {
+    margin-top: 20px;
+    padding: 10px 0px 0px;
+}

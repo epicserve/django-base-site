@@ -1,0 +1,146 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>Usage and Setup Instructions &mdash; Django Base Site v0.1.1 documentation</title>
+    <link rel="stylesheet" href="_static/nature.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '',
+        VERSION:     '0.1.1',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <link rel="top" title="Django Base Site v0.1.1 documentation" href="index.html" />
+    <link rel="next" title="Website Pre-Launch Check List" href="website-launch-checklist.html" />
+    <link rel="prev" title="Django Base Site" href="index.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="website-launch-checklist.html" title="Website Pre-Launch Check List"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="index.html" title="Django Base Site"
+             accesskey="P">previous</a> |</li>
+        <li><a href="index.html">Django Base Site v0.1.1 documentation</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="usage-and-setup-instructions">
+<h1>Usage and Setup Instructions<a class="headerlink" href="#usage-and-setup-instructions" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="usage">
+<h2>Usage<a class="headerlink" href="#usage" title="Permalink to this headline">¶</a></h2>
+<p>The Django Base Site contains a skeleton base site that can be used to jumpstart any new Django site. Please feel free to fork this project and adapt it to your own personal taste. To setup a new website just follow the setup instructions bellow.</p>
+</div>
+<div class="section" id="setup-instructions">
+<h2>Setup Instructions<a class="headerlink" href="#setup-instructions" title="Permalink to this headline">¶</a></h2>
+<p>Before you begin make sure you&#8217;ve setup and installed <a class="reference external" href="http://github.com/epicserve/django-environment">Django-environment</a>.</p>
+<p>Create a directory for your new Django site.</p>
+<div class="highlight-python"><pre>$ cd Sites/
+$ mkdir example
+$ cd example/</pre>
+</div>
+<p>In the same directory run the following command to setup a virtualenv for your new site.</p>
+<p><tt class="docutils literal"><span class="pre">$</span> <span class="pre">mkvirtualenv</span> <span class="pre">--no-site-packages</span> <span class="pre">example</span></tt></p>
+<p>Answer the questions to setup your Django-environment.</p>
+<div class="highlight-python"><pre>Is this a Django-enviroment your creating (y/n)? [Default: y] y
+Enter the python path to the config directory ... [Default: example.config] config
+Development server address? [Default: 127.0.0.1] &lt;enter&gt;
+Development server address? [Default: 8000] &lt;enter&gt;
+Create a blank Fabric fabfile in your project (y/n)? [Default: y] y</pre>
+</div>
+<p>Remove the config directory created by Django-environment because it will be replaced by the Django base site.</p>
+<p><tt class="docutils literal"><span class="pre">$</span> <span class="pre">rm</span> <span class="pre">-rf</span> <span class="pre">config/</span></tt></p>
+<p>Clone the source from the Django Base Site to your <cite>DJANGO_PROJECT_ROOT</cite> which should be your current directory.</p>
+<p><tt class="docutils literal"><span class="pre">$</span> <span class="pre">git</span> <span class="pre">clone</span> <span class="pre">git://github.com/epicserve/epicserve-ui.git</span> <span class="pre">.</span></tt></p>
+<p>You might want to remove the <tt class="docutils literal"><span class="pre">.git</span></tt> directory so you can track changes to your new project under a new git repository.</p>
+<p><tt class="docutils literal"><span class="pre">rm</span> <span class="pre">-rf</span> <span class="pre">.git</span></tt></p>
+<p>Install the base requirements and development requirements.</p>
+<p><tt class="docutils literal"><span class="pre">$</span> <span class="pre">pip</span> <span class="pre">install</span> <span class="pre">-r</span> <span class="pre">config/requirements.txt</span> <span class="pre">-r</span> <span class="pre">config/dev-requirements.txt</span></tt></p>
+<p>Setup your database:</p>
+<p><tt class="docutils literal"><span class="pre">$</span> <span class="pre">django-admin.py</span> <span class="pre">syncdb</span></tt></p>
+<p>At this point your base site should be setup and you can now run your dev server.</p>
+<p><tt class="docutils literal"><span class="pre">$</span> <span class="pre">runserver</span></tt></p>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">Usage and Setup Instructions</a><ul>
+<li><a class="reference internal" href="#usage">Usage</a></li>
+<li><a class="reference internal" href="#setup-instructions">Setup Instructions</a></li>
+</ul>
+</li>
+</ul>
+
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="index.html"
+                        title="previous chapter">Django Base Site</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="website-launch-checklist.html"
+                        title="next chapter">Website Pre-Launch Check List</a></p>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" size="18" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="website-launch-checklist.html" title="Website Pre-Launch Check List"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="index.html" title="Django Base Site"
+             >previous</a> |</li>
+        <li><a href="index.html">Django Base Site v0.1.1 documentation</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2011, Brent O&#39;Connor.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.0.7.
+    </div>
+  </body>
+</html>
