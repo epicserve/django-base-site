@@ -24,9 +24,9 @@ ADMINS = (
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.sqlite3',           # Add 'postgresql_psycopg2', 'postgresql', 'mysql', 'sqlite3' or 'oracle'.
-        'NAME': '%s/config/dev.db' % DJANGO_PROJECT_ROOT, # Or path to database file if using sqlite3.
-        'USER': '',                                       # Not used with sqlite3.
+        'ENGINE': 'django.db.backends.sqlite3',            # Add 'postgresql_psycopg2', 'postgresql', 'mysql', 'sqlite3' or 'oracle'.
+        'NAME': '%s/config/dev.db' % DJANGO_PROJECT_ROOT,  # Or path to database file if using sqlite3.
+        'USER': '',                                        # Not used with sqlite3.
     }
 }
 

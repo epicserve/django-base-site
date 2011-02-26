@@ -6,5 +6,5 @@ for more information.
 
 # Example method
 def ls():
-	local('ls -la')
+    local('ls -la')
 """
