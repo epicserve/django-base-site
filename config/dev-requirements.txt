@@ -2,3 +2,5 @@ docutils
 ipython
 ipdb
 django-debug-toolbar
+pep8
+pyflakes
