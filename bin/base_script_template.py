@@ -4,9 +4,9 @@
 # Activate Virtualenv
 import os
 virtualenvs_root = os.environ.get('WORKON_HOME', '/usr/local/virtualenvs')
-# MAKE SURE YOU CHANGE THE project_name IN THE FOLLOWING PATH SO THE FULL
+# MAKE SURE YOU CHANGE THE django_base_site IN THE FOLLOWING PATH SO THE FULL
 # PATH TO activate_this.py IS CORRECT!
-activate_this = '%s/project_name/bin/activate_this.py' % virtualenvs_root
+activate_this = '%s/django_base_site/bin/activate_this.py' % virtualenvs_root
 execfile(activate_this, dict(__file__=activate_this))
 
 
@@ -23,14 +23,18 @@ from optparse import OptionParser
 import sys, logging, time
 
 
+def end_timer():
+    end_time = time.time()
+    elapsed = end_time - start_time
+    min = round(elapsed / 60, 3)
+    log.info("Script Finished\nIt took %s minutes to run the script." % min)
+
+
 def main():
     # ===========================================
     # = START THE MAIN BODY OF YOUR SCRIPT HERE =
     # ===========================================
-    end = time.time()
-    elapsed = end - start
-    min = round(elapsed/60, 3)
-    log.info("Script Finished\nIt took %s minutes to run the script." % min)
+    pass
 
 
 if __name__ == '__main__':
@@ -68,6 +72,8 @@ if __name__ == '__main__':
 
         # Setup logging to output to the console
         log.setLevel(logging.INFO)
+        if options.debug:
+            log.setLevel(logging.DEBUG)
         ch = logging.StreamHandler()
         formatter = logging.Formatter("%(asctime)s - %(name)s - %(levelname)s - %(message)s")
         ch.setFormatter(formatter)
@@ -76,14 +82,16 @@ if __name__ == '__main__':
     if len(args) == 1 and args[0] == 'help':
         parser.print_help()
     else:
-        start = time.time()
+        start_time = time.time()
         if settings.DEBUG:
             main()
+            end_timer()
         else:
             try:
                 main()
+                end_timer()
             except:
                 import traceback
                 traceback_msg = '\n'.join(traceback.format_exception(*(sys.exc_info())))
-                error_msg = "The script (%s) on SERVER HOST NAME created the following exception error:\n\n%s" % (os.path.abspath(__file__), traceback_msg)
-                mail_admins('Log Test Error', error_msg)
+                error_msg = "The script (%s) on %s created the following exception error:\n\n%s" % (os.path.abspath(__file__), os.uname()[1], traceback_msg)
+                mail_admins('SCRIPT ERROR SUBJECT', error_msg)
