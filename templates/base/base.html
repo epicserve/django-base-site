@@ -5,16 +5,16 @@
     {% block head %}{% block title_tag %}<title>{% block title %}{% if page.title %}{{ page.title }}{% endif %}{% endblock %}{% if site_name %} - {{ site_name }}{% endif %}</title>{% endblock %}
     {% block meta %}<meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge, chrome=1" />{% endblock %}
-    {% block link %}<link rel="shortcut icon" href="{{ MEDIA_URL }}img/ui/favicon.ico" />
-    {% compress css %}<link rel="stylesheet" type="text/css" href="{{ MEDIA_URL }}css/960/reset.css" media="all" />
-    <link rel="stylesheet" type="text/css" href="{{ MEDIA_URL }}css/960/text.css" media="all" />
-    <link rel="stylesheet" type="text/css" href="{{ MEDIA_URL }}css/960/960.css" media="all" />
-    <link rel="stylesheet" type="text/css" href="{{ MEDIA_URL }}css/base/forms.css" media="all" />
-    <link rel="stylesheet" type="text/css" href="{{ MEDIA_URL }}css/base/base.css" media="all" />{% endcompress %}{% endblock %}
-    {% block script %}<script type="text/javascript" src="{{ MEDIA_URL }}js/html5/modernizr-1.6.min.js" charset="utf-8"></script>
+    {% block link %}<link rel="shortcut icon" href="{{ STATIC_URL }}img/ui/favicon.ico" />
+    {% compress css %}<link rel="stylesheet" type="text/css" href="{{ STATIC_URL }}css/960/reset.css" media="all" />
+    <link rel="stylesheet" type="text/css" href="{{ STATIC_URL }}css/960/text.css" media="all" />
+    <link rel="stylesheet" type="text/css" href="{{ STATIC_URL }}css/960/960.css" media="all" />
+    <link rel="stylesheet" type="text/css" href="{{ STATIC_URL }}css/base/forms.css" media="all" />
+    <link rel="stylesheet" type="text/css" href="{{ STATIC_URL }}css/base/base.css" media="all" />{% endcompress %}{% endblock %}
+    {% block script %}<script type="text/javascript" src="{{ STATIC_URL }}js/html5/modernizr-1.6.min.js" charset="utf-8"></script>
     <script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/1.4.4/jquery.min.js" charset="utf-8"></script>
-    {% compress js %}<script type="text/javascript" src="{{ MEDIA_URL }}js/ie6/jquery.reject.min.js"></script>
-    <script type="text/javascript" src="{{ MEDIA_URL }}js/base/base.js"></script>{% endcompress %}{% endblock %}
+    {% compress js %}<script type="text/javascript" src="{{ STATIC_URL }}js/ie6/jquery.reject.min.js"></script>
+    <script type="text/javascript" src="{{ STATIC_URL }}js/base/base.js"></script>{% endcompress %}{% endblock %}
     <!--[if !IE 7]>
     <style type="text/css">
         #page-container {display:table;height:100%}

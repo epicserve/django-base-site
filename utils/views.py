@@ -4,7 +4,7 @@ from django.template import Context, loader
 
 def server_error(request, template_name='500.html'):
 
-    "Always includes MEDIA_URL"
+    "Always includes STATIC_URL"
     from django.http import HttpResponseServerError
 
     # Use the 500 template for each program if it exists
@@ -12,4 +12,4 @@ def server_error(request, template_name='500.html'):
     program_500_template = "%s/500.html" % url_segment[0]
     t = loader.select_template([program_500_template, '500.html'])
 
-    return HttpResponseServerError(t.render(Context({'MEDIA_URL': settings.MEDIA_URL})))
+    return HttpResponseServerError(t.render(Context({'STATIC_URL': settings.MEDIA_URL})))

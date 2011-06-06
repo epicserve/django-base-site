@@ -2,9 +2,6 @@ SETTINGS_LOCAL = True
 from settings import *
 
 DEBUG = True
-SERVE_MEDIA = True
-MEDIA_URL = '/static/'
-ADMIN_MEDIA_PREFIX = 'http://127.0.0.1:8000/static/grappelli/'
 
 INTERNAL_IPS = ('127.0.0.1', )
 
