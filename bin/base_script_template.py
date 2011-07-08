@@ -39,31 +39,33 @@ def main():
 
 if __name__ == '__main__':
 
+    error_email_subject = 'SCRIPT ERROR SUBJECT'
+    script_name = os.path.splitext(os.path.basename(__file__))[0]
+
     # create logger
-    # UPDATE THE FOLLOWING SO IT HAS THE CORRECT PYTHON PATH
-    log = logging.getLogger("path.to.script")
+    log = logging.getLogger(script_name)
 
     # Set script options
     usage = "usage: %prog [options]"
     parser = OptionParser(usage=usage)
     parser.add_option("-v", "--verbose",
-                    action="store_true", dest="verbose", default=False,
-                    help="Be verbose.")
+        action="store_true", dest="verbose", default=False,
+        help="Be verbose.")
     parser.add_option("-n", "--dry-run",
-                    action="store_true", dest="dry_run", default=False,
-                    help="don't copy any files or write anything to the database")
+        action="store_true", dest="dry_run", default=False,
+        help="don't copy any files or write anything to the database")
     parser.add_option("-d", "--debug",
-                    action="store_true", dest="debug", default=False,
-                    help="Print debug messages")
+        action="store_true", dest="debug", default=False,
+        help="Print debug messages")
     parser.add_option("-F", "--log-to-file",
-                    action="store_true", dest="log_to_file", default=False,
-                    help="Log messages to a log file.")
+        action="store_true", dest="log_to_file", default=False,
+        help="Log messages to a log file.")
     (options, args) = parser.parse_args()
 
     if options.log_to_file:
 
         log.setLevel(logging.INFO)
-        fh = logging.FileHandler(getattr(settings, 'LOG_DIR', '%s/logs/epaper_import.log' % settings.DJANGO_PROJECT_ROOT))
+        fh = logging.FileHandler(getattr(settings, 'LOG_DIR', '%s/logs/%s.log' % (settings.DJANGO_PROJECT_ROOT, script_name)))
         formatter = logging.Formatter("%(asctime)s - %(name)s - %(levelname)s - %(message)s")
         fh.setFormatter(formatter)
         log.addHandler(fh)
@@ -93,5 +95,5 @@ if __name__ == '__main__':
             except:
                 import traceback
                 traceback_msg = '\n'.join(traceback.format_exception(*(sys.exc_info())))
-                error_msg = "The script (%s) on %s created the following exception error:\n\n%s" % (os.path.abspath(__file__), os.uname()[1], traceback_msg)
-                mail_admins('SCRIPT ERROR SUBJECT', error_msg)
+                error_msg = "The script (%s) on %s created the following exception error:\n\n%s" % (script_name, os.uname()[1], traceback_msg)
+                mail_admins(error_email_subject, error_msg)
