@@ -167,8 +167,10 @@ LOGGING = {
 }
 
 # django_compressor settings
+COMPRESS_ROOT = STATICFILES_DIRS[0]
 COMPRESS_URL = STATIC_URL
 COMPRESS_OUTPUT_DIR = 'cache'
+COMPRESS_CACHE_BACKEND = 'default'
 COMPRESS_CSS_FILTERS = ['compressor.filters.css_default.CssAbsoluteFilter', 'compressor.filters.cssmin.CSSMinFilter']
 
 # django-grappelli settings
