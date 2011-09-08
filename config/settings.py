@@ -66,7 +66,7 @@ MEDIA_URL = '/media/'
 # Don't put anything in this directory yourself; store your static files
 # in apps' "static/" subdirectories and in STATICFILES_DIRS.
 # Example: "/home/media/media.lawrence.com/static/"
-STATIC_ROOT = '%s/static-media/' % DJANGO_PROJECT_ROOT
+# STATIC_ROOT = '%s/static-media/' % DJANGO_PROJECT_ROOT
 
 # URL prefix for static files.
 # Example: "http://media.lawrence.com/static/"
@@ -169,7 +169,7 @@ LOGGING = {
 
 # django_compressor settings
 COMPRESS_URL = STATIC_URL
-COMPRESS_ROOT = STATIC_ROOT
+COMPRESS_ROOT = STATICFILES_DIRS[0]
 COMPRESS_OUTPUT_DIR = 'cache'
 COMPRESS_CACHE_BACKEND = 'default'
 COMPRESS_CSS_FILTERS = ['compressor.filters.css_default.CssAbsoluteFilter', 'compressor.filters.cssmin.CSSMinFilter']
@@ -183,10 +183,10 @@ GRAPPELLI_ADMIN_HEADLINE = '%s Administration' % SITE_NAME
 GRAPPELLI_ADMIN_TITLE = '%s Administration' % SITE_NAME
 
 # Allow settings to be overriden by the settings_local.py file
-# try:
-#     SETTINGS_LOCAL
-# except NameError:
-#     try:
-#         from settings_local import *
-#     except ImportError:
-#         pass
+try:
+    SETTINGS_LOCAL
+except NameError:
+    try:
+        from settings_local import *
+    except ImportError:
+        pass
