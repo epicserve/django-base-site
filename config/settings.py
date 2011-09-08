@@ -168,8 +168,8 @@ LOGGING = {
 }
 
 # django_compressor settings
-COMPRESS_URL = MEDIA_URL
-COMPRESS_ROOT = MEDIA_ROOT
+COMPRESS_URL = STATIC_URL
+COMPRESS_ROOT = STATIC_ROOT
 COMPRESS_OUTPUT_DIR = 'cache'
 COMPRESS_CACHE_BACKEND = 'default'
 COMPRESS_CSS_FILTERS = ['compressor.filters.css_default.CssAbsoluteFilter', 'compressor.filters.cssmin.CSSMinFilter']
