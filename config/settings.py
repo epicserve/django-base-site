@@ -51,7 +51,7 @@ USE_L10N = True
 # The directory where this setting is pointing should contain subdirectories
 # named as the locales, containing a formats.py file
 # (i.e. "myproject.locale" for myproject/locale/en/formats.py etc. use)
-FORMAT_MODULE_PATH = 'config.locale'
+FORMAT_MODULE_PATH = 'config.formats'
 
 # Absolute filesystem path to the directory that will hold user-uploaded files.
 # Example: "/home/media/media.lawrence.com/media/"
