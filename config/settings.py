@@ -55,18 +55,18 @@ FORMAT_MODULE_PATH = 'config.formats'
 
 # Absolute filesystem path to the directory that will hold user-uploaded files.
 # Example: "/home/media/media.lawrence.com/media/"
-MEDIA_ROOT = ''
+MEDIA_ROOT = '%s/media/' % DJANGO_PROJECT_ROOT
 
 # URL that handles the media served from MEDIA_ROOT. Make sure to use a
 # trailing slash.
 # Examples: "http://media.lawrence.com/media/", "http://example.com/media/"
-MEDIA_URL = ''
+MEDIA_URL = '/media/'
 
 # Absolute path to the directory static files should be collected to.
 # Don't put anything in this directory yourself; store your static files
 # in apps' "static/" subdirectories and in STATICFILES_DIRS.
 # Example: "/home/media/media.lawrence.com/static/"
-# STATIC_ROOT = '%s/static/' % DJANGO_PROJECT_ROOT
+STATIC_ROOT = '%s/static-media/' % DJANGO_PROJECT_ROOT
 
 # URL prefix for static files.
 # Example: "http://media.lawrence.com/static/"
@@ -168,9 +168,8 @@ LOGGING = {
 }
 
 # django_compressor settings
-COMPRESS_ROOT = STATICFILES_DIRS[0]
 COMPRESS_URL = STATIC_URL
-COMPRESS_ROOT = STATICFILES_DIRS[0]
+COMPRESS_ROOT = STATIC_ROOT
 COMPRESS_OUTPUT_DIR = 'cache'
 COMPRESS_CACHE_BACKEND = 'default'
 COMPRESS_CSS_FILTERS = ['compressor.filters.css_default.CssAbsoluteFilter', 'compressor.filters.cssmin.CSSMinFilter']
@@ -184,10 +183,10 @@ GRAPPELLI_ADMIN_HEADLINE = '%s Administration' % SITE_NAME
 GRAPPELLI_ADMIN_TITLE = '%s Administration' % SITE_NAME
 
 # Allow settings to be overriden by the settings_local.py file
-try:
-    SETTINGS_LOCAL
-except NameError:
-    try:
-        from settings_local import *
-    except ImportError:
-        pass
+# try:
+#     SETTINGS_LOCAL
+# except NameError:
+#     try:
+#         from settings_local import *
+#     except ImportError:
+#         pass
