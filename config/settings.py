@@ -184,10 +184,10 @@ GRAPPELLI_ADMIN_HEADLINE = '%s Administration' % SITE_NAME
 GRAPPELLI_ADMIN_TITLE = '%s Administration' % SITE_NAME
 
 # Allow settings to be overriden by the settings_local.py file
-try:
-    SETTINGS_LOCAL
-except NameError:
-    try:
-        from settings_local import *
-    except ImportError:
-        pass
+# try:
+#     SETTINGS_LOCAL
+# except NameError:
+#     try:
+#         from settings_local import *
+#     except ImportError:
+#         pass
