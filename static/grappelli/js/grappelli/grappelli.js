@@ -65,13 +65,6 @@ var django = {
         $("input[class*='vTimeField']:not([id*='__prefix__'])").grp_timepicker();
     };
     
-    // HACK: add no-wrap to table-elements.
-    grappelli.initTableElements = function() {
-        $("td input.vForeignKeyRawIdAdminField, td input.vFileBrowseField, td a.add-another").each(function() {
-            $(this).parent().addClass('nowrap');
-        });
-    };
-    
     // changelist: filter
     grappelli.initFilter = function() {
         $("a.toggle-filters").click(function() {
@@ -110,6 +103,32 @@ var django = {
             dateFormat: grappelli.getFormat('date')
         });
         form.find(".vTimeField").grp_timepicker();
+    };
+    
+    // autocomplete helpers
+    grappelli.get_app_label = function(elem) {
+        var link = elem.next("a");
+        if (link.length > 0) {
+            var url = link.attr('href').split('/');
+            return url[url.length-3];
+        }
+        return false;
+    };
+    grappelli.get_model_name = function(elem) {
+        var link = elem.next("a");
+        if (link.length > 0) {
+            var url = link.attr('href').split('/');
+            return url[url.length-2];
+        }
+        return false;
+    };
+    grappelli.get_query_string = function(elem) {
+        var link = elem.next("a");
+        if (link.length > 0) {
+            var url = link.attr('href').split('/');
+            return url[url.length-1].replace('?', '');
+        }
+        return false;
     };
     
 })(django.jQuery);

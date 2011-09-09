@@ -55,6 +55,14 @@ function dismissRelatedLookupPopup(win, chosenId) {
     win.close();
 }
 
+// GRAPPELLI CUSTOM
+function removeRelatedObject(triggeringLink) {
+    var id = triggeringLink.id.replace(/^remove_/, '');
+    var elem = document.getElementById(id);
+    elem.value = "";
+    elem.focus();
+}
+
 function showAddAnotherPopup(triggeringLink) {
     var name = triggeringLink.id.replace(/^add_/, '');
     name = id_to_windowname(name);
@@ -85,8 +93,10 @@ function dismissAddAnotherPopup(win, newId, newRepr) {
         } else if (elem.nodeName == 'INPUT') {
             if (elem.className.indexOf('vManyToManyRawIdAdminField') != -1 && elem.value) {
                 elem.value += ',' + newId;
+                elem.focus();
             } else {
                 elem.value = newId;
+                elem.focus();
             }
         // GRAPPELLI CUSTOM
         // NOTE: via http://code.djangoproject.com/ticket/10191

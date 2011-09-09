@@ -31,28 +31,34 @@
     border-radius: 4px; -moz-border-radius: 4px; -webkit-border-radius: 4px;
     background: transparent url('../img/backgrounds/ui-sortable-placeholder.png') 0 0 repeat scroll !important;
 }
-.ui-sortable-placeholder.group {
-    border-width: 2px;
-    border-radius: 7px; -moz-border-radius: 7px; -webkit-border-radius: 7px;
-}
-.ui-sortable-placeholder.group * {
-    visibility: hidden !important;
-}
-
-.group.stacked .ui-sortable .module.ui-sortable-placeholder {
+.group.stacked div.ui-sortable-placeholder {
     display: block;
-    margin-top: 2px;
+    margin-top: 2px !important;
 }
-.group.tabular .ui-sortable .module.ui-sortable-placeholder {
+.group.tabular div.ui-sortable-placeholder {
     border: 0 !important;
     overflow: hidden;
 }
 .group.tabular .ui-sortable .module.ui-sortable-placeholder .td {
     background: transparent;
 }
+.group.tabular .ui-sortable .module.ui-sortable-placeholder .th, 
+.group.tabular .ui-sortable .module.ui-sortable-placeholder .td {
+    padding-top: 0 !important;
+    padding-bottom: 0 !important;
+}
 .group.tabular .module.ui-sortable-helper {
     border-top: 0 !important;
-    -moz-box-sizing: padding-box !important;
+}
+.group.tabular .ui-sortable-helper .th, .group.tabular .ui-sortable-helper .td {
+    background: #ffffcc !important;
+}
+.group.stacked .ui-sortable-helper, .group.stacked .ui-sortable-helper .module, .group.stacked .ui-sortable-helper h2, .group.stacked .ui-sortable-helper h3, .group.stacked .ui-sortable-helper h4, 
+.group.stacked .collapse.predelete.ui-sortable-helper > h3.collapse-handler, 
+.group.stacked .collapse.open.predelete.ui-sortable-helper > h3.collapse-handler, 
+.group.stacked .collapse.predelete.ui-sortable-helper h4.collapse-handler, 
+.group.stacked .collapse.open.predelete.ui-sortable-helper h4.collapse-handler {
+    background: #ffffcc !important;
 }
 
 
@@ -116,6 +122,7 @@
     background: #cee9f2;
     background: -moz-linear-gradient(top, #e1f0f5, #cee9f2);
     background: -webkit-gradient(linear, left top, left bottom, from(#e1f0f5), to(#cee9f2));
+    background: -o-linear-gradient(top, #e1f0f5, #cee9f2);
 }
 
 .ui-accordion-header.ui-state-default {
@@ -125,6 +132,7 @@
     background: #cee9f2;
     background: -moz-linear-gradient(top, #cee9f2, #e1f0f5);
     background: -webkit-gradient(linear, left top, left bottom, from(#cee9f2), to(#e1f0f5));
+    background: -o-linear-gradient(top, #cee9f2, #e1f0f5);
 }
 .ui-accordion-header.ui-state-active {
     border-bottom: 1px solid #c7c7c7 !important;
@@ -133,6 +141,7 @@
     background: #cee9f2;
     background: -moz-linear-gradient(top, #cee9f2, #e1f0f5);
     background: -webkit-gradient(linear, left top, left bottom, from(#cee9f2), to(#e1f0f5));
+    background: -o-linear-gradient(top, #cee9f2, #e1f0f5);
 }
 
 .ui-accordion-content {
@@ -198,7 +207,10 @@
 ------------------------------------------------------------------------------------------------------ */
 
 .ui-datepicker {
-    width: auto !important; padding: 3px 3px 0;
+    position: absolute;
+    display: none;
+    padding: 3px 3px 0;
+    width: auto !important;
     border-color: #bdbdbd;
     box-shadow: 0 10px 50px #333; -moz-box-shadow: 0 10px 50px #333; -webkit-box-shadow: 0 10px 50px #333;
 }
@@ -377,6 +389,8 @@ button.ui-datepicker-close {
 ------------------------------------------------------------------------------------------------------ */
 
 #ui-timepicker {
+    position: absolute;
+    display: none;
     padding: 5px 3px 3px 5px;
     width: 216px;
     border: 1px solid #bdbdbd;
@@ -460,6 +474,7 @@ button.ui-datepicker-close {
     background: #e1f0f5;
     background: -moz-linear-gradient(top, #cee9f2, #e1f0f5);
     background: -webkit-gradient(linear, left top, left bottom, from(#cee9f2), to(#e1f0f5));
+    background: -o-linear-gradient(top, #cee9f2, #e1f0f5);
 }
 .tab-handler.ui-state-default:hover {
     color: #444 !important;
@@ -467,6 +482,7 @@ button.ui-datepicker-close {
     background: #cee9f2;
     background: -moz-linear-gradient(top, #e1f0f5, #cee9f2);
     background: -webkit-gradient(linear, left top, left bottom, from(#e1f0f5), to(#cee9f2));
+    background: -o-linear-gradient(top, #e1f0f5, #cee9f2);
 }
 .tab-handler.ui-state-default.ui-tabs-selected {
     border: 1px solid #c7c7c7;
@@ -474,6 +490,7 @@ button.ui-datepicker-close {
     background: #e9e9e9;
     background: -moz-linear-gradient(top, #e0e0e0, #e9e9e9);
     background: -webkit-gradient(linear, left top, left bottom, from(#e0e0e0), to(#e9e9e9));
+    background: -o-linear-gradient(top, #e0e0e0, #e9e9e9);
 }
 
 
@@ -545,16 +562,16 @@ button.ui-datepicker-close {
 .ui-autocomplete {
     position: absolute;
     cursor: default;
-/*    max-height: 100px;*/
-/*    overflow-y: auto;*/
-    border-color: #999 #bbb #bbb #999;
+    padding: 3px;
+    border: 1px solid #ccc;
     border-radius: 3px; -moz-border-radius: 3px; -webkit-border-radius: 3px;
-    background: #fff;
+    background: #eee;
     box-shadow: 0 10px 50px #333; -moz-box-shadow: 0 10px 50px #333; -webkit-box-shadow: 0 10px 50px #333;
 }
-.ui-autocomplete-loading {
+/*.ui-autocomplete-loading {
     background: white url('images/ui-anim_basic_16x16.gif') right center no-repeat;
 }
+*/
 * html .ui-autocomplete {
     width: 1px;
 }
@@ -565,94 +582,34 @@ button.ui-datepicker-close {
     margin: 0;
     padding: 5px;
 }
-.ui-autocomplete .ui-menu-item a {
-    padding: 5px;
+.ui-autocomplete li:first-child span {
+    display: block;
+    padding: 1px 4px;
+    color: #999;
     font-weight: bold;
-    border-top: 1px solid #e0e0e0 !important;
-    border-radius: 2px; -moz-border-radius: 2px; -webkit-border-radius: 2px;
 }
-.ui-autocomplete .ui-menu-item a:hover, .ui-autocomplete .ui-menu-item a:active {
-    color: #fff;
-    border-top: 1px solid transparent !important;
-    background: #444;
-}
-.ui-autocomplete .ui-menu-item:first-child a {
+.ui-autocomplete .ui-menu-item + .ui-menu-item  {
+    margin-top: 2px;
     border-top: 0 !important;
 }
-.ui-autocomplete .ui-menu-item:hover + li a {
-    border-top-color: 0 !important;
+.ui-autocomplete li:first-child + li {
+    margin-top: 4px;
 }
-
-
-
-/*  Facelist
------------------------------------------------------------------------------------------------------- */
-.ui-gFacelist-wrapper {
-    margin-left:160px;
-    width:758px;
-}
-
-.ui-gFacelist-wrapper.focus {
-    border-color: #999 #BBB #BBB #999;
-}
-
-.ui-gFacelist-toolbar button {
-    border-bottom-right-radius: 0; -moz-border-radius-bottomright: 0; -webkit-border-bottom-right-radius: 0;
-}
-
-ul.ui-gFacelist-facelist {
-    clear:both;
-    padding: 5px 5px 5px 0;
-    position: relative; float: left; clear: both;
-    width:758px;
-    box-sizing: border-box; -moz-box-sizing: border-box; -webkit-box-sizing: border-box;
-}
-
-li.ui-gFacelist-item {
-    cursor: pointer;
-    background:#ddd;
-    background-image: -webkit-gradient(linear, 0% 0%, 0% 100%, from(#ebf2f5), to(#e1f0f5));
-    background-image: -moz-linear-gradient(top, #ebf2f5, #e1f0f5);
-    background-repeat:no-repeat;
-    border:1px solid #ccc;
-    border-radius: 3px; -moz-border-radius: 3px; -webkit-border-radius: 3px;
-    -webkit-box-sizing: border-box;
-    float: left;
+.ui-autocomplete .ui-menu-item a {
+    margin: 0;
+    padding: 3px 4px;
+    color: #444;
     font-weight: bold;
-    margin-top: 5px; 
-    margin-right: 5px;
-    padding: 4px 7px 3px 4px;
-    opacity: 1;    
-    position: relative; 
-    width: auto;
+    border: 1px solid #c7c7c7;
+    border-radius: 2px; -moz-border-radius: 2px; -webkit-border-radius: 2px;
+    background: #cee9f2;
 }
-
-li.ui-gFacelist-item:hover {
-    background-image: -webkit-gradient(linear, 0% 0%, 0% 100%, from(#e1e1e1), to(#eee));
-    background-image: -moz-linear-gradient(top, #e1e1e1, #eee);
-}
-
-li.ui-gFacelist-item span {
-    background:transparent url('../img/icons/icon-bookmark_remove-inactive.png') no-repeat 2px 2px;
-    padding:0 0 0 18px;
-}
-
-li.ui-gFacelist-item:hover span {
-    background:transparent url('../img/icons/icon-bookmark_remove.png') no-repeat 2px 2px;
-}
-
-
-
-/*  AutoSlugField
------------------------------------------------------------------------------------------------------- */
-
-.ui-gAutoSlugField-preview {
-    display:block;
-    color:#999;
-    padding:2px 6px;
-    background:#eee;
-    border:1px solid #ddd;
-    border-width:0 1px 1px 1px;
-    margin-left:160px;
-    width:744px;
+.ui-autocomplete .ui-menu-item a.ui-state-hover, 
+.ui-autocomplete .ui-menu-item a:hover, .ui-autocomplete .ui-menu-item a:active {
+    margin: 0 !important;
+    padding: 3px 4px !important;
+    color: #fff !important;
+    border: 1px solid transparent !important;
+    border-radius: 2px; -moz-border-radius: 2px; -webkit-border-radius: 2px;
+    background: #444 !important;
 }
