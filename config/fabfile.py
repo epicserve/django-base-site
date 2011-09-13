@@ -3,6 +3,7 @@ from fabric.api import cd, run, env, local
 env.hosts = ['foo.example.com']
 env.code_dir = '/var/www/project'
 env.virtualenv = '/usr/local/virtualenvs/project'
+env.django_settings_module = 'config.settings'
 
 
 def push():
@@ -20,11 +21,10 @@ def update_requirements():
 def migrate(app=None):
     """Run the migrate task
     Usage: fab migrate:app_name"""
-    with cd(env.virtualenv):
-        if app:
-            run("source %s/bin/activate; django-admin.py migrate %s" % app)
-        else:
-            run("source %s/bin/activate; django-admin.py migrate")
+    if app:
+        run("source %s/bin/activate; django-admin.py migrate %s --settings=%s" % (env.virtualenv, app, env.django_settings_module))
+    else:
+        run("source %s/bin/activate; django-admin.py migrate --settings=%s" % (env.virtualenv, env.django_settings_module))
 
 
 def deploy():
