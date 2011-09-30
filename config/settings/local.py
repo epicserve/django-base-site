@@ -1,5 +1,6 @@
+from base import *
+
 SETTINGS_LOCAL = True
-from settings import *
 
 DEBUG = True
 

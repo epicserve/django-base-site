@@ -1,7 +1,6 @@
 import os
 
-
-DJANGO_PROJECT_ROOT = os.path.abspath('%s/../' % os.path.dirname(__file__))
+DJANGO_PROJECT_ROOT = os.path.abspath('%s/../../' % os.path.dirname(__file__))
 
 DEBUG = False
 TEMPLATE_DEBUG = DEBUG
@@ -130,7 +129,7 @@ TEMPLATE_DIRS = (
     '%s/templates/' % DJANGO_PROJECT_ROOT,
 )
 
-INSTALLED_APPS = (
+DJANGO_APPS = (
     'django.contrib.auth',
     'django.contrib.contenttypes',
     'django.contrib.sessions',
@@ -139,10 +138,17 @@ INSTALLED_APPS = (
     'django.contrib.staticfiles',
     'grappelli',
     'django.contrib.admin',
+)
 
-    # 3rd Party Apps
+THIRDPARTY_APPS = (
     'compressor',
 )
+
+PROJECT_APPS = (
+
+)
+
+INSTALLED_APPS = DJANGO_APPS + THIRDPARTY_APPS + PROJECT_APPS
 
 # A sample logging configuration. The only tangible logging
 # performed by this configuration is to send an email to
@@ -181,12 +187,3 @@ COMPRESS_PRECOMPILERS = (
 # django-grappelli settings
 GRAPPELLI_ADMIN_HEADLINE = '%s Administration' % SITE_NAME
 GRAPPELLI_ADMIN_TITLE = '%s Administration' % SITE_NAME
-
-# Allow settings to be overriden by the settings_local.py file
-try:
-    SETTINGS_LOCAL
-except NameError:
-    try:
-        from settings_local import *
-    except ImportError:
-        pass
