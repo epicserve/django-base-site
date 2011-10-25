@@ -3,6 +3,7 @@ import os
 DJANGO_PROJECT_ROOT = os.path.abspath('%s/../../' % os.path.dirname(__file__))
 
 DEBUG = False
+
 TEMPLATE_DEBUG = DEBUG
 
 ADMINS = (
@@ -36,6 +37,7 @@ TIME_ZONE = 'America/Vancouver'
 LANGUAGE_CODE = 'en-us'
 
 SITE_ID = 1
+
 SITE_NAME = 'Django Base Site'
 
 # If you set this to False, Django will make some optimizations so as not
@@ -54,7 +56,7 @@ FORMAT_MODULE_PATH = 'config.formats'
 
 # Absolute filesystem path to the directory that will hold user-uploaded files.
 # Example: "/home/media/media.lawrence.com/media/"
-MEDIA_ROOT = '%s/media/' % DJANGO_PROJECT_ROOT
+MEDIA_ROOT = os.path.join(DJANGO_PROJECT_ROOT, 'media')
 
 # URL that handles the media served from MEDIA_ROOT. Make sure to use a
 # trailing slash.
@@ -78,7 +80,7 @@ ADMIN_MEDIA_PREFIX = '%sgrappelli/' % STATIC_URL
 
 # Additional locations of static files
 STATICFILES_DIRS = (
-    '%s/static/' % DJANGO_PROJECT_ROOT,
+    os.path.join(DJANGO_PROJECT_ROOT, 'static'),
     # Put strings here, like "/home/html/static" or "C:/www/django/static".
     # Always use forward slashes, even on Windows.
     # Don't forget to use absolute paths, not relative paths.
@@ -125,8 +127,8 @@ TEMPLATE_CONTEXT_PROCESSORS = (
 )
 
 TEMPLATE_DIRS = (
-    '%s/templates/base' % DJANGO_PROJECT_ROOT,
-    '%s/templates/' % DJANGO_PROJECT_ROOT,
+    os.path.join(DJANGO_PROJECT_ROOT, 'templates', 'base'),
+    os.path.join(DJANGO_PROJECT_ROOT, 'templates'),
 )
 
 DJANGO_APPS = (

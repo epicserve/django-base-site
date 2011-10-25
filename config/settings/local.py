@@ -1,6 +1,6 @@
 from base import *
 
-SETTINGS_LOCAL = True
+LOCAL_SETTINGS_LOADED = True
 
 DEBUG = True
 

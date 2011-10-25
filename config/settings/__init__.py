@@ -2,7 +2,7 @@ from base import *
 
 
 try:
-    SETTINGS_LOCAL
+    LOCAL_SETTINGS_LOADED
 except NameError:
     try:
         from local import *
