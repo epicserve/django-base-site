@@ -67,7 +67,7 @@ MEDIA_URL = '/media/'
 # Don't put anything in this directory yourself; store your static files
 # in apps' "static/" subdirectories and in STATICFILES_DIRS.
 # Example: "/home/media/media.lawrence.com/static/"
-# STATIC_ROOT = '%s/static-media/' % DJANGO_PROJECT_ROOT
+STATIC_ROOT = os.path.join(DJANGO_PROJECT_ROOT, 'static_collected')
 
 # URL prefix for static files.
 # Example: "http://media.lawrence.com/static/"
