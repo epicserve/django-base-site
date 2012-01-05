@@ -175,13 +175,13 @@ LOGGING = {
 }
 
 # django_compressor settings
-COMPRESS_ENABLED = True  # Seems to be needed in order for COMPRESS_PRECOMPILERS to work
+# COMPRESS_ENABLED = True  # Seems to be needed in order for COMPRESS_PRECOMPILERS to work
 COMPRESS_OUTPUT_DIR = 'cache'
-COMPRESS_CSS_FILTERS = ['compressor.filters.css_default.CssAbsoluteFilter', 'compressor.filters.cssmin.CSSMinFilter']
-COMPRESS_PRECOMPILERS = (
-    ('text/x-sass', 'sass {infile} {outfile}'),
-    ('text/x-scss', 'sass --scss {infile} {outfile}'),
-)
+# COMPRESS_CSS_FILTERS = ['compressor.filters.css_default.CssAbsoluteFilter', 'compressor.filters.cssmin.CSSMinFilter']
+# COMPRESS_PRECOMPILERS = (
+#     ('text/x-sass', 'sass {infile} {outfile}'),
+#     ('text/x-scss', 'sass --scss {infile} {outfile}'),
+# )
 
 # django-grappelli settings
 GRAPPELLI_ADMIN_HEADLINE = '%s Administration' % SITE_NAME
