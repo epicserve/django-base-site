@@ -67,7 +67,7 @@ MEDIA_URL = '/media/'
 # Don't put anything in this directory yourself; store your static files
 # in apps' "static/" subdirectories and in STATICFILES_DIRS.
 # Example: "/home/media/media.lawrence.com/static/"
-STATIC_ROOT = os.path.join(DJANGO_PROJECT_ROOT, 'static_collected')
+STATIC_ROOT = os.path.join(DJANGO_PROJECT_ROOT, 'static')
 
 # URL prefix for static files.
 # Example: "http://media.lawrence.com/static/"
@@ -80,7 +80,6 @@ ADMIN_MEDIA_PREFIX = '%sgrappelli/' % STATIC_URL
 
 # Additional locations of static files
 STATICFILES_DIRS = (
-    os.path.join(DJANGO_PROJECT_ROOT, 'static'),
     # Put strings here, like "/home/html/static" or "C:/www/django/static".
     # Always use forward slashes, even on Windows.
     # Don't forget to use absolute paths, not relative paths.
@@ -177,10 +176,7 @@ LOGGING = {
 
 # django_compressor settings
 COMPRESS_ENABLED = True  # Seems to be needed in order for COMPRESS_PRECOMPILERS to work
-COMPRESS_URL = STATIC_URL
-COMPRESS_ROOT = STATICFILES_DIRS[0]
 COMPRESS_OUTPUT_DIR = 'cache'
-COMPRESS_CACHE_BACKEND = 'default'
 COMPRESS_CSS_FILTERS = ['compressor.filters.css_default.CssAbsoluteFilter', 'compressor.filters.cssmin.CSSMinFilter']
 COMPRESS_PRECOMPILERS = (
     ('text/x-sass', 'sass {infile} {outfile}'),
