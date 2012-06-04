@@ -10,13 +10,13 @@ var mymodule = function($) {
     }
 
     return {
-        
+
         public_property: null,
-        
+
         public_method: function() {
             var self = this;
             // code...
-        }
+        },
 
         init: function(options) {
             // init code...
