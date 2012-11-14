@@ -141,6 +141,7 @@ DJANGO_APPS = (
 
 THIRDPARTY_APPS = (
     'compressor',
+    'south',
 )
 
 PROJECT_APPS = (
