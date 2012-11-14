@@ -9,33 +9,20 @@ The Django Base Site contains a skeleton base site that can be used to jumpstart
 Setup Instructions
 ------------------
 
-Before you begin make sure you've setup and installed `Django-environment <http://github.com/epicserve/django-environment>`_.
+Before you begin make sure you've setup and installed `Virtualenvwrapper <http://www.doughellmann.com/projects/virtualenvwrapper/>`_.
 
 Create a directory for your new Django site. ::
 
-$ cd Sites/
-$ mkdir example
-$ cd example/
+$ mkdir ~/Sites/example
+$ cd ~/Sites/example
 
 In the same directory run the following command to setup a virtualenv for your new site.
 
-``$ mkvirtualenv --no-site-packages example``
-
-Answer the questions to setup your Django-environment. ::
-
-    Is this a Django-enviroment your creating (y/n)? [Default: y] y
-    Enter the python path to the config directory ... [Default: example.config] config
-    Development server address? [Default: 127.0.0.1] <enter>
-    Development server address? [Default: 8000] <enter>
-    Create a blank Fabric fabfile in your project (y/n)? [Default: y] y
-
-Remove the config directory created by Django-environment because it will be replaced by the Django base site.
-
-``$ rm -rf config/``
+``$ mkvirtualenv --no-site-packages --distribute example``
 
 Clone the source from the Django Base Site to your `DJANGO_PROJECT_ROOT` which should be your current directory.
-              
-``$ git clone git://github.com/epicserve/epicserve-ui.git .``
+
+``$ git clone git://github.com/epicserve/django-base-site.git .``
 
 You might want to remove the ``.git`` directory so you can track changes to your new project under a new git repository.
 
@@ -43,7 +30,15 @@ You might want to remove the ``.git`` directory so you can track changes to your
 
 Install the base requirements and development requirements.
 
-``$ pip install -r config/requirements.txt -r config/dev-requirements.txt``
+``$ pip install -r config/requirements/dev.txt``
+
+Add the to your `DJANGO_PROJECT_ROOT` to your Python path.
+
+``$ add2virtualenv .``
+
+Set your ``DJANGO_SETTINGS_MODULE`` environment variable (You'll need to do this everytime you work on this project).
+
+``export DJANGO_SETTINGS_MODULE=config.settings.development``
 
 Setup your database:
 
@@ -51,4 +46,4 @@ Setup your database:
 
 At this point your base site should be setup and you can now run your dev server.
 
-``$ runserver``
+``$ django-admin.py runserver``
