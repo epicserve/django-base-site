@@ -13,24 +13,21 @@ Before you begin make sure you've setup and installed `Virtualenvwrapper <http:/
 
 Create a directory for your new Django site. ::
 
-$ mkdir ~/Sites/example
-$ cd ~/Sites/example
+$ cd ~/Sites
 
 In the same directory run the following command to setup a virtualenv for your new site. ::
 
 $ mkvirtualenv --no-site-packages --distribute example
+$ pip install django
 
-Clone the source from the Django Base Site to your `DJANGO_PROJECT_ROOT` which should be your current directory. ::
+Create your Django Base Site. The following will create a new project called "example". ::
 
-$ git clone git://github.com/epicserve/django-base-site.git .
-
-You might want to remove the ``.git`` directory so you can track changes to your new project under a new git repository. ::
-
-$ rm -rf .git
+$ django-admin.py startproject example --template=https://github.com/epicserve/django-base-site/archive/master.zip
 
 Install the base requirements and development requirements. ::
 
-$ pip install -r config/requirements/dev.txt
+$ cd example
+# pip install -r config/requirements/dev.txt
 
 Add the to your `DJANGO_PROJECT_ROOT` to your Python path. ::
 
