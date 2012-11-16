@@ -27,7 +27,7 @@ $ django-admin.py startproject example --template=https://github.com/epicserve/d
 Install the base requirements and development requirements. ::
 
 $ cd example
-# pip install -r config/requirements/dev.txt
+$ pip install -r config/requirements/dev.txt
 
 Add the to your `DJANGO_PROJECT_ROOT` to your Python path. ::
 
