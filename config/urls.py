@@ -1,4 +1,5 @@
 from django.conf.urls.defaults import *
+from django.views.generic import TemplateView
 from django.contrib import admin
 from django.conf import settings
 
@@ -22,6 +23,6 @@ urlpatterns += patterns('',
 )
 
 # Project Urls
-urlpatterns += patterns('django.views.generic.simple',
-    (r'^$', 'direct_to_template', {'template': 'index.html'}),
+urlpatterns += patterns('django.views.generic',
+    (r'^$', TemplateView.as_view(template_name='index.html')),
 )

@@ -22,7 +22,7 @@ ADMINS = (
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.sqlite3',            # Add 'postgresql_psycopg2', 'postgresql', 'mysql', 'sqlite3' or 'oracle'.
-        'NAME': '%s/config/dev.db' % DJANGO_PROJECT_ROOT,  # Or path to database file if using sqlite3.
+        'NAME': '%s/config/db/dev.db' % DJANGO_PROJECT_ROOT,  # Or path to database file if using sqlite3.
         'USER': '',                                        # Not used with sqlite3.
     }
 }
@@ -49,3 +49,11 @@ if 'test' in sys.argv:
         'django.contrib.auth.hashers.MD5PasswordHasher',
         'django.contrib.auth.hashers.SHA1PasswordHasher',
     )
+
+try:
+    LOCAL_DEV_SETTINGS_LOADED
+except NameError:
+    try:
+        from local_development import *
+    except ImportError:
+        pass

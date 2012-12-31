@@ -2,6 +2,6 @@
 docutils
 ipython
 ipdb
-django-debug-toolbar
+django-debug-toolbar==0.9.4
 pep8
 pyflakes
