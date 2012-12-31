@@ -37,6 +37,10 @@ Set your ``DJANGO_SETTINGS_MODULE`` environment variable (You'll need to do this
 
 $ export DJANGO_SETTINGS_MODULE=config.settings.development
 
+Remove all unnecessary example config and template files and create a `config/settings/local_development.py` settings file:
+
+$ make clean
+
 Setup your database::
 
 $ django-admin.py syncdb

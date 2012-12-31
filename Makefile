@@ -1,4 +1,8 @@
+
+
 clean:
+	-./utils/create_local_settings_file.py
+	-rm create_local_settings_file.py
 	-rm -rf docs/
 	-rm readme.rst
 	-rm -rf static/js/site_name/
