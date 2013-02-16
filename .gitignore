@@ -1,2 +1,3 @@
 /docs/_build/
 /config/settings/local_development.py
+.vagrant

@@ -1,9 +1,12 @@
 from base import *
 import sys
+import os
+
+SECRET_KEY = os.environ['SECRET_KEY']
 
 DEBUG = True
 
-INTERNAL_IPS = ('127.0.0.1', )
+INTERNAL_IPS = ('127.0.0.1', '10.0.2.2')
 
 # Example Gmail settings if you need to send email from a local Django dev
 # site. Uncomment the following and change the username and password to
