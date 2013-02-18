@@ -42,13 +42,19 @@ python_pip "-r /vagrant/config/requirements/dev.txt" do
     user "vagrant"
 end
 
-execute "Add the vagrant directory to the python path" do
-    command "/usr/local/virtualenvs/django-base-site/bin/add2virtualenv /vagrant"
-    user "vagrant"
-end.run_action(:run)
+# Add /vagrant to the python path
+cookbook_file "/usr/local/virtualenvs/django-base-site/lib/python2.6/site-packages/_virtualenv_path_extensions.pth" do
+    source "_virtualenv_path_extensions.pth"
+    owner "vagrant"
+    group "root"
+    mode 0664
+end
 
-execute "Run syncdb" do
-    command "/usr/local/virtualenvs/django-base-site/bin/django-admin.py syncdb --noinput"
-    user "vagrant"
-    environment "DJANGO_SETTINGS_MODULE" => "config.settings.development"
-end.run_action(:run)
+bash "run_syncdb" do
+      user "vagrant"
+      cwd "/tmp"
+      code <<-EOH
+      source /usr/local/virtualenvs/django-base-site/bin/activate
+      SECRET_KEY='my-secret-key-only-for-development' django-admin.py syncdb --noinput --migrate --settings='config.settings.development'
+      EOH
+end

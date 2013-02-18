@@ -2,8 +2,8 @@ Vagrant::Config.run do |config|
 
     # Setup the box
     # Add the box with the following before running vagrant up
-    # vagrant box add precise64 http://files.vagrantup.com/precise64.box
-    config.vm.box = "precise64"
+    # vagrant box add lucid32 http://files.vagrantup.com/lucid32.box
+    config.vm.box = "lucid32"
 
     config.vm.forward_port 8000, 8000
     config.vm.customize do |vm|
