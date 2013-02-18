@@ -17,9 +17,8 @@ Using Vagrant
 -------------
 
 If you want to try out the `django-base-site` using Vagrant then you first
-need to [install vagrant](http://docs.vagrantup.com/v1/docs/getting-
-started/index.html#install_vagrant) of course. Then you can do the following
-to get things running.
+need to [install vagrant](http://docs.vagrantup.com/v1/docs/getting-started/index.html#install_vagrant)
+of course. Then you can do the following to get things running.
 
     $ cd ~/Sites/
     $ git clone git://github.com/epicserve/django-base-site.git
