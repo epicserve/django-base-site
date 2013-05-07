@@ -1,7 +1,7 @@
 -r base.txt
-docutils
-ipython
-ipdb
+docutils==0.10
+ipython==0.13.2
+ipdb==0.7
 django-debug-toolbar==0.9.4
-pep8
-pyflakes
+pep8==1.4.5
+pyflakes==0.7.2
