@@ -1,8 +1,5 @@
 from base import *
 import sys
-import os
-
-SECRET_KEY = os.environ['SECRET_KEY']
 
 DEBUG = True
 
