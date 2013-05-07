@@ -29,7 +29,7 @@ Install the base requirements and development requirements. ::
 $ cd example
 $ pip install -r config/requirements/dev.txt
 
-Add the to your `DJANGO_PROJECT_ROOT` to your Python path. ::
+Add the ``DJANGO_PROJECT_ROOT`` to your Python path. ::
 
 $ add2virtualenv .
 
