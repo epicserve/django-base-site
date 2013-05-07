@@ -56,4 +56,5 @@ except NameError:
     try:
         from local_development import *
     except ImportError:
+        SECRET_KEY = '<replace-this-with-a-new-random-string-or-put-the-secret-key-in-local-settings>'
         pass
