@@ -1,4 +1,5 @@
-
+help:
+	-@echo "clean    Remove all unessary files"
 
 clean:
 	-python utils/create_local_settings_file.py
@@ -13,4 +14,3 @@ clean:
 	-rm -rf config/nginx/
 	-rm -rf config/upstart/
 	-rm -rf bin/
-	-rm Makefile
