@@ -22,7 +22,7 @@ $ pip install django
 
 Create your Django Base Site. The following will create a new project called "example". ::
 
-$ django-admin.py startproject example --template=https://github.com/epicserve/django-base-site/archive/master.zip
+$ django-admin.py startproject example --template=https://github.com/epicserve/django-base-site/archive/bootstrap_sass.zip
 
 Install the base requirements and development requirements. ::
 
