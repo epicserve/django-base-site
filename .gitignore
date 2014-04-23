@@ -1,4 +1,6 @@
 /docs/_build/
-/config/settings/local_development.py
 .vagrant
 docs/_static/default.css
+/.sass-cache
+/config/settings/local.py
+/static/cache
