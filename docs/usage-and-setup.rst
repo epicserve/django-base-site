@@ -37,6 +37,7 @@ Set your ``DJANGO_SETTINGS_MODULE`` environment variable (You'll need to do this
 
 $ export DJANGO_SETTINGS_MODULE=config.settings
 $ echo "export DJANGO_SETTINGS_MODULE=config.settings" >> "$VIRTUAL_ENV/bin/postactivate"
+$ echo "cdproject" >> "$VIRTUAL_ENV/bin/postactivate"
 $ echo `pwd` > "$VIRTUAL_ENV/.project"
 
 Remove all unnecessary example config and template files and create a `config/settings/local_development.py` settings file::
