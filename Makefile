@@ -2,8 +2,7 @@ help:
 	-@echo "clean    Remove all unessary files"
 
 clean:
-	-python utils/create_local_settings_file.py
-	-rm utils/create_local_settings_file.py
+	-mv config/settings/local.py.example config/settings/local.py
 	-rm -rf docs/
 	-rm readme.rst
 	-rm .gitignore

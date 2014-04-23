@@ -9,7 +9,7 @@ The Django Base Site contains a skeleton base site that can be used to jumpstart
 Setup Instructions
 ------------------
 
-Before you begin make sure you've setup and installed `Virtualenvwrapper <http://www.doughellmann.com/projects/virtualenvwrapper/>`_.
+Before you begin make sure you've setup and installed `Virtualenvwrapper <http://www.doughellmann.com/projects/virtualenvwrapper/>`_ and `SASS <http://sass-lang.com/install>`_.
 
 Create a directory for your new Django site. ::
 
@@ -17,7 +17,7 @@ $ cd ~/Sites
 
 In the same directory run the following command to setup a virtualenv for your new site. ::
 
-$ mkvirtualenv --no-site-packages --distribute example
+$ mkvirtualenv example
 $ pip install django
 
 Create your Django Base Site. The following will create a new project called "example". ::
@@ -35,7 +35,9 @@ $ add2virtualenv .
 
 Set your ``DJANGO_SETTINGS_MODULE`` environment variable (You'll need to do this everytime you work on this project). ::
 
-$ export DJANGO_SETTINGS_MODULE=config.settings.development
+$ export DJANGO_SETTINGS_MODULE=config.settings
+$ echo "export DJANGO_SETTINGS_MODULE=config.settings" >> "$VIRTUAL_ENV/bin/postactivate"
+$ echo `pwd` > "$VIRTUAL_ENV/.project"
 
 Remove all unnecessary example config and template files and create a `config/settings/local_development.py` settings file::
 
