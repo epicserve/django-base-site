@@ -35,15 +35,16 @@ $ add2virtualenv .
 
 Set your ``DJANGO_SETTINGS_MODULE`` environment variable (You'll need to do this everytime you work on this project). ::
 
-$ export DJANGO_SETTINGS_MODULE=config.settings.development
+$ export DJANGO_SETTINGS_MODULE=config.settings.dev
 
-Remove all unnecessary example config and template files and create a `config/settings/local_development.py` settings file::
+Remove all unnecessary example config and template files and create a `config/settings/local.py` settings file::
 
+$ python utils/create_local_settings_file.py
 $ make clean
 
 Setup your database::
 
-$ django-admin.py syncdb
+$ django-admin.py migrate
 
 At this point your base site should be setup and you can now run your dev server. ::
 
