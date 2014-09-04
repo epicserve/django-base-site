@@ -2,7 +2,7 @@ from django.conf import settings
 from django.template import Context, loader
 
 
-def server_error(request, template_name='500.html'):
+def server_error(request):
 
     "Always includes STATIC_URL"
     from django.http import HttpResponseServerError

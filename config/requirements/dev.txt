@@ -1,6 +1,6 @@
 -r base.txt
-docutils==0.10
-ipython==0.13.2
-ipdb==0.7
-django-debug-toolbar==0.9.4
-flake8==2.0
+docutils>=0.12,<0.2
+ipython>=2.2,<3.0
+ipdb>=0.8,<1.0
+BeautifulSoup>=3.2.0
+django-debug-toolbar>=1.2,<1.3

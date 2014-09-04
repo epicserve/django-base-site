@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+{% load compress %}
+<html lang="en">
+    <head>
+        <meta charset="utf-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        {% block title_tag %}<title>{% block title %}{% endblock %}{% if SITE_NAME %} - {{ SITE_NAME }}{% endif %}</title>{% endblock title_tag %}
+
+        {% block style %}
+        {% compress css %}
+        <link rel="stylesheet" href="{{ STATIC_URL }}css/base.css">
+        {% endcompress %}
+        {% endblock style %}
+
+        <!-- HTML5 Shim and Respond.js IE8 support of HTML5 elements and media queries -->
+        <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
+        <!--[if lt IE 9]>
+        <script src="https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
+        <script src="https://oss.maxcdn.com/libs/respond.js/1.4.2/respond.min.js"></script>
+        <![endif]-->
+
+        {% block script %}{% endblock script %}{% include "snippets/google-analytics.html" %}
+    </head>
+
+    <body{% block body_attr %} class="{% block body_class %}{% endblock %}" id="{% block body_id %}{% endblock %}"{% endblock %}>
+
+        {% block base_header %}
+        <header class="master">
+            <div class="navbar navbar-inverse navbar-fixed-top" role="navigation">
+
+                <div class="container">
+                    <div class="navbar-header">
+                        <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target=".navbar-collapse">
+                            <span class="sr-only">Toggle navigation</span>
+                            <span class="icon-bar"></span>
+                            <span class="icon-bar"></span>
+                            <span class="icon-bar"></span>
+                        </button>
+                        <a class="navbar-brand" href="/">{{ SITE_NAME }}</a>
+                    </div>
+
+                    <ul class="main nav navbar-nav">
+                        <li><a href="#">Home</a></li>
+                        <li><a href="#">About</a></li>
+                        <li><a href="#">Contact</a></li>
+                    </ul>
+
+                    <ul class="nav navbar-nav navbar-right">
+                        <li class="dropdown">
+                            <a href="#" class="dropdown-toggle" data-toggle="dropdown"><span class="glyphicon glyphicon-user"></span> {% firstof user.get_short_name user.get_username %} <b class="caret"></b></a>
+                            <ul class="dropdown-menu" role="menu">
+                                {% if user.is_staff %}<li><a href="{% url 'admin:index' %}">Administration</a></li>{% endif %}
+                                <li><a href="#">Sign Out</a></li>
+                            </ul>
+                        </li>
+                    </ul>
+                </div>
+
+            </div>
+        </header>
+
+        {% endblock base_header %}
+
+        {% block base_content %}
+        <div id="main-content" class="container">
+            {% block content %}
+            {% endblock %}
+        </div>
+        {% endblock %}
+
+        {% block base_footer %}
+        <div class="container">
+
+            <hr>
+            <footer>
+                <p>&copy; {{ SITE_NAME }} {% now "Y" %}</p>
+            </footer>
+
+        </div>
+        {% endblock base_footer %}
+
+        {% block bottom_script %}
+        <script src="http://ajax.googleapis.com/ajax/libs/jquery/2.1.1/jquery.min.js"></script>
+        <script src="{{ STATIC_URL }}bootstrap/js/bootstrap.min.js"></script>
+        {% endblock bottom_script %}
+
+    </body>
+</html>
