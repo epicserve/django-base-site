@@ -27,25 +27,25 @@ DEBUG_TOOLBAR_CONFIG = {
     'INTERCEPT_REDIRECTS': False,
 }
 
-# # Test settings
-# if 'test' in sys.argv:
-#
-#     SOUTH_TESTS_MIGRATE = False
-#     DATABASES['default'] = {
-#         'ENGINE': 'django.db.backends.sqlite3',
-#         'NAME': ':memory:'
-#     }
-#
-#     PASSWORD_HASHERS = (
-#         'django.contrib.auth.hashers.MD5PasswordHasher',
-#         'django.contrib.auth.hashers.SHA1PasswordHasher',
-#     )
-#
-# try:
-#     LOCAL_SETTINGS_LOADED
-# except NameError:
-#     try:
-#         from .local import *
-#     except ImportError:
-#         SECRET_KEY = '<replace-this-with-a-new-random-string-or-put-the-secret-key-in-local-settings>'
-#         pass
+# Test settings
+if 'test' in sys.argv:
+
+    SOUTH_TESTS_MIGRATE = False
+    DATABASES['default'] = {
+        'ENGINE': 'django.db.backends.sqlite3',
+        'NAME': ':memory:'
+    }
+
+    PASSWORD_HASHERS = (
+        'django.contrib.auth.hashers.MD5PasswordHasher',
+        'django.contrib.auth.hashers.SHA1PasswordHasher',
+    )
+
+try:
+    LOCAL_SETTINGS_LOADED
+except NameError:
+    try:
+        from .local import *
+    except ImportError:
+        SECRET_KEY = '<replace-this-with-a-new-random-string-or-put-the-secret-key-in-local-settings>'
+        pass
