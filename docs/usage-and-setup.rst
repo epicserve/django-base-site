@@ -29,13 +29,19 @@ Install the base requirements and development requirements. ::
 $ cd example
 $ pip install -r config/requirements/dev.txt
 
-Add the ``DJANGO_PROJECT_ROOT`` to your Python path. ::
+Add the project root to your Python path. ::
 
 $ add2virtualenv .
 
 Set your ``DJANGO_SETTINGS_MODULE`` environment variable (You'll need to do this everytime you work on this project). ::
 
 $ export DJANGO_SETTINGS_MODULE=config.settings.dev
+
+Setup your python virtual environment to load environment variables and switch you to the project root. ::
+
+$ echo `pwd` > $VIRTUAL_ENV/.project
+$ echo 'export DJANGO_SETTINGS_MODULE=config.settings.dev' >> $VIRTUAL_ENV/bin/postactivate
+$ echo 'cdproject' >> $VIRTUAL_ENV/bin/postactivate
 
 Remove all unnecessary example config and template files and create a `config/settings/local.py` settings file::
 
