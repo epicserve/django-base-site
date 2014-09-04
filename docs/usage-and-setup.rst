@@ -4,29 +4,31 @@ Usage and Setup Instructions
 Usage
 -----
 
+**Running the development server**
 
-Running the development server
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-After following the `Setup Instructions`_ you can work on your project again by doing the following.
+After following the `Setup Instructions`_ you can work on your project again by doing the following. ::
 
 $ workon example
 $ ./manage.py runserver
 
-Editing the SCSS/CSS
-~~~~~~~~~~~~~~~~~~~~
+
+**Editing the SCSS/CSS**
 
 First from the root of the project install compass and bootstrap-sass. This requires that your first install `bundler <http://bundler.io/>`_. ::
 
 $ bundler install
 
-Then you can run ``compass watch`` which watch for changes to your SCSS files (e.g. ``static/scss/base.scss``.
+Then you can run ``compass watch`` which will watch for changes to your SCSS files (e.g. ``static/scss/base.scss``). ::
 
 $ compass watch
 
 
 Setup Instructions
 ------------------
+
+.. note::
+
+    If you want to use Vagrant then use the :ref:`Vagrant Instructions <using-vagrant>`. Otherwise, continue with these instructions.
 
 Before you begin make sure you've setup and installed `Virtualenvwrapper <http://www.doughellmann.com/projects/virtualenvwrapper/>`_.
 

@@ -1,6 +1,16 @@
 Django Base Site
 ================
 
+Contents
+--------
+
+.. toctree::
+   :maxdepth: 1
+
+   usage-and-setup
+   vagrant
+   website-launch-checklist
+
 About
 -----
 
@@ -19,13 +29,6 @@ Features
 - `Twitter Bootstrap-SASS <https://github.com/twbs/bootstrap-sass>`_
 - `Vagrant Support <https://www.vagrantup.com/>`_
 - `Coverage <https://bitbucket.org/ned/coveragepy>`_
-
-.. toctree::
-   :maxdepth: 1
-
-   usage-and-setup
-   vagrant
-   website-launch-checklist
 
 Contribute
 ----------
