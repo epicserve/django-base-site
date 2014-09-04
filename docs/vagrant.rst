@@ -10,9 +10,10 @@ of course. Then you can do the following to get things running.
 
 ::
 
-    $ cd ~/Sites/
-    $ git clone git://github.com/epicserve/django-base-site.git example
-    $ cd example
+    $ TARGET_DIR=~/Sites/ BRANCH=master PROJECT_NAME=example
+    $ cd $TARGET_DIR
+    $ curl -L "https://github.com/epicserve/django-base-site/archive/$BRANCH.zip" | tar zx -C $TARGET_DIR && mv "django-base-site-$BRANCH" $PROJECT_NAME
+    $ cd $PROJECT_NAME
     $ vagrant up
 
 You should now have the django development server running in your Vagrant

@@ -13,18 +13,25 @@ sudo pip install -r config/requirements/dev.txt
 cat >> /home/vagrant/.bashrc << EOF
 
 alias drs='/vagrant/manage.py runserver 0.0.0.0:8000'
+alias d='/vagrant/manage.py'
 complete -cf sudo
+
+cd /vagrant
 
 echo ""
 echo "Commands:"
 echo "drs - Start Django's runserver"
+echo "d   - Alias to Django's manage.py"
 echo ""
 EOF
 
 # SETUP THE LOCAL SETTINGS FILE
 if [ ! -f /vagrant/config/settings/local.py ]; then
-    python utils/create_local_settings_file.py
+    python /vagrant/utils/create_local_settings_file.py
 fi
+
+d migrate
+make clean
 
 # Done
 echo '
