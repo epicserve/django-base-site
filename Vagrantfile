@@ -1,18 +1,20 @@
-Vagrant::Config.run do |config|
+# -*- mode: ruby -*-
+# vi: set ft=ruby :
 
-    # Setup the box
-    # Add the box with the following before running vagrant up
-    # vagrant box add lucid32 http://files.vagrantup.com/lucid32.box
-    config.vm.box = "lucid32"
+# Vagrantfile API/syntax version. Don't touch unless you know what you're doing!
+VAGRANTFILE_API_VERSION = "2"
 
-    config.vm.forward_port 8000, 8000
-    config.vm.customize do |vm|
-        vm.memory_size = 256
-    end
+Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
 
-    config.vm.provision :chef_solo do |chef|
-        chef.cookbooks_path = "config/chef/cookbooks"
-        chef.add_recipe("dev")
-    end
+  # If you haven't setup a vagrant box yet with the following base box it will
+  # download it from https://vagrantcloud.com/ubuntu/trusty64
+  config.vm.box = "ubuntu/trusty64"
+  config.vm.network "forwarded_port", guest: 8000, host: 8000
+  config.ssh.forward_agent = true
+  config.vm.provision "shell", path: "config/vagrant/base.sh"
+
+  config.vm.provider "virtualbox" do |v|
+    v.memory = 512
+  end
 
 end
