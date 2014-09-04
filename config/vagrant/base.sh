@@ -30,7 +30,7 @@ if [ ! -f /vagrant/config/settings/local.py ]; then
     python /vagrant/utils/create_local_settings_file.py
 fi
 
-d migrate
+/vagrant/manage.py migrate
 make clean
 
 # Done
