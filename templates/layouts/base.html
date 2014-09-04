@@ -47,6 +47,9 @@
                     </ul>
 
                     <ul class="nav navbar-nav navbar-right">
+                        {% if not user.is_authenticated %}
+                        <li><a href="#">Sign In</a></li>
+                        {% else %}
                         <li class="dropdown">
                             <a href="#" class="dropdown-toggle" data-toggle="dropdown"><span class="glyphicon glyphicon-user"></span> {% firstof user.get_short_name user.get_username %} <b class="caret"></b></a>
                             <ul class="dropdown-menu" role="menu">
@@ -54,6 +57,7 @@
                                 <li><a href="#">Sign Out</a></li>
                             </ul>
                         </li>
+                        {% endif %}
                     </ul>
                 </div>
 
