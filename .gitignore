@@ -2,3 +2,5 @@
 /config/settings/local.py
 .vagrant
 /.sass-cache
+/.coverage
+/htmlcov
