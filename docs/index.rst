@@ -10,6 +10,16 @@ he could use it personally to jumpstart any of his new Django projects. Please
 feel free to fork this project and adapt it to your own personal taste. To
 setup a new website just follow the :doc:`usage-and-setup`.
 
+Features
+--------
+
+- `Django Grappelli <https://github.com/sehmaschine/django-grappelli>`_
+- `Django Compressor <https://github.com/django-compressor/django-compressor>`_
+- `Django Debug Toolbar <https://github.com/django-compressor/django-compressor>`_
+- `Twitter Bootstrap-SASS <https://github.com/twbs/bootstrap-sass>`_
+- `Vagrant Support <https://www.vagrantup.com/>`_
+- `Coverage <https://bitbucket.org/ned/coveragepy>`_
+
 .. toctree::
    :maxdepth: 1
 

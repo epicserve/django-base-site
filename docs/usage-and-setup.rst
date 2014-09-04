@@ -4,7 +4,26 @@ Usage and Setup Instructions
 Usage
 -----
 
-The Django Base Site contains a skeleton base site that can be used to jumpstart any new Django site. Please feel free to fork this project and adapt it to your own personal taste. To setup a new website just follow the setup instructions bellow.
+
+Running the development server
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+After following the `Setup Instructions`_ you can work on your project again by doing the following.
+
+$ workon example
+$ ./manage.py runserver
+
+Editing the SCSS/CSS
+~~~~~~~~~~~~~~~~~~~~
+
+First from the root of the project install compass and bootstrap-sass. This requires that your first install `bundler <http://bundler.io/>`_. ::
+
+$ bundler install
+
+Then you can run ``compass watch`` which watch for changes to your SCSS files (e.g. ``static/scss/base.scss``.
+
+$ compass watch
+
 
 Setup Instructions
 ------------------
