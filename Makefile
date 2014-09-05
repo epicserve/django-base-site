@@ -7,7 +7,7 @@ help:
 	-@echo "test_report             Open the coverage report"
 
 
-clean: remove_pyc_files remove_coverage_data
+clean: remove_pyc_files remove_coverage_data remove_heroku
 	-@rm -f utils/create_local_settings_file.py
 	-@rm -rf docs/
 	-@rm -f readme.rst
@@ -20,6 +20,12 @@ clean: remove_pyc_files remove_coverage_data
 	-@rm -rf bin/
 	-@rm -rf htmlcov/
 	-@rm -f .coverage
+
+remove_heroku:
+	-@rm -f Profile
+	-@rm -f config/heroku_wsgi.py
+	-@rm -f config/requirements/heroku.txt
+	-@rm -f config/settings/heroku.py
 
 remove_pyc_files:
 	-@find . -name "*.pyc" -delete
