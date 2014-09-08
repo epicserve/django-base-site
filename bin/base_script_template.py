@@ -20,7 +20,9 @@ setup_environ(settings)
 # Import other needed modules for the script to run
 from django.core.mail import mail_admins
 from optparse import OptionParser
-import sys, logging, time
+import sys
+import logging
+import time
 
 
 def end_timer():
@@ -49,17 +51,17 @@ if __name__ == '__main__':
     usage = "usage: %prog [options]"
     parser = OptionParser(usage=usage)
     parser.add_option("-v", "--verbose",
-        action="store_true", dest="verbose", default=False,
-        help="Be verbose.")
+                      action="store_true", dest="verbose", default=False,
+                      help="Be verbose.")
     parser.add_option("-n", "--dry-run",
-        action="store_true", dest="dry_run", default=False,
-        help="don't copy any files or write anything to the database")
+                      action="store_true", dest="dry_run", default=False,
+                      help="don't copy any files or write anything to the database")
     parser.add_option("-d", "--debug",
-        action="store_true", dest="debug", default=False,
-        help="Print debug messages")
+                      action="store_true", dest="debug", default=False,
+                      help="Print debug messages")
     parser.add_option("-F", "--log-to-file",
-        action="store_true", dest="log_to_file", default=False,
-        help="Log messages to a log file.")
+                      action="store_true", dest="log_to_file", default=False,
+                      help="Log messages to a log file.")
     (options, args) = parser.parse_args()
 
     if options.log_to_file:

@@ -7,7 +7,8 @@
 
 import sys
 import re
-import subprocess, commands
+import subprocess
+import commands
 
 modified = re.compile('modified:\s+(?P<name>.*\.py)')
 new = re.compile('new file:\s+(?P<name>.*\.py)')

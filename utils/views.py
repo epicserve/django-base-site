@@ -3,7 +3,6 @@ from django.template import Context, loader
 
 
 def server_error(request):
-
     "Always includes STATIC_URL"
     from django.http import HttpResponseServerError
 
