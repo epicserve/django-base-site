@@ -22,4 +22,6 @@ urlpatterns += [
 # Project Urls
 urlpatterns += [
     url(r'^$', TemplateView.as_view(template_name='index.html')),
+    url(r'^accounts/login/$', 'django.contrib.auth.views.login', {'template_name': 'login.html'}, 'signin'),
+    url(r'^accounts/logout/$', 'django.contrib.auth.views.logout_then_login', name='signout'),
 ]

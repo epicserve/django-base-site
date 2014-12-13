@@ -104,5 +104,7 @@ STATICFILES_FINDERS = (
     'compressor.finders.CompressorFinder',
 )
 
+LOGIN_REDIRECT_URL = '/'
+
 SITE_NAME = 'Django Base Site'
 GRAPPELLI_ADMIN_TITLE = SITE_NAME
