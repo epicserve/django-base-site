@@ -11,8 +11,8 @@ Documentation
 
 Documentation is available at http://django-base-site.readthedocs.org/.
 
-Quick Start
-===========
+Quickstart
+==========
 
 ::
 
