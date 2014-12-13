@@ -69,6 +69,17 @@
 
         {% endblock base_header %}
 
+        {% block breadcrumb %}
+        {% endblock breadcrumb %}
+
+        {% if messages %}
+        <div id="flash-message-container" class="container">
+            {% for message in messages %}
+            <p class="alert alert-{{ message.tags }}">{{ message }}</p>
+            {% endfor %}
+        </div>
+        {% endif %}
+
         {% block base_content %}
         <div id="main-content" class="container">
             {% block content %}
