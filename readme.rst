@@ -10,3 +10,18 @@ Documentation
 =============
 
 Documentation is available at http://django-base-site.readthedocs.org/.
+
+Quick Start
+===========
+
+::
+
+$ curl -LOk https://github.com/epicserve/django-base-site/archive/master.zip && unzip master
+$ mv django-base-site-master example
+$ cd example
+$ virtualenv env
+$ source env/bin/activate
+$ pip install -r config/requirements/dev.txt
+$ ./manage.py migrate
+$ ./manage.py createsuperuser
+$ ./manage.py runserver
