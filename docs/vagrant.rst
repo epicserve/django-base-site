@@ -16,11 +16,16 @@ of course. Then you can do the following to get things running.
     $ cd $PROJECT_NAME
     $ vagrant up
 
-You should now have the django development server running in your Vagrant
-virtual machine. You can now open http://127.0.0.1:8000 in your local web
+After running ``vagrant up`` you'll need to wait (~5 minutes) while your new
+Vagrant box is provisioned.
+
+When it has finished provisioning your Vagrant box you should be able to run
+``vagrant ssh`` to ssh to your new box. From there you can run ``drs`` to start
+the Django runserver. You should now have the django development server running
+in your Vagrant box. You can now open http://127.0.0.1:8000 in your local web
 browser and you should be able to see the message, "You've successfully setup
 a Django base site. Start Coding!".
 
 Now you can just edit your ``django-base-site`` files locally in the ``~/Sites
 /example`` directory and Django's runserver that's running in the
-virtual machine will detect any changes that are made.
+Vagrant box will detect any changes that are made.
