@@ -7,7 +7,7 @@ Contents
 .. toctree::
    :maxdepth: 1
 
-   usage-and-setup
+   setup-and-usage
    vagrant
    website-launch-checklist
 
