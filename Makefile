@@ -26,6 +26,10 @@ lint:
 	-@echo "Checking code using flakes8 ..."
 	-@flake8 . --exclude=env/ --ignore=E501,F403
 
+lint_docs:
+	@echo "Check sphinx docs ..."
+	@cd docs && sphinx-build -nW -b json -d _build/doctrees . _build/json
+
 remove_coverage_data:
 	-@rm -f .coverage
 	-@rm -rf htmlcov
