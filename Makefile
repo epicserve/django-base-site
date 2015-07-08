@@ -1,6 +1,7 @@
 help:
 	@echo "clean                   Remove all unnecessary files"
 	@echo "lint                    Check code with pep8 and pyflakes"
+	@echo "lint_docs               Check docs"
 	@echo "remove_coverage_data    Remove coverage data"
 	@echo "remove_heroku           Remove heroku specific files"
 	@echo "remove_pyc_files        Remove *.pyc files"
