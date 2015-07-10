@@ -6,8 +6,8 @@ help:
 	@echo "remove_coverage_data    Remove coverage data"
 	@echo "remove_heroku           Remove heroku specific files"
 	@echo "remove_pyc_files        Remove *.pyc files"
+	@echo "run_sphinx_autobuild    Run Sphinx Autobuild"
 	@echo "test                    Run tests using coverage"
-
 
 clean: remove_pyc_files remove_coverage_data remove_heroku
 	-@rm -f utils/create_local_settings_file.py
@@ -46,6 +46,9 @@ remove_heroku:
 
 remove_pyc_files:
 	-@find . -name "*.pyc" -delete
+
+run_sphinx_autobuild:
+	@sphinx-autobuild docs docs/_build/html
 
 test:
 	@./manage.py test
