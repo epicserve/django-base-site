@@ -9,6 +9,7 @@ Contents
 
    setup-and-usage
    vagrant
+   pre-commit-hook
    website-launch-checklist
 
 About
