@@ -1,12 +1,12 @@
 help:
 	@echo "clean                   Remove all unnecessary files"
+	@echo "coverage                Run tests with coverage and open the coverage report"
 	@echo "lint                    Check code with pep8 and pyflakes"
 	@echo "lint_docs               Check docs"
 	@echo "remove_coverage_data    Remove coverage data"
 	@echo "remove_heroku           Remove heroku specific files"
 	@echo "remove_pyc_files        Remove *.pyc files"
 	@echo "test                    Run tests using coverage"
-	@echo "test_coverage           Open the coverage report"
 
 
 clean: remove_pyc_files remove_coverage_data remove_heroku
@@ -22,6 +22,9 @@ clean: remove_pyc_files remove_coverage_data remove_heroku
 	-@rm -rf bin/
 	-@rm -rf htmlcov/
 	-@rm -f .coverage
+
+coverage:
+	@coverage run manage.py test && coverage html && open htmlcov/index.html
 
 lint:
 	-@echo "Checking code using flakes8 ..."
@@ -46,6 +49,3 @@ remove_pyc_files:
 
 test:
 	@./manage.py test
-
-test_coverage:
-	@coverage run manage.py test && coverage html && open htmlcov/index.html
