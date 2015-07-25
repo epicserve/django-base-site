@@ -1,4 +1,4 @@
 django-grappelli>=2.6.1,<2.7
 Django>=1.8.3,<1.9
 django_compressor>=1.5,<1.6
-https://github.com/sehmaschine/django-grappelli/archive/dev/2.7.x.zip
+django-grappelli>=2.7.1,<2.8
