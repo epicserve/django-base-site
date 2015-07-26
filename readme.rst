@@ -25,3 +25,15 @@ $ pip install -r config/requirements/dev.txt
 $ ./manage.py migrate
 $ ./manage.py createsuperuser
 $ ./manage.py runserver
+
+
+Deploy on Heroku
+================
+
+$ heroku create
+$ heroku buildpacks:set https://github.com/heroku/heroku-buildpack-python
+$ heroku config:set DJANGO_SETTINGS_MODULE=config.settings.heroku
+$ heroku config:set SECRET_KEY='random string of 50 chars'
+$ git push heroku
+$ heroku run python manage.py migrate
+$ heroku run python manage.py createsuperuser
