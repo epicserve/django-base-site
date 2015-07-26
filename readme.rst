@@ -47,7 +47,7 @@ $ heroku open
 
 Add a site:
 
-*Note: The static assets won't show up until you deploy to Heroku a second time.*
+**Note: The admin static assets won't show up until you deploy to Heroku a second time. Not sure why. **
 
 * Go to /admin/sites/site/add/
 * Add your site
