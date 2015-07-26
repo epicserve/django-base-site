@@ -30,10 +30,25 @@ $ ./manage.py runserver
 Deploy on Heroku
 ================
 
+::
+
+$ git init
+$ git add .
+$ git commit
 $ heroku create
+$ heroku addons:create mailgun
 $ heroku buildpacks:set https://github.com/heroku/heroku-buildpack-python
 $ heroku config:set DJANGO_SETTINGS_MODULE=config.settings.heroku
 $ heroku config:set SECRET_KEY='random string of 50 chars'
-$ git push heroku
+$ git push --set-upstream heroku master
 $ heroku run python manage.py migrate
 $ heroku run python manage.py createsuperuser
+$ heroku open
+
+Add a site:
+
+*Note: The static assets won't show up until you deploy to Heroku a second time.*
+
+* Go to /admin/sites/site/add/
+* Add your site
+
