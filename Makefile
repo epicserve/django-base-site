@@ -43,6 +43,8 @@ remove_heroku:
 	-@rm -f config/heroku_wsgi.py
 	-@rm -f config/requirements/heroku.txt
 	-@rm -f config/settings/heroku.py
+	-@rm -f requirements.txt
+	-@rm -f runtime.txt
 
 remove_pyc_files:
 	-@find . -name "*.pyc" -delete
