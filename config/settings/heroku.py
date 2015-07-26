@@ -19,3 +19,10 @@ STATIC_ROOT = '/app/static'
 STATIC_URL = '/static/'
 
 SECRET_KEY = os.environ['SECRET_KEY']
+
+DEFAULT_FROM_EMAIL = os.environ['MAILGUN_SMTP_LOGIN']
+EMAIL_USE_TLS = True
+EMAIL_HOST = 'smtp.mailgun.org'
+EMAIL_HOST_USER = os.environ['MAILGUN_SMTP_LOGIN']
+EMAIL_HOST_PASSWORD = os.environ['MAILGUN_SMTP_PASSWORD']
+EMAIL_PORT = 587

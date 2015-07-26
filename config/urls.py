@@ -2,6 +2,7 @@ from django.conf.urls import include, url
 from django.views.generic import TemplateView
 from django.contrib import admin
 from django.conf import settings
+from utils.views import NameChange
 
 handler500 = 'utils.views.server_error'
 
@@ -22,6 +23,6 @@ urlpatterns += [
 # Project Urls
 urlpatterns += [
     url(r'^$', TemplateView.as_view(template_name='index.html')),
-    url(r'^accounts/login/$', 'django.contrib.auth.views.login', {'template_name': 'login.html'}, 'signin'),
-    url(r'^accounts/logout/$', 'django.contrib.auth.views.logout_then_login', name='signout'),
+    url(r'^accounts/name/$', NameChange.as_view(), name='account_change_name'),
+    url(r'^accounts/', include('allauth.urls')),
 ]

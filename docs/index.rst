@@ -24,12 +24,13 @@ setup a new website just follow the :doc:`setup-and-usage`.
 Features
 --------
 
-- `Django Grappelli <https://github.com/sehmaschine/django-grappelli>`_
+- `Coverage <https://bitbucket.org/ned/coveragepy>`_
 - `Django Compressor <https://github.com/django-compressor/django-compressor>`_
 - `Django Debug Toolbar <https://github.com/django-compressor/django-compressor>`_
+- `Django Grappelli <https://github.com/sehmaschine/django-grappelli>`_
+- `Django-allauth <http://www.intenct.nl/projects/django-allauth/>`_
 - `Twitter Bootstrap-SASS <https://github.com/twbs/bootstrap-sass>`_
 - `Vagrant Support <https://www.vagrantup.com/>`_
-- `Coverage <https://bitbucket.org/ned/coveragepy>`_
 
 Contribute
 ----------

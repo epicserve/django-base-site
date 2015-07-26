@@ -33,7 +33,11 @@ INSTALLED_APPS = (
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'django.contrib.sites',
+    'bootstrapform',
     'compressor',
+    'allauth',
+    'allauth.account',
 )
 
 TEMPLATE_DIRS = (
@@ -104,7 +108,13 @@ STATICFILES_FINDERS = (
     'compressor.finders.CompressorFinder',
 )
 
-LOGIN_REDIRECT_URL = '/'
-
+SITE_ID = 1
 SITE_NAME = 'Django Base Site'
 GRAPPELLI_ADMIN_TITLE = SITE_NAME
+
+# ALLAUTH SETTINGS
+LOGIN_REDIRECT_URL = '/'
+ACCOUNT_LOGOUT_ON_GET = True
+ACCOUNT_EMAIL_REQUIRED = True
+ACCOUNT_CONFIRM_EMAIL_ON_GET = True
+ACCOUNT_EMAIL_VERIFICATION = 'mandatory'

@@ -1,0 +1,15 @@
+{% extends "account/base.html" %}
+
+{% load bootstrap %}
+
+{% block head_title %}Name{% endblock %}
+
+{% block account_nav_name %}active{% endblock %}
+
+{% block account_content %}
+    <form action="" method="post">
+        {% csrf_token %}
+        {{ form|bootstrap }}
+        <button class="btn btn-primary">Save</button>
+    </form>
+{% endblock account_content %}
