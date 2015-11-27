@@ -62,10 +62,11 @@ $ ./manage.py runserver
 
 **Editing the SCSS/CSS**
 
-First from the root of the project install compass and bootstrap-sass. This requires that your first install `bundler <http://bundler.io/>`_. ::
+First from the root of the project install gulp and the node requirements. This requires that your first install `node <https://nodejs.org/en/>`_. ::
 
-$ bundler install
+$ npm install -g gulp
+$ npm install
 
-Then you can run ``compass watch`` which will watch for changes to your SCSS files (e.g. ``static/scss/base.scss``). ::
+Then you can run ``gulp`` which will watch for changes to your SCSS files (e.g. ``static/scss/base.scss``). ::
 
-$ compass watch
+$ gulp
