@@ -1,8 +1,8 @@
 .vagrant
 /.coverage
 /.env
-/.sass-cache
 /config/settings/local.py
 /docs/_build/
 /env
 /htmlcov
+/node_modules
