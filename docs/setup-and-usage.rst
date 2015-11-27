@@ -36,7 +36,7 @@ $ echo 'cdproject' >> $VIRTUAL_ENV/bin/postactivate
 
 Remove all unnecessary example config and template files and create a `config/settings/local.py` settings file::
 
-$ python utils/create_local_settings_file.py
+$ python config/create_local_settings_file.py
 $ make clean
 
 Setup your database::
