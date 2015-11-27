@@ -34,14 +34,11 @@ INSTALLED_APPS = (
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'django.contrib.sites',
+    'apps.base',
     'bootstrapform',
     'compressor',
     'allauth',
     'allauth.account',
-)
-
-TEMPLATE_DIRS = (
-    os.path.join(BASE_DIR, 'templates'),
 )
 
 TEMPLATE_CONTEXT_PROCESSORS = (
@@ -53,7 +50,7 @@ TEMPLATE_CONTEXT_PROCESSORS = (
     'django.core.context_processors.tz',
     'django.core.context_processors.request',
     'django.contrib.messages.context_processors.messages',
-    'utils.context_processors.site_name',
+    'apps.base.context_processors.site_name',
 )
 
 MIDDLEWARE_CLASSES = (

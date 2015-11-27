@@ -10,7 +10,7 @@ help:
 	@echo "test                    Run tests using coverage"
 
 clean: remove_pyc_files remove_coverage_data remove_heroku
-	-@rm -f utils/create_local_settings_file.py
+	-@rm -f config/create_local_settings_file.py
 	-@rm -rf docs/
 	-@rm -f readme.rst
 	-@rm -rf static/js/site_name/
