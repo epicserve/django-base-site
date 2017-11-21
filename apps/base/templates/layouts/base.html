@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-{% load compress %}
+{% load compress static %}
 <html lang="en">
     <head>
         <meta charset="utf-8">
@@ -9,7 +9,7 @@
 
         {% block style %}
         {% compress css %}
-        <link rel="stylesheet" href="{{ STATIC_URL }}css/base.min.css">
+        <link rel="stylesheet" href="{% static 'css/base.min.css' %}">
         {% endcompress %}
         {% endblock style %}
 
@@ -20,55 +20,52 @@
         <script src="//oss.maxcdn.com/libs/respond.js/1.4.2/respond.min.js"></script>
         <![endif]-->
 
-        {% block script %}{% endblock script %}{% include "snippets/google-analytics.html" %}
+        {% block script %}{% endblock script %}{% include "blocks/google-analytics.html" %}
     </head>
 
     <body{% block body_attr %} class="{% block body_class %}{% endblock %}" id="{% block body_id %}{% endblock %}"{% endblock %}>
 
         {% block base_header %}
-        <header class="master">
-            <nav class="navbar navbar-default navbar-static-top" role="navigation">
 
-                <div class="container">
-                    <div class="navbar-header">
-                        <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target=".navbar-collapse">
-                            <span class="sr-only">Toggle navigation</span>
-                            <span class="icon-bar"></span>
-                            <span class="icon-bar"></span>
-                            <span class="icon-bar"></span>
-                        </button>
-                        <a class="navbar-brand" href="/">{{ SITE_NAME }}</a>
-                    </div>
+            <div class="container">
+                <nav class="navbar navbar-expand-md navbar-light bg-faded">
 
-                    <div id="navbar" class="navbar-collapse collapse">
-                        {% block main_nav %}
-                        <ul class="main nav navbar-nav">
-                            <li><a href="#">Home</a></li>
-                            <li><a href="#">About</a></li>
-                            <li><a href="#">Contact</a></li>
-                        </ul>
-                        {% endblock %}
+                    <a class="navbar-brand" href="{% url 'site_index' %}">{{ SITE_NAME }}</a>
 
-                        <ul class="nav navbar-nav navbar-right">
-                            {% if not user.is_authenticated %}
-                            <li><a href="{% url 'account_login' %}">Sign In</a></li>
-                            {% else %}
-                            <li class="dropdown">
-                                <a href="#" class="dropdown-toggle" data-toggle="dropdown"><span class="glyphicon glyphicon-user"></span> {% firstof user.get_short_name user.get_username %} <b class="caret"></b></a>
-                                <ul class="dropdown-menu" role="menu">
-                                    <li><a href="{% url 'account_change_name' %}">Account Settings</a></li>
-                                    {% if user.is_staff %}<li><a href="{% url 'admin:index' %}">Administration</a></li>{% endif %}
-                                    <li><a href="{% url 'account_logout' %}">Sign Out</a></li>
-                                </ul>
+                    <button class="navbar-toggler navbar-toggler-right" type="button" data-toggle="collapse" data-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+                        <span class="navbar-toggler-icon"></span>
+                    </button>
+
+                    <div class="collapse navbar-collapse" id="navbarNav">
+                        <ul class="navbar-nav mr-auto">
+                            <li class="nav-item active">
+                                <a class="nav-link" href="{% url 'site_index' %}">Home <span class="sr-only">(current)</span></a>
                             </li>
+                            <li class="nav-item">
+                                <a class="nav-link" href="#">About</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link" href="#">Contact</a>
+                            </li>
+                        </ul>
+
+                        <ul class="nav navbar-nav">
+                            {% if not user.is_authenticated %}
+                                <li><a href="{% url 'account_login' %}">Sign In</a></li>
+                            {% else %}
+                                <li class="nav-item dropdown">
+                                    <a href="#" class="dropdown-toggle" data-toggle="dropdown"><span class="glyphicon glyphicon-user"></span> {% firstof user.get_short_name user.get_username %} <b class="caret"></b></a>
+                                    <ul class="dropdown-menu">
+                                        <li class="dropdown-item"><a href="{% url 'account_change_name' %}">Account Settings</a></li>
+                                        {% if user.is_staff %}<li class="dropdown-item"><a href="{% url 'admin:index' %}">Administration</a></li>{% endif %}
+                                        <li class="dropdown-item"><a href="{% url 'account_logout' %}">Sign Out</a></li>
+                                    </ul>
+                                </li>
                             {% endif %}
                         </ul>
                     </div>
-
-                </div>
-
-            </nav>
-        </header>
+                </nav>
+            </div>
 
         {% endblock base_header %}
 
@@ -86,9 +83,9 @@
         {% block base_content %}
         <div id="main-content" class="container">
             {% block content %}
-            {% endblock %}
+            {% endblock content %}
         </div>
-        {% endblock %}
+        {% endblock base_content %}
 
         {% block base_footer %}
         <div class="container">
@@ -102,8 +99,7 @@
         {% endblock base_footer %}
 
         {% block bottom_script %}
-        <script src="//ajax.googleapis.com/ajax/libs/jquery/2.1.1/jquery.min.js"></script>
-        <script src="{{ STATIC_URL }}bootstrap/js/bootstrap.min.js"></script>
+            <script src="{% static 'js/base.js' %}"></script>
         {% endblock bottom_script %}
 
     </body>

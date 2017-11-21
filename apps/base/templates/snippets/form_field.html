@@ -1,4 +1,0 @@
-{{ field.errors }}
-<div id="{{ field.label|slugify }}-wrap" class="input-row{% if field.errors %} errors{% endif %}">
-    <label for="{{ field.label }}" />{{ field.label }}{% if field.field.required %}<span class="required"> *</span>{% endif %}</label>{{ field }}{% if field.help_text %}<span class="helptext">{{ field.help_text }}</span>{% endif %}
-</div>

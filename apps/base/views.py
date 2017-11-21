@@ -1,9 +1,10 @@
 from django.conf import settings
-from django.contrib.auth.models import User
 from django.contrib import messages
+from django.contrib.auth.models import User
 from django.core.urlresolvers import reverse
 from django.template import Context, loader
 from django.views import generic
+
 from .forms import NameForm
 
 
@@ -35,3 +36,7 @@ def server_error(request):
     t = loader.select_template([program_500_template, '500.html'])
 
     return HttpResponseServerError(t.render(Context({'STATIC_URL': settings.MEDIA_URL})))
+
+
+class IndexView(generic.TemplateView):
+    template_name = 'index.html'

@@ -26,9 +26,22 @@ clean: remove_pyc_files remove_coverage_data remove_heroku
 coverage:
 	@coverage run manage.py test && coverage html && open htmlcov/index.html
 
-lint:
-	-@echo "Checking code using flakes8 ..."
-	-@flake8 . --exclude=env/ --ignore=E501,F403
+lint_py:
+	@echo "Checking code using flake8 ..."
+	@flake8
+
+lint_js:
+	@echo "Checking Javascript code using jshint ..."
+	@jshint ./src/js/
+
+lint_imports:
+	@echo "Checking python imports ..."
+	@isort --recursive --check-only --diff .
+
+lint: lint_js lint_py lint_imports
+
+fix_py_imports:
+	@isort --recursive .
 
 lint_docs:
 	@echo "Check sphinx docs ..."
