@@ -15,6 +15,7 @@ django-debug-toolbar = "<1.10,>=1.9.1"
 coverage = "<4.5,>=4.4.2"
 sphinx-autobuild = "<0.8,>=0.7.1"
 sphinx-rtd-theme = "<0.3,>=0.2.4"
+"fabric3" = "<1.14,>=1.13.1.post1"
 
 
 [packages]
