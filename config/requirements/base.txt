@@ -1,5 +1,0 @@
-django-allauth>=0.26.0,<0.27
-django-bootstrap-form>=3.2,<3.3
-django-grappelli>=2.8.1,<2.9
-Django>=1.9.8,<1.10
-django_compressor>=2.0,<2.1

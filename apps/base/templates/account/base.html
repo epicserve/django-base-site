@@ -9,18 +9,18 @@
 <h1>{% trans 'Account Settings' %}</h1>
 
 <ul class="nav nav-tabs" style="margin-bottom: 20px;">
-  <li class="{% block account_nav_name %}{% endblock %}">
+  <li class="nav-link {% block account_nav_name %}{% endblock %}">
       <a href="{% url 'account_change_name' %}">Name</a>
   </li>
-  <li class="{% block account_nav_email %}{% endblock %}">
+  <li class="nav-link {% block account_nav_email %}{% endblock %}">
     <a href="{% url 'account_email' %}">{% trans 'E-mail Addresses' %}</a>
   </li>
-  <li class="{% block account_nav_change_password %}{% endblock %}">
+  <li class="nav-link {% block account_nav_change_password %}{% endblock %}">
     <a href="{% url 'account_change_password' %}">{% trans 'Change Password' %}</a>
   </li>
   {% url 'socialaccount_connections' as connections_url %}
   {% if connections_url %}
-  <li class="{% block account_nav_socialaccount_connections %}{% endblock %}">
+  <li class="nav-link {% block account_nav_socialaccount_connections %}{% endblock %}">
     <a href="{{ connections_url}}">{% trans 'Connected Accounts' %}</a>
   </li>
   {% endif %}

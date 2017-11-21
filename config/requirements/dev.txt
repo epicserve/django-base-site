@@ -1,8 +1,0 @@
--r base.txt
-coverage>=4.1,<4.2
-django-debug-toolbar>=1.5,<1.6
-flake8>=2.6.2,<2.7
-ipdb>=0.10.1,<1.0
-ipython>=5.0.0,<5.1
-sphinx-autobuild>=0.6.0,<0.7
-sphinx-rtd-theme>=0.1.8,<0.2

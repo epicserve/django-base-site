@@ -1,1 +1,0 @@
-0/5   *  *   *   *   root   sudo -u deploy -i source /usr/local/virtualenvs/example/bin/activate && DJANGO_SETTINGS_MODULE=config.settings && /usr/local/virtualenvs/example/bin/django-admin.py example_task

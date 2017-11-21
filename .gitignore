@@ -1,8 +1,6 @@
-.vagrant
 /.coverage
 /.env
-/config/settings/local.py
+/db.sqlite
 /docs/_build/
-/env
 /htmlcov
 /node_modules
