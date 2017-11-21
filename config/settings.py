@@ -1,12 +1,14 @@
-import os
+from pathlib import Path
 
 import environ
 
 root = environ.Path(__file__) - 2  # three folder back (/a/b/c/ - 3 = /)
-env = environ.Env(DEBUG=(bool, False),)  # set default values and casting
-environ.Env.read_env(os.path.join(root(), '.env'))  # reading .env file
 
-SITE_ROOT = root()
+BASE_DIR = Path(root())
+
+env = environ.Env()
+environ.Env.read_env(str(BASE_DIR.joinpath('.env')))  # reading .env file
+
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/1.11/howto/deployment/checklist/
@@ -15,11 +17,10 @@ SITE_ROOT = root()
 SECRET_KEY = env('SECRET_KEY')
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = env('DEBUG')
+DEBUG = env.bool('DEBUG', default=False)
 
-ALLOWED_HOSTS = []
-
-INTERNAL_IPS = ['127.0.0.1']
+ALLOWED_HOSTS = env.list('ALLOWED_HOSTS', default=[])
+INTERNAL_IPS = env.list('INTERNAL_IPS', default=['127.0.0.1'])
 
 # Application definition
 
@@ -75,7 +76,7 @@ WSGI_APPLICATION = 'config.wsgi.application'
 
 
 DATABASES = {
-    'default': env.db(default='sqlite:///{}'.format(root('db.sqlite'))),
+    'default': env.db(default='sqlite:///{0}'.format(BASE_DIR.joinpath('db.sqlite'))),
 }
 
 # Password validation
@@ -114,11 +115,11 @@ USE_TZ = True
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/1.11/howto/static-files/
 
-public_root = root.path('public/')
+public_root = BASE_DIR.joinpath('public')
 
-MEDIA_ROOT = public_root('media')
+MEDIA_ROOT = str(public_root.joinpath('media'))
 MEDIA_URL = '/public/media/'
-STATIC_ROOT = public_root('static')
+STATIC_ROOT = str(public_root.joinpath('static'))
 STATIC_URL = '/public/static/'
 
 STATICFILES_FINDERS = (
@@ -152,5 +153,5 @@ ACCOUNT_EMAIL_VERIFICATION = 'mandatory'
 EMAIL_HOST = env('EMAIL_HOST', default='smtp.gmail.com')
 EMAIL_HOST_USER = env('EMAIL_HOST_USER')
 EMAIL_HOST_PASSWORD = env('EMAIL_HOST_PASSWORD')
-EMAIL_PORT = env('EMAIL_PORT', cast=int, default=587)
-EMAIL_USE_TLS = env('EMAIL_USE_TLS', cast=bool, default=True)
+EMAIL_PORT = env.int('EMAIL_PORT', default=587)
+EMAIL_USE_TLS = env.bool('EMAIL_USE_TLS', default=True)
