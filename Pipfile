@@ -28,6 +28,9 @@ django-compressor = "<2.3,>=2.2"
 django-environ = "<0.5,>=0.4.4"
 gunicorn = "<19.8,>=19.7.1"
 
+# heroku packages
+dj-static = "<0.1,>=0.0.6"
+
 
 [requires]
 
