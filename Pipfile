@@ -7,24 +7,25 @@ url = "https://pypi.python.org/simple"
 
 [dev-packages]
 
-isort = "<4.3,>=4.2.15"
-ipdb = "<0.11,>=0.10.3"
-ipython = "<6.3,>=6.2.1"
-django-debug-toolbar = "<1.10,>=1.9.1"
+"fabric3" = "<1.14,>=1.13.1.post1"
 "flake8" = "<3.6,>=3.5.0"
 coverage = "<4.5,>=4.4.2"
+django-debug-toolbar = "<1.10,>=1.9.1"
+ipdb = "<0.11,>=0.10.3"
+ipython = "<6.3,>=6.2.1"
+isort = "<4.3,>=4.2.15"
 sphinx-autobuild = "<0.8,>=0.7.1"
 sphinx-rtd-theme = "<0.3,>=0.2.4"
-"fabric3" = "<1.14,>=1.13.1.post1"
 
 
 [packages]
 
+"psycopg2" = "<2.8,>=2.7.3.2"
 django = "<1.12,>=1.11.6"
-django-environ = "<0.5,>=0.4.4"
-django-compressor = "<2.3,>=2.2"
 django-allauth = "<0.35,>=0.34.0"
 django-bootstrap-form = "<3.4,>=3.3"
+django-compressor = "<2.3,>=2.2"
+django-environ = "<0.5,>=0.4.4"
 
 
 [requires]
