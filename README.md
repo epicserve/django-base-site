@@ -19,9 +19,17 @@ Quickstart
     $ curl -LOk https://github.com/epicserve/django-base-site/archive/master.zip && unzip master
     $ mv django-base-site-master example
     $ cd example
-    $ virtualenv --python=python3 env
-    $ source env/bin/activate
-    $ pip install -r config/requirements/dev.txt
+    $ pipenv install --dev --python $(which python3)
+    $ export SECRET_KEY=$(python -c "import random; print(''.join(random.SystemRandom().choice('abcdefghijklmnopqrstuvwxyz0123456789%^&*(-_=+)') for i in range(50)))")
+    $ cat > .env <<EOF
+    DEBUG=on
+    SECRET_KEY='$SECRET_KEY'
+    EMAIL_HOST='smtp.planetspaceball.com'
+    EMAIL_HOST_USER='skroob@planetspaceball.com'
+    EMAIL_HOST_PASSWORD='12345'
+    DEFAULT_FROM_EMAIL="President Skroob <skroob@planetspaceball.com>"
+    EOF
+    $ pipenv shell
     $ ./manage.py migrate
     $ ./manage.py createsuperuser
     $ ./manage.py runserver
