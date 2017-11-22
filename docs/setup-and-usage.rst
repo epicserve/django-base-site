@@ -8,45 +8,57 @@ Setup Instructions
 
     If you want to use Vagrant then use the :ref:`Vagrant Instructions <using-vagrant>`. Otherwise, continue with these instructions.
 
-Before you begin make sure you've setup and installed `Virtualenvwrapper <http://www.doughellmann.com/projects/virtualenvwrapper/>`_.
+Before you begin make sure you've setup and installed `Pipenv <https://docs.pipenv.org/>`_ and `Virtualenvwrapper <https://virtualenvwrapper.readthedocs.io/en/latest/>`_. You can use the Django base site without Virtualenvwrapper however you won't be able to use the ``workon`` command.
 
-Change the directory to where you want keep your django projects. ::
+Change the directory to where you want keep your django projects.
 
-$ cd ~/Sites
+.. code-block:: bash
 
-In the same directory run the following command to setup a virtualenv for your new site. ::
+    $ cd ~/Sites
 
-$ BRANCH=master PROJECT_NAME=example
-$ mkvirtualenv --no-site-packages --distribute $PROJECT_NAME
-$ pip install django
+In the same directory run the following commands to download the template.
 
-Create your Django Base Site. The following will create a new project called "$PROJECT_NAME". ::
+.. code-block:: bash
 
-$ django-admin.py startproject $PROJECT_NAME --template=https://github.com/epicserve/django-base-site/archive/$BRANCH.zip
+    $ export PROJECT_NAME=example
+    $ curl -LOk https://github.com/epicserve/django-base-site/archive/master.zip && unzip master
+    $ mv django-base-site-master $PROJECT_NAME
+    $ cd $PROJECT_NAME
 
-Install the base requirements and development requirements. ::
+Setup your virtualenv with pipenv and install the project requirements.
 
-$ cd $PROJECT_NAME
-$ pip install -r config/requirements/dev.txt
+.. code-block:: bash
 
-Setup your python virtual environment to load environment variables and switch you to the project root. ::
+    $ pipenv install --dev --python $(which python3)
+    $ export SECRET_KEY=$(python -c "import random; print(''.join(random.SystemRandom().choice('abcdefghijklmnopqrstuvwxyz0123456789%^&*(-_=+)') for i in range(50)))")
+    $ cat > .env <<EOF
+    DEBUG=on
+    SECRET_KEY='$SECRET_KEY'
+    EMAIL_HOST='smtp.planetspaceball.com'
+    EMAIL_HOST_USER='skroob@planetspaceball.com'
+    EMAIL_HOST_PASSWORD='12345'
+    DEFAULT_FROM_EMAIL="President Skroob <skroob@planetspaceball.com>"
+    EOF
+    $ pipenv shell
 
-$ echo `pwd` > $VIRTUAL_ENV/.project
-$ echo 'cdproject' >> $VIRTUAL_ENV/bin/postactivate
+Remove all unnecessary example configs and template files.
 
-Remove all unnecessary example config and template files and create a `config/settings/local.py` settings file::
+.. code-block:: bash
 
-$ python config/create_local_settings_file.py
-$ make clean
+    $ make clean
 
-Setup your database::
+Setup your database:
 
-$ chmod +x manage.py
-$ ./manage.py migrate
+.. code-block:: bash
 
-At this point your base site should be setup and you can now run your dev server. ::
+    $ chmod +x manage.py
+    $ ./manage.py migrate
 
-$ ./manage.py runserver
+At this point your base site should be setup and you can now run your dev server.
+
+.. code-block:: bash
+
+    $ ./manage.py runserver
 
 
 Usage
@@ -54,19 +66,25 @@ Usage
 
 **Running the development server**
 
-After following the `Setup Instructions`_ you can work on your project again by doing the following. ::
+After following the `Setup Instructions`_ you can work on your project again by doing the following.
 
-$ workon example
-$ ./manage.py runserver
+.. code-block:: bash
+
+    $ workon example
+    $ ./manage.py runserver
 
 
-**Editing the SCSS/CSS**
+**How to edit and build the SCSS and Javascript source files:**
 
-First from the root of the project install gulp and the node requirements. This requires that your first install `node <https://nodejs.org/en/>`_. ::
+First from the root of the project install gulp and the node requirements. This requires that your first install `node <https://nodejs.org/en/>`_.
 
-$ npm install -g gulp
-$ npm install
+.. code-block:: bash
 
-Then you can run ``gulp`` which will watch for changes to your SCSS files (e.g. ``static/scss/base.scss``). ::
+    $ npm install -g gulp
+    $ npm install
 
-$ gulp
+Then you can run ``gulp`` which will watch for changes to your SCSS and Javascript files changes in the ``./src`` directory.
+
+.. code-block:: bash
+
+    $ gulp

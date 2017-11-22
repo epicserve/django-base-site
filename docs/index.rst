@@ -24,21 +24,20 @@ setup a new website just follow the :doc:`setup-and-usage`.
 Features
 --------
 
+- `Bootstrap 4 <https://getbootstrap.com/>`_
 - `Coverage <https://bitbucket.org/ned/coveragepy>`_
 - `Django Compressor <https://github.com/django-compressor/django-compressor>`_
 - `Django Debug Toolbar <https://github.com/django-compressor/django-compressor>`_
-- `Django Grappelli <https://github.com/sehmaschine/django-grappelli>`_
 - `Django-allauth <http://www.intenct.nl/projects/django-allauth/>`_
-- `Twitter Bootstrap-SASS <https://github.com/twbs/bootstrap-sass>`_
+- `Django-environ <https://django-environ.readthedocs.io/en/latest/>`_ for `12factor <https://www.12factor.net/>`_ inspired environment variables.
+- `Gulp <http://#>`_ for building SASS and JS with `Browserify <http://browserify.org/>`_ and `Babel <https://babeljs.io/>`_
 - `Vagrant Support <https://www.vagrantup.com/>`_
 
 Contribute
 ----------
 
-1. Look for an open `issue <https://github.com/epicserve/django-base-site/issues>`_ or create new issue to get a dialog going about the new feature or bug that you've descovered.
+#. Look for an open `issue <https://github.com/epicserve/django-base-site/issues>`_ or create new issue to get a dialog going about the new feature or bug that you've discovered.
 
-2. Fork the `repository <https://github.com/epicserve/django-base-site>`_ on Github to start making your changes to the master branch (or branch off of it).
+#. Fork the `repository <https://github.com/epicserve/django-base-site>`_ on Github to start making your changes to the master branch (or branch off of it).
 
-3. Write a test which shows that the bug was fixed or that the feature works as expected.
-
-4. Make a pull request.
+#. Make a pull request.
