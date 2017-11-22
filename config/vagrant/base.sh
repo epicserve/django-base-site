@@ -6,8 +6,9 @@ cd /vagrant
 # INSTALL APT PACKAGES
 sudo aptitude -y update
 sudo aptitude -y upgrade
-sudo aptitude install -y git python-pip python-dev libmysqlclient-dev htop
-sudo pip install -r config/requirements/dev.txt
+sudo aptitude install -y git python-pip python-dev python3-dev libmysqlclient-dev htop
+sudo pip install pipenv
+sudo pipenv install --dev --python 3.4.3
 
 # CUSTOMIZE THE PROFILE
 cat >> /home/vagrant/.bashrc << EOF
@@ -25,9 +26,17 @@ echo "d   - Alias to Django's manage.py"
 echo ""
 EOF
 
-# SETUP THE LOCAL SETTINGS FILE
-if [ ! -f /vagrant/config/settings/local.py ]; then
-    python /vagrant/config/create_local_settings_file.py
+# SETUP THE LOCAL .env file
+if [ ! -f /vagrant/.env ]; then
+
+cat >> /vagrant/.env << EOF
+
+DEBUG=on
+SECRET_KEY='change-this-string-to-something-random'
+EMAIL_HOST_USER='epicserve@gmail.com'
+DEFAULT_FROM_EMAIL=$EMAIL_HOST_USER
+EOF
+
 fi
 
 # SETUP THE DB
