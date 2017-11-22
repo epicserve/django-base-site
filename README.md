@@ -35,17 +35,19 @@ Deploy on Heroku
     $ git commit
     $ heroku create
     $ heroku addons:create mailgun
-    $ heroku buildpacks:set https://github.com/heroku/heroku-buildpack-python
-    $ heroku config:set DJANGO_SETTINGS_MODULE=config.settings.heroku
+    $ heroku config:set DJANGO_SETTINGS_MODULE=config.settings
+    $ heroku config:set WSGI_APPLICATION=config.heroku_wsgi.application
     $ heroku config:set SECRET_KEY='random string of 50 chars'
+    $ heroku config:set DEFAULT_FROM_EMAIL='$MAILGUN_SMTP_LOGIN'
+    $ heroku config:set EMAIL_HOST='$MAILGUN_SMTP_SERVER'
+    $ heroku config:set EMAIL_HOST_USER='$MAILGUN_SMTP_LOGIN'
+    $ heroku config:set EMAIL_HOST_PASSWORD='$MAILGUN_SMTP_PASSWORD'
+    $ heroku config:set ALLOWED_HOSTS='*'
     $ git push --set-upstream heroku master
     $ heroku run python manage.py migrate
     $ heroku run python manage.py createsuperuser
     $ heroku open
 
-Add a site:
-
-**Note:** The admin static assets won't show up until you deploy to Heroku a second time. Not sure why.
-
-* Go to /admin/sites/site/add/
-* Add your site
+**Note:**
+Before you'll be able to send email using Mailgun you'll have to setup
+your Heroku app on a custom domain under Heroku and Mailgun.
