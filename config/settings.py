@@ -68,7 +68,7 @@ TEMPLATES = [
     },
 ]
 
-WSGI_APPLICATION = 'config.wsgi.application'
+WSGI_APPLICATION = env('WSGI_APPLICATION', default='config.wsgi.application')
 
 
 # Database
