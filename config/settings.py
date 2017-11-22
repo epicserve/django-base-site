@@ -150,6 +150,7 @@ ACCOUNT_EMAIL_VERIFICATION = 'mandatory'
 # site. Uncomment the following and change the username and password to
 # whatever they are for your Gmail account. Make sure don't use Gmail for
 # sending email on a production website.
+DEFAULT_FROM_EMAIL = env('DEFAULT_FROM_EMAIL')
 EMAIL_HOST = env('EMAIL_HOST', default='smtp.gmail.com')
 EMAIL_HOST_USER = env('EMAIL_HOST_USER')
 EMAIL_HOST_PASSWORD = env('EMAIL_HOST_PASSWORD')
