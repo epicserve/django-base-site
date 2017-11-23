@@ -12,6 +12,13 @@ Documentation
 
 Documentation is available at [http://django-base-site.readthedocs.org/](http://django-base-site.readthedocs.org/).
 
+One-liner Quickstart
+--------------------
+
+Running the following script does the same thing as quickstart guide.
+
+    $ bash <(curl -s https://raw.githubusercontent.com/epicserve/django-base-site/master/start_new_site.sh)
+
 
 Quickstart
 ----------

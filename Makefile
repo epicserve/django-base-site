@@ -19,6 +19,7 @@ clean: remove_pyc_files remove_coverage_data remove_heroku
 	-@rm -rf config/upstart/
 	-@rm -rf htmlcov/
 	-@rm -f .coverage
+	-@rm -r start_new_site.sh
 
 coverage:
 	@coverage run manage.py test && coverage html && open htmlcov/index.html
