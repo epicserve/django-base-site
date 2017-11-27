@@ -12,6 +12,32 @@ Documentation
 
 Documentation is available at [http://django-base-site.readthedocs.org/](http://django-base-site.readthedocs.org/).
 
+Features
+--------
+
+- [Bootstrap 4](https://getbootstrap.com/)
+- [Coverage](https://bitbucket.org/ned/coveragepy)
+- [Django Compressor](https://github.com/django-compressor/django-compressor)
+- [Django Debug Toolbar](https://github.com/django-compressor/django-compressor)
+- [Django-allauth](http://www.intenct.nl/projects/django-allauth/)
+- [Django-environ](https://django-environ.readthedocs.io/en/latest/) for [12factor](https://www.12factor.net/) inspired environment variables
+- [Gulp](https://gulpjs.com/) for building SASS and JS with [Browserify](http://browserify.org/) for requiring modules and [Babel](https://babeljs.io/) for transpiling ES6/ES2015.
+- [Pipenv](https://github.com/kennethreitz/pipenv)
+- [Vagrant Support](https://www.vagrantup.com/)
+- Sample configs for [Apache](https://github.com/epicserve/django-base-site/tree/master/config/apache), [Gunicorn](https://github.com/epicserve/django-base-site/tree/master/config/gunicorn), [Nginx](https://github.com/epicserve/django-base-site/tree/master/config/nginx) and [Upstart](https://github.com/epicserve/django-base-site/tree/master/config/upstart)
+
+Install Requirements
+--------------------
+
+Before setting up a new project make sure you have the following installed:
+
+* Python 3.5 or newer 
+* [Pipenv](https://github.com/kennethreitz/pipenv)
+* [virtualenv](https://github.com/pypa/virtualenv)
+
+It's not a requirement, but it is recommended that you install Python using [Pyenv](https://github.com/pyenv/pyenv) with the [virtualenvwrapper](https://github.com/pyenv/pyenv-virtualenvwrapper) plugin. 
+
+
 One-liner Quickstart
 --------------------
 
