@@ -17,6 +17,7 @@ Features
 
 - [Bootstrap 4](https://getbootstrap.com/)
 - [Coverage](https://bitbucket.org/ned/coveragepy)
+- [Django 1.11](https://www.djangoproject.com/)
 - [Django Compressor](https://github.com/django-compressor/django-compressor)
 - [Django Debug Toolbar](https://github.com/django-compressor/django-compressor)
 - [Django-allauth](http://www.intenct.nl/projects/django-allauth/)
