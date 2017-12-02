@@ -10,7 +10,7 @@ help:
 	@echo "run_sphinx_autobuild    Run Sphinx Autobuild"
 	@echo "test                    Run tests using coverage"
 
-clean: remove_pyc_files remove_coverage_data
+clean: remove_py_cache_files remove_coverage_data
 	-@rm -rf docs/
 	-@rm -f README.md
 	-@rm -rf config/apache/
