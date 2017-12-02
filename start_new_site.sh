@@ -50,6 +50,8 @@ To start the Django runserver in your new project:
 $ cd $PROJECT_DIRECTORY
 $ pipenv shell
 $ ./manage.py runserver
+
+If you don't plan on using Heroku for deployment, you can run 'make remove_heroku' to remove Heroku config files.
 "
 
 make clean

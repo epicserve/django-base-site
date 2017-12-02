@@ -1,24 +1,22 @@
 help:
 	@echo "clean                   Remove all unnecessary files"
 	@echo "coverage                Run tests with coverage and open the coverage report"
+	@echo "fix_py_imports          Update the imports so they pass linting"
 	@echo "lint                    Check code with pep8 and pyflakes"
 	@echo "lint_docs               Check docs"
 	@echo "remove_coverage_data    Remove coverage data"
 	@echo "remove_heroku           Remove heroku specific files"
-	@echo "remove_pyc_files        Remove *.pyc files"
+	@echo "remove_py_cache_files   Remove python cache files"
 	@echo "run_sphinx_autobuild    Run Sphinx Autobuild"
 	@echo "test                    Run tests using coverage"
 
-clean: remove_pyc_files remove_coverage_data remove_heroku
+clean: remove_pyc_files remove_coverage_data
 	-@rm -rf docs/
-	-@rm -f readme.rst
+	-@rm -f README.md
 	-@rm -rf config/apache/
-	-@rm -rf config/cron/
 	-@rm -rf config/gunicorn/
 	-@rm -rf config/nginx/
 	-@rm -rf config/upstart/
-	-@rm -rf htmlcov/
-	-@rm -f .coverage
 	-@rm -r start_new_site.sh
 
 coverage:
@@ -50,14 +48,12 @@ remove_coverage_data:
 	-@rm -rf htmlcov
 
 remove_heroku:
-	-@rm -f Profile
+	-@rm -f Procfile
 	-@rm -f config/heroku_wsgi.py
-	-@rm -f config/requirements/heroku.txt
-	-@rm -f config/settings/heroku.py
-	-@rm -f requirements.txt
 	-@rm -f runtime.txt
 
-remove_pyc_files:
+remove_py_cache_files:
+	-@rm -r `find . -name '__pycache__' -type d`
 	-@find . -name "*.pyc" -delete
 
 run_sphinx_autobuild:
