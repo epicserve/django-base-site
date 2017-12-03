@@ -7,8 +7,11 @@ root = environ.Path(__file__) - 2  # three folder back (/a/b/c/ - 3 = /)
 BASE_DIR = Path(root())
 
 env = environ.Env()
-environ.Env.read_env(str(BASE_DIR.joinpath('.env')))  # reading .env file
 
+READ_DOT_ENV_FILE = env.bool('READ_DOT_ENV_FILE', default=True)
+
+if READ_DOT_ENV_FILE is True:
+    environ.Env.read_env(str(BASE_DIR.joinpath('.env')))
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/1.11/howto/deployment/checklist/

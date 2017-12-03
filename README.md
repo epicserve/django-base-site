@@ -77,7 +77,7 @@ Deploy on Heroku
     $ git commit
     $ heroku create
     $ heroku addons:create mailgun
-    $ heroku config:set DJANGO_SETTINGS_MODULE=config.settings
+    $ heroku config:set READ_DOT_ENV_FILE=off
     $ heroku config:set WSGI_APPLICATION=config.heroku_wsgi.application
     $ heroku config:set SECRET_KEY='random string of 50 chars'
     $ heroku config:set DEFAULT_FROM_EMAIL='$MAILGUN_SMTP_LOGIN'
