@@ -6,7 +6,7 @@ url = "https://pypi.python.org/simple"
 
 
 [requires]
-python_version = "3.6.3"
+python_full_version = "3.6.3"
 
 
 [dev-packages]
