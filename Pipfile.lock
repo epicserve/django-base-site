@@ -1,7 +1,7 @@
 {
     "_meta": {
         "hash": {
-            "sha256": "7a354b514bb4db700dee021168b4106bdc42cb3f1f343569d54d1f7751247980"
+            "sha256": "be6ba27798121bea238f843317a2d4ae7762f516d2dd9b0ed3b94d46bef197e3"
         },
         "host-environment-markers": {
             "implementation_name": "cpython",
@@ -18,7 +18,7 @@
         },
         "pipfile-spec": 6,
         "requires": {
-            "python_version": "3.6.3"
+            "python_full_version": "3.6.3"
         },
         "sources": [
             {
@@ -311,6 +311,7 @@
                 "sha256:75e1de9ba7c155d89bcf67d149b1c741df553c8158536e8d27e63167403159af",
                 "sha256:ab87dd91c0c4073758d07334c1e5f712ce8fe48f007b86f8238773963ee700a6"
             ],
+            "markers": "platform_python_implementation != 'PyPy'",
             "version": "==1.11.2"
         },
         "coverage": {
