@@ -6,7 +6,10 @@ Setup Instructions
 
 .. note::
 
-    If you want to use Vagrant then use the :ref:`Vagrant Instructions <using-vagrant>`. Otherwise, continue with these instructions.
+    If you want to use Docker then user the
+    :ref:`Docker Instructions <using-docker>` or if you want to use Vagrant
+    then use the :ref:`Vagrant Instructions <using-vagrant>`. Otherwise,
+    continue with these instructions.
 
 Before you begin make sure you've setup and installed `Pipenv <https://docs.pipenv.org/>`_ and `Virtualenvwrapper <https://virtualenvwrapper.readthedocs.io/en/latest/>`_. You can use the Django base site without Virtualenvwrapper however you won't be able to use the ``workon`` command.
 

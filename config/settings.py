@@ -131,6 +131,11 @@ STATICFILES_FINDERS = (
     'compressor.finders.CompressorFinder',
 )
 
+if env.get_value('CACHE_URL', default=None):
+    CACHES = {
+        'default': env.cache(),
+    }
+
 SITE_ID = 1
 SITE_NAME = "Django Base Site"
 

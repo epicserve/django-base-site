@@ -25,6 +25,7 @@ Features
 - [Gulp](https://gulpjs.com/) for building SASS and JS with [Browserify](http://browserify.org/) for requiring modules and [Babel](https://babeljs.io/) for transpiling ES6/ES2015.
 - [Pipenv](https://github.com/kennethreitz/pipenv)
 - [Vagrant Support](https://www.vagrantup.com/)
+- [Docker Support](https://www.docker.com/)
 - Sample configs for [Apache](https://github.com/epicserve/django-base-site/tree/master/config/apache), [Gunicorn](https://github.com/epicserve/django-base-site/tree/master/config/gunicorn), [Nginx](https://github.com/epicserve/django-base-site/tree/master/config/nginx) and [Upstart](https://github.com/epicserve/django-base-site/tree/master/config/upstart)
 
 Install Requirements
