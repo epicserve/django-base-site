@@ -53,6 +53,32 @@ you can go through the following steps.
 
     $ docker-compose up
 
+Debugging
+---------
+
+ipdb
+~~~~
+
+Set a trace like you normally do in your code and then go to that view in your browser and then stop ``docker-compose up``.
+
+::
+
+    import ipdb; ipdb.set_trace()
+
+Then you can run the following to work interactive debugging shell.
+
+::
+
+    docker-compose run --service-ports web
+
+PyCharm
+~~~~~~~
+
+- Follow `Jetbrain's guide <https://www.jetbrains.com/help/pycharm/using-docker-compose-as-a-remote-interpreter.html>`_.
+- Make sure you pull up the site using http://localhost:8000/ instead of http://127.0.0.1:8000/.
+- You'll also need to add 172.18.0.1 to your INTERNAL_IPS.
+
+
 Common Gotchas
 --------------
 - You need to start your runserver using `docker-compose up` instead of
