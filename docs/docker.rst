@@ -53,6 +53,7 @@ you can go through the following steps.
 
     $ docker-compose up
 
+
 Debugging
 ---------
 
@@ -79,6 +80,15 @@ PyCharm
 - You'll also need to add 172.18.0.1 to your INTERNAL_IPS.
 
 
+Running Gulp
+------------
+
+You can run gulp by simply running the, ``docker-compose run web gulp`` command.
+To stop gulp watch, you would normally hit ``CTL+C``, however that doesn't seem
+to work so you'll have to run ``docker-compose ps`` to get the container name,
+then run something like ``docker kill djangobasesite_web_run_1`` to stop gulp watch.
+
+
 Common Gotchas
 --------------
 - You need to start your runserver using `docker-compose up` instead of
@@ -93,6 +103,7 @@ Common Gotchas
   minimum required by Compose. Your current project requires a Docker Engine of
   version 1.13.0 or greater." You can run `docker-machine upgrade` to upgrade
   your version of `docker-compose`.
+
 
 Common Commands
 ---------------
