@@ -83,10 +83,9 @@ PyCharm
 Running Gulp
 ------------
 
-You can run gulp by simply running the, ``docker-compose run web gulp`` command.
-To stop gulp watch, you would normally hit ``CTL+C``, however that doesn't seem
-to work so you'll have to run ``docker-compose ps`` to get the container name,
-then run something like ``docker kill djangobasesite_web_run_1`` to stop gulp watch.
+- Open a bash prompt in your web service container by running the, ``docker-compose run web /bin/bash`` command.
+- Start glup as your normally would by typing ``gulp`` and hitting enter.
+- To stop gulp hit ``CTL+C`` on your keyboard.
 
 
 Common Gotchas
