@@ -32,6 +32,7 @@ you can go through the following steps.
     DEFAULT_FROM_EMAIL="President Skroob <skroob@planetspaceball.com>"
     ALLOWED_HOSTS=*
     INTERNAL_IPS=192.168.99.100,127.0.0.1,0.0.0.0,localhost,172.18.0.1
+    REDIS_HOST=redis
     EOF
 
 3. Build your service images.
