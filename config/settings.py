@@ -131,10 +131,24 @@ STATICFILES_FINDERS = (
     'compressor.finders.CompressorFinder',
 )
 
-if env.get_value('CACHE_URL', default=None):
-    CACHES = {
-        'default': env.cache(),
-    }
+REDIS_HOST = env('REDIS_HOST', default='127.0.0.1')
+REDIS_PORT = env.int('REDIS_PORT', 6379)
+REDIS_DB = env.int('REDIS_DB', default=1)
+CACHES = {
+    'default': {
+        'BACKEND': 'redis_cache.RedisCache',
+        'LOCATION': '{}:{}'.format(REDIS_HOST, REDIS_PORT),
+        'OPTIONS': {
+            'DB': REDIS_DB,
+            'PARSER_CLASS': 'redis.connection.HiredisParser',
+            'CONNECTION_POOL_CLASS': 'redis.BlockingConnectionPool',
+            'CONNECTION_POOL_CLASS_KWARGS': {
+                'max_connections': 50,
+                'timeout': 20,
+            }
+        },
+    },
+}
 
 SITE_ID = 1
 SITE_NAME = "Django Base Site"

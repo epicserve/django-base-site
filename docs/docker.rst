@@ -12,17 +12,17 @@ you can go through the following steps.
 
 ::
 
-    $ TARGET_DIR=~/Sites/ BRANCH=master PROJECT_NAME=example
-    $ cd $TARGET_DIR
-    $ curl -L "https://github.com/epicserve/django-base-site/archive/$BRANCH.zip" | tar zx -C $TARGET_DIR && mv "django-base-site-$BRANCH" $PROJECT_NAME
-    $ cd $PROJECT_NAME
+    $ TARGET_DIR=~/Sites/ BRANCH=master PROJECT_NAME=example && \
+    cd $TARGET_DIR && \
+    curl -L "https://github.com/epicserve/django-base-site/archive/$BRANCH.zip" | tar zx -C $TARGET_DIR && mv "django-base-site-$BRANCH" $PROJECT_NAME &&  \
+    cd $PROJECT_NAME
 
 2. Create your ``.env`` file.
 
 ::
 
-    $ export SECRET_KEY=$(python -c "import random; print(''.join(random.SystemRandom().choice('abcdefghijklmnopqrstuvwxyz0123456789%^&*(-_=+)') for i in range(50)))")
-    $ cat > .env <<EOF
+    $ export SECRET_KEY=$(python -c "import random; print(''.join(random.SystemRandom().choice('abcdefghijklmnopqrstuvwxyz0123456789%^&*(-_=+)') for i in range(50)))") && \
+    cat > .env <<EOF
     DEBUG=on
     DATABASE_URL=postgres://postgres@db:5432/postgres
     SECRET_KEY='$SECRET_KEY'
@@ -32,20 +32,29 @@ you can go through the following steps.
     DEFAULT_FROM_EMAIL="President Skroob <skroob@planetspaceball.com>"
     ALLOWED_HOSTS=*
     INTERNAL_IPS=192.168.99.100,127.0.0.1,0.0.0.0,localhost,172.18.0.1
-    CACHE_URL=rediscache://127.0.0.1:6379/1?client_class=django_redis.client.DefaultClient
     EOF
 
 3. Build your service images.
+
+.. note::
+
+    If you haven't started your docker machine yet, you'll need to run the following.
+
+    ::
+
+        $ docker-machine start
+        $ eval $(docker-machine env default)
 
 ::
 
     $ docker-compose build
 
-4. Create a super user.
+4. Run migrations and Create a super user.
 
 ::
 
-    $ docker-compose run web python manage.py createsuperuser
+    $ docker-compose run web python manage.py migrate && \
+    docker-compose run web python manage.py createsuperuser
 
 5. Run the Django runserver.
 
