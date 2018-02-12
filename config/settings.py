@@ -40,6 +40,7 @@ INSTALLED_APPS = [
     'allauth.account',
     'bootstrapform',
     'compressor',
+    'storages',
 ]
 
 MIDDLEWARE = [
@@ -118,18 +119,44 @@ USE_TZ = True
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/1.11/howto/static-files/
 
-public_root = BASE_DIR.joinpath('public')
-
-MEDIA_ROOT = str(public_root.joinpath('media'))
-MEDIA_URL = '/public/media/'
-STATIC_ROOT = str(public_root.joinpath('static'))
-STATIC_URL = '/public/static/'
-
 STATICFILES_FINDERS = (
     'django.contrib.staticfiles.finders.FileSystemFinder',
     'django.contrib.staticfiles.finders.AppDirectoriesFinder',
     'compressor.finders.CompressorFinder',
 )
+
+DEFAULT_FILE_STORAGE = env('DEFAULT_FILE_STORAGE', default='django.core.files.storage.FileSystemStorage')
+
+if DEFAULT_FILE_STORAGE.endswith('MediaS3Storage') is True:
+    STATICFILES_STORAGE = env('STATICFILES_STORAGE')
+    COMPRESS_ROOT = STATICFILES_STORAGE
+    AWS_ACCESS_KEY_ID = env('AWS_ACCESS_KEY_ID')
+    AWS_SECRET_ACCESS_KEY = env('AWS_SECRET_ACCESS_KEY')
+    print(AWS_ACCESS_KEY_ID, AWS_SECRET_ACCESS_KEY)
+    AWS_STORAGE_BUCKET_NAME = env('AWS_STORAGE_BUCKET_NAME')
+    AWS_S3_REGION = env('AWS_S3_REGION', default='us-east-2')
+    AWS_S3_CUSTOM_DOMAIN = 's3.{}.amazonaws.com/{}'.format(AWS_S3_REGION, AWS_STORAGE_BUCKET_NAME)
+    AWS_S3_OBJECT_PARAMETERS = {
+        'CacheControl': 'max-age=86400',
+    }
+    STATIC_URL = 'https://{}/static/'.format(AWS_S3_CUSTOM_DOMAIN,)
+    MEDIA_URL = 'https://{}/media/'.format(AWS_S3_CUSTOM_DOMAIN,)
+    COMPRESS_URL = STATIC_URL
+    COMPRESS_STORAGE = STATICFILES_STORAGE
+    STATICFILES_DIRS = [
+        str(BASE_DIR.joinpath('public', 'static')),
+    ]
+
+else:
+    # Local Storage
+    # Static files (CSS, JavaScript, Images)
+    # https://docs.djangoproject.com/en/1.11/howto/static-files/
+
+    public_root = BASE_DIR.joinpath('public')
+    MEDIA_ROOT = str(public_root.joinpath('media'))
+    MEDIA_URL = '/public/media/'
+    STATIC_ROOT = str(public_root.joinpath('static'))
+    STATIC_URL = '/public/static/'
 
 REDIS_HOST = env('REDIS_HOST', default='127.0.0.1')
 REDIS_PORT = env.int('REDIS_PORT', 6379)

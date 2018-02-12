@@ -10,6 +10,7 @@ Contents
    setup-and-usage
    vagrant
    docker
+   s3
    pre-commit-hook
    website-launch-checklist
 
