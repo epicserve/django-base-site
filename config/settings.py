@@ -167,7 +167,7 @@ CACHES = {
         'LOCATION': '{}:{}'.format(REDIS_HOST, REDIS_PORT),
         'OPTIONS': {
             'DB': REDIS_DB,
-            'PASSWORD': REDIS_PASSWORD,
+            'PASSWORD': str(REDIS_PASSWORD),
             'PARSER_CLASS': 'redis.connection.HiredisParser',
             'CONNECTION_POOL_CLASS': 'redis.BlockingConnectionPool',
             'CONNECTION_POOL_CLASS_KWARGS': {
