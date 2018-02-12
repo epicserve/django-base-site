@@ -170,7 +170,7 @@ if USE_REDIS is True:
             'BACKEND': 'redis_cache.RedisCache',
             'LOCATION': '{}:{}'.format(REDIS_HOST, REDIS_PORT),
             'OPTIONS': {
-                'DB': REDIS_DB.
+                'DB': REDIS_DB,
                 'PASSWORD': str(REDIS_PASSWORD),
                 'PARSER_CLASS': 'redis.connection.HiredisParser',
                 'CONNECTION_POOL_CLASS': 'redis.BlockingConnectionPool',
