@@ -159,14 +159,14 @@ else:
 
 REDIS_HOST = env('REDIS_HOST', default='127.0.0.1')
 REDIS_PORT = env.int('REDIS_PORT', 6379)
-REDIS_DB = env.int('REDIS_DB', default=1)
+REDIS_DB = env('REDIS_DB', default=1)
 REDIS_PASSWORD = env('REDIS_PASSWORD', default=''),
 CACHES = {
     'default': {
         'BACKEND': 'redis_cache.RedisCache',
         'LOCATION': '{}:{}'.format(REDIS_HOST, REDIS_PORT),
         'OPTIONS': {
-            'DB': REDIS_DB,
+            'DB': str(REDIS_DB),
             'PASSWORD': str(REDIS_PASSWORD),
             'PARSER_CLASS': 'redis.connection.HiredisParser',
             'CONNECTION_POOL_CLASS': 'redis.BlockingConnectionPool',
