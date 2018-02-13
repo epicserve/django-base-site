@@ -157,30 +157,9 @@ else:
     STATIC_ROOT = str(public_root.joinpath('static'))
     STATIC_URL = '/public/static/'
 
-USE_REDIS = env.bool('USE_REDIS', default=False)
-REDIS_HOST = env('REDIS_HOST', default='127.0.0.1')
-REDIS_PORT = env.int('REDIS_PORT', 6379)
-REDIS_DB = env.int('REDIS_DB', default=1)
-REDIS_PASSWORD = env('REDIS_PASSWORD', default=''),
-
-# TODO: Get Redis working on Heroku
-if USE_REDIS is True:
-    CACHES = {
-        'default': {
-            'BACKEND': 'redis_cache.RedisCache',
-            'LOCATION': '{}:{}'.format(REDIS_HOST, REDIS_PORT),
-            'OPTIONS': {
-                'DB': REDIS_DB,
-                'PASSWORD': str(REDIS_PASSWORD),
-                'PARSER_CLASS': 'redis.connection.HiredisParser',
-                'CONNECTION_POOL_CLASS': 'redis.BlockingConnectionPool',
-                'CONNECTION_POOL_CLASS_KWARGS': {
-                    'max_connections': 50,
-                    'timeout': 20,
-                }
-            },
-        },
-    }
+CACHES = {
+    'default': env.cache('REDIS_URL', default='rediscache://127.0.0.1:6379/1?client_class=django_redis.client.DefaultClient'),
+}
 
 SITE_ID = 1
 SITE_NAME = "Django Base Site"
