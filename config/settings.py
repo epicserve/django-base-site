@@ -157,8 +157,32 @@ else:
     STATIC_ROOT = str(public_root.joinpath('static'))
     STATIC_URL = '/public/static/'
 
+# CACHE SETTINGS
+REDIS_HOST = env('REDIS_HOST', default='redis')
+REDIS_PORT = env.int('REDIS_PORT', 6379)
+REDIS_DB = env.int('REDIS_DB', default=0)
 CACHES = {
-    'default': env.cache('REDIS_URL', default='rediscache://127.0.0.1:6379/1?client_class=django_redis.client.DefaultClient'),
+    'default': {
+        'BACKEND': 'redis_cache.RedisCache',
+        'LOCATION': '{}:{}'.format(REDIS_HOST, REDIS_PORT),
+        'OPTIONS': {
+            'DB': REDIS_DB,
+            'PARSER_CLASS': 'redis.connection.HiredisParser',
+            'CONNECTION_POOL_CLASS': 'redis.BlockingConnectionPool',
+            'CONNECTION_POOL_CLASS_KWARGS': {
+                'max_connections': 50,
+                'timeout': 20,
+            }
+        },
+    },
+}
+
+SESSION_ENGINE = 'redis_sessions.session'
+SESSION_REDIS = {
+    'host': REDIS_HOST,
+    'port': REDIS_PORT,
+    'db': REDIS_DB,
+    'socket_timeout': 1
 }
 
 SITE_ID = 1
