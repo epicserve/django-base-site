@@ -5,4 +5,5 @@
 /db.sqlite
 /docs/_build/
 /htmlcov
+/latest.dump
 /node_modules
