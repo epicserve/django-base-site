@@ -37,15 +37,6 @@ you can go through the following steps.
 
 3. Build your service images.
 
-.. note::
-
-    If you haven't started your docker machine yet, you'll need to run the following.
-
-    ::
-
-        $ docker-machine start
-        $ eval $(docker-machine env default)
-
 ::
 
     $ docker-compose build
