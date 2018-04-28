@@ -16,7 +16,7 @@ services:
       - redis_data:/data
 
   web:
-
+    image: epicserve/django-base-site:latest
     build:
       context: .
       dockerfile: Dockerfile
