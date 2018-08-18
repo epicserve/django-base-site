@@ -7,7 +7,7 @@ url = "https://pypi.python.org/simple"
 python_full_version = "3.6.6"
 
 [dev-packages]
-"fabric3" = "<1.14,>=1.13.1.post1"
+"fabric3" = "<1.15,>=1.14.post1"
 "flake8" = "<3.6,>=3.5.0"
 coverage = "<4.5,>=4.4.2"
 django-debug-toolbar = "<1.10,>=1.9.1"
