@@ -1,6 +1,6 @@
 import sys
-import urlparse
 from pathlib import Path
+from urllib.parse import urlparse
 
 import environ
 
@@ -167,7 +167,7 @@ REDIS_PASSWORD = env('REDIS_PASSWORD', default='')
 REDISCLOUD_URL = env('REDISCLOUD_URL', default='')
 
 if REDISCLOUD_URL:
-    redis_url = urlparse.urlparse(REDISCLOUD_URL)
+    redis_url = urlparse(REDISCLOUD_URL)
     REDIS_HOST = redis_url.hostname
     REDIS_PORT = redis_url.port
     REDIS_PASSWORD = redis_url.password
