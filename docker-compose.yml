@@ -36,6 +36,16 @@ services:
     environment:
       DJANGO_SETTINGS_MODULE: config.settings
 
+  node:
+    build:
+      context: .
+      dockerfile: Dockerfile.node
+
+    command: sh -c "npx gulp"
+
+    volumes:
+      - .:/code
+
 volumes:
   postgres_data:
   redis_data:
