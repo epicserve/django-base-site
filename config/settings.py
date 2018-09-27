@@ -194,7 +194,8 @@ SESSION_REDIS = {
     'host': REDIS_HOST,
     'port': REDIS_PORT,
     'db': REDIS_DB,
-    'socket_timeout': 1
+    'password': REDIS_PASSWORD,
+    'socket_timeout': 20,
 }
 
 SITE_ID = 1

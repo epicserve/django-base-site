@@ -79,6 +79,7 @@ Deploy on Heroku
     $ heroku create
     $ heroku addons:create mailgun
     $ heroku addons:create rediscloud
+    $ heroku buildpacks:add --index 1 heroku/nodejs
     $ heroku config
     $ heroku config:set READ_DOT_ENV_FILE=off \
     WSGI_APPLICATION=config.heroku_wsgi.application \
