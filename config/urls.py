@@ -3,9 +3,7 @@ from django.contrib import admin
 from django.urls import include, path
 from django.views.generic import TemplateView
 
-from apps.base.views import NameChange
-
-handler500 = 'utils.views.server_error'
+from apps.base.views import NameChange, http_500, http_404
 
 urlpatterns = []
 
@@ -25,6 +23,8 @@ urlpatterns += [
 # Project Urls
 urlpatterns += [
     path('', TemplateView.as_view(template_name='index.html'), name='site_index'),
+    path('500/', http_500),
+    path('404/', http_404),
     path('accounts/name/', NameChange.as_view(), name='account_change_name'),
     path('accounts/', include('allauth.urls')),
 ]
