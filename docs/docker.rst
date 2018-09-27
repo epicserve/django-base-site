@@ -84,9 +84,8 @@ PyCharm
 Running Gulp
 ------------
 
-- Open a bash prompt in your web service container by running the, ``docker-compose run web /bin/bash`` command.
-- Start glup as your normally would by typing ``gulp`` and hitting enter.
-- To stop gulp hit ``CTL+C`` on your keyboard.
+- When you run ``docker-compose up`` it starts the node service which should run gulp.
+- If you want to run gulp by itself, you can run it with a command like, ``docker-compose run --rm node``.
 
 
 Common Gotchas
@@ -99,10 +98,6 @@ Common Gotchas
   uses "Django" with a capital D in it's requirements when other packages use
   "django" in lowercase. To work around this install everything except
   `django-debug-toolbar` and then added it last to your `Pipfile`.
-- If you get a message like, "ERROR: The Docker Engine version is less than the
-  minimum required by Compose. Your current project requires a Docker Engine of
-  version 1.13.0 or greater." You can run `docker-machine upgrade` to upgrade
-  your version of `docker-compose`.
 
 
 Common Commands

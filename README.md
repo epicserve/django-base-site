@@ -80,9 +80,6 @@ Deploy on Heroku
     $ heroku addons:create mailgun
     $ heroku addons:create rediscloud
     $ heroku config
-    
-Get the password, host and port from the `REDISCLOUD_URL` and update the `REDIS_URL` below for when you set all the needed environment settings.
-
     $ heroku config:set READ_DOT_ENV_FILE=off \
     WSGI_APPLICATION=config.heroku_wsgi.application \
     SECRET_KEY='random string of 50 chars' \
@@ -90,8 +87,7 @@ Get the password, host and port from the `REDISCLOUD_URL` and update the `REDIS_
     EMAIL_HOST='$MAILGUN_SMTP_SERVER' \
     EMAIL_HOST_USER='$MAILGUN_SMTP_LOGIN' \
     EMAIL_HOST_PASSWORD='$MAILGUN_SMTP_PASSWORD' \
-    ALLOWED_HOSTS='*' \
-    REDIS_URL='rediscache://rediscloud:password@localhost:6379/0?client_class=django_redis.client.DefaultClient'
+    ALLOWED_HOSTS='*'
     $ git push --set-upstream heroku master
     $ heroku run python manage.py migrate
     $ heroku run python manage.py createsuperuser    
