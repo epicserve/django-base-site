@@ -16,15 +16,8 @@ var config = {
 };
 
 
-gulp.task('clean', function () {
-  return del([
-    config.static_css_dir,
-    config.static_js_dir
-  ]);
-});
-
-
-gulp.task('js', ['clean'], function() {
+gulp.task('js', function() {
+  del([config.static_js_dir]);
   var stream = gulp.src(config.js_source)
     .pipe(sourcemaps.init())
       .pipe(browser.browserify())
@@ -38,7 +31,8 @@ gulp.task('js', ['clean'], function() {
 });
 
 
-gulp.task('sass', ['clean'], function () {
+gulp.task('sass', function () {
+  del([config.static_css_dir]);
   gulp.src('./src/scss/**/*.scss')
     .pipe(sourcemaps.init())
     .pipe(sass({

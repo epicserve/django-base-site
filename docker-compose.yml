@@ -46,6 +46,10 @@ services:
     volumes:
       - .:/code
 
+    ports:
+      - 35729:35729
+
+
 volumes:
   postgres_data:
   redis_data:
