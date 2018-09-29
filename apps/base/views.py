@@ -1,8 +1,6 @@
-from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth.models import User
 from django.shortcuts import render
-from django.template import Context, loader
 from django.urls import reverse
 from django.views import generic
 

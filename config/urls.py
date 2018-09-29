@@ -3,7 +3,7 @@ from django.contrib import admin
 from django.urls import include, path
 from django.views.generic import TemplateView
 
-from apps.base.views import NameChange, http_500, http_404
+from apps.base.views import NameChange, http_404, http_500
 
 urlpatterns = []
 
