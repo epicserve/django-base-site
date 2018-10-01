@@ -37,7 +37,9 @@ services:
       DJANGO_SETTINGS_MODULE: config.settings
 
   node:
-    image: node:8.12
+    build:
+      context: .
+      dockerfile: Dockerfile.node
     working_dir: /code
 
     command: sh -c "npx gulp"
