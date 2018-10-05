@@ -14,14 +14,6 @@ WORKDIR /code
 RUN apk update \
     && apk add git python-dev postgresql-dev libffi-dev build-base
 
-# Install Node packages
-COPY package.json .
-COPY package-lock.json .
-RUN apk add --update nodejs \
-    && npm install npm@latest -g \
-    && npm i -g gulp jshint \
-    && npm i
-
 # Install Python packages
 COPY Pipfile .
 COPY Pipfile.lock .
