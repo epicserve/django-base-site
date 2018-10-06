@@ -12,9 +12,22 @@ PYTHON_CMD_PREFIX ?= docker-compose run --no-deps --rm web
 NODE_CMD_PREFIX ?= docker-compose run --rm node
 HELP_FIRST_COL_LENGTH := 23
 
+# COLORS
+GREEN  := $(shell tput -Txterm setaf 2)
+YELLOW := $(shell tput -Txterm setaf 3)
+WHITE  := $(shell tput -Txterm setaf 7)
+RESET  := $(shell tput -Txterm sgr0)
+TARGET_MAX_CHAR_NUM := 23
+
 .PHONY: help
 help:
-	@grep -E '^[a-zA-Z_-]+:.*?## .*$$' $(MAKEFILE_LIST) | sort | awk 'BEGIN {FS = ":.*?## "}; {printf "\033[36m%-$(HELP_FIRST_COL_LENGTH)s\033[0m%s\n", $$1, $$2}'
+	@echo ''
+	@echo 'Usage:'
+	@echo '  ${YELLOW}make${RESET} ${GREEN}<target>${RESET}'
+	@echo ''
+	@echo 'Targets:'
+	@grep -E '^[a-zA-Z_-]+:.*?## .*$$' $(MAKEFILE_LIST) | sort | awk 'BEGIN {FS = ":.*?## "}; {printf "  $(YELLOW)%-$(TARGET_MAX_CHAR_NUM)s$(RESET)$(GREEN)%s$(RESET)\n", $$1, $$2}'
+	@echo ''
 
 .PHONY: clean
 clean: remove_py_cache remove_coverage_data ## Remove build files, python cache files and test coverage data
