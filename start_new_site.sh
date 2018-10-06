@@ -5,9 +5,13 @@ PROJECT_NAME_SLUG_DEFAULT='example'
 PROJECT_NAME_SLUG='example'
 PROJECT_DIRECTORY_DEFAULT="$(pwd)/$PROJECT_NAME_SLUG_DEFAULT"
 PROJECT_DIRECTORY=''
+GREEN=$(tput -Txterm setaf 2)
+YELLOW=$(tput -Txterm setaf 3)
+WHITE=$(tput -Txterm setaf 7)
+RESET=$(tput -Txterm sgr0)
 
 function ask_yes_or_no_default_no() {
-    read -r -p "$1 ([Y]es or [N]o [Default]) " response
+    read -r -p "${GREEN}$1${RESET} ${WHITE}(y/N)${RESET}${GREEN}?${RESET} " response
     response=${response,,} # tolower
     if [[ $response =~ ^(no|n| ) ]] || [[ -z $response ]]; then
         echo "no"
@@ -17,7 +21,7 @@ function ask_yes_or_no_default_no() {
 }
 
 function ask_yes_or_no_default_yes() {
-    read -r -p "$1 ([Y]es [Default] or [N]o) " response
+    read -r -p "${GREEN}$1${RESET} ${WHITE}(Y/n)${RESET}${GREEN}?${RESET} " response
     response=${response,,} # tolower
     if [[ $response =~ ^(yes|y| ) ]] || [[ -z $response ]]; then
         echo "yes"
@@ -27,7 +31,7 @@ function ask_yes_or_no_default_yes() {
 }
 
 get_project_name_slug() {
-  echo -n "What is the project name slug? [$PROJECT_NAME_SLUG_DEFAULT]: "
+  echo -n "${GREEN}What is the project name slug${RESET} ${WHITE}[$PROJECT_NAME_SLUG_DEFAULT]${RESET}${GREEN}?${RESET} "
   read PROJECT_NAME_SLUG
   if [ -z "$PROJECT_NAME_SLUG" ]; then
     PROJECT_NAME_SLUG=$PROJECT_NAME_SLUG_DEFAULT
@@ -36,13 +40,14 @@ get_project_name_slug() {
 
 get_project_directory() {
   PROJECT_DIRECTORY_DEFAULT="$(pwd)/$PROJECT_NAME_SLUG"
-  echo -n "What directory do you want your project in [$PROJECT_DIRECTORY_DEFAULT]? "
+  echo -n "${GREEN}What directory do you want your project in${RESET} ${WHITE}[$PROJECT_DIRECTORY_DEFAULT]${RESET}${GREEN}?${RESET} "
   read PROJECT_DIRECTORY
   if [ -z "$PROJECT_DIRECTORY" ]; then
     PROJECT_DIRECTORY=$PROJECT_DIRECTORY_DEFAULT
   fi
 }
 
+echo ""
 get_project_name_slug
 get_project_directory
 
@@ -66,15 +71,19 @@ EOF
 make remove_extra_files
 USING_VAGRANT="no"
 USING_COMPOSE="yes"
-if [[ "no" = $(ask_yes_or_no_default_no "Are going to use Vagrant?") ]]; then
+if [[ "no" = $(ask_yes_or_no_default_no "Are going to use Vagrant") ]]; then
     make remove_vagrant
 else
     USING_VAGRANT="yes"
 fi
 
-if [[ ${USING_VAGRANT} = "no" ]] && [[ "no" = $(ask_yes_or_no_default_yes "Are going to use Docker Compose?") ]]; then
+if [[ ${USING_VAGRANT} = "no" ]] && [[ "no" = $(ask_yes_or_no_default_yes "Are going to use Docker Compose") ]]; then
     make remove_docker_compose
     USING_COMPOSE="no"
+fi
+
+if [[ "no" = $(ask_yes_or_no_default_yes "Are going to Heroku for deployment") ]]; then
+    make remove_heroku
 fi
 
 if [[ ${USING_VAGRANT} = "no" ]] && [[ ${USING_COMPOSE} = "no"  ]]; then
