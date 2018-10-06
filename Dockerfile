@@ -11,8 +11,12 @@ ENV PYTHONPATH /code
 WORKDIR /code
 
 # Upadate Apline Linux and install system packages
+# build-base - C and C++ compiliers needs for some python packages
+# python-dev - Needed for building C extensions for CPython
+# postgresql-dev - Contains the header files needed for installing psycopg2-binary
+# libffi-dev - Needed for crytography packages like bcrypt
 RUN apk update \
-    && apk add git python-dev postgresql-dev libffi-dev build-base
+    && apk add build-base python-dev postgresql-dev libffi-dev
 
 # Install Python packages
 COPY Pipfile .
