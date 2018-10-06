@@ -6,6 +6,26 @@ PROJECT_NAME_SLUG='example'
 PROJECT_DIRECTORY_DEFAULT="$(pwd)/$PROJECT_NAME_SLUG_DEFAULT"
 PROJECT_DIRECTORY=''
 
+function ask_yes_or_no_default_no() {
+    read -r -p "$1 ([Y]es or [N]o [Default]) " response
+    response=${response,,} # tolower
+    if [[ $response =~ ^(no|n| ) ]] || [[ -z $response ]]; then
+        echo "no"
+    else
+        echo "yes"
+    fi
+}
+
+function ask_yes_or_no_default_yes() {
+    read -r -p "$1 ([Y]es [Default] or [N]o) " response
+    response=${response,,} # tolower
+    if [[ $response =~ ^(yes|y| ) ]] || [[ -z $response ]]; then
+        echo "yes"
+    else
+        echo "no"
+    fi
+}
+
 get_project_name_slug() {
   echo -n "What is the project name slug? [$PROJECT_NAME_SLUG_DEFAULT]: "
   read PROJECT_NAME_SLUG
@@ -54,6 +74,16 @@ $ ./manage.py runserver
 If you don't plan on using Heroku for deployment, you can run 'make remove_heroku' to remove Heroku config files.
 "
 
-make clean
 unset PROJECT_NAME_SLUG
 unset PROJECT_DIRECTORY
+
+make remove_extra_files
+if [[ "no" = $(ask_yes_or_no_default_no "Are going to use Vagrant?") ]]; then
+    make remove_vagrant
+else
+    echo "Warning: Vagrant is no longer supported and may or may not work.\n"
+fi
+
+if [[ "no" = $(ask_yes_or_no_default_yes "Are going to use Docker Compose?") ]]; then
+    make remove_docker_compose
+fi
