@@ -46,6 +46,7 @@ services:
 
     volumes:
       - .:/code
+      - /code/node_modules
 
     ports:
       - 35729:35729
