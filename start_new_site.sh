@@ -51,7 +51,7 @@ echo ""
 get_project_name_slug
 get_project_directory
 
-curl -LOk $DOWNLOAD_LOCATION && unzip master
+curl -LOks $DOWNLOAD_LOCATION && unzip -q master
 mkdir -p $PROJECT_DIRECTORY
 mv django-base-site-master/* $PROJECT_DIRECTORY/
 rm -rf django-base-site-master
