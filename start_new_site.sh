@@ -12,7 +12,7 @@ RESET=$(tput -Txterm sgr0)
 
 function ask_yes_or_no_default_no() {
     read -r -p "${GREEN}$1${RESET} ${WHITE}(y/N)${RESET}${GREEN}?${RESET} " response
-    response=${response,,} # tolower
+    readonly response=`echo "$response" | tr '[:upper:]' '[:lower:]'` # to lowercase
     if [[ $response =~ ^(no|n| ) ]] || [[ -z $response ]]; then
         echo "no"
     else
@@ -22,7 +22,7 @@ function ask_yes_or_no_default_no() {
 
 function ask_yes_or_no_default_yes() {
     read -r -p "${GREEN}$1${RESET} ${WHITE}(Y/n)${RESET}${GREEN}?${RESET} " response
-    response=${response,,} # tolower
+    readonly response=`echo "$response" | tr '[:upper:]' '[:lower:]'` # to lowercase
     if [[ $response =~ ^(yes|y| ) ]] || [[ -z $response ]]; then
         echo "yes"
     else
@@ -51,6 +51,15 @@ echo ""
 get_project_name_slug
 get_project_directory
 
+if [ -n "$(ls -A $PROJECT_DIRECTORY 2> /dev/null)" ]; then
+    if [[ "yes" = $(ask_yes_or_no_default_yes "The directory ${PROJECT_DIRECTORY} is not empty. If you continue, the contents will be removed. Do you want to continue") ]]; then
+        rm -rf $PROJECT_DIRECTORY
+    else
+        echo "Quit. Nothing changed."
+        exit
+    fi
+fi
+
 curl -LOks $DOWNLOAD_LOCATION && unzip -q master
 mkdir -p $PROJECT_DIRECTORY
 mv django-base-site-master/* $PROJECT_DIRECTORY/
@@ -71,15 +80,16 @@ EOF
 make remove_extra_files
 USING_VAGRANT="no"
 USING_COMPOSE="yes"
-if [[ "no" = $(ask_yes_or_no_default_no "Are going to use Vagrant") ]]; then
-    make remove_vagrant
-else
-    USING_VAGRANT="yes"
-fi
 
-if [[ ${USING_VAGRANT} = "no" ]] && [[ "no" = $(ask_yes_or_no_default_yes "Are going to use Docker Compose") ]]; then
+if [[ "no" = $(ask_yes_or_no_default_yes "Are going to use Docker Compose") ]]; then
     make remove_docker_compose
     USING_COMPOSE="no"
+fi
+
+if [[ "no" = ${USING_COMPOSE} ]] && [[ "yes" = $(ask_yes_or_no_default_no "Are going to use Vagrant") ]]; then
+    USING_VAGRANT="yes"
+else
+    make remove_vagrant
 fi
 
 if [[ "no" = $(ask_yes_or_no_default_yes "Are going to Heroku for deployment") ]]; then
