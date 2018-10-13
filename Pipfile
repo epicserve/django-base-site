@@ -20,7 +20,6 @@ sphinx = "~=1.8.1"
 [packages]
 "boto3" = "~=1.9.23"
 "psycopg2-binary" = "~=2.7.5"
-dj-static = "~=0.0.6"
 Django = "~=2.1.2"
 django-allauth = "~=0.38.0"
 django-bootstrap-form = "~=3.4.0"
