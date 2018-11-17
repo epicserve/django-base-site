@@ -1,12 +1,12 @@
 FROM python:3.6.6-alpine3.7
 
-# This prevents Python from writing out pyc files
-ENV PYTHONDONTWRITEBYTECODE 1
 
-# This keeps Python from buffering stdin/stdout
-ENV PYTHONUNBUFFERED 1
-
-ENV PYTHONPATH /code
+ENV \
+    # This prevents Python from writing out pyc files \
+    PYTHONDONTWRITEBYTECODE 1 \
+    # This keeps Python from buffering stdin/stdout \
+    PYTHONUNBUFFERED 1 \
+    ENV PYTHONPATH /code
 
 WORKDIR /code
 
@@ -16,11 +16,12 @@ WORKDIR /code
 # postgresql-dev - Contains the header files needed for installing psycopg2-binary
 # libffi-dev - Needed for crytography packages like bcrypt
 RUN apk update \
-    && apk add build-base python-dev postgresql-dev libffi-dev
+    && apk add build-base python-dev postgresql-dev libffi-dev linux-headers
 
 # Install Python packages
-COPY Pipfile .
-COPY Pipfile.lock .
+COPY Pipfile Pipfile.lock ./
+
 RUN set -ex \
+    && pip install --upgrade pip \
     && pip install pipenv --upgrade \
     && pipenv install --deploy --dev --system
