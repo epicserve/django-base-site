@@ -2,8 +2,7 @@ FROM node:8.12
 
 WORKDIR /code
 
-# Install Node packages
-COPY package.json .
-COPY package-lock.json .
+COPY package.json package-lock.json ./
 
+# Install Node packages
 RUN npm i
