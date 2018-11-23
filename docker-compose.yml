@@ -24,7 +24,7 @@ services:
     command: sh -c "python /code/manage.py migrate --noinput && python /code/manage.py runserver 0.0.0.0:8000"
 
     volumes:
-      - .:/code
+      - .:/code:cached
 
     ports:
       - 8000:8000
