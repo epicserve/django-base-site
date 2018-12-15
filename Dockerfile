@@ -1,12 +1,12 @@
-FROM python:3.6.6-alpine3.7
+FROM python:3.7.1-alpine3.8
 
 
 ENV \
     # This prevents Python from writing out pyc files \
-    PYTHONDONTWRITEBYTECODE 1 \
+    PYTHONDONTWRITEBYTECODE=1 \
     # This keeps Python from buffering stdin/stdout \
-    PYTHONUNBUFFERED 1 \
-    ENV PYTHONPATH /code
+    PYTHONUNBUFFERED=1 \
+    PYTHONPATH=/code
 
 WORKDIR /code
 
