@@ -22,7 +22,7 @@ sphinx = "~=1.8"
 [packages]
 "boto3" = "~=1.9"
 "psycopg2-binary" = "~=2.7"
-Django = "~=2.1"
+Django = "~=2.1.0"
 django-allauth = "~=0.38"
 django-bootstrap-form = "~=3.4"
 django-compressor = "~=2.2"
