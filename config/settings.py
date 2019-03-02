@@ -176,7 +176,7 @@ if REDISCLOUD_URL:
 CACHES = {
     'default': {
         'BACKEND': 'redis_cache.RedisCache',
-        'LOCATION': '{}:{}'.format(REDIS_HOST, REDIS_PORT),
+        'LOCATION': f'{REDIS_HOST}:{REDIS_PORT}',
         'OPTIONS': {
             'DB': REDIS_DB,
             'PASSWORD': REDIS_PASSWORD,
@@ -189,6 +189,11 @@ CACHES = {
         },
     },
 }
+
+# CELERY SETTINGS
+CELERY_BROKER_URL = f'redis://{REDIS_HOST}:{REDIS_PORT}/{REDIS_DB}'
+if REDISCLOUD_URL:
+    CELERY_BROKER_URL = REDISCLOUD_URL
 
 SESSION_ENGINE = 'redis_sessions.session'
 SESSION_REDIS = {

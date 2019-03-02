@@ -13,15 +13,16 @@ coverage = "~=4.5"
 django-debug-toolbar = "~=1.11"
 ipdb = "~=0.11"
 isort = "~=4.3"
-sphinx-autobuild = "~=0.7"
 # added this requirement until sphinx-autobuild updates it's requirement of pyyaml
 pyyaml = "~=4.2b1"
-sphinx-rtd-theme = "~=0.4"
 sphinx = "~=1.8"
+sphinx-autobuild = "~=0.7"
+sphinx-rtd-theme = "~=0.4"
 
 [packages]
 "boto3" = "~=1.9"
 "psycopg2-binary" = "~=2.7"
+celery = "~=4.2.1"
 Django = "~=2.1.0"
 django-allauth = "~=0.38"
 django-bootstrap-form = "~=3.4"
@@ -30,8 +31,8 @@ django-environ = "~=0.4"
 django-redis-cache = "~=1.8"
 django-redis-sessions = "~=0.6"
 django-storages = "~=1.7"
-uwsgi = "~=2.0"
 hiredis = "~=0.2"
+uwsgi = "~=2.0"
 
 [pipenv]
 allow_prereleases = true

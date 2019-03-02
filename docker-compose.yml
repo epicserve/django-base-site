@@ -36,6 +36,23 @@ services:
     environment:
       DJANGO_SETTINGS_MODULE: config.settings
 
+  celery:
+    image: epicserve/django-base-site:latest
+    build:
+      context: .
+      dockerfile: Dockerfile
+
+    command: sh -c "celery -A config worker -l info"
+
+    volumes:
+      - .:/code:cached
+
+    depends_on:
+      - web
+
+    environment:
+      DJANGO_SETTINGS_MODULE: config.settings
+
   node:
     build:
       context: .
