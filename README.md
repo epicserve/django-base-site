@@ -16,6 +16,7 @@ Features
 --------
 
 - [Bootstrap 4](https://getbootstrap.com/)
+- [Celery](http://docs.celeryproject.org/)
 - [Coverage](https://bitbucket.org/ned/coveragepy)
 - [Django 2](https://www.djangoproject.com/)
 - [Django Compressor](https://github.com/django-compressor/django-compressor)

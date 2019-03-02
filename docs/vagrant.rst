@@ -4,6 +4,10 @@
 Using Vagrant
 =============
 
+.. warning::
+
+  Vagrant support has been deprecated and is no longer tested and will eventually be removed.
+
 If you want to try out the ``django-base-site`` using Vagrant then you first
 need to `install vagrant <http://docs.vagrantup.com/v1/docs/getting-started/index.html#install_vagrant>`_
 of course. Then you can do the following to get things running.

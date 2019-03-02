@@ -9,6 +9,7 @@ SHELL := bash
 # Use docker-compose as the default set these environment variables to an empty
 # string to overwrite running with docker-compose.
 PYTHON_CMD_PREFIX ?= docker-compose run --no-deps --rm web
+PYTHON_CMD_PREFIX_WITH_WEB_PORT ?= docker-compose run -p 8000:8000 --no-deps --rm web
 NODE_CMD_PREFIX ?= docker-compose run --rm node
 HELP_FIRST_COL_LENGTH := 23
 
@@ -114,7 +115,7 @@ restore_db: download_db_dump ## Download DB dump from heroku and reload it into 
 
 .PHONY: sphinx_autobuild
 sphinx_autobuild: ## Run sphinx autobuild
-	@$(PYTHON_CMD_PREFIX) sphinx-autobuild --host 0.0.0.0 ./docs ./docs/_build/html
+	@$(PYTHON_CMD_PREFIX_WITH_WEB_PORT) sphinx-autobuild --host 0.0.0.0 ./docs ./docs/_build/html
 
 .PHONY: test
 test: ## Run the Django test runner without coverage
