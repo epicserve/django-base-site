@@ -21,12 +21,13 @@ Features
 - [Django 2](https://www.djangoproject.com/)
 - [Django Compressor](https://github.com/django-compressor/django-compressor)
 - [Django Debug Toolbar](https://github.com/django-compressor/django-compressor)
+- [Django REST framework](https://www.django-rest-framework.org/)
 - [Django-allauth](http://www.intenct.nl/projects/django-allauth/)
 - [Django-environ](https://django-environ.readthedocs.io/en/latest/) for [12factor](https://www.12factor.net/) inspired environment variables
+- [Docker Support](https://www.docker.com/)
 - [Gulp](https://gulpjs.com/) for building SASS and JS with [Browserify](http://browserify.org/) for requiring modules and [Babel](https://babeljs.io/) for transpiling ES6/ES2015.
 - [Pipenv](https://github.com/kennethreitz/pipenv)
 - [Vagrant Support](https://www.vagrantup.com/)
-- [Docker Support](https://www.docker.com/)
 - Sample configs for [Apache](https://github.com/epicserve/django-base-site/tree/master/config/apache), [Gunicorn](https://github.com/epicserve/django-base-site/tree/master/config/gunicorn), [Nginx](https://github.com/epicserve/django-base-site/tree/master/config/nginx) and [Upstart](https://github.com/epicserve/django-base-site/tree/master/config/upstart)
 
 Install Requirements

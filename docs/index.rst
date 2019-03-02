@@ -43,8 +43,10 @@ Features
 - `Django 2 <https://www.djangoproject.com/>`_
 - `Django Compressor <https://github.com/django-compressor/django-compressor>`_
 - `Django Debug Toolbar <https://github.com/django-compressor/django-compressor>`_
+- `Django REST framework <https://www.django-rest-framework.org/>`_
 - `Django-allauth <http://www.intenct.nl/projects/django-allauth/>`_
 - `Django-environ <https://django-environ.readthedocs.io/en/latest/>`_ for `12factor <https://www.12factor.net/>`_ inspired environment variables
+- `Docker Support <https://www.docker.com/>`_
 - `Gulp <https://gulpjs.com/>`_ for building SASS and JS with `Browserify <http://browserify.org/>`_ for requiring modules and `Babel <https://babeljs.io/>`_ for transpiling ES6/ES2015.
 - `Pipenv <https://github.com/kennethreitz/pipenv>`_
 - `Vagrant Support <https://www.vagrantup.com/>`_

@@ -31,6 +31,7 @@ django-environ = "~=0.4"
 django-redis-cache = "~=1.8"
 django-redis-sessions = "~=0.6"
 django-storages = "~=1.7"
+djangorestframework = "~=3.9.1"
 hiredis = "~=0.2"
 uwsgi = "~=2.0"
 
