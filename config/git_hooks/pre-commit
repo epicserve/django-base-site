@@ -1,0 +1,40 @@
+#!/usr/bin/env sh
+
+export PY_CMD='docker-compose run --rm --no-deps web'
+export JS_CMD='docker-compose run --rm --no-deps node'
+export PY_FILES=$(git diff --staged --name-only HEAD | grep '.py$')
+export JS_FILES=$(git diff --staged --name-only HEAD | egrep 'src/js/*')
+export GREEN='\033[0;32m'
+export NC='\033[0m'
+export ERRORS=0
+
+if [ -n "${PY_FILES}" ]; then
+    echo ""
+    echo "${GREEN}Linting Python Files ...${NC}"
+    $PY_CMD flake8 $PY_FILES
+    if [ $? -ne 0 ]; then
+        export ERRORS=1
+    fi
+fi
+
+if [ -n "${PY_FILES}" ]; then
+    echo ""
+    echo "${GREEN}Linting Python Imports ...${NC}"
+    $PY_CMD isort --recursive --check-only --diff $PY_FILES
+    if [ $? -ne 0 ]; then
+        export ERRORS=1
+    fi
+fi
+
+if [ -n "${JS_FILES}" ]; then
+    echo ""
+    echo "${GREEN}Linting Javascript Files ...${NC}"
+    $JS_CMD npx jshint $JS_FILES
+    if [ $? -ne 0 ]; then
+        export ERRORS=1
+    fi
+fi
+
+if [ $ERRORS -ne 0 ]; then
+    exit 1
+fi
