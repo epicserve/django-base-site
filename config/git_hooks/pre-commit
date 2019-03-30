@@ -8,6 +8,9 @@ export GREEN='\033[0;32m'
 export NC='\033[0m'
 export ERRORS=0
 
+# Auto normalize/format python
+${PY_CMD} black ${PY_FILES} && git add ${PY_FILES}
+
 if [[ -n "${PY_FILES}" ]]; then
     echo ""
     echo "${GREEN}Linting Python Files ...${NC}"
