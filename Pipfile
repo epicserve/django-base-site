@@ -9,6 +9,7 @@ python_full_version = "3.7.1"
 [dev-packages]
 "fabric3" = "~=1.14"
 "flake8" = "~=3.5"
+black = "~=19.3b0"
 coverage = "~=4.5"
 django-debug-toolbar = "~=1.11"
 ipdb = "~=0.11"

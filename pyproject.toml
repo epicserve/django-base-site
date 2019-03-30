@@ -1,0 +1,20 @@
+[tool.black]
+line-length = 120
+target-version = ['py37']
+skip-string-normalization = false
+exclude = '''
+(
+  /(
+    | \.git
+    | node_modules
+  )/
+)
+'''
+
+[tool.isort]
+line_length = 120
+multi_line_output = 5
+balanced_wrapping = true
+known_django = 'django'
+sections = 'FUTURE,STDLIB,DJANGO,THIRDPARTY,FIRSTPARTY,LOCALFOLDER'
+skip = 'node_modules'
