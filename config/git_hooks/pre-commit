@@ -8,33 +8,37 @@ export GREEN='\033[0;32m'
 export NC='\033[0m'
 export ERRORS=0
 
-if [ -n "${PY_FILES}" ]; then
+if [[ -n "${PY_FILES}" ]]; then
     echo ""
     echo "${GREEN}Linting Python Files ...${NC}"
-    $PY_CMD flake8 $PY_FILES
-    if [ $? -ne 0 ]; then
+    ${PY_CMD} flake8 ${PY_FILES}
+    if [[ $? -ne 0 ]]; then
         export ERRORS=1
+    else
+        echo "${GREEN}✓ Python files okay${NC}"
     fi
-fi
 
-if [ -n "${PY_FILES}" ]; then
     echo ""
     echo "${GREEN}Linting Python Imports ...${NC}"
-    $PY_CMD isort --recursive --check-only --diff $PY_FILES
-    if [ $? -ne 0 ]; then
+    ${PY_CMD} isort --recursive --check-only --diff ${PY_FILES}
+    if [[ $? -ne 0 ]]; then
         export ERRORS=1
+    else
+        echo "${GREEN}✓ Python imports okay${NC}"
     fi
 fi
 
-if [ -n "${JS_FILES}" ]; then
+if [[ -n "${JS_FILES}" ]]; then
     echo ""
     echo "${GREEN}Linting Javascript Files ...${NC}"
-    $JS_CMD npx jshint $JS_FILES
-    if [ $? -ne 0 ]; then
+    ${JS_CMD} npx jshint ${JS_FILES}
+    if [[ $? -ne 0 ]]; then
         export ERRORS=1
+    else
+        echo "${GREEN}✓ Javascript files okay${NC}"
     fi
 fi
 
-if [ $ERRORS -ne 0 ]; then
+if [[ ${ERRORS} -ne 0 ]]; then
     exit 1
 fi
