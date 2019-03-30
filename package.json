@@ -15,7 +15,8 @@
     "jquery": "~3.3.1",
     "jshint": "~2.9.6",
     "node-sass": "~4.9.3",
-    "popper.js": "~1.14.3"
+    "popper.js": "~1.14.3",
+    "prettier": "1.16.4"
   },
   "scripts": {
     "postinstall": "./node_modules/.bin/gulp build"
