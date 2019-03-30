@@ -21,7 +21,7 @@ services:
       context: .
       dockerfile: Dockerfile
 
-    command: sh -c "rm -f .git/hooks/pre-commit && ln -s .config/git_hooks/pre-commit .git/hooks/pre-commit; python /code/manage.py migrate --noinput && python /code/manage.py runserver 0.0.0.0:8000"
+    command: sh -c "rm -f .git/hooks/pre-commit && ln -s ../../config/git_hooks/pre-commit .git/hooks/pre-commit; python /code/manage.py migrate --noinput && python /code/manage.py runserver 0.0.0.0:8000"
 
     volumes:
       - .:/code:cached
