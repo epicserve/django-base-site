@@ -1,5 +1,4 @@
 {
-  "dependencies": {},
   "devDependencies": {
     "babel-core": "~6.26.3",
     "bootstrap": "~4.3.1",
@@ -16,7 +15,12 @@
     "jshint": "~2.9.6",
     "node-sass": "~4.9.3",
     "popper.js": "~1.14.3",
-    "prettier": "1.16.4"
+    "prettier": "1.16.4",
+    "stylelint": "^9.10.1",
+    "stylelint-config-prettier": "^5.0.0",
+    "stylelint-config-recess-order": "^2.0.1",
+    "stylelint-config-standard": "^18.2.0",
+    "stylelint-scss": "^3.5.4"
   },
   "scripts": {
     "postinstall": "./node_modules/.bin/gulp build"

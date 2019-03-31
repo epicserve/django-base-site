@@ -1,9 +1,10 @@
 #!/usr/bin/env sh
 
 export PY_CMD='docker-compose run --rm --no-deps web'
-export JS_CMD='docker-compose run --rm --no-deps node'
+export NODE_CMD='docker-compose run --rm --no-deps node'
 export PY_FILES=$(git diff --staged --name-only HEAD | grep '.py$')
 export JS_FILES=$(git diff --staged --name-only HEAD | egrep 'src/js/*')
+export SCSS_FILES=$(git diff --staged --name-only HEAD | egrep 'src/scss/*')
 export GREEN='\033[0;32m'
 export NC='\033[0m'
 export ERRORS=0
@@ -36,15 +37,30 @@ if [[ -n "${JS_FILES}" ]]; then
 
     # Auto normalize/format javascript
     echo "\n${GREEN}Formatting Javascript files with Prettier ...${NC}"
-    ${JS_CMD} npx prettier --write ${JS_FILES} && git add ${JS_FILES}
+    ${NODE_CMD} npx prettier --write ${JS_FILES} && git add ${JS_FILES}
 
     echo "\n${GREEN}Linting Javascript files ...${NC}"
-    ${JS_CMD} npx jshint ${JS_FILES}
+    ${NODE_CMD} npx jshint ${JS_FILES}
     if [[ $? -ne 0 ]]; then
         export ERRORS=1
     else
         echo "${GREEN}✓ Javascript files okay${NC}"
     fi
+fi
+
+if [[ -n "${SCSS_FILES}" ]]; then
+
+    echo "\n${GREEN}Formatting SCSS files with Prettier ...${NC}"
+    ${NODE_CMD} npx prettier --write ${SCSS_FILES} && git add ${SCSS_FILES}
+
+    echo "\n${GREEN}Linting SCSS files ...${NC}"
+    ${NODE_CMD} npx stylelint ${SCSS_FILES}
+    if [[ $? -ne 0 ]]; then
+        export ERRORS=1
+    else
+        echo "${GREEN}✓ SCSS files okay${NC}"
+    fi
+
 fi
 
 if [[ ${ERRORS} -ne 0 ]]; then
