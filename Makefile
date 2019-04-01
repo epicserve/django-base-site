@@ -10,7 +10,7 @@ SHELL := bash
 # string to overwrite running with docker-compose.
 PYTHON_CMD_PREFIX ?= docker-compose run --no-deps --rm web
 PYTHON_CMD_PREFIX_WITH_WEB_PORT ?= docker-compose run -p 8000:8000 --no-deps --rm web
-NODE_CMD_PREFIX ?= docker-compose run --rm node
+NODE_CMD_PREFIX ?= docker-compose run --no-deps --rm node
 HELP_FIRST_COL_LENGTH := 23
 
 # COLORS
@@ -63,13 +63,18 @@ lint_imports: ## Lint Python imports with isort
 	@echo "Checking python imports ..."
 	@$(PYTHON_CMD_PREFIX) isort --recursive --check-only --diff .
 
+.PHONY: lint_sass
+lint_sass: ## Lint SASS code with stylelint
+	@echo "Checking SASS code using stylelint ..."
+	@$(NODE_CMD_PREFIX) npx stylelint ./src/scss/
+
 .PHONY: lint_docs
 lint_docs: ## Lint docs with Sphinx
 	@echo "Check sphinx docs ..."
 	@$(PYTHON_CMD_PREFIX) sphinx-build -nW -b json -d ./docs/_build/doctrees ./docs ./docs/_build/json
 
 .PHONY: lint
-lint: lint_js lint_py lint_imports ## Lint Javascript, Python code and Python imports
+lint: lint_js lint_sass lint_py lint_imports ## Lint Javascript, SASS, Python and Python imports
 
 .PHONY: remove_coverage_data
 remove_coverage_data: ## Remove Django test coverage data 
