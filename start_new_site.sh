@@ -84,6 +84,8 @@ USING_COMPOSE="yes"
 if [[ "no" = $(ask_yes_or_no_default_yes "Are going to use Docker Compose") ]]; then
     make remove_docker_compose
     USING_COMPOSE="no"
+else
+    echo "DATABASE_URL=postgres://postgres@db:5432/postgres" >> .env
 fi
 
 if [[ "no" = ${USING_COMPOSE} ]] && [[ "yes" = $(ask_yes_or_no_default_no "Are going to use Vagrant") ]]; then

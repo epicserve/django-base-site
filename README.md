@@ -67,6 +67,8 @@ Quickstart
     EMAIL_HOST_USER='skroob@planetspaceball.com'
     EMAIL_HOST_PASSWORD='12345'
     DEFAULT_FROM_EMAIL="President Skroob <skroob@planetspaceball.com>"
+    # Uncomment the following if you're using docker-compose
+    # DATABASE_URL=postgres://postgres@db:5432/postgres
     EOF
     $ pipenv shell
     $ ./manage.py migrate
