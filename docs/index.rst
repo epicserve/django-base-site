@@ -40,8 +40,10 @@ Features
 - `Bootstrap 4 <https://getbootstrap.com/>`_
 - `Celery <http://docs.celeryproject.org/>`_
 - `Coverage <https://bitbucket.org/ned/coveragepy>`_
+- `Custom User Model <https://docs.djangoproject.com/en/2.1/topics/auth/customizing/#substituting-a-custom-user-model>`_
 - `Django 2 <https://www.djangoproject.com/>`_
 - `Django Compressor <https://github.com/django-compressor/django-compressor>`_
+- `Django Crispy Forms <https://github.com/django-crispy-forms/django-crispy-forms>`_
 - `Django Debug Toolbar <https://github.com/django-compressor/django-compressor>`_
 - `Django REST framework <https://www.django-rest-framework.org/>`_
 - `Django-allauth <http://www.intenct.nl/projects/django-allauth/>`_

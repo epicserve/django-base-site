@@ -42,8 +42,8 @@ INSTALLED_APPS = [
     "apps.accounts",
     "allauth",
     "allauth.account",
-    "bootstrapform",
     "compressor",
+    "crispy_forms",
     "storages",
 ]
 
@@ -171,6 +171,9 @@ CACHES = {
         },
     }
 }
+
+# CRISPY-FORMS
+CRISPY_TEMPLATE_PACK = "bootstrap4"
 
 # CELERY SETTINGS
 CELERY_BROKER_URL = f"redis://{REDIS_HOST}:{REDIS_PORT}/{REDIS_DB}"

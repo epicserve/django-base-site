@@ -21,6 +21,7 @@ Features
 - [Custom User Model](https://docs.djangoproject.com/en/2.1/topics/auth/customizing/#substituting-a-custom-user-model)
 - [Django 2](https://www.djangoproject.com/)
 - [Django Compressor](https://github.com/django-compressor/django-compressor)
+- [Django Crispy Forms](https://github.com/django-crispy-forms/django-crispy-forms)
 - [Django Debug Toolbar](https://github.com/django-compressor/django-compressor)
 - [Django REST framework](https://www.django-rest-framework.org/)
 - [Django-allauth](http://www.intenct.nl/projects/django-allauth/)
