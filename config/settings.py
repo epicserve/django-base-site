@@ -39,6 +39,7 @@ INSTALLED_APPS = [
     "django.contrib.staticfiles",
     "rest_framework",
     "apps.base",
+    "apps.accounts",
     "allauth",
     "allauth.account",
     "bootstrapform",
@@ -83,6 +84,10 @@ WSGI_APPLICATION = env("WSGI_APPLICATION", default="config.wsgi.application")
 
 
 DATABASES = {"default": env.db(default="sqlite:///{0}".format(BASE_DIR.joinpath("db.sqlite")))}
+
+# Custom User Model
+# https://docs.djangoproject.com/en/2.1/topics/auth/customizing/#substituting-a-custom-user-model
+AUTH_USER_MODEL = "accounts.User"
 
 # Password validation
 # https://docs.djangoproject.com/en/1.11/ref/settings/#auth-password-validators

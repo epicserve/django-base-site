@@ -1,8 +1,7 @@
 # ViewSets define the view behavior.
-from django.contrib.auth.models import User
-
 from rest_framework import viewsets
 
+from apps.accounts.models import User
 from apps.accounts.serializers import UserSerializer
 
 

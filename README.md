@@ -18,6 +18,7 @@ Features
 - [Bootstrap 4](https://getbootstrap.com/)
 - [Celery](http://docs.celeryproject.org/)
 - [Coverage](https://bitbucket.org/ned/coveragepy)
+- [Custom User Model](https://docs.djangoproject.com/en/2.1/topics/auth/customizing/#substituting-a-custom-user-model)
 - [Django 2](https://www.djangoproject.com/)
 - [Django Compressor](https://github.com/django-compressor/django-compressor)
 - [Django Debug Toolbar](https://github.com/django-compressor/django-compressor)
