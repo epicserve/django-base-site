@@ -1,10 +1,8 @@
 Django Base Site
 ================
 
-The Django Base Site is a skeleton base site that can be used to jumpstart any
-new Django site. [Brent O'Connor](http://twitter.com/epicserve/) created it so
-he could use it personally to jumpstart any of his new Django projects. Please
-feel free to fork this project and adapt it to your own personal taste.
+The Django Base Site is a Django site that is built using the best Django practices and comes with all the common Django
+packages that you need to jumpstart your next project.
 
 
 Documentation
