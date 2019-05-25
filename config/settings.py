@@ -16,7 +16,7 @@ if READ_DOT_ENV_FILE is True:
     environ.Env.read_env(str(BASE_DIR.joinpath(".env")))
 
 # Quick-start development settings - unsuitable for production
-# See https://docs.djangoproject.com/en/1.11/howto/deployment/checklist/
+# See https://docs.djangoproject.com/en/2.2/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
 SECRET_KEY = env("SECRET_KEY")
@@ -78,11 +78,8 @@ TEMPLATES = [
 
 WSGI_APPLICATION = env("WSGI_APPLICATION", default="config.wsgi.application")
 
-
 # Database
-# https://docs.djangoproject.com/en/1.11/ref/settings/#databases
-
-
+# https://github.com/kennethreitz/dj-database-url#url-schema
 DATABASES = {"default": env.db(default="sqlite:///{0}".format(BASE_DIR.joinpath("db.sqlite")))}
 
 # Custom User Model
@@ -90,8 +87,7 @@ DATABASES = {"default": env.db(default="sqlite:///{0}".format(BASE_DIR.joinpath(
 AUTH_USER_MODEL = "accounts.User"
 
 # Password validation
-# https://docs.djangoproject.com/en/1.11/ref/settings/#auth-password-validators
-
+# https://docs.djangoproject.com/en/2.2/ref/settings/#auth-password-validators
 AUTH_PASSWORD_VALIDATORS = [
     {"NAME": "django.contrib.auth.password_validation.UserAttributeSimilarityValidator"},
     {"NAME": "django.contrib.auth.password_validation.MinimumLengthValidator"},
@@ -101,7 +97,7 @@ AUTH_PASSWORD_VALIDATORS = [
 
 
 # Internationalization
-# https://docs.djangoproject.com/en/1.11/topics/i18n/
+# https://docs.djangoproject.com/en/2.2/topics/i18n/
 
 LANGUAGE_CODE = "en-us"
 
@@ -115,7 +111,7 @@ USE_TZ = True
 
 
 # Static files (CSS, JavaScript, Images)
-# https://docs.djangoproject.com/en/1.11/howto/static-files/
+# https://docs.djangoproject.com/en/2.2/howto/static-files/
 
 STATICFILES_FINDERS = (
     "django.contrib.staticfiles.finders.FileSystemFinder",
@@ -143,9 +139,6 @@ if DEFAULT_FILE_STORAGE.endswith("MediaS3Storage") is True:
 
 else:
     # Local Storage
-    # Static files (CSS, JavaScript, Images)
-    # https://docs.djangoproject.com/en/1.11/howto/static-files/
-
     public_root = BASE_DIR.joinpath("public")
     MEDIA_ROOT = str(public_root.joinpath("media"))
     MEDIA_URL = "/public/media/"
