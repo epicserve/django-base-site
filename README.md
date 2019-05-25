@@ -42,16 +42,33 @@ Before setting up a new project make sure you have the following installed:
 It's not a requirement, but it is recommended that you install Python using [Pyenv](https://github.com/pyenv/pyenv) with the [virtualenvwrapper](https://github.com/pyenv/pyenv-virtualenvwrapper) plugin. 
 
 
-One-liner Quickstart
---------------------
-
-Running the following script does the same thing as quickstart guide.
-
-    $ bash <(curl -s https://raw.githubusercontent.com/epicserve/django-base-site/master/start_new_site.sh)
-
-
 Quickstart
 ----------
+
+### Using the Install Script
+
+Running the following script mostly does the same thing as manual quickstart method. The exception is that the install
+script has questions to customize your new project setup. Just run the following in your terminal to get started.
+
+    $ bash <(curl -s https://raw.githubusercontent.com/epicserve/django-base-site/master/start_new_site.sh)
+    
+Example output:
+
+    $ cd ~/Sites
+    $ bash <(curl -s https://raw.githubusercontent.com/epicserve/django-base-site/master/start_new_site.sh)
+    
+    What is the project name slug [example]?
+    What directory do you want your project in [/Users/brento/Sites/example]?
+    Are going to use Docker Compose (Y/n)? Y
+    Are going to Heroku for deployment (Y/n)? Y
+
+    Done.
+
+    To start Docker Compose run:
+    $ cd /Users/brento/Sites/example
+    $ docker-compose up
+
+### Manual
 
     $ curl -LOk https://github.com/epicserve/django-base-site/archive/master.zip && unzip master
     $ mv django-base-site-master example
