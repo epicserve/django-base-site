@@ -11,7 +11,10 @@ const config = {
 };
 
 function css() {
-  return src(config.scss_src_path)
+
+  const path = (typeof arguments[0] === 'string') ? arguments[0] : config.scss_src_path;
+
+  return src(path)
     .pipe(sourcemaps.init())
       .pipe(sass({
         outputStyle: 'compressed',
@@ -30,7 +33,10 @@ function css() {
 
 function watch() {
   livereload.listen({start: true});
-  return gulpWatch(config.scss_src_path, parallel(css));
+  return gulpWatch(config.scss_src_path)
+    .on('change', (file) => {
+      return css(file)
+    });
 }
 
 exports.css = css;
