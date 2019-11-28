@@ -1,63 +1,30 @@
-var babel = require("gulp-babel");
-var browser = require("gulp-browser");
-var del = require('del');
-var gulp = require('gulp');
-var livereload = require('gulp-livereload');
-var rename = require('gulp-rename');
-var sass = require('gulp-sass');
-var sourcemaps = require('gulp-sourcemaps');
+const { src, dest, parallel } = require('gulp'),
+      rename = require('gulp-rename'),
+      sass = require('gulp-sass'),
+      sourcemaps = require('gulp-sourcemaps');
 
-
-var config = {
+const config = {
   boostrap_sass_dir: './node_modules/bootstrap/scss',
-  js_source: './src/js/**/*.js',
-  static_css_dir: './public/static/css',
-  static_js_dir: './public/static/js'
+  scss_src_path: './src/scss/**/*.scss',
+  css_dist_path: './public/static/css',
 };
 
-
-gulp.task('js', function() {
-  del([config.static_js_dir]);
-  var stream = gulp.src(config.js_source)
+function css() {
+  return src(config.scss_src_path)
     .pipe(sourcemaps.init())
-      .pipe(browser.browserify())
-      .pipe(babel())
+      .pipe(sass({
+        outputStyle: 'compressed',
+        includePaths: [config.boostrap_sass_dir]
+      }))
+      .pipe(rename({
+        suffix: '.min'
+      }))
     .pipe(sourcemaps.write('maps', {
       includeContent: true,
-      sourceRoot: config.js_source
+      sourceRoot: config.scss_src_path
     }))
-    .pipe(gulp.dest(config.static_js_dir));
-  return stream;
-});
+    .pipe(dest(config.css_dist_path))
+}
 
-
-gulp.task('sass', function () {
-  del([config.static_css_dir]);
-  gulp.src('./src/scss/**/*.scss')
-    .pipe(sourcemaps.init())
-    .pipe(sass({
-      outputStyle: 'compressed',
-      includePaths: [config.boostrap_sass_dir]
-    }).on('error', sass.logError))
-    .pipe(rename({
-      suffix: '.min'
-    }))
-    .pipe(sourcemaps.write('maps', {
-      includeContent: true,
-      sourceRoot: config.static_css_dir
-    }))
-    .pipe(gulp.dest(config.static_css_dir))
-    .pipe(livereload());
-});
-
-
-gulp.task('watch', function () {
-  livereload.listen();
-  gulp.watch('./src/js/**/*.js', ['build']);
-  gulp.watch('./src/scss/**/*.scss', ['sass']);
-  gulp.watch('./*.html').on('change', livereload.changed);
-});
-
-
-gulp.task('build', ['sass', 'js']);
-gulp.task('default', ['build', 'watch']);
+exports.css = css;
+exports.default = parallel(css);
