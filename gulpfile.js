@@ -1,4 +1,4 @@
-const { src, dest, parallel, watch: gulpWatch, task } = require('gulp'),
+const { src, dest, parallel, watch: gulpWatch } = require('gulp'),
       babel = require('gulp-babel'),
       livereload = require('gulp-livereload'),
       rename = require('gulp-rename'),
@@ -54,8 +54,6 @@ function watch() {
       return css(file)
     });
 }
-
-task(js, css);
 
 exports.css = css;
 exports.js = js;
