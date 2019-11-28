@@ -36,22 +36,35 @@ function css() {
 }
 
 function js() {
-	return src(config.js_src_path)
-		.pipe(babel({
-			presets: ['@babel/preset-env']
-		}))
-    .pipe(uglify())
-    .pipe(rename({
-      suffix: '.min'
+
+  const path = (typeof arguments[0] === 'string') ? arguments[0] : config.js_src_path;
+
+	return src(path)
+    .pipe(sourcemaps.init())
+      .pipe(babel({
+        presets: ['@babel/preset-env']
+      }))
+      .pipe(uglify())
+      .pipe(rename({
+        suffix: '.min'
+      }))
+    .pipe(sourcemaps.write('maps', {
+      includeContent: true,
+      sourceRoot: config.js_src_path
     }))
-		.pipe(dest(config.js_dist_path));
+		.pipe(dest(config.js_dist_path))
+	  .pipe(livereload());
 }
 
 function watch() {
   livereload.listen({start: true});
-  return gulpWatch(config.scss_src_path)
+  gulpWatch(config.scss_src_path)
     .on('change', (file) => {
       return css(file)
+    });
+  gulpWatch(config.js_src_path)
+    .on('change', (file) => {
+      return js(file)
     });
 }
 
