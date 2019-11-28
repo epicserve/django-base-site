@@ -1,13 +1,17 @@
-const { src, dest, parallel, watch: gulpWatch } = require('gulp'),
+const { src, dest, parallel, watch: gulpWatch, task } = require('gulp'),
+      babel = require('gulp-babel'),
       livereload = require('gulp-livereload'),
       rename = require('gulp-rename'),
       sass = require('gulp-sass'),
-      sourcemaps = require('gulp-sourcemaps');
+      sourcemaps = require('gulp-sourcemaps'),
+      uglify = require('gulp-uglify');
 
 const config = {
   boostrap_sass_dir: './node_modules/bootstrap/scss',
   scss_src_path: './src/scss/**/*.scss',
   css_dist_path: './public/static/css',
+  js_src_path: './src/js/**/*.js',
+  js_dist_path: './public/static/js',
 };
 
 function css() {
@@ -31,6 +35,18 @@ function css() {
     .pipe(livereload());
 }
 
+function js() {
+	return src(config.js_src_path)
+		.pipe(babel({
+			presets: ['@babel/preset-env']
+		}))
+    .pipe(uglify())
+    .pipe(rename({
+      suffix: '.min'
+    }))
+		.pipe(dest(config.js_dist_path));
+}
+
 function watch() {
   livereload.listen({start: true});
   return gulpWatch(config.scss_src_path)
@@ -39,6 +55,9 @@ function watch() {
     });
 }
 
+task(js, css);
+
 exports.css = css;
+exports.js = js;
 exports.watch = watch;
-exports.default = parallel(css, watch);
+exports.default = parallel(css, js, watch);

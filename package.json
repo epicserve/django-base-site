@@ -3,12 +3,16 @@
   "description": "Django Base Site",
   "dependencies": {},
   "devDependencies": {
+    "@babel/core": "^7.7.4",
+    "@babel/preset-env": "^7.7.4",
     "bootstrap": "^4.4.1",
     "gulp": "^4.0.2",
+    "gulp-babel": "^8.0.0",
     "gulp-livereload": "^4.0.2",
     "gulp-rename": "^1.4.0",
     "gulp-sass": "^4.0.2",
     "gulp-sourcemaps": "^2.6.5",
+    "gulp-uglify": "^3.0.2",
     "jquery": "^3.4.1",
     "popper.js": "^1.16.0"
   },
