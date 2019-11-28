@@ -1,4 +1,4 @@
-const { src, dest, parallel } = require('gulp'),
+const { src, dest, parallel, watch: gulpWatch } = require('gulp'),
       rename = require('gulp-rename'),
       sass = require('gulp-sass'),
       sourcemaps = require('gulp-sourcemaps');
@@ -26,5 +26,10 @@ function css() {
     .pipe(dest(config.css_dist_path))
 }
 
+function watch() {
+  return gulpWatch(config.scss_src_path, parallel(css));
+}
+
 exports.css = css;
-exports.default = parallel(css);
+exports.watch = watch;
+exports.default = parallel(css, watch);
