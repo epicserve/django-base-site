@@ -1,4 +1,5 @@
 const { src, dest, parallel, watch: gulpWatch } = require('gulp'),
+      livereload = require('gulp-livereload'),
       rename = require('gulp-rename'),
       sass = require('gulp-sass'),
       sourcemaps = require('gulp-sourcemaps');
@@ -24,9 +25,11 @@ function css() {
       sourceRoot: config.scss_src_path
     }))
     .pipe(dest(config.css_dist_path))
+    .pipe(livereload());
 }
 
 function watch() {
+  livereload.listen({start: true});
   return gulpWatch(config.scss_src_path, parallel(css));
 }
 

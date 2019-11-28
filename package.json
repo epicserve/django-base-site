@@ -5,6 +5,7 @@
   "devDependencies": {
     "bootstrap": "^4.4.1",
     "gulp": "^4.0.2",
+    "gulp-livereload": "^4.0.2",
     "gulp-rename": "^1.4.0",
     "gulp-sass": "^4.0.2",
     "gulp-sourcemaps": "^2.6.5",
