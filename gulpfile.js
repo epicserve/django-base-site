@@ -67,11 +67,11 @@ function js(done, file) {
       .pipe(sourcemaps.init({ loadMaps: true }))
         .pipe(uglify())
       .pipe(sourcemaps.write('maps'))
-      .pipe(dest(paths.jsDistDir));
+      .pipe(dest(paths.jsDistDir))
+      .pipe(livereload());
 
   });
 
-  livereload();
   done();
 
 }
