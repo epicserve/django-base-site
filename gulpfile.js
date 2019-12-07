@@ -1,74 +1,102 @@
-const { src, dest, parallel, watch: gulpWatch } = require('gulp'),
-      babel = require('gulp-babel'),
+const { dest, series, src, parallel, watch: gulpWatch } = require('gulp'),
+      babel = require("babelify"),
+      browserify = require("browserify"),
+      buffer = require("vinyl-buffer"),
+      del = require('del'),
+      glob = require('glob'),
       livereload = require('gulp-livereload'),
       rename = require('gulp-rename'),
       sass = require('gulp-sass'),
+      source = require("vinyl-source-stream"),
       sourcemaps = require('gulp-sourcemaps'),
       uglify = require('gulp-uglify');
 
-const config = {
-  boostrap_sass_dir: './node_modules/bootstrap/scss',
-  scss_src_path: './src/scss/**/*.scss',
-  css_dist_path: './public/static/css',
-  js_src_path: './src/js/**/*.js',
-  js_dist_path: './public/static/js',
+const paths = {
+  boostrapSassDir: './node_modules/bootstrap/scss',
+  scssSrcPath: './src/scss/**/*.scss',
+  cssDistDir: './public/static/css',
+  jsSrcPath: './src/js/**/*.js',
+  jsDistDir: './public/static/js',
 };
 
-function css() {
 
-  const path = (typeof arguments[0] === 'string') ? arguments[0] : config.scss_src_path;
+function clean(done) {
+  del([paths.cssDistDir, paths.jsDistDir]);
+  done();
+}
 
-  return src(path)
+function css(done, file) {
+
+  const entries = (file === undefined) ? paths.scssSrcPath : [file];
+
+  return src(entries)
     .pipe(sourcemaps.init())
       .pipe(sass({
         outputStyle: 'compressed',
-        includePaths: [config.boostrap_sass_dir]
+        includePaths: [paths.boostrapSassDir]
       }))
       .pipe(rename({
         suffix: '.min'
       }))
     .pipe(sourcemaps.write('maps', {
       includeContent: true,
-      sourceRoot: config.scss_src_path
+      sourceRoot: paths.scssSrcPath
     }))
-    .pipe(dest(config.css_dist_path))
+    .pipe(dest(paths.cssDistDir))
     .pipe(livereload());
 }
 
-function js() {
+// Adapted from https://github.com/MaheshSasidharan/gulp-babel-browserify/blob/master/gulpfile.js
+function js(done, file) {
 
-  const path = (typeof arguments[0] === 'string') ? arguments[0] : config.js_src_path;
+  const entries = (file === undefined) ? glob.sync(paths.jsSrcPath) : [file];
 
-	return src(path)
-    .pipe(sourcemaps.init())
-      .pipe(babel({
-        presets: ['@babel/preset-env']
-      }))
-      .pipe(uglify())
-      .pipe(rename({
-        suffix: '.min'
-      }))
-    .pipe(sourcemaps.write('maps', {
-      includeContent: true,
-      sourceRoot: config.js_src_path
-    }))
-		.pipe(dest(config.js_dist_path))
-	  .pipe(livereload());
+  entries.forEach((entry) => {
+    let fileName = entry.split('/').pop(),
+        bundleName = fileName.replace(/\.js$/, '.min.js');
+
+    const bundler = browserify({entries: entry}, { debug: true })
+          .transform(babel.configure({
+            presets: ["@babel/preset-env"]
+          }));
+
+    bundler.bundle()
+      .on("error", function (err) { console.error(err); this.emit("end"); })
+      .pipe(source(bundleName))
+      .pipe(buffer())
+      .pipe(sourcemaps.init({ loadMaps: true }))
+        .pipe(uglify())
+      .pipe(sourcemaps.write('maps'))
+      .pipe(dest(paths.jsDistDir));
+
+  });
+
+  livereload();
+  done();
+
 }
 
-function watch() {
+function watch(done) {
+
   livereload.listen({start: true});
-  gulpWatch(config.scss_src_path)
+
+  gulpWatch(paths.scssSrcPath)
     .on('change', (file) => {
-      return css(file)
+      return css(done, file)
     });
-  gulpWatch(config.js_src_path)
+
+  gulpWatch(paths.jsSrcPath)
     .on('change', (file) => {
-      return js(file)
+      return js(done, file)
     });
+
+  done();
+
 }
 
+exports.clean = clean;
 exports.css = css;
 exports.js = js;
 exports.watch = watch;
-exports.default = parallel(css, js, watch);
+exports.build = series(clean, parallel(css, js));
+exports.default = series(clean, css, js, watch);
