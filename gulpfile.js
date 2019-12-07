@@ -1,63 +1,102 @@
-var babel = require("gulp-babel");
-var browser = require("gulp-browser");
-var del = require('del');
-var gulp = require('gulp');
-var livereload = require('gulp-livereload');
-var rename = require('gulp-rename');
-var sass = require('gulp-sass');
-var sourcemaps = require('gulp-sourcemaps');
+const { dest, series, src, parallel, watch: gulpWatch } = require('gulp'),
+      babel = require("babelify"),
+      browserify = require("browserify"),
+      buffer = require("vinyl-buffer"),
+      del = require('del'),
+      glob = require('glob'),
+      livereload = require('gulp-livereload'),
+      rename = require('gulp-rename'),
+      sass = require('gulp-sass'),
+      source = require("vinyl-source-stream"),
+      sourcemaps = require('gulp-sourcemaps'),
+      uglify = require('gulp-uglify');
 
-
-var config = {
-  boostrap_sass_dir: './node_modules/bootstrap/scss',
-  js_source: './src/js/**/*.js',
-  static_css_dir: './public/static/css',
-  static_js_dir: './public/static/js'
+const paths = {
+  boostrapSassDir: './node_modules/bootstrap/scss',
+  scssSrcPath: './src/scss/**/*.scss',
+  cssDistDir: './public/static/css',
+  jsSrcPath: './src/js/**/*.js',
+  jsDistDir: './public/static/js',
 };
 
 
-gulp.task('js', function() {
-  del([config.static_js_dir]);
-  var stream = gulp.src(config.js_source)
+function clean(done) {
+  del([paths.cssDistDir, paths.jsDistDir]);
+  done();
+}
+
+function css(done, file) {
+
+  const entries = (file === undefined) ? paths.scssSrcPath : [file];
+
+  return src(entries)
     .pipe(sourcemaps.init())
-      .pipe(browser.browserify())
-      .pipe(babel())
+      .pipe(sass({
+        outputStyle: 'compressed',
+        includePaths: [paths.boostrapSassDir]
+      }))
+      .pipe(rename({
+        suffix: '.min'
+      }))
     .pipe(sourcemaps.write('maps', {
       includeContent: true,
-      sourceRoot: config.js_source
+      sourceRoot: paths.scssSrcPath
     }))
-    .pipe(gulp.dest(config.static_js_dir));
-  return stream;
-});
-
-
-gulp.task('sass', function () {
-  del([config.static_css_dir]);
-  gulp.src('./src/scss/**/*.scss')
-    .pipe(sourcemaps.init())
-    .pipe(sass({
-      outputStyle: 'compressed',
-      includePaths: [config.boostrap_sass_dir]
-    }).on('error', sass.logError))
-    .pipe(rename({
-      suffix: '.min'
-    }))
-    .pipe(sourcemaps.write('maps', {
-      includeContent: true,
-      sourceRoot: config.static_css_dir
-    }))
-    .pipe(gulp.dest(config.static_css_dir))
+    .pipe(dest(paths.cssDistDir))
     .pipe(livereload());
-});
+}
 
+// Adapted from https://github.com/MaheshSasidharan/gulp-babel-browserify/blob/master/gulpfile.js
+function js(done, file) {
 
-gulp.task('watch', function () {
-  livereload.listen();
-  gulp.watch('./src/js/**/*.js', ['build']);
-  gulp.watch('./src/scss/**/*.scss', ['sass']);
-  gulp.watch('./*.html').on('change', livereload.changed);
-});
+  const entries = (file === undefined) ? glob.sync(paths.jsSrcPath) : [file];
 
+  entries.forEach((entry) => {
+    let fileName = entry.split('/').pop(),
+        bundleName = fileName.replace(/\.js$/, '.min.js');
 
-gulp.task('build', ['sass', 'js']);
-gulp.task('default', ['build', 'watch']);
+    const bundler = browserify({entries: entry}, { debug: true })
+          .transform(babel.configure({
+            presets: ["@babel/preset-env"]
+          }));
+
+    bundler.bundle()
+      .on("error", function (err) { console.error(err); this.emit("end"); })
+      .pipe(source(bundleName))
+      .pipe(buffer())
+      .pipe(sourcemaps.init({ loadMaps: true }))
+        .pipe(uglify())
+      .pipe(sourcemaps.write('maps'))
+      .pipe(dest(paths.jsDistDir))
+      .pipe(livereload());
+
+  });
+
+  done();
+
+}
+
+function watch(done) {
+
+  livereload.listen({start: true});
+
+  gulpWatch(paths.scssSrcPath)
+    .on('change', (file) => {
+      return css(done, file)
+    });
+
+  gulpWatch(paths.jsSrcPath)
+    .on('change', (file) => {
+      return js(done, file)
+    });
+
+  done();
+
+}
+
+exports.clean = clean;
+exports.css = css;
+exports.js = js;
+exports.watch = watch;
+exports.build = series(clean, parallel(css, js));
+exports.default = series(clean, css, js, watch);
