@@ -39,9 +39,8 @@ Features
 - `Coverage <https://bitbucket.org/ned/coveragepy>`_
 - `Custom User Model <https://docs.djangoproject.com/en/2.1/topics/auth/customizing/#substituting-a-custom-user-model>`_
 - `Django 2 <https://www.djangoproject.com/>`_
-- `Django Compressor <https://github.com/django-compressor/django-compressor>`_
 - `Django Crispy Forms <https://github.com/django-crispy-forms/django-crispy-forms>`_
-- `Django Debug Toolbar <https://github.com/django-compressor/django-compressor>`_
+- `Django Debug Toolbar <https://github.com/jazzband/django-debug-toolbar>`_
 - `Django REST framework <https://www.django-rest-framework.org/>`_
 - `Django-allauth <http://www.intenct.nl/projects/django-allauth/>`_
 - `Django-environ <https://django-environ.readthedocs.io/en/latest/>`_ for `12factor <https://www.12factor.net/>`_ inspired environment variables

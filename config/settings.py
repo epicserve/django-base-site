@@ -42,7 +42,6 @@ INSTALLED_APPS = [
     "apps.accounts",
     "allauth",
     "allauth.account",
-    "compressor",
     "crispy_forms",
     "storages",
 ]
@@ -116,25 +115,21 @@ USE_TZ = True
 STATICFILES_FINDERS = (
     "django.contrib.staticfiles.finders.FileSystemFinder",
     "django.contrib.staticfiles.finders.AppDirectoriesFinder",
-    "compressor.finders.CompressorFinder",
 )
 
 DEFAULT_FILE_STORAGE = env("DEFAULT_FILE_STORAGE", default="django.core.files.storage.FileSystemStorage")
 
 if DEFAULT_FILE_STORAGE.endswith("MediaS3Storage") is True:
     STATICFILES_STORAGE = env("STATICFILES_STORAGE")
-    COMPRESS_ROOT = STATICFILES_STORAGE
     AWS_ACCESS_KEY_ID = env("AWS_ACCESS_KEY_ID")
     AWS_SECRET_ACCESS_KEY = env("AWS_SECRET_ACCESS_KEY")
     AWS_STORAGE_BUCKET_NAME = env("AWS_STORAGE_BUCKET_NAME")
-    AWS_DEFAULT_ACL = None
+    AWS_DEFAULT_ACL = "public-read"
     AWS_S3_REGION = env("AWS_S3_REGION", default="us-east-2")
-    AWS_S3_CUSTOM_DOMAIN = "s3.{}.amazonaws.com/{}".format(AWS_S3_REGION, AWS_STORAGE_BUCKET_NAME)
+    AWS_S3_CUSTOM_DOMAIN = f"s3.{AWS_S3_REGION}.amazonaws.com/{AWS_STORAGE_BUCKET_NAME}"
     AWS_S3_OBJECT_PARAMETERS = {"CacheControl": "max-age=86400"}
-    STATIC_URL = "https://{}/static/".format(AWS_S3_CUSTOM_DOMAIN)
-    MEDIA_URL = "https://{}/media/".format(AWS_S3_CUSTOM_DOMAIN)
-    COMPRESS_URL = STATIC_URL
-    COMPRESS_STORAGE = STATICFILES_STORAGE
+    STATIC_URL = f"https://{AWS_S3_CUSTOM_DOMAIN}/static/"
+    MEDIA_URL = f"https://{AWS_S3_CUSTOM_DOMAIN}/media/"
     STATICFILES_DIRS = [str(BASE_DIR.joinpath("public", "static"))]
 
 else:

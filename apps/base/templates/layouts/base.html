@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-{% load compress static %}
+{% load static %}
 <html lang="en">
     <head>
         <meta charset="utf-8">
@@ -8,9 +8,7 @@
         {% block title_tag %}<title>{% block title %}{% endblock %}{% if SITE_NAME %} - {{ SITE_NAME }}{% endif %}</title>{% endblock title_tag %}
 
         {% block style %}
-        {% compress css %}
         <link rel="stylesheet" href="{% static 'dist/css/base.min.css' %}">
-        {% endcompress %}
         {% endblock style %}
 
         <!-- HTML5 Shim and Respond.js IE8 support of HTML5 elements and media queries -->
