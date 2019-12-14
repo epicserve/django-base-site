@@ -3,31 +3,24 @@
   "description": "Django Base Site",
   "dependencies": {},
   "devDependencies": {
-    "@babel/core": "^7.7.4",
-    "@babel/preset-env": "^7.7.4",
-    "babelify": "^10.0.0",
+    "@babel/core": "^7.7.5",
+    "babel-loader": "^8.0.6",
     "bootstrap": "^4.4.1",
-    "browserify": "^16.5.0",
-    "del": "^5.1.0",
-    "gulp": "^4.0.2",
-    "gulp-livereload": "^4.0.2",
-    "gulp-rename": "^1.4.0",
-    "gulp-sass": "^4.0.2",
-    "gulp-sourcemaps": "^2.6.5",
-    "gulp-uglify": "^3.0.2",
+    "clean-webpack-plugin": "^3.0.0",
+    "css-loader": "^3.2.1",
+    "eslint": "^6.7.2",
+    "eslint-config-airbnb-base": "^14.0.0",
+    "eslint-loader": "^3.0.3",
+    "eslint-plugin-import": "^2.19.1",
     "jquery": "^3.4.1",
-    "jshint": "^2.10.3",
+    "mini-css-extract-plugin": "^0.8.0",
+    "node-sass": "^4.13.0",
     "popper.js": "^1.16.0",
-    "stylelint": "^12.0.0",
-    "stylelint-config-prettier": "^8.0.0",
-    "stylelint-config-recess-order": "^2.0.3",
-    "stylelint-config-standard": "^19.0.0",
-    "stylelint-scss": "^3.13.0",
-    "vinyl-buffer": "^1.0.1",
-    "vinyl-source-stream": "^2.0.0"
-  },
-  "jshintConfig": {
-    "esversion": 6
+    "sass-loader": "^8.0.0",
+    "style-loader": "^1.0.1",
+    "webpack": "^4.41.2",
+    "webpack-cli": "^3.3.10",
+    "webpack-livereload-plugin": "^2.2.0"
   },
   "repository": {
     "type": "git",
@@ -38,5 +31,10 @@
   "bugs": {
     "url": "https://github.com/epicserve/django-base-site/issues"
   },
-  "homepage": "https://github.com/epicserve/django-base-site#readme"
+  "homepage": "https://github.com/epicserve/django-base-site#readme",
+  "scripts": {
+    "build": "npx webpack",
+    "watch": "npx webpack --watch",
+    "dev": "npx webpack --watch --progress"
+  }
 }

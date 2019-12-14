@@ -9,7 +9,7 @@
 
         {% block style %}
         {% compress css %}
-        <link rel="stylesheet" href="{% static 'css/base.min.css' %}">
+        <link rel="stylesheet" href="{% static 'dist/css/base.min.css' %}">
         {% endcompress %}
         {% endblock style %}
 
@@ -99,7 +99,7 @@
         {% endblock base_footer %}
 
         {% block bottom_script %}
-            <script src="{% static 'js/base.min.js' %}"></script>
+            <script src="{% static 'dist/js/base.min.js' %}"></script>
         {% endblock bottom_script %}
 
     </body>
