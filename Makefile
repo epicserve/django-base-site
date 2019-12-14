@@ -10,7 +10,7 @@ SHELL := bash
 # string to overwrite running with docker-compose.
 PYTHON_CMD_PREFIX ?= docker-compose run --no-deps --rm web
 PYTHON_CMD_PREFIX_WITH_WEB_PORT ?= docker-compose run -p 8000:8000 --no-deps --rm web
-NODE_CMD_PREFIX ?= docker-compose run --no-deps --rm node
+NODE_CMD_PREFIX ?= docker-compose run --no-deps --rm -e NODE_ENV=production node
 HELP_FIRST_COL_LENGTH := 23
 
 # COLORS
@@ -54,9 +54,9 @@ lint_py: ## Lint Python code flake8
 	@$(PYTHON_CMD_PREFIX) flake8
 
 .PHONY: lint_js
-lint_js: ## Lint Javascript code with jshint
-	@echo "Checking Javascript code using jshint ..."
-	@$(NODE_CMD_PREFIX) npx jshint ./src/js/
+lint_js: ## Lint Javascript code with eslint
+	@echo "Checking Javascript code using eslint ..."
+	@$(NODE_CMD_PREFIX) npx eslint ./src/js/
 
 .PHONY: lint_imports
 lint_imports: ## Lint Python imports with isort

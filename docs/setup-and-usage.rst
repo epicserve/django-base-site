@@ -79,15 +79,14 @@ After following the `Setup Instructions`_ you can work on your project again by 
 
 **How to edit and build the SCSS and Javascript source files:**
 
-First from the root of the project install gulp and the node requirements. This requires that your first install `node <https://nodejs.org/en/>`_.
+First from the root of the project install webpack and the node requirements. This requires that your first install `node <https://nodejs.org/en/>`_.
 
 .. code-block:: bash
 
-    $ npm install -g gulp
     $ npm install
 
-Then you can run ``gulp`` which will watch for changes to your SCSS and Javascript files changes in the ``./src`` directory.
+Then you can run ``webpack`` which will watch for changes to your SCSS and Javascript files changes in the ``./src`` directory.
 
 .. code-block:: bash
 
-    $ gulp
+    $ npm run watch

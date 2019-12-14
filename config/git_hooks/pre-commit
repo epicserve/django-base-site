@@ -1,7 +1,7 @@
 #!/usr/bin/env sh
 
 export PY_CMD='docker-compose run --rm --no-deps web'
-export NODE_CMD='docker-compose run --rm --no-deps node'
+export NODE_CMD='docker-compose run --rm --no-deps -e NODE_ENV=production node'
 export PY_FILES=$(git diff --staged --name-only HEAD | grep '.py$')
 export JS_FILES=$(git diff --staged --name-only HEAD | egrep 'src/js/*')
 export SCSS_FILES=$(git diff --staged --name-only HEAD | egrep 'src/scss/*')
@@ -40,7 +40,7 @@ if [[ -n "${JS_FILES}" ]]; then
     ${NODE_CMD} npx prettier --write ${JS_FILES} && git add ${JS_FILES}
 
     echo "\n${GREEN}Linting Javascript files ...${NC}"
-    ${NODE_CMD} npx jshint ${JS_FILES}
+    ${NODE_CMD} npx eslint ${JS_FILES}
     if [[ $? -ne 0 ]]; then
         export ERRORS=1
     else

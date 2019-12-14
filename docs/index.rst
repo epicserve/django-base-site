@@ -46,9 +46,11 @@ Features
 - `Django-allauth <http://www.intenct.nl/projects/django-allauth/>`_
 - `Django-environ <https://django-environ.readthedocs.io/en/latest/>`_ for `12factor <https://www.12factor.net/>`_ inspired environment variables
 - `Docker Support <https://www.docker.com/>`_
-- `Gulp <https://gulpjs.com/>`_ for building SASS and JS with `Browserify <http://browserify.org/>`_ for requiring modules and `Babel <https://babeljs.io/>`_ for transpiling ES6/ES2015.
+- `Eslint <https://eslint.org/>`_ for linting Javascript
 - `Pipenv <https://github.com/kennethreitz/pipenv>`_
+- `Stylelint <https://stylelint.io/>`_ for linting SASS
 - `Vagrant Support <https://www.vagrantup.com/>`_
+- `Webpack <https://webpack.js.org/>`_ for building SASS and JS with `Babel <https://babeljs.io/>`_
 - Sample configs for `Apache <https://github.com/epicserve/django-base-site/tree/master/config/apache>`_, `Gunicorn <https://github.com/epicserve/django-base-site/tree/master/config/gunicorn>`_, `Nginx <https://github.com/epicserve/django-base-site/tree/master/config/nginx>`_ and `Upstart <https://github.com/epicserve/django-base-site/tree/master/config/upstart>`_
 
 Contribute

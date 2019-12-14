@@ -59,7 +59,7 @@ services:
       dockerfile: Dockerfile.node
     working_dir: /code
 
-    command: sh -c "npx gulp"
+    command: sh -c "npm run watch"
 
     volumes:
       - .:/code
@@ -67,6 +67,9 @@ services:
 
     ports:
       - 35729:35729
+
+    environment:
+      NODE_ENV: development
 
 volumes:
   postgres_data:
