@@ -81,11 +81,11 @@ PyCharm
 - You'll also need to add 172.18.0.1 to your INTERNAL_IPS.
 
 
-Running Gulp
-------------
+Running Webpack
+---------------
 
-- When you run ``docker-compose up`` it starts the node service which should run gulp.
-- If you want to run gulp by itself, you can run it with a command like, ``docker-compose run --rm node``.
+- When you run ``docker-compose up`` it starts the node service which should run webpack --watch.
+- If you want to run webpack by itself, you can run it with a command like, ``docker-compose run --rm node npm run (build|watch)``.
 
 
 Common Gotchas
