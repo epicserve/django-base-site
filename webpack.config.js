@@ -1,20 +1,45 @@
 // const webpack = require( 'webpack' );
 const path = require('path'),
       {CleanWebpackPlugin} = require('clean-webpack-plugin'),
+      glob = require('glob'),
       LiveReloadPlugin = require('webpack-livereload-plugin'),
       MiniCssExtractPlugin = require('mini-css-extract-plugin'),
       StylelintPlugin = require('stylelint-webpack-plugin'),
       isDevMode = process.env.NODE_ENV === 'development';
 
+const paths = {
+  sassFiles: glob.sync('./src/scss/**/*.scss'),
+  jsFiles: glob.sync('./src/js/**/*.js'),
+  outputDir: path.join(__dirname, 'public/static/dist/'),
+};
+
+function getEntries() {
+  let entries = {};
+
+  paths.sassFiles.forEach((srcFile) => {
+    let dstFile = srcFile.replace(/^\.\/src\/scss/, '/css').replace(/\.scss$/, '.min'),
+        fileName = srcFile.split('/').pop();
+
+    if (/^_/.test(fileName) === false) {
+      entries[dstFile] = srcFile;
+    }
+
+  });
+
+  paths.jsFiles.forEach((srcFile) => {
+    let dstFile = srcFile.replace(/^\.\/src/, '').replace('.js', '.min.js');
+    entries[dstFile] = srcFile;
+  });
+
+  return entries;
+}
+
 module.exports = {
   context: __dirname,
   mode: isDevMode ? 'development' : 'production',
-  entry: {
-    '/js/base.min.js': './src/js/base.js',
-    '/css/base.min': './src/scss/base.scss',
-  },
+  entry: getEntries,
   output: {
-    path: path.join(__dirname, 'public/static/dist/'),
+    path: paths.outputDir,
     filename: '[name]',
   },
   module: {
