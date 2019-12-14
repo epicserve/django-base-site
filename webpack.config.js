@@ -3,6 +3,7 @@ const path = require('path'),
       {CleanWebpackPlugin} = require('clean-webpack-plugin'),
       LiveReloadPlugin = require('webpack-livereload-plugin'),
       MiniCssExtractPlugin = require('mini-css-extract-plugin'),
+      StylelintPlugin = require('stylelint-webpack-plugin'),
       isDevMode = process.env.NODE_ENV === 'development';
 
 module.exports = {
@@ -64,6 +65,10 @@ module.exports = {
       filename: '[name].css',
       chunkFilename: '[id].css',
       ignoreOrder: false, // Enable to remove warnings about conflicting order
+    }),
+    new StylelintPlugin({
+      context: 'src/scss',
+      fix: true,
     }),
   ],
   // Necessary for file changes inside docker node volume to get picked up
