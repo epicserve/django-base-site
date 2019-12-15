@@ -136,8 +136,8 @@ else:
     # Local Storage
     public_root = BASE_DIR.joinpath("public")
     MEDIA_ROOT = str(public_root.joinpath("media"))
+    STATICFILES_DIRS = [str(BASE_DIR.joinpath("public", "static"))]
     MEDIA_URL = "/public/media/"
-    STATIC_ROOT = str(public_root.joinpath("static"))
     STATIC_URL = "/public/static/"
 
 # CACHE SETTINGS

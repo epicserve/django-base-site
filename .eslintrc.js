@@ -26,5 +26,8 @@ module.exports = {
         // Allow build dependencies to be in devDependencies instead of dependencies
         'import/no-extraneous-dependencies': ["error", {"devDependencies": true}],
 
+        // just one var declaration per function
+        'one-var': ['error', 'always'],
+
     },
 }

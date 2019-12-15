@@ -1,11 +1,12 @@
 import jQuery from 'jquery';
 import 'bootstrap';
 
-const $ = jQuery;
+const $ = jQuery,
+  myArr = [1, 2, 3].map((n) => n + 1);
+
 window.$ = jQuery;
 window.jQuery = jQuery;
 
-const myArr = [1, 2, 3].map((n) => n + 1);
 if (myArr.toString() !== '2,3,4') {
   console.error("Array didn't transpile.");
 }

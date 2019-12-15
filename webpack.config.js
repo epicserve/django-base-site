@@ -1,33 +1,31 @@
 // const webpack = require( 'webpack' );
 const path = require('path'),
-      {CleanWebpackPlugin} = require('clean-webpack-plugin'),
-      glob = require('glob'),
-      LiveReloadPlugin = require('webpack-livereload-plugin'),
-      MiniCssExtractPlugin = require('mini-css-extract-plugin'),
-      StylelintPlugin = require('stylelint-webpack-plugin'),
-      isDevMode = process.env.NODE_ENV === 'development';
-
-const paths = {
-  sassFiles: glob.sync('./src/scss/**/*.scss'),
-  jsFiles: glob.sync('./src/js/**/*.js'),
-  outputDir: path.join(__dirname, 'public/static/dist/'),
-};
+  { CleanWebpackPlugin } = require('clean-webpack-plugin'),
+  glob = require('glob'),
+  LiveReloadPlugin = require('webpack-livereload-plugin'),
+  MiniCssExtractPlugin = require('mini-css-extract-plugin'),
+  StylelintPlugin = require('stylelint-webpack-plugin'),
+  isDevMode = process.env.NODE_ENV === 'development',
+  paths = {
+    sassFiles: glob.sync('./src/scss/**/*.scss'),
+    jsFiles: glob.sync('./src/js/**/*.js'),
+    outputDir: path.join(__dirname, 'public/static/dist/'),
+  };
 
 function getEntries() {
-  let entries = {};
+  const entries = {};
 
   paths.sassFiles.forEach((srcFile) => {
-    let dstFile = srcFile.replace(/^\.\/src\/scss/, '/css').replace(/\.scss$/, '.min'),
-        fileName = srcFile.split('/').pop();
+    const dstFile = srcFile.replace(/^\.\/src\/scss/, '/css').replace(/\.scss$/, '.min'),
+      fileName = srcFile.split('/').pop();
 
     if (/^_/.test(fileName) === false) {
       entries[dstFile] = srcFile;
     }
-
   });
 
   paths.jsFiles.forEach((srcFile) => {
-    let dstFile = srcFile.replace(/^\.\/src/, '').replace('.js', '.min.js');
+    const dstFile = srcFile.replace(/^\.\/src/, '').replace('.js', '.min.js');
     entries[dstFile] = srcFile;
   });
 
