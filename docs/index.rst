@@ -34,6 +34,7 @@ It's not a requirement, but it is recommended that you install Python using `Pye
 Features
 --------
 
+- `Black <https://black.readthedocs.io/en/stable/>`_ for automatic Python code formatting
 - `Bootstrap 4 <https://getbootstrap.com/>`_
 - `Celery <http://docs.celeryproject.org/>`_
 - `Coverage <https://bitbucket.org/ned/coveragepy>`_
