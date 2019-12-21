@@ -41,7 +41,8 @@
   "homepage": "https://github.com/epicserve/django-base-site#readme",
   "scripts": {
     "build": "npx webpack",
-    "watch": "npx webpack --watch",
     "dev": "npx webpack --watch --progress"
+    "postinstall": "npx webpack",
+    "watch": "npx webpack --watch",
   }
 }
