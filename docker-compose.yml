@@ -63,7 +63,7 @@ services:
 
     volumes:
       - .:/code
-      - /code/node_modules
+      - node_data:/code/node_modules
 
     ports:
       - 35729:35729
@@ -74,3 +74,4 @@ services:
 volumes:
   postgres_data:
   redis_data:
+  node_data:
