@@ -5,4 +5,4 @@ WORKDIR /code
 COPY package.json package-lock.json ./
 
 # Install Node packages
-RUN npm i
+RUN npm ci
