@@ -26,7 +26,8 @@ module.exports = {
     // ===
     // SCSS
     // ===
-    'indentation': 2,
+    indentation: 2,
+    'declaration-block-semicolon-newline-after': 'always',
     'declaration-colon-space-after': 'always',
     'declaration-colon-space-before': 'never',
     'declaration-block-trailing-semicolon': 'always',
@@ -43,5 +44,11 @@ module.exports = {
     // Allow SCSS and CSS module keywords beginning with `@`
     'at-rule-no-unknown': null,
     'scss/at-rule-no-unknown': true,
+    'block-opening-brace-newline-after': 'always',
+    'block-closing-brace-newline-before': 'always',
+    'block-closing-brace-newline-after': 'always',
+    'block-opening-brace-space-before': 'always',
+    'block-closing-brace-empty-line-before': 'never',
+    'max-empty-lines': 1,
   },
-}
+};
