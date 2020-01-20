@@ -1,19 +1,16 @@
 import sys
-from pathlib import Path
 from urllib.parse import urlparse
 
-import environ
+import environs
 
-root = environ.Path(__file__) - 2  # three folder back (/a/b/c/ - 3 = /)
+env = environs.Env()
 
-BASE_DIR = Path(root())
-
-env = environ.Env()
+BASE_DIR = environs.Path(__file__).parent.parent
 
 READ_DOT_ENV_FILE = env.bool("READ_DOT_ENV_FILE", default=True)
 
 if READ_DOT_ENV_FILE is True:
-    environ.Env.read_env(str(BASE_DIR.joinpath(".env")))
+    env.read_env(str(BASE_DIR.joinpath(".env")))
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/2.2/howto/deployment/checklist/
@@ -78,8 +75,12 @@ TEMPLATES = [
 WSGI_APPLICATION = env("WSGI_APPLICATION", default="config.wsgi.application")
 
 # Database
-# https://github.com/kennethreitz/dj-database-url#url-schema
-DATABASES = {"default": env.db(default="sqlite:///{0}".format(BASE_DIR.joinpath("db.sqlite")))}
+# See https://github.com/jacobian/dj-database-url for more examples
+DATABASES = {
+    "default": env.dj_db_url(
+        "DATABASE_URL", default=f'sqlite:///{BASE_DIR.joinpath("db.sqlite")}', ssl_require=not DEBUG
+    )
+}
 
 # Custom User Model
 # https://docs.djangoproject.com/en/2.1/topics/auth/customizing/#substituting-a-custom-user-model
@@ -200,16 +201,15 @@ ACCOUNT_EMAIL_REQUIRED = True
 ACCOUNT_CONFIRM_EMAIL_ON_GET = True
 ACCOUNT_EMAIL_VERIFICATION = "mandatory"
 
-# Example Gmail settings if you need to send email from a local Django dev
-# site. Uncomment the following and change the username and password to
-# whatever they are for your Gmail account. Make sure don't use Gmail for
-# sending email on a production website.
-DEFAULT_FROM_EMAIL = env("DEFAULT_FROM_EMAIL")
-EMAIL_HOST = env("EMAIL_HOST", default="smtp.gmail.com")
-EMAIL_HOST_USER = env("EMAIL_HOST_USER")
-EMAIL_HOST_PASSWORD = env("EMAIL_HOST_PASSWORD")
-EMAIL_PORT = env.int("EMAIL_PORT", default=587)
-EMAIL_USE_TLS = env.bool("EMAIL_USE_TLS", default=True)
+# See https://github.com/migonzalvar/dj-email-url for more examples on how to set the EMAIL_URL
+# SMTP Example: EMAIL_URL='smtp://username:password@smtp.mailtrap.io:587/?ssl=True&_default_from_email=John%20Example%20%3Cjohn%40example.com%3E'
+email = env.dj_email_url("EMAIL_URL", default="smtp://")
+DEFAULT_FROM_EMAIL = email["DEFAULT_FROM_EMAIL"]
+EMAIL_HOST = email["EMAIL_HOST"]
+EMAIL_PORT = email["EMAIL_PORT"]
+EMAIL_HOST_PASSWORD = email["EMAIL_HOST_PASSWORD"]
+EMAIL_HOST_USER = email["EMAIL_HOST_USER"]
+EMAIL_USE_TLS = email["EMAIL_USE_TLS"]
 
 REST_FRAMEWORK = {
     # Use Django's standard `django.contrib.auth` permissions,
