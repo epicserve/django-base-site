@@ -5,7 +5,7 @@ import environs
 
 env = environs.Env()
 
-BASE_DIR = environs.Path(__file__).parent.parent
+BASE_DIR = environs.Path(__file__).parent.parent  # type: ignore
 
 READ_DOT_ENV_FILE = env.bool("READ_DOT_ENV_FILE", default=True)
 

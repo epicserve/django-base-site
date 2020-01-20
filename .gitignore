@@ -8,3 +8,4 @@
 /latest.dump
 /node_modules
 /public/static/dist
+.mypy_cache/

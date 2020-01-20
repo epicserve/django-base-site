@@ -31,6 +31,16 @@ if [[ -n "${PY_FILES}" ]]; then
     else
         echo "${GREEN}✓ Python imports okay${NC}"
     fi
+
+    echo ""
+    echo "${GREEN}Linting Python types ...${NC}"
+    ${PY_CMD} mypy ${PY_FILES}
+    if [[ $? -ne 0 ]]; then
+        export ERRORS=1
+    else
+        echo "${GREEN}✓ Python types okay${NC}"
+    fi
+
 fi
 
 if [[ -n "${JS_FILES}" ]]; then

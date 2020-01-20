@@ -6,7 +6,7 @@ from fabric.colors import green
 env.roledefs = {"db": ["db.example.com"], "web": ["appserv.example.com"]}
 env.code_dir = "/srv/sites/example"
 env.virtualenv = "/usr/local/virtualenvs/example"
-env.django_project_root = dja_settings.DJANGO_PROJECT_ROOT
+env.django_project_root = dja_settings.BASE_DIR
 env.django_settings_module = "config.settings"
 env.nginx_confs = ("example.com.conf",)
 env.upstart_confs = ("celeryd_example.com.conf", "gunicorn_example.com.conf")
@@ -18,7 +18,7 @@ env.cron_config_files = ("example_task",)
 def sync_database():
     "Refreshes the local copy of the database passed in by pulling it from the server specified"
 
-    params = {"db_name": dja_settings.DATABASE_NAME}
+    params = {"db_name": dja_settings.DATABASES["default"]["NAME"]}
     params.update(env)
 
     # dump the database and compress it on the remote server

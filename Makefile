@@ -68,13 +68,18 @@ lint_sass: ## Lint SASS code with stylelint
 	@echo "Checking SASS code using stylelint ..."
 	@$(NODE_CMD_PREFIX) npx stylelint ./src/scss/
 
+.PHONY: lint_types
+lint_types: ## Lint Python types
+	@echo "Checking python types ..."
+	@$(PYTHON_CMD_PREFIX) mypy .
+
 .PHONY: lint_docs
 lint_docs: ## Lint docs with Sphinx
 	@echo "Check sphinx docs ..."
 	@$(PYTHON_CMD_PREFIX) sphinx-build -nW -b json -d ./docs/_build/doctrees ./docs ./docs/_build/json
 
 .PHONY: lint
-lint: lint_js lint_sass lint_py lint_imports ## Lint Javascript, SASS, Python and Python imports
+lint: lint_js lint_sass lint_py lint_imports lint_types ## Lint Javascript, SASS, Python, Python imports and Python types
 
 .PHONY: remove_coverage_data
 remove_coverage_data: ## Remove Django test coverage data 
