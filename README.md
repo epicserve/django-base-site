@@ -26,6 +26,7 @@ Features
 - [Docker Support](https://www.docker.com/)
 - [Eslint](https://eslint.org/) for linting Javascript
 - [Environs](https://github.com/sloria/environs) for [12factor](https://www.12factor.net/) inspired environment variables
+- [Mypy](http://mypy-lang.org/) for Python Type checking
 - [Pipenv](https://github.com/kennethreitz/pipenv)
 - [Stylelint](https://stylelint.io/) for linting SASS
 - [Vagrant Support](https://www.vagrantup.com/)
