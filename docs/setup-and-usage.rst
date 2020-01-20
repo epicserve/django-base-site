@@ -37,10 +37,7 @@ Setup your virtualenv with pipenv and install the project requirements.
     $ cat > .env <<EOF
     DEBUG=on
     SECRET_KEY='$SECRET_KEY'
-    EMAIL_HOST='smtp.planetspaceball.com'
-    EMAIL_HOST_USER='skroob@planetspaceball.com'
-    EMAIL_HOST_PASSWORD='12345'
-    DEFAULT_FROM_EMAIL="President Skroob <skroob@planetspaceball.com>"
+    EMAIL_URL='smtp://username:password@smtp.example.com:587/?ssl=True&_default_from_email=John%20Example%20%3Cjohn%40example.com%3E'
     EOF
     $ pipenv shell
 

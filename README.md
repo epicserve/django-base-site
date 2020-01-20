@@ -18,14 +18,14 @@ Features
 - [Celery](http://docs.celeryproject.org/)
 - [Coverage](https://bitbucket.org/ned/coveragepy)
 - [Custom User Model](https://docs.djangoproject.com/en/2.1/topics/auth/customizing/#substituting-a-custom-user-model)
-- [Django 2](https://www.djangoproject.com/)
+- [Django 3](https://www.djangoproject.com/)
 - [Django Crispy Forms](https://github.com/django-crispy-forms/django-crispy-forms)
 - [Django Debug Toolbar](https://github.com/jazzband/django-debug-toolbar)
 - [Django REST framework](https://www.django-rest-framework.org/)
 - [Django-allauth](http://www.intenct.nl/projects/django-allauth/)
-- [Django-environ](https://django-environ.readthedocs.io/en/latest/) for [12factor](https://www.12factor.net/) inspired environment variables
 - [Docker Support](https://www.docker.com/)
 - [Eslint](https://eslint.org/) for linting Javascript
+- [Environs](https://github.com/sloria/environs) for [12factor](https://www.12factor.net/) inspired environment variables
 - [Pipenv](https://github.com/kennethreitz/pipenv)
 - [Stylelint](https://stylelint.io/) for linting SASS
 - [Vagrant Support](https://www.vagrantup.com/)
@@ -80,10 +80,7 @@ Example output:
     $ cat > .env <<EOF
     DEBUG=on
     SECRET_KEY='$SECRET_KEY'
-    EMAIL_HOST='smtp.planetspaceball.com'
-    EMAIL_HOST_USER='skroob@planetspaceball.com'
-    EMAIL_HOST_PASSWORD='12345'
-    DEFAULT_FROM_EMAIL="President Skroob <skroob@planetspaceball.com>"
+    EMAIL_URL='smtp://username:password@smtp.example.com:587/?ssl=True&_default_from_email=John%20Example%20%3Cjohn%40example.com%3E'
     # Uncomment the following if you're using docker-compose
     # DATABASE_URL=postgres://postgres@db:5432/postgres
     EOF
@@ -107,10 +104,7 @@ Deploy on Heroku
     $ heroku config:set READ_DOT_ENV_FILE=off \
     WSGI_APPLICATION=config.heroku_wsgi.application \
     SECRET_KEY='random string of 50 chars' \
-    DEFAULT_FROM_EMAIL='$MAILGUN_SMTP_LOGIN' \
-    EMAIL_HOST='$MAILGUN_SMTP_SERVER' \
-    EMAIL_HOST_USER='$MAILGUN_SMTP_LOGIN' \
-    EMAIL_HOST_PASSWORD='$MAILGUN_SMTP_PASSWORD' \
+    EMAIL_URL='smtp://username:password@smtp.example.com:587/?ssl=True&_default_from_email=John%20Example%20%3Cjohn%40example.com%3E' \
     ALLOWED_HOSTS='*'
     $ git push --set-upstream heroku master
     $ heroku run python manage.py migrate

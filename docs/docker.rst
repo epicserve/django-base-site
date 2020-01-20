@@ -26,10 +26,7 @@ you can go through the following steps.
     DEBUG=on
     DATABASE_URL=postgres://postgres@db:5432/postgres
     SECRET_KEY='$SECRET_KEY'
-    EMAIL_HOST='smtp.planetspaceball.com'
-    EMAIL_HOST_USER='skroob@planetspaceball.com'
-    EMAIL_HOST_PASSWORD='12345'
-    DEFAULT_FROM_EMAIL="President Skroob <skroob@planetspaceball.com>"
+    EMAIL_URL='smtp://username:password@smtp.example.com:587/?ssl=True&_default_from_email=John%20Example%20%3Cjohn%40example.com%3E'
     ALLOWED_HOSTS=*
     INTERNAL_IPS=192.168.99.100,127.0.0.1,0.0.0.0,localhost,172.18.0.1
     REDIS_HOST=redis

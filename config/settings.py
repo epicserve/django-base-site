@@ -202,7 +202,7 @@ ACCOUNT_CONFIRM_EMAIL_ON_GET = True
 ACCOUNT_EMAIL_VERIFICATION = "mandatory"
 
 # See https://github.com/migonzalvar/dj-email-url for more examples on how to set the EMAIL_URL
-# SMTP Example: EMAIL_URL='smtp://username:password@smtp.mailtrap.io:587/?ssl=True&_default_from_email=John%20Example%20%3Cjohn%40example.com%3E'
+# SMTP Example: EMAIL_URL='smtp://username:password@smtp.example.com:587/?ssl=True&_default_from_email=John%20Example%20%3Cjohn%40example.com%3E'
 email = env.dj_email_url("EMAIL_URL", default="smtp://")
 DEFAULT_FROM_EMAIL = email["DEFAULT_FROM_EMAIL"]
 EMAIL_HOST = email["EMAIL_HOST"]
