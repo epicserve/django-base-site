@@ -71,10 +71,6 @@ SECRET_KEY=$(python -c "import random; print(''.join(random.SystemRandom().choic
 cat > .env <<EOF
 DEBUG=on
 SECRET_KEY='$SECRET_KEY'
-EMAIL_HOST='smtp.planetspaceball.com'
-EMAIL_HOST_USER='skroob@planetspaceball.com'
-EMAIL_HOST_PASSWORD='12345'
-DEFAULT_FROM_EMAIL="President Skroob <skroob@planetspaceball.com>"
 EOF
 
 make remove_extra_files
