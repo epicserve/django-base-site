@@ -50,8 +50,8 @@ fix_py_imports: ## Fix Python imports with isort
 
 .PHONY: lint_py
 lint_py: ## Lint Python code flake8
-	@echo "Checking code using flake8 ..."
-	@$(PYTHON_CMD_PREFIX) flake8
+	@echo "Checking code using black ..."
+	@$(PYTHON_CMD_PREFIX) black . --check
 
 .PHONY: lint_js
 lint_js: ## Lint Javascript code with eslint

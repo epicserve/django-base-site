@@ -16,7 +16,7 @@ if [[ -n "${PY_FILES}" ]]; then
     ${PY_CMD} black ${PY_FILES} && git add ${PY_FILES}
 
     echo "\n${GREEN}Linting Python files ...${NC}"
-    ${PY_CMD} flake8 ${PY_FILES}
+    ${PY_CMD} black ${PY_FILES} --check
     if [[ $? -ne 0 ]]; then
         export ERRORS=1
     else
