@@ -137,7 +137,7 @@ if DEFAULT_FILE_STORAGE.endswith("MediaS3Storage") is True:
 else:
     # Local Storage
     public_root = BASE_DIR.joinpath("public")
-    STATIC_ROOT = str(public_root.joinpath("static"))
+    STATIC_ROOT = str(BASE_DIR.joinpath("collected_static"))
     MEDIA_ROOT = str(public_root.joinpath("media"))
     STATICFILES_DIRS = [str(BASE_DIR.joinpath("public", "static"))]
     MEDIA_URL = "/public/media/"
