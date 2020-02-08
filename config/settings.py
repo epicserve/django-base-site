@@ -143,16 +143,17 @@ else:
     STATIC_URL = "/public/static/"
 
 # CACHE SETTINGS
-CACHES = {"default": env_urls.cache_url(env("CACHE_URL"))}
+CACHE_URL = env("CACHE_URL", default="redis://redis:6379/0")
+CACHES = {"default": env_urls.cache_url(CACHE_URL)}
 
 # CRISPY-FORMS
 CRISPY_TEMPLATE_PACK = "bootstrap4"
 
 # CELERY SETTINGS
-CELERY_BROKER_URL = env("CACHE_URL")
+CELERY_BROKER_URL = CACHE_URL
 
 SESSION_ENGINE = "redis_sessions.session"
-SESSION_REDIS = env_urls.session_redis_url(env("CACHE_URL"))
+SESSION_REDIS = env_urls.session_redis_url(CACHE_URL)
 
 SITE_ID = 1
 SITE_NAME = "Django Base Site"
