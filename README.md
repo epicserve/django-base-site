@@ -84,6 +84,7 @@ Example output:
     EMAIL_URL='smtp://username:password@smtp.example.com:587/?ssl=True&_default_from_email=John%20Example%20%3Cjohn%40example.com%3E'
     # Uncomment the following if you're using docker-compose
     # DATABASE_URL=postgres://postgres@db:5432/postgres
+    CACHE_URL=redis://redis:6379/0
     EOF
     $ pipenv shell
     $ ./manage.py migrate
@@ -107,6 +108,7 @@ Deploy on Heroku
     SECRET_KEY='random string of 50 chars' \
     EMAIL_URL='smtp://username:password@smtp.example.com:587/?ssl=True&_default_from_email=John%20Example%20%3Cjohn%40example.com%3E' \
     ALLOWED_HOSTS='*'
+    CACHE_URL='$REDISCLOUD_URL'
     $ git push --set-upstream heroku master
     $ heroku run python manage.py migrate
     $ heroku run python manage.py createsuperuser    

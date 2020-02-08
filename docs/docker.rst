@@ -29,7 +29,6 @@ you can go through the following steps.
     EMAIL_URL='smtp://username:password@smtp.example.com:587/?ssl=True&_default_from_email=John%20Example%20%3Cjohn%40example.com%3E'
     ALLOWED_HOSTS=*
     INTERNAL_IPS=192.168.99.100,127.0.0.1,0.0.0.0,localhost,172.18.0.1
-    REDIS_HOST=redis
     EOF
 
 3. Build your service images.
