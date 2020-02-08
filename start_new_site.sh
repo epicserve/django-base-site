@@ -61,7 +61,6 @@ if [ -n "$(ls -A $PROJECT_DIRECTORY 2> /dev/null)" ]; then
 fi
 
 curl -LOks $DOWNLOAD_LOCATION && unzip -q master
-mkdir -p $PROJECT_DIRECTORY
 mv django-base-site-master $PROJECT_DIRECTORY
 rm -rf django-base-site-master
 rm master.zip
