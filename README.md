@@ -103,11 +103,13 @@ Deploy on Heroku
     $ heroku addons:create rediscloud
     $ heroku buildpacks:add --index 1 heroku/nodejs
     $ heroku buildpacks:add --index 2 heroku/python
+    $ function quote {
+    $     echo $(python3 -c "import urllib.parse, sys; print(urllib.parse.quote('${1}'))")
+    $ }
     $ alias hg='heroku config:get'
     $ heroku config:set READ_DOT_ENV_FILE=off \
-    WSGI_APPLICATION=config.heroku_wsgi.application \
     SECRET_KEY=`python -c "import random; print(''.join(random.SystemRandom().choice('abcdefghijklmnopqrstuvwxyz0123456789%^&*(-_=+)') for i in range(50)))"` \
-    EMAIL_URL=smtp://`hg MAILGUN_SMTP_LOGIN`:`hg MAILGUN_SMTP_PASSWORD`@`hg MAILGUN_SMTP_SERVER`:`hg MAILGUN_SMTP_PORT`'/?ssl=True&_default_from_email='`hg MAILGUN_SMTP_LOGIN` \
+    EMAIL_URL=smtp://$(quote $(hg MAILGUN_SMTP_LOGIN)):$(quote $(hg MAILGUN_SMTP_PASSWORD))@`hg MAILGUN_SMTP_SERVER`:`hg MAILGUN_SMTP_PORT`'/?ssl=True&_default_from_email='$(quote $(hg MAILGUN_SMTP_LOGIN)) \
     ALLOWED_HOSTS='*' \
     CACHE_URL=`hg REDISCLOUD_URL`
     $ git push --set-upstream heroku master
