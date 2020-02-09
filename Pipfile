@@ -31,7 +31,7 @@ django-redis-cache = "~=2.1.0"
 django-redis-sessions = "~=0.6.1"
 django-storages = "~=1.8"
 djangorestframework = "~=3.11.0"
-environs = {extras = ["django"],version = "~=7.1.0"}
+environs = {extras = ["django"], version = "~=7.2.0"}
 # required by redis and django-redis-cache
 hiredis = "~=1.0.0"
 uwsgi = "~=2.0.18"

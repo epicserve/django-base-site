@@ -2,9 +2,7 @@ import sys
 
 import environs
 
-from apps.base.utils import env_urls
-
-env = environs.Env()
+from apps.base.utils.env import env
 
 BASE_DIR = environs.Path(__file__).parent.parent  # type: ignore
 
@@ -144,17 +142,17 @@ else:
     STATIC_URL = "/public/static/"
 
 # CACHE SETTINGS
-CACHE_URL = env("CACHE_URL", default="redis://redis:6379/0")
-CACHES = {"default": env_urls.cache_url(CACHE_URL)}
+CACHE_URL_DEFAULT = "redis://redis:6379/0"
+CACHES = {"default": env.cache_url("CACHE_URL", default=CACHE_URL_DEFAULT)}
 
 # CRISPY-FORMS
 CRISPY_TEMPLATE_PACK = "bootstrap4"
 
 # CELERY SETTINGS
-CELERY_BROKER_URL = CACHE_URL
+CELERY_BROKER_URL = env("CACHE_URL", CACHE_URL_DEFAULT)
 
 SESSION_ENGINE = "redis_sessions.session"
-SESSION_REDIS = env_urls.session_redis_url(CACHE_URL)
+SESSION_REDIS = env.session_redis_url("CACHE_URL", default=CACHE_URL_DEFAULT)
 
 SITE_ID = 1
 SITE_NAME = "Django Base Site"
