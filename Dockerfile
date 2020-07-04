@@ -1,4 +1,4 @@
-FROM python:3.8.1-alpine3.11
+FROM python:3-slim-buster
 
 
 ENV \
@@ -10,13 +10,13 @@ ENV \
 
 WORKDIR /code
 
-# Upadate Apline Linux and install system packages
-# build-base - C and C++ compiliers needs for some python packages
+# build-essential - C compiler for building packages like uwsgi
 # python-dev - Needed for building C extensions for CPython
-# postgresql-dev - Contains the header files needed for installing psycopg2-binary
+# postgresql-server-dev-all - Contains the header files needed for installing psycopg2-binary
 # libffi-dev - Needed for crytography packages like bcrypt
-RUN apk update \
-    && apk add build-base python-dev postgresql-dev libffi-dev linux-headers
+RUN apt update \
+    && apt install -y build-essential python-dev postgresql-server-dev-all libffi-dev \
+    && rm -rf /var/lib/apt/lists/*
 
 # Install Python packages
 COPY Pipfile Pipfile.lock ./
