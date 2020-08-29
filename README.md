@@ -52,12 +52,12 @@ Quickstart
 Running the following script mostly does the same thing as manual quickstart method. The exception is that the install
 script has questions to customize your new project setup. Just run the following in your terminal to get started.
 
-    $ bash <(curl -s https://raw.githubusercontent.com/epicserve/django-base-site/master/start_new_site.sh)
+    $ bash <(curl -s https://raw.githubusercontent.com/epicserve/django-base-site/master/scripts/start_new_project)
     
 Example output:
 
     $ cd ~/Sites
-    $ bash <(curl -s https://raw.githubusercontent.com/epicserve/django-base-site/master/start_new_site.sh)
+    $ bash <(curl -s https://raw.githubusercontent.com/epicserve/django-base-site/master/scripts/start_new_project)
     
     What is the project name slug [example]?
     What directory do you want your project in [/Users/brento/Sites/example]?

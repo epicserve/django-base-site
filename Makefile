@@ -101,7 +101,7 @@ remove_extra_files: ## Remove extra Django Base Site files not needed in a new p
 	@rm -rf config/gunicorn/
 	@rm -rf config/nginx/
 	@rm -rf config/upstart/
-	@rm -r start_new_site.sh
+	@rm -r scripts/start_new_project
 
 .PHONY: remove_heroku
 remove_heroku: ## Remove files used for Heroku

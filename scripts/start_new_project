@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 
 DOWNLOAD_LOCATION='https://github.com/epicserve/django-base-site/archive/master.zip'
 PROJECT_NAME_SLUG_DEFAULT='example'
