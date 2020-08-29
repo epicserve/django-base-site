@@ -1,7 +1,6 @@
 /*console.log
 /.coverage
 /.env
-/.vagrant
 /db.sqlite
 /docs/_build/
 /htmlcov

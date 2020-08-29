@@ -46,7 +46,7 @@ download_db_dump: ## Download a dump of your heroku Postgres DB
 
 .PHONY: fix_py_imports
 fix_py_imports: ## Fix Python imports with isort
-	@$(PYTHON_CMD_PREFIX) isort --recursive .
+	@$(PYTHON_CMD_PREFIX) isort .
 
 .PHONY: lint_py
 lint_py: ## Lint Python code flake8
@@ -61,7 +61,7 @@ lint_js: ## Lint Javascript code with eslint
 .PHONY: lint_imports
 lint_imports: ## Lint Python imports with isort
 	@echo "Checking python imports ..."
-	@$(PYTHON_CMD_PREFIX) isort --recursive --check-only --diff .
+	@$(PYTHON_CMD_PREFIX) isort --check-only --diff .
 
 .PHONY: lint_sass
 lint_sass: ## Lint SASS code with stylelint
@@ -110,11 +110,6 @@ remove_heroku: ## Remove files used for Heroku
 .PHONY: remove_py_cache
 remove_py_cache: ## Remove cached Python bytecode
 	@rm -r `find . -name '__pycache__' -type d`
-
-.PHONY: remove_vagrant
-remove_vagrant: ## Remove files related to Vagrant
-	@rm -f Vagrantfile
-	@rm -rf config/vagrant
 
 .PHONY: restore_db
 restore_db: download_db_dump ## Download DB dump from heroku and reload it into your docker compose DB

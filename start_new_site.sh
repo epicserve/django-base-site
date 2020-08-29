@@ -73,7 +73,6 @@ SECRET_KEY='$SECRET_KEY'
 EOF
 
 make remove_extra_files
-USING_VAGRANT="no"
 USING_COMPOSE="yes"
 
 if [[ "no" = $(ask_yes_or_no_default_yes "Are going to use Docker Compose") ]]; then
@@ -83,17 +82,11 @@ else
     echo "DATABASE_URL=postgres://postgres@db:5432/postgres" >> .env
 fi
 
-if [[ "no" = ${USING_COMPOSE} ]] && [[ "yes" = $(ask_yes_or_no_default_no "Are going to use Vagrant") ]]; then
-    USING_VAGRANT="yes"
-else
-    make remove_vagrant
-fi
-
 if [[ "no" = $(ask_yes_or_no_default_yes "Are going to Heroku for deployment") ]]; then
     make remove_heroku
 fi
 
-if [[ ${USING_VAGRANT} = "no" ]] && [[ ${USING_COMPOSE} = "no"  ]]; then
+if [[ ${USING_COMPOSE} = "no"  ]]; then
 
     pipenv install --dev --python $(which python)
     pipenv run $PROJECT_DIRECTORY/manage.py migrate
@@ -105,18 +98,6 @@ if [[ ${USING_VAGRANT} = "no" ]] && [[ ${USING_COMPOSE} = "no"  ]]; then
     echo "$ cd $PROJECT_DIRECTORY"
     echo "$ npm i"
     echo "$ pipenv run ./manage.py runserver"
-
-elif [[ ${USING_VAGRANT} = "yes" ]]; then
-
-    echo ""
-    echo "Done."
-    echo ""
-    echo "WARNING: Vagrant is no longer supported and will eventually be removed."
-    echo ""
-    echo "To start Vagrant run:"
-    echo "$ cd $PROJECT_DIRECTORY"
-    echo "$ vagrant up"
-    echo ""
 
 elif [[ ${USING_COMPOSE} = "yes" ]]; then
 

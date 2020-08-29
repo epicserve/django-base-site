@@ -8,7 +8,6 @@ Contents
    :maxdepth: 1
 
    setup-and-usage
-   vagrant
    docker
    s3
    website-launch-checklist
@@ -49,7 +48,6 @@ Features
 - `Mypy <http://mypy-lang.org/>`_ for Python Type checking
 - `Pipenv <https://github.com/kennethreitz/pipenv>`_
 - `Stylelint <https://stylelint.io/>`_ for linting SASS
-- `Vagrant Support <https://www.vagrantup.com/>`_
 - `Webpack <https://webpack.js.org/>`_ for building SASS and JS with `Babel <https://babeljs.io/>`_
 - Sample configs for `Apache <https://github.com/epicserve/django-base-site/tree/master/config/apache>`_, `Gunicorn <https://github.com/epicserve/django-base-site/tree/master/config/gunicorn>`_, `Nginx <https://github.com/epicserve/django-base-site/tree/master/config/nginx>`_ and `Upstart <https://github.com/epicserve/django-base-site/tree/master/config/upstart>`_
 

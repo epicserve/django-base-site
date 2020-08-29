@@ -29,7 +29,6 @@ Features
 - [Mypy](http://mypy-lang.org/) for Python Type checking
 - [Pipenv](https://github.com/kennethreitz/pipenv)
 - [Stylelint](https://stylelint.io/) for linting SASS
-- [Vagrant Support](https://www.vagrantup.com/)
 - [Webpack](https://webpack.js.org/) for building SASS and JS with [Babel](https://babeljs.io/)
 - Sample configs for [Apache](https://github.com/epicserve/django-base-site/tree/master/config/apache), [Gunicorn](https://github.com/epicserve/django-base-site/tree/master/config/gunicorn), [Nginx](https://github.com/epicserve/django-base-site/tree/master/config/nginx) and [Upstart](https://github.com/epicserve/django-base-site/tree/master/config/upstart)
 
