@@ -4,7 +4,7 @@ verify_ssl = true
 url = "https://pypi.python.org/simple"
 
 [requires]
-python_full_version = "3.8.1"
+python_full_version = "3.8.5"
 
 [dev-packages]
 "fabric3" = "*"
