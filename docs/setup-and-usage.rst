@@ -8,8 +8,6 @@ Setup Instructions
 
     If you want to use Docker then use the :ref:`Docker Instructions <using-docker>`. Otherwise, continue with these instructions.
 
-Before you begin make sure you've setup and installed `Pipenv <https://docs.pipenv.org/>`_ and `Virtualenvwrapper <https://virtualenvwrapper.readthedocs.io/en/latest/>`_. You can use the Django base site without Virtualenvwrapper however you won't be able to use the ``workon`` command.
-
 Change the directory to where you want keep your django projects.
 
 .. code-block:: bash
@@ -24,11 +22,14 @@ In the same directory run the following commands to download the template.
     $ curl -LOk https://github.com/epicserve/django-base-site/archive/master.zip && unzip master
     $ mv django-base-site-master $PROJECT_NAME
     $ cd $PROJECT_NAME
+    $ mkdir -p public/static
 
 Setup your virtualenv with pipenv and install the project requirements.
 
 .. code-block:: bash
 
+    $ python -m venv .venv && source .venv/bin/activate
+    $ pip install pipenv
     $ pipenv install --dev --python $(which python3)
     $ export SECRET_KEY=$(python -c "import random; print(''.join(random.SystemRandom().choice('abcdefghijklmnopqrstuvwxyz0123456789%^&*(-_=+)') for i in range(50)))")
     $ cat > .env <<EOF
@@ -36,7 +37,6 @@ Setup your virtualenv with pipenv and install the project requirements.
     SECRET_KEY='$SECRET_KEY'
     EMAIL_URL='smtp://username:password@smtp.example.com:587/?ssl=True&_default_from_email=John%20Example%20%3Cjohn%40example.com%3E'
     EOF
-    $ pipenv shell
 
 Remove all unnecessary example configs and template files.
 
@@ -51,7 +51,7 @@ Setup your database:
     $ chmod +x manage.py
     $ ./manage.py migrate
 
-At this point your base site should be setup and you can now run your dev server.
+At this point your base site should be installed and you can now run your dev server. However, CSS and Javascript won't load until you run `npm run build` or `npm run watch`.
 
 .. code-block:: bash
 
