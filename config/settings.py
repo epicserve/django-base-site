@@ -88,6 +88,9 @@ DATABASES = {
     )
 }
 
+# See https://docs.djangoproject.com/en/3.2/ref/settings/#default-auto-field
+DEFAULT_AUTO_FIELD = "django.db.models.AutoField"
+
 # Custom User Model
 # https://docs.djangoproject.com/en/2.1/topics/auth/customizing/#substituting-a-custom-user-model
 AUTH_USER_MODEL = "accounts.User"
