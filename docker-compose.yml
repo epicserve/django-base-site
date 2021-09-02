@@ -36,6 +36,7 @@ services:
       - redis
 
     environment:
+      USE_DOCKER: 'on'
       DJANGO_SETTINGS_MODULE: config.settings
 
   worker:
