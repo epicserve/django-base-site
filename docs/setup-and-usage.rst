@@ -24,13 +24,13 @@ In the same directory run the following commands to download the template.
     $ cd $PROJECT_NAME
     $ mkdir -p public/static
 
-Setup your virtualenv with pipenv and install the project requirements.
+Setup your virtualenv and install the project requirements.
 
 .. code-block:: bash
 
     $ python -m venv .venv && source .venv/bin/activate
-    $ pip install pipenv
-    $ pipenv install --dev --python $(which python3)
+    $ pip install --upgrade pip-tools
+    $ pip install -r requirements-dev.txt
     $ export SECRET_KEY=$(python -c "import random; print(''.join(random.SystemRandom().choice('abcdefghijklmnopqrstuvwxyz0123456789%^&*(-_=+)') for i in range(50)))")
     $ cat > .env <<EOF
     DEBUG=on

@@ -118,6 +118,12 @@ restore_db: download_db_dump ## Download DB dump from heroku and reload it into 
 	# you're using in your project.
 	@docker-compose exec -T -u postgres db pg_restore --verbose --clean --no-acl --no-owner -C -d postgres < latest.dump
 
+.PHONY: requirements
+requirements: ## Run pip-compile to compile the requirements into the requirements*.txt files
+	@rm -rf ./requirements*.txt
+	@$(PYTHON_CMD_PREFIX) pip-compile --upgrade --generate-hashes --output-file requirements.txt config/requirements/prod.in
+	@$(PYTHON_CMD_PREFIX) pip-compile --upgrade --generate-hashes --output-file requirements-dev.txt config/requirements/dev.in
+
 .PHONY: sphinx_autobuild
 sphinx_autobuild: ## Run sphinx autobuild
 	@$(PYTHON_CMD_PREFIX_WITH_WEB_PORT) sphinx-autobuild --host 0.0.0.0 ./docs ./docs/_build/html

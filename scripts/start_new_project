@@ -88,16 +88,19 @@ fi
 
 if [[ ${USING_COMPOSE} = "no"  ]]; then
 
-    pipenv install --dev --python $(which python)
-    pipenv run $PROJECT_DIRECTORY/manage.py migrate
-    pipenv run $PROJECT_DIRECTORY/manage.py createsuperuser
+    python -m venv .venv && source .venv/bin/activate
+    pip install --upgrade pip-tools
+    pip install -r requirements-dev.txt
+    python $PROJECT_DIRECTORY/manage.py migrate
+    python $PROJECT_DIRECTORY/manage.py createsuperuser
     echo ""
     echo "Done."
     echo ""
     echo "To start the Django runserver in your new project:"
     echo "$ cd $PROJECT_DIRECTORY"
     echo "$ npm i"
-    echo "$ pipenv run ./manage.py runserver"
+    echo "$ source .venv/bin/activate"
+    echo "$ ./manage.py runserver"
 
 elif [[ ${USING_COMPOSE} = "yes" ]]; then
 

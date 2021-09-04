@@ -24,7 +24,7 @@ Install Requirements
 Before setting up a new project make sure you have the following installed:
 
 * Python 3.5 or newer
-* `Pipenv <https://github.com/kennethreitz/pipenv>`_
+* `Pip-tools <https://github.com/jazzband/pip-tools/>`_
 * `virtualenv <https://github.com/pypa/virtualenv>`_
 
 It's not a requirement, but it is recommended that you install Python using `Pyenv <https://github.com/pyenv/pyenv>`_ with the `virtualenvwrapper <https://github.com/pyenv/pyenv-virtualenvwrapper>`_ plugin.
@@ -46,7 +46,7 @@ Features
 - `Eslint <https://eslint.org/>`_ for linting Javascript
 - `Environs <https://github.com/sloria/environs>`_ for `12factor <https://www.12factor.net/>`_ inspired environment variables
 - `Mypy <http://mypy-lang.org/>`_ for Python Type checking
-- `Pipenv <https://github.com/kennethreitz/pipenv>`_
+- `Pip-tools <https://github.com/jazzband/pip-tools/>`_
 - `Stylelint <https://stylelint.io/>`_ for linting SASS
 - `Webpack <https://webpack.js.org/>`_ for building SASS and JS with `Babel <https://babeljs.io/>`_
 - Sample configs for `Apache <https://github.com/epicserve/django-base-site/tree/master/config/apache>`_, `Gunicorn <https://github.com/epicserve/django-base-site/tree/master/config/gunicorn>`_, `Nginx <https://github.com/epicserve/django-base-site/tree/master/config/nginx>`_ and `Upstart <https://github.com/epicserve/django-base-site/tree/master/config/upstart>`_

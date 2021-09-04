@@ -27,7 +27,7 @@ Features
 - [Eslint](https://eslint.org/) for linting Javascript
 - [Environs](https://github.com/sloria/environs) for [12factor](https://www.12factor.net/) inspired environment variables
 - [Mypy](http://mypy-lang.org/) for Python Type checking
-- [Pipenv](https://github.com/kennethreitz/pipenv)
+- [Pip-tools](https://github.com/jazzband/pip-tools/)
 - [Stylelint](https://stylelint.io/) for linting SASS
 - [Webpack](https://webpack.js.org/) for building SASS and JS with [Babel](https://babeljs.io/)
 - Sample configs for [Apache](https://github.com/epicserve/django-base-site/tree/master/config/apache), [Gunicorn](https://github.com/epicserve/django-base-site/tree/master/config/gunicorn), [Nginx](https://github.com/epicserve/django-base-site/tree/master/config/nginx) and [Upstart](https://github.com/epicserve/django-base-site/tree/master/config/upstart)
@@ -38,7 +38,7 @@ Install Requirements
 Before setting up a new project make sure you have the following installed:
 
 * Python 3.5 or newer 
-* [Pipenv](https://github.com/kennethreitz/pipenv)
+* [Pip-tools](https://github.com/jazzband/pip-tools/)
 * [virtualenv](https://github.com/pypa/virtualenv)
 
 It's not a requirement, but it is recommended that you install Python using [Pyenv](https://github.com/pyenv/pyenv) with the [virtualenvwrapper](https://github.com/pyenv/pyenv-virtualenvwrapper) plugin. 
@@ -75,7 +75,8 @@ Example output:
     $ curl -LOk https://github.com/epicserve/django-base-site/archive/master.zip && unzip master
     $ mv django-base-site-master example
     $ cd example
-    $ pipenv install --dev --python $(which python3)
+    $ python -m venv .venv && source .venv/bin/activate
+    $ pip install -r ./requirements-dev.txt
     $ export SECRET_KEY=$(python -c "import random; print(''.join(random.SystemRandom().choice('abcdefghijklmnopqrstuvwxyz0123456789%^&*(-_=+)') for i in range(50)))")
     $ cat > .env <<EOF
     DEBUG=on
@@ -85,7 +86,6 @@ Example output:
     # DATABASE_URL=postgres://postgres@db:5432/postgres
     CACHE_URL=redis://redis:6379/0
     EOF
-    $ pipenv shell
     $ ./manage.py migrate
     $ ./manage.py createsuperuser
     $ ./manage.py runserver

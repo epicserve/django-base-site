@@ -19,9 +19,10 @@ RUN apt update \
     && rm -rf /var/lib/apt/lists/*
 
 # Install Python packages
-COPY Pipfile Pipfile.lock ./
+COPY requirements-dev.txt ./
 
 RUN set -ex \
     && pip install --upgrade pip \
-    && pip install pipenv --upgrade \
-    && pipenv install --deploy --dev --system
+    && pip install pip-tools --upgrade \
+    && pip install -r /code/requirements-dev.txt \
+    && cp /etc/skel/.bashrc /root/.bashrc

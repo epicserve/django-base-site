@@ -62,30 +62,7 @@ Setup an AWS User and S3 Bucket
 Update your Django Project Settings
 -----------------------------------
 
-
-1. Add the following to your Pipfile. Update the version numbers for whatever is current.
-
-.. code-block:: none
-
-    django-storages = "<1.7,>=1.6.5"
-    "boto3" = "<1.6,>=1.5.8"
-
-2. Install the requirements.
-
-::
-
-    $ pipenv install
-
-3. Add ``storages`` to your ``INSTALLED_APPS``.
-
-.. code-block:: python
-
-    INSTALLED_APPS = [
-        ...
-        'storages',
-    ]
-
-4. Add the following to your .env settings.
+Add the following to your .env settings.
 
 ::
 
