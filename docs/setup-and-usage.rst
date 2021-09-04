@@ -30,7 +30,9 @@ Setup your virtualenv and install the project requirements.
 
     $ python -m venv .venv && source .venv/bin/activate
     $ pip install --upgrade pip-tools
-    $ pip install -r requirements-dev.txt
+    # Install from the source requirements because iPython hashes are created in Docker and the install fails under
+    # Mac OS because there are no hashes created for iPython's requirement of appnope when using darwin.
+    $ pip install --upgrade --requirement ./config/requirements/dev.in
     $ export SECRET_KEY=$(python -c "import random; print(''.join(random.SystemRandom().choice('abcdefghijklmnopqrstuvwxyz0123456789%^&*(-_=+)') for i in range(50)))")
     $ cat > .env <<EOF
     DEBUG=on
