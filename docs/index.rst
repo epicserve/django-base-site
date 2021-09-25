@@ -36,7 +36,7 @@ Features
 - `Bootstrap 4 <https://getbootstrap.com/>`_
 - `Celery <http://docs.celeryproject.org/>`_
 - `Coverage <https://bitbucket.org/ned/coveragepy>`_
-- `Custom User Model <https://docs.djangoproject.com/en/2.1/topics/auth/customizing/#substituting-a-custom-user-model>`_
+- `Custom User Model <https://docs.djangoproject.com/en/stable/topics/auth/customizing/#substituting-a-custom-user-model>`_
 - `Django 3 <https://www.djangoproject.com/>`_
 - `Django Crispy Forms <https://github.com/django-crispy-forms/django-crispy-forms>`_
 - `Django Debug Toolbar <https://github.com/jazzband/django-debug-toolbar>`_
