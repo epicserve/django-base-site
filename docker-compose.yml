@@ -12,7 +12,7 @@ services:
       - POSTGRES_HOST_AUTH_METHOD=trust
 
   redis:
-    image: redis:3.0
+    image: redis:6.0.3
     command: ["redis-server", "--appendonly", "yes"]
     volumes:
       - redis_data:/data
