@@ -518,9 +518,9 @@ packaging==21.3 \
     --hash=sha256:dd47c42927d89ab911e606518907cc2d3a1f38bbd026385970643f9c5b8ecfeb \
     --hash=sha256:ef103e05f519cdc783ae24ea4e2e0f508a9c99b2d4969652eed6a2e1ea5bd522
     # via sphinx
-paramiko==2.9.1 \
-    --hash=sha256:a1fdded3b55f61d23389e4fe52d9ae428960ac958d2edf50373faa5d8926edd0 \
-    --hash=sha256:db5d3f19607941b1c90233588d60213c874392c4961c6297037da989c24f8070
+paramiko==2.10.1 \
+    --hash=sha256:443f4da23ec24e9a9c0ea54017829c282abdda1d57110bf229360775ccd27a31 \
+    --hash=sha256:f6cbd3e1204abfdbcd40b3ecbc9d32f04027cd3080fe666245e21e7540ccfc1b
     # via fabric3
 parso==0.8.3 \
     --hash=sha256:8c07be290bb59f03588915921e29e8a50002acaf2cdc5fa0e0114f91709fafa0 \
