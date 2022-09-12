@@ -14,7 +14,7 @@
     "eslint-plugin-import": "^2.22.0",
     "glob": "^7.1.6",
     "jquery": "^3.5.1",
-    "mini-css-extract-plugin": "^0.8.2",
+    "mini-css-extract-plugin": "^2.6.1",
     "minimist": ">=1.2.6",
     "sass": "^1.39.0",
     "popper.js": "^1.16.1",

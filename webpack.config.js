@@ -61,9 +61,6 @@ module.exports = {
         use: [
           {
             loader: MiniCssExtractPlugin.loader,
-            options: {
-              hmr: isDevMode,
-            },
           },
           {
             loader: 'css-loader',
