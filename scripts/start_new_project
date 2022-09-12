@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-DOWNLOAD_LOCATION='https://github.com/epicserve/django-base-site/archive/master.zip'
+DOWNLOAD_LOCATION='https://github.com/epicserve/django-base-site/archive/main.zip'
 PROJECT_NAME_SLUG_DEFAULT='example'
 PROJECT_NAME_SLUG='example'
 PROJECT_DIRECTORY_DEFAULT="$(pwd)/$PROJECT_NAME_SLUG_DEFAULT"
@@ -60,10 +60,10 @@ if [ -n "$(ls -A $PROJECT_DIRECTORY 2> /dev/null)" ]; then
     fi
 fi
 
-curl -LOks $DOWNLOAD_LOCATION && unzip -q master
-mv django-base-site-master $PROJECT_DIRECTORY
-rm -rf django-base-site-master
-rm master.zip
+curl -LOks $DOWNLOAD_LOCATION && unzip -q main
+mv django-base-site-main $PROJECT_DIRECTORY
+rm -rf django-base-site-main
+rm main.zip
 cd $PROJECT_DIRECTORY
 
 SECRET_KEY=$(python -c "import random; print(''.join(random.SystemRandom().choice('abcdefghijklmnopqrstuvwxyz0123456789%^&*(-_=+)') for i in range(50)))")

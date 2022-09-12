@@ -30,7 +30,7 @@ Features
 - [Pip-tools](https://github.com/jazzband/pip-tools/)
 - [Stylelint](https://stylelint.io/) for linting SASS
 - [Webpack](https://webpack.js.org/) for building SASS and JS with [Babel](https://babeljs.io/)
-- Sample configs for [Apache](https://github.com/epicserve/django-base-site/tree/master/config/apache), [Gunicorn](https://github.com/epicserve/django-base-site/tree/master/config/gunicorn), [Nginx](https://github.com/epicserve/django-base-site/tree/master/config/nginx) and [Upstart](https://github.com/epicserve/django-base-site/tree/master/config/upstart)
+- Sample configs for [Apache](https://github.com/epicserve/django-base-site/tree/main/config/apache), [Gunicorn](https://github.com/epicserve/django-base-site/tree/main/config/gunicorn), [Nginx](https://github.com/epicserve/django-base-site/tree/main/config/nginx) and [Upstart](https://github.com/epicserve/django-base-site/tree/main/config/upstart)
 
 Install Requirements
 --------------------
@@ -52,12 +52,12 @@ Quickstart
 Running the following script mostly does the same thing as manual quickstart method. The exception is that the install
 script has questions to customize your new project setup. Just run the following in your terminal to get started.
 
-    $ bash <(curl -s https://raw.githubusercontent.com/epicserve/django-base-site/master/scripts/start_new_project)
+    $ bash <(curl -s https://raw.githubusercontent.com/epicserve/django-base-site/main/scripts/start_new_project)
     
 Example output:
 
     $ cd ~/Sites
-    $ bash <(curl -s https://raw.githubusercontent.com/epicserve/django-base-site/master/scripts/start_new_project)
+    $ bash <(curl -s https://raw.githubusercontent.com/epicserve/django-base-site/main/scripts/start_new_project)
     
     What is the project name slug [example]?
     What directory do you want your project in [/Users/brento/Sites/example]?
@@ -72,8 +72,8 @@ Example output:
 
 ### Manual
 
-    $ curl -LOk https://github.com/epicserve/django-base-site/archive/master.zip && unzip master
-    $ mv django-base-site-master example
+    $ curl -LOk https://github.com/epicserve/django-base-site/archive/main.zip && unzip main
+    $ mv django-base-site-main example
     $ cd example
     $ python -m venv .venv && source .venv/bin/activate
     $ pip install -r ./requirements-dev.txt
@@ -111,7 +111,7 @@ Deploy on Heroku
     EMAIL_URL=smtp://$(quote $(hg MAILGUN_SMTP_LOGIN)):$(quote $(hg MAILGUN_SMTP_PASSWORD))@`hg MAILGUN_SMTP_SERVER`:`hg MAILGUN_SMTP_PORT`'/?ssl=True&_default_from_email='$(quote $(hg MAILGUN_SMTP_LOGIN)) \
     ALLOWED_HOSTS='*' \
     CACHE_URL=`hg REDISCLOUD_URL`
-    $ git push --set-upstream heroku master
+    $ git push --set-upstream heroku main
     $ heroku run python manage.py migrate
     $ heroku run python manage.py createsuperuser    
     $ heroku open
