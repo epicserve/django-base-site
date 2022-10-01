@@ -1,5 +1,4 @@
 -r prod.in
-fabric3
 black
 coverage
 django-debug-toolbar
