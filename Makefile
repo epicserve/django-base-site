@@ -39,9 +39,13 @@ clean: remove_py_cache remove_coverage_data ## Remove build files, python cache 
 coverage: ## Run the django test runner with coverage
 	@$(PYTHON_CMD_PREFIX) coverage run manage.py test && $(PYTHON_CMD_PREFIX) coverage html && open htmlcov/index.html
 
-.PHONY: fix_py_imports
-fix_py_imports: ## Fix Python imports with isort
+.PHONY: format_py_imports
+format_py_imports: ## Format Python imports with isort
 	@$(PYTHON_CMD_PREFIX) isort .
+
+.PHONY: format_code
+format_code: format_py_imports ## Format code
+	@$(PYTHON_CMD_PREFIX) black .
 
 .PHONY: lint_py
 lint_py: ## Lint Python code flake8
