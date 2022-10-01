@@ -1,28 +1,51 @@
-FROM python:3-slim-buster
-
+# ------------------------------------------------------------
+# STAGE 1: Build Python requirements layer
+# ------------------------------------------------------------
+FROM python:3-buster as python-requirements
 
 ENV \
     # This prevents Python from writing out pyc files \
     PYTHONDONTWRITEBYTECODE=1 \
     # This keeps Python from buffering stdin/stdout \
     PYTHONUNBUFFERED=1 \
-    PYTHONPATH=/code
+    VIRTUAL_ENV=/opt/venv
 
-WORKDIR /code
-
-# build-essential - C compiler for building packages like uwsgi
-# python-dev - Needed for building C extensions for CPython
-# postgresql-server-dev-all - Contains the header files needed for installing psycopg2-binary
-# libffi-dev - Needed for crytography packages like bcrypt
-RUN apt update \
-    && apt install -y build-essential python-dev postgresql-server-dev-all libffi-dev \
-    && rm -rf /var/lib/apt/lists/*
+RUN set -ex \
+    && python3 -m venv $VIRTUAL_ENV \
+    && $VIRTUAL_ENV/bin/pip install -U setuptools wheel pip
 
 # Install Python packages
 COPY requirements-dev.txt ./
 
 RUN set -ex \
-    && pip install --upgrade pip \
-    && pip install pip-tools --upgrade \
-    && pip install -r /code/requirements-dev.txt \
-    && cp /etc/skel/.bashrc /root/.bashrc
+    && $VIRTUAL_ENV/bin/pip install -r requirements-dev.txt \
+    && rm -rf /root/.cache/
+
+
+# ------------------------------------------------------------
+# STAGE 2: Dev layer
+# ------------------------------------------------------------
+FROM python:3-slim-buster
+
+ENV VIRTUAL_ENV=/opt/venv
+ENV LANG=en_US.UTF-8 \
+    DJANGO_SETTINGS_MODULE=config.settings \
+    PYTHONPATH=/srv/app \
+    TERM=xterm-color \
+    PATH=$VIRTUAL_ENV/bin:${PATH}
+
+RUN set -ex \
+    && groupadd -r app && useradd --uid=1000 --create-home --home-dir=/home/app --no-log-init -r -g app app \
+    # copy the bashrc to the home and uncomment some helpful aliases \
+#    && cat /etc/skel/.bashrc | awk '{sub("#alias","alias")} {print}' > /home/app/.bashrc \
+    && apt-get update \
+    && rm -rf /var/lib/apt/lists/*
+
+COPY --from=python-requirements --chown=app:app $VIRTUAL_ENV $VIRTUAL_ENV
+WORKDIR /srv/app
+
+USER app
+
+EXPOSE 8000/tcp 8001/tcp
+
+CMD ["python", "manage.py", "runserver", "0.0.0.0:8000"]

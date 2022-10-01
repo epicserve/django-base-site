@@ -26,7 +26,7 @@ services:
     command: sh -c "./manage.py migrate --noinput && ./manage.py runserver 0.0.0.0:8000"
 
     volumes:
-      - .:/code:cached
+      - .:/srv/app:cached
 
     ports:
       - 8000:8000
@@ -48,7 +48,7 @@ services:
     command: sh -c "celery -A config worker -l info"
 
     volumes:
-      - .:/code:cached
+      - .:/srv/app:cached
 
     depends_on:
       - web
@@ -60,13 +60,13 @@ services:
     build:
       context: .
       dockerfile: Dockerfile.node
-    working_dir: /code
+    working_dir: /srv/app
 
     command: sh -c "npm run watch"
 
     volumes:
-      - .:/code
-      - node_data:/code/node_modules
+      - .:/srv/app
+      - node_data:/srv/app/node_modules
 
     ports:
       - 35729:35729
