@@ -62,7 +62,6 @@ Example output:
     What is the project name slug [example]?
     What directory do you want your project in [/Users/brento/Sites/example]?
     Are going to use Docker Compose (Y/n)? Y
-    Are going to Heroku for deployment (Y/n)? Y
 
     Done.
 
@@ -89,33 +88,3 @@ Example output:
     $ ./manage.py migrate
     $ ./manage.py createsuperuser
     $ ./manage.py runserver
-
-
-Deploy on Heroku
-----------------
-
-    $ git init
-    $ git add .
-    $ git commit
-    $ heroku create
-    $ heroku addons:create mailgun
-    $ heroku addons:create rediscloud
-    $ heroku buildpacks:add --index 1 heroku/nodejs
-    $ heroku buildpacks:add --index 2 heroku/python
-    $ function quote {
-    $     echo $(python3 -c "import urllib.parse, sys; print(urllib.parse.quote('${1}'))")
-    $ }
-    $ alias hg='heroku config:get'
-    $ heroku config:set READ_DOT_ENV_FILE=off \
-    SECRET_KEY=`python -c "import random; print(''.join(random.SystemRandom().choice('abcdefghijklmnopqrstuvwxyz0123456789%^&*(-_=+)') for i in range(50)))"` \
-    EMAIL_URL=smtp://$(quote $(hg MAILGUN_SMTP_LOGIN)):$(quote $(hg MAILGUN_SMTP_PASSWORD))@`hg MAILGUN_SMTP_SERVER`:`hg MAILGUN_SMTP_PORT`'/?ssl=True&_default_from_email='$(quote $(hg MAILGUN_SMTP_LOGIN)) \
-    ALLOWED_HOSTS='*' \
-    CACHE_URL=`hg REDISCLOUD_URL`
-    $ git push --set-upstream heroku main
-    $ heroku run python manage.py migrate
-    $ heroku run python manage.py createsuperuser    
-    $ heroku open
-
-**Note:**
-Before you'll be able to send email using Mailgun you'll have to setup
-your Heroku app on a custom domain under Heroku and Mailgun.

@@ -82,10 +82,6 @@ else
     echo "DATABASE_URL=postgres://postgres@db:5432/postgres" >> .env
 fi
 
-if [[ "no" = $(ask_yes_or_no_default_yes "Are going to Heroku for deployment") ]]; then
-    make remove_heroku
-fi
-
 if [[ ${USING_COMPOSE} = "no"  ]]; then
 
     python -m venv .venv && source .venv/bin/activate

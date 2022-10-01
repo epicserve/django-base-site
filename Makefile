@@ -39,11 +39,6 @@ clean: remove_py_cache remove_coverage_data ## Remove build files, python cache 
 coverage: ## Run the django test runner with coverage
 	@$(PYTHON_CMD_PREFIX) coverage run manage.py test && $(PYTHON_CMD_PREFIX) coverage html && open htmlcov/index.html
 
-.PHONY: download_db_from_heroku
-download_db_dump: ## Download a dump of your heroku Postgres DB
-	@heroku pg:backups:capture
-	@heroku pg:backups:download
-
 .PHONY: fix_py_imports
 fix_py_imports: ## Fix Python imports with isort
 	@$(PYTHON_CMD_PREFIX) isort .
@@ -99,20 +94,9 @@ remove_extra_files: ## Remove extra Django Base Site files not needed in a new p
 	@rm -f README.md
 	@rm -r scripts/start_new_project
 
-.PHONY: remove_heroku
-remove_heroku: ## Remove files used for Heroku
-	@rm -f Procfile
-
 .PHONY: remove_py_cache
 remove_py_cache: ## Remove cached Python bytecode
 	@rm -r `find . -name '__pycache__' -type d`
-
-.PHONY: restore_db
-restore_db: download_db_dump ## Download DB dump from heroku and reload it into your docker compose DB
-	# You'll need the db container up and running with `docker-compose up -d db` before running this task. After this runs
-	# you'll have to connect with a DB client like pgAdmin and then rename that random hashed database name to the one
-	# you're using in your project.
-	@docker-compose exec -T -u postgres db pg_restore --verbose --clean --no-acl --no-owner -C -d postgres < latest.dump
 
 .PHONY: requirements
 requirements: ## Run pip-compile to compile the requirements into the requirements*.txt files
