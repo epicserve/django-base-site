@@ -97,10 +97,6 @@ remove_extra_files: ## Remove extra Django Base Site files not needed in a new p
 	@rm -rf docs/
 	@rm -f LICENSE.md
 	@rm -f README.md
-	@rm -rf config/apache/
-	@rm -rf config/gunicorn/
-	@rm -rf config/nginx/
-	@rm -rf config/upstart/
 	@rm -r scripts/start_new_project
 
 .PHONY: remove_heroku
