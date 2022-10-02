@@ -502,6 +502,10 @@ mkdocs-autorefs==0.4.1 \
     --hash=sha256:70748a7bd025f9ecd6d6feeba8ba63f8e891a1af55f48e366d6d6e78493aba84 \
     --hash=sha256:a2248a9501b29dc0cc8ba4c09f4f47ff121945f6ce33d760f145d6f89d313f5b
     # via mkdocstrings
+mkdocs-include-markdown-plugin==3.9.0 \
+    --hash=sha256:c265bef5c811a61e400fb8638da0fe026c299c207090dfc2300bb96080a25c85 \
+    --hash=sha256:ed0f3c510f3ed3dad0b841125b447b725b588a356dc78000d40d140eddf7ddc5
+    # via -r config/requirements/dev.in
 mkdocs-material==8.5.5 \
     --hash=sha256:0a95965db858cae5c75201726ffc871b8ba54b1ef70b237ca63fd150cfee9f39 \
     --hash=sha256:ad57e861ad00cf96714bcab91d7e8095192a536a92156fed82ac8b34f928df86
