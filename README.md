@@ -26,11 +26,11 @@ Features
 - [Docker Support](https://www.docker.com/)
 - [Eslint](https://eslint.org/) for linting Javascript
 - [Environs](https://github.com/sloria/environs) for [12factor](https://www.12factor.net/) inspired environment variables
+- [MkDocs](https://www.mkdocs.org/) for documentation
 - [Mypy](http://mypy-lang.org/) for Python Type checking
 - [Pip-tools](https://github.com/jazzband/pip-tools/)
 - [Stylelint](https://stylelint.io/) for linting SASS
 - [Webpack](https://webpack.js.org/) for building SASS and JS with [Babel](https://babeljs.io/)
-- Sample configs for [Apache](https://github.com/epicserve/django-base-site/tree/main/config/apache), [Gunicorn](https://github.com/epicserve/django-base-site/tree/main/config/gunicorn), [Nginx](https://github.com/epicserve/django-base-site/tree/main/config/nginx) and [Upstart](https://github.com/epicserve/django-base-site/tree/main/config/upstart)
 
 Install Requirements
 --------------------

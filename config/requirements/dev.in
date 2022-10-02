@@ -6,8 +6,8 @@ django-stubs
 djangorestframework-stubs
 ipdb
 isort
+mkdocs-material
+mkdocstrings[python]
 mypy
 pip-tools
-sphinx
-sphinx-autobuild
-sphinx-rtd-theme
+pip-tools

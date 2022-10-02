@@ -18,6 +18,7 @@ services:
       - redis_data:/data
 
   web:
+    container_name: web
     image: epicserve/django-base-site:latest
     build:
       context: .
@@ -73,6 +74,25 @@ services:
 
     environment:
       NODE_ENV: development
+
+  docs:
+    container_name: docs
+    image: epicserve/django-base-site:latest
+
+    command: sh -c "mkdocs serve --dev-addr 0.0.0.0:3000"
+
+    volumes:
+      - .:/srv/app:cached
+
+    ports:
+      - "3000:3000"
+
+    environment:
+      LIVE_RELOAD_SUPPORT: 'true'
+      FAST_MODE: 'true'
+
+    depends_on:
+      - web
 
 volumes:
   postgres_data:
