@@ -34,6 +34,7 @@ help:
 clean: remove_py_cache remove_coverage_data ## Remove build files, python cache files and test coverage data
 	@rm -rf docs/_build/
 	@rm -rf public/static/
+	@rm -rf .mypy_cache
 
 .PHONY: coverage
 coverage: ## Run the django test runner with coverage
@@ -77,6 +78,11 @@ lint_imports: ## Lint Python imports with isort
 	@echo "${GREEN}Checking python imports using isort ...${RESET}"
 	@$(PYTHON_CMD_PREFIX) isort --check-only --diff .
 
+.PHONY: lint_migrations
+lint_migrations:  ## Check for missing Django migrations
+	@echo "${GREEN}Check for missing Django migrations ...${RESET}"
+	@$(PYTHON_CMD_PREFIX) ./manage.py makemigrations --check --dry-run
+
 .PHONY: lint_sass
 lint_sass: ## Lint SASS code with stylelint
 	@echo "${GREEN}Checking SASS code using stylelint ...${RESET}"
@@ -93,7 +99,7 @@ lint_docs: ## Lint docs with mkdocs-linkcheck
 	@$(PYTHON_CMD_PREFIX) mkdocs-linkcheck
 
 .PHONY: lint
-lint: lint_js lint_sass lint_py lint_imports lint_types ## Lint Javascript, SASS, Python, Python imports and Python types
+lint: lint_js lint_sass lint_py lint_imports lint_migrations lint_types ## Lint Javascript, SASS, Python, Python imports and Python types
 
 .PHONY: remove_coverage_data
 remove_coverage_data: ## Remove Django test coverage data
