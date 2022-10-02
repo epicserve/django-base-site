@@ -6,9 +6,6 @@ module.exports = {
     // Enforce a standard order for CSS properties
     // https://github.com/stormwarning/stylelint-config-recess-order
     'stylelint-config-recess-order',
-    // Override rules that would interfere with Prettier
-    // https://github.com/shannonmoeller/stylelint-config-prettier
-    'stylelint-config-prettier',
   ],
   plugins: [
     // Bring in some extra rules for SCSS
@@ -31,8 +28,8 @@ module.exports = {
     'declaration-colon-space-after': 'always',
     'declaration-colon-space-before': 'never',
     'declaration-block-trailing-semicolon': 'always',
-    'selector-id-pattern': "^[a-z-_]+$",
-    'selector-class-pattern': "^[a-z-_]+$",
+    'selector-id-pattern': '^[a-z-_]+$',
+    'selector-class-pattern': '^[a-z-_]+$',
     'scss/dollar-variable-colon-space-after': 'always',
     'scss/dollar-variable-colon-space-before': 'never',
     'scss/dollar-variable-no-missing-interpolation': true,

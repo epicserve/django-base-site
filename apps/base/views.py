@@ -8,13 +8,13 @@ from apps.accounts.models import User
 from .forms import NameForm
 
 
-class NameChange(generic.FormView):
+class NameChange(generic.FormView):  # type: ignore
     form_class = NameForm
     template_name = "account/name_change.html"
 
     def get_form_kwargs(self):
         kwargs = super(NameChange, self).get_form_kwargs()
-        kwargs["instance"] = User.objects.get(pk=self.request.user.pk)
+        kwargs["instance"] = User.objects.get(pk=self.request.user.pk)  # type: ignore
         return kwargs
 
     def form_valid(self, form):

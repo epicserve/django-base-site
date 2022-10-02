@@ -39,49 +39,64 @@ clean: remove_py_cache remove_coverage_data ## Remove build files, python cache 
 coverage: ## Run the django test runner with coverage
 	@$(PYTHON_CMD_PREFIX) coverage run manage.py test && $(PYTHON_CMD_PREFIX) coverage html && open htmlcov/index.html
 
+.PHONY: format_css
+format_css: ## Format SASS/CSS code
+	@echo "${GREEN}Formatting  SASS/CS code using stylelint ...${RESET}"
+	@$(NODE_CMD_PREFIX) npm run format-sass
+
+.PHONY: format_js
+format_js: ## Format Javascript code
+	@echo "${GREEN}Formatting Javascript code using eslint ...${RESET}"
+	@$(NODE_CMD_PREFIX) npm run format-js
+
+.PHONY: format_py
+format_py: ## Format Python code
+	@echo "${GREEN}Formatting Python code using black ...${RESET}"
+	@$(PYTHON_CMD_PREFIX) black .
+
 .PHONY: format_py_imports
 format_py_imports: ## Format Python imports with isort
+	@echo "${GREEN}Formatting Python imports using isort ...${RESET}"
 	@$(PYTHON_CMD_PREFIX) isort .
 
 .PHONY: format_code
-format_code: format_py_imports ## Format code
-	@$(PYTHON_CMD_PREFIX) black .
+format_code: format_py_imports format_py format_js format_css ## Format code
 
 .PHONY: lint_py
 lint_py: ## Lint Python code flake8
-	@echo "Checking code using black ..."
+	@echo "${GREEN}Checking code using black ...${RESET}"
 	@$(PYTHON_CMD_PREFIX) black . --check
 
 .PHONY: lint_js
 lint_js: ## Lint Javascript code with eslint
-	@echo "Checking Javascript code using eslint ..."
+	@echo "${GREEN}Checking Javascript code using eslint ...${RESET}"
 	@$(NODE_CMD_PREFIX) npx eslint ./src/js/
 
 .PHONY: lint_imports
 lint_imports: ## Lint Python imports with isort
-	@echo "Checking python imports ..."
+	@echo "${GREEN}Checking python imports using isort ...${RESET}"
 	@$(PYTHON_CMD_PREFIX) isort --check-only --diff .
 
 .PHONY: lint_sass
 lint_sass: ## Lint SASS code with stylelint
-	@echo "Checking SASS code using stylelint ..."
+	@echo "${GREEN}Checking SASS code using stylelint ...${RESET}"
 	@$(NODE_CMD_PREFIX) npx stylelint ./src/scss/
 
 .PHONY: lint_types
 lint_types: ## Lint Python types
-	@echo "Checking python types ..."
+	@echo "${GREEN}Checking python types using mypy ...${RESET}"
 	@$(PYTHON_CMD_PREFIX) mypy .
 
 .PHONY: lint_docs
-lint_docs: ## Lint docs with Sphinx
-	@echo "Check sphinx docs ..."
-	@$(PYTHON_CMD_PREFIX) sphinx-build -nW -b json -d ./docs/_build/doctrees ./docs ./docs/_build/json
+lint_docs: ## Lint docs with mkdocs-linkcheck
+	@echo "${GREEN}Check mkdocs docs using mkdocs-linkcheck ...${RESET}"
+	@$(PYTHON_CMD_PREFIX) mkdocs-linkcheck
 
 .PHONY: lint
 lint: lint_js lint_sass lint_py lint_imports lint_types ## Lint Javascript, SASS, Python, Python imports and Python types
 
 .PHONY: remove_coverage_data
-remove_coverage_data: ## Remove Django test coverage data 
+remove_coverage_data: ## Remove Django test coverage data
 	@rm -f .coverage
 	@rm -rf htmlcov
 
@@ -107,10 +122,6 @@ requirements: ## Run pip-compile to compile the requirements into the requiremen
 	@rm -rf ./requirements*.txt
 	@$(PYTHON_CMD_PREFIX) pip-compile --upgrade --generate-hashes --output-file requirements.txt config/requirements/prod.in
 	@$(PYTHON_CMD_PREFIX) pip-compile --upgrade --generate-hashes --output-file requirements-dev.txt config/requirements/dev.in
-
-.PHONY: sphinx_autobuild
-sphinx_autobuild: ## Run sphinx autobuild
-	@$(PYTHON_CMD_PREFIX_WITH_WEB_PORT) sphinx-autobuild --host 0.0.0.0 ./docs ./docs/_build/html
 
 .PHONY: test
 test: ## Run the Django test runner without coverage
