@@ -1,6 +1,5 @@
 -r prod.in
 black
-coverage
 django-debug-toolbar
 django-stubs
 djangorestframework-stubs
@@ -11,5 +10,4 @@ mkdocs-linkcheck
 mkdocs-material
 mkdocstrings[python]
 mypy
-pip-tools
 pip-tools

@@ -1,3 +1,4 @@
+Django~=3.1
 boto3~=1.11
 celery~=5.2
 django-allauth~=0.42
@@ -6,8 +7,9 @@ django-redis-cache~=3.0
 django-redis-sessions~=0.6
 django-storages~=1.8
 djangorestframework~=3.11
-Django~=3.1
 environs[django]~=9.3
 hiredis~=2.0
 psycopg2-binary~=2.8
+pytest-cov~=4.0
+pytest-django~=4.5
 uwsgi~=2.0

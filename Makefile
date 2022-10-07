@@ -131,4 +131,4 @@ requirements: ## Run pip-compile to compile the requirements into the requiremen
 
 .PHONY: test
 test: ## Run the Django test runner without coverage
-	@$(PYTHON_CMD_PREFIX) ./manage.py test --parallel
+	@$(PYTHON_CMD_PREFIX) pytest --cov

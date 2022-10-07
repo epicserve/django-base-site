@@ -28,6 +28,9 @@ Documentation is available at [http://django-base-site.readthedocs.org/](http://
 * [MkDocs](https://www.mkdocs.org/) for documentation
 * [Mypy](http://mypy-lang.org/) for Python Type checking
 * [Pip-tools](https://github.com/jazzband/pip-tools/)
+* [Pytest](https://docs.pytest.org/)
+* [Pytest-cov](https://pytest-cov.readthedocs.io)
+* [Pytest Django](https://pytest-django.readthedocs.io/en/latest/index.html)
 * [Stylelint](https://stylelint.io/) for linting SASS
 * [Webpack](https://webpack.js.org/) for building SASS and JS with [Babel](https://babeljs.io/)
 

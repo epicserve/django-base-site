@@ -44,5 +44,23 @@ plugins = [
   "mypy_drf_plugin.main"
 ]
 
+
 [tool.django-stubs]
 django_settings_module = "config.settings"
+
+
+[tool.pytest.ini_options]
+DJANGO_SETTINGS_MODULE = "config.settings"
+
+
+[tool.coverage.run]
+branch = true
+source = ["."]
+omit = [
+    ".venv/*",
+    "manage.py",
+    "*migrations*",
+]
+
+[tool.coverage.html]
+directory = "htmlcov"
