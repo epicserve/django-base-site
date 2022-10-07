@@ -15,7 +15,6 @@ Documentation is available at [http://django-base-site.readthedocs.org/](http://
 * [Black](https://black.readthedocs.io/en/stable/) for automatic Python code formatting
 * [Bootstrap 4](https://getbootstrap.com/)
 * [Celery](http://docs.celeryproject.org/)
-* [Coverage](https://bitbucket.org/ned/coveragepy)
 * [Custom User Model](https://docs.djangoproject.com/en/stable/topics/auth/customizing/#substituting-a-custom-user-model)
 * [Django 3](https://www.djangoproject.com/)
 * [Django Crispy Forms](https://github.com/django-crispy-forms/django-crispy-forms)
