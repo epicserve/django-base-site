@@ -14,7 +14,7 @@ services:
 
   redis:
     container_name: redis
-    image: redis:6.0.3
+    image: redis:7.0
     command: ["redis-server", "--appendonly", "yes"]
     volumes:
       - redis_data:/data
