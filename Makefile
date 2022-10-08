@@ -36,10 +36,6 @@ clean: remove_py_cache remove_coverage_data ## Remove build files, python cache 
 	@rm -rf public/static/
 	@rm -rf .mypy_cache
 
-.PHONY: coverage
-coverage: ## Run the django test runner with coverage
-	@$(PYTHON_CMD_PREFIX) coverage run manage.py test && $(PYTHON_CMD_PREFIX) coverage html && open htmlcov/index.html
-
 .PHONY: format_css
 format_css: ## Format SASS/CSS code
 	@echo "${GREEN}Formatting  SASS/CS code using stylelint ...${RESET}"
@@ -109,6 +105,10 @@ lint_docs: ## Lint docs with mkdocs-linkcheck
 
 .PHONY: lint
 lint: lint_js lint_sass lint_py lint_imports lint_migrations lint_types ## Lint Javascript, SASS, Python, Python imports and Python types
+
+.PHONY: open_coverage
+open_coverage: ## Run the django test runner with coverage
+	@$(PYTHON_CMD_PREFIX) coverage html && open htmlcov/index.html
 
 .PHONY: remove_coverage_data
 remove_coverage_data: ## Remove Django test coverage data
