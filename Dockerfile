@@ -27,8 +27,18 @@ RUN set -ex \
 # ------------------------------------------------------------
 FROM python:3-slim-buster
 
+# Set the locale
+RUN --mount=type=cache,target=/var/cache/apt apt-get update \
+    && apt-get install -y locales \
+    && echo "LC_ALL=en_US.UTF-8" >> /etc/environment \
+    && echo "en_US.UTF-8 UTF-8" >> /etc/locale.gen \
+    && echo "LANG=en_US.UTF-8" > /etc/locale.conf \
+    && locale-gen en_US.UTF-8
+
 ENV VIRTUAL_ENV=/opt/venv
 ENV LANG=en_US.UTF-8 \
+    LANGUAGE=en_US:en \
+    LC_ALL=en_US.UTF-8 \
     DJANGO_SETTINGS_MODULE=config.settings \
     PYTHONPATH=/srv/app \
     TERM=xterm-color \
