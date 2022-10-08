@@ -65,38 +65,47 @@ format_code: format_py_imports format_py format_js format_css ## Format code
 
 .PHONY: lint_py
 lint_py: ## Lint Python code flake8
-	@echo "${GREEN}Checking code using black ...${RESET}"
+	@echo "${GREEN}Checking code using black and flake8 ...${RESET}"
 	@$(PYTHON_CMD_PREFIX) black . --check
+# Just use x until the issue https://github.com/PyCQA/flake8/issues/234 is resolved and we can configure in pyproject.toml
+	@$(PYTHON_CMD_PREFIX) flake8 --ignore=E501 .
+	@echo ""
 
 .PHONY: lint_js
 lint_js: ## Lint Javascript code with eslint
 	@echo "${GREEN}Checking Javascript code using eslint ...${RESET}"
 	@$(NODE_CMD_PREFIX) npx eslint ./src/js/
+	@echo ""
 
 .PHONY: lint_imports
 lint_imports: ## Lint Python imports with isort
 	@echo "${GREEN}Checking python imports using isort ...${RESET}"
 	@$(PYTHON_CMD_PREFIX) isort --check-only --diff .
+	@echo ""
 
 .PHONY: lint_migrations
 lint_migrations:  ## Check for missing Django migrations
 	@echo "${GREEN}Check for missing Django migrations ...${RESET}"
 	@$(PYTHON_CMD_PREFIX) ./manage.py makemigrations --check --dry-run
+	@echo ""
 
 .PHONY: lint_sass
 lint_sass: ## Lint SASS code with stylelint
 	@echo "${GREEN}Checking SASS code using stylelint ...${RESET}"
 	@$(NODE_CMD_PREFIX) npx stylelint ./src/scss/
+	@echo ""
 
 .PHONY: lint_types
 lint_types: ## Lint Python types
 	@echo "${GREEN}Checking python types using mypy ...${RESET}"
 	@$(PYTHON_CMD_PREFIX) mypy .
+	@echo ""
 
 .PHONY: lint_docs
 lint_docs: ## Lint docs with mkdocs-linkcheck
 	@echo "${GREEN}Check mkdocs docs using mkdocs-linkcheck ...${RESET}"
 	@$(PYTHON_CMD_PREFIX) mkdocs-linkcheck
+	@echo ""
 
 .PHONY: lint
 lint: lint_js lint_sass lint_py lint_imports lint_migrations lint_types ## Lint Javascript, SASS, Python, Python imports and Python types

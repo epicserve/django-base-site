@@ -1,4 +1,4 @@
-from typing import Callable, List, Union
+from typing import Union
 
 from django.conf import settings
 from django.contrib import admin
