@@ -1,14 +1,24 @@
 #!/usr/bin/env bash
 
-DOWNLOAD_LOCATION='https://github.com/epicserve/django-base-site/archive/main.zip'
+BRANCH='main'
+ARCHIVE_LOCATION='https://github.com/epicserve/django-base-site/archive/'
+DOWNLOAD_LOCATION="${ARCHIVE_LOCATION}${BRANCH}.zip"
 PROJECT_NAME_SLUG_DEFAULT='example'
-PROJECT_NAME_SLUG='example'
+PROJECT_NAME_SLUG=''
 PROJECT_DIRECTORY_DEFAULT="$(pwd)/$PROJECT_NAME_SLUG_DEFAULT"
 PROJECT_DIRECTORY=''
 GREEN=$(tput -Txterm setaf 2)
 YELLOW=$(tput -Txterm setaf 3)
 WHITE=$(tput -Txterm setaf 7)
 RESET=$(tput -Txterm sgr0)
+QUIET_INSTALL=0
+
+# Bypass input questions with the arguments $1 (project name slug)
+if [[ -n "$1" ]]; then
+  QUIET_INSTALL=1
+  PROJECT_NAME_SLUG=$1
+  PROJECT_DIRECTORY="/tmp/$1"
+fi
 
 function ask_yes_or_no_default_yes() {
     read -r -p "${GREEN}$1${RESET} ${WHITE}(Y/n)${RESET}${GREEN}?${RESET} " response
@@ -37,9 +47,11 @@ get_project_directory() {
   fi
 }
 
-echo ""
-get_project_name_slug
-get_project_directory
+if [ $QUIET_INSTALL -eq 0 ]; then
+  echo ""
+  get_project_name_slug
+  get_project_directory
+fi
 
 if [ -n "$(ls -A $PROJECT_DIRECTORY 2> /dev/null)" ]; then
     if [[ "yes" = $(ask_yes_or_no_default_yes "The directory ${PROJECT_DIRECTORY} is not empty. If you continue, the contents will be removed. Do you want to continue") ]]; then
@@ -50,11 +62,17 @@ if [ -n "$(ls -A $PROJECT_DIRECTORY 2> /dev/null)" ]; then
     fi
 fi
 
-curl -LOks $DOWNLOAD_LOCATION && unzip -q main
-mv django-base-site-main $PROJECT_DIRECTORY
-rm -rf django-base-site-main
-rm main.zip
-cd $PROJECT_DIRECTORY
+if [ $QUIET_INSTALL -eq 1 ]; then
+  cp -r . $PROJECT_DIRECTORY
+  cd $PROJECT_DIRECTORY
+  rm -rf .git/
+else
+  curl -LOks $DOWNLOAD_LOCATION && unzip -q $BRANCH
+  mv django-base-site-$BRANCH $PROJECT_DIRECTORY
+  rm -rf django-base-site-$BRANCH
+  rm $BRANCH.zip
+  cd $PROJECT_DIRECTORY
+fi
 
 SECRET_KEY=$(python -c "import random; print(''.join(random.SystemRandom().choice('abcdefghijklmnopqrstuvwxyz0123456789%^&*(-_=+)') for i in range(50)))")
 cat > .env <<EOF
@@ -63,7 +81,6 @@ SECRET_KEY='$SECRET_KEY'
 EOF
 
 make remove_extra_files
-USING_COMPOSE="yes"
 
 # make static directories
 mkdir -p public/static
