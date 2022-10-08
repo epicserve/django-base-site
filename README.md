@@ -50,8 +50,10 @@ It's not a requirement, but it is recommended that you install Python using [Pye
 
 Running the following script mostly does the same thing as manual quickstart method. The exception is that the install
 script has questions to customize your new project setup. Just run the following in your terminal to get started.
-
-    $ bash <(curl -s https://raw.githubusercontent.com/epicserve/django-base-site/main/scripts/start_new_project)
+    
+```bash
+bash <(curl -s https://raw.githubusercontent.com/epicserve/django-base-site/main/scripts/start_new_project)
+```
     
 Example output:
 
@@ -91,7 +93,7 @@ Example output:
 ## Contribute
 
 1. Look for an open [issue](https://github.com/epicserve/django-base-site/issues) or create new issue to get a dialog going about the new feature or bug that you've discovered.
-2. Fork the [repository](https://github.com/epicserve/django-base-site) on Github to start making your changes to the master branch (or branch off of it). 
+2. Fork the [repository](https://github.com/epicserve/django-base-site) on GitHub to start making your changes to the master branch (or branch off of it). 
 3. Make a pull request.
 
 <!--readme-end-->
