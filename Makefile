@@ -115,15 +115,8 @@ remove_coverage_data: ## Remove Django test coverage data
 	@rm -f .coverage
 	@rm -rf htmlcov
 
-.PHONY: remove_docker_compose
-remove_docker_compose: ## Remove Docker Compose related files
-	@rm -f Dockerfile
-	@rm -f Dockerfile.node
-	@rm -f docker-compose.yml
-
 .PHONY: remove_extra_files
 remove_extra_files: ## Remove extra Django Base Site files not needed in a new project
-	@rm -rf docs/
 	@rm -f LICENSE.md
 	@rm -f README.md
 	@rm -r scripts/start_new_project

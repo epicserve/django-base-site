@@ -75,20 +75,13 @@ Example output:
     $ curl -LOk https://github.com/epicserve/django-base-site/archive/main.zip && unzip main
     $ mv django-base-site-main example
     $ cd example
-    $ python -m venv .venv && source .venv/bin/activate
-    $ pip install -r ./requirements-dev.txt
+    $ mkdir -p public/static
     $ export SECRET_KEY=$(python -c "import random; print(''.join(random.SystemRandom().choice('abcdefghijklmnopqrstuvwxyz0123456789%^&*(-_=+)') for i in range(50)))")
     $ cat > .env <<EOF
     DEBUG=on
     SECRET_KEY='$SECRET_KEY'
-    EMAIL_URL='smtp://username:password@smtp.example.com:587/?ssl=True&_default_from_email=John%20Example%20%3Cjohn%40example.com%3E'
-    # Uncomment the following if you're using docker-compose
-    # DATABASE_URL=postgres://postgres@db:5432/postgres
-    CACHE_URL=redis://redis:6379/0
     EOF
-    $ ./manage.py migrate
-    $ ./manage.py createsuperuser
-    $ ./manage.py runserver
+    $ docker-compose up
 
 ## Contribute
 

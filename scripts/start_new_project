@@ -10,16 +10,6 @@ YELLOW=$(tput -Txterm setaf 3)
 WHITE=$(tput -Txterm setaf 7)
 RESET=$(tput -Txterm sgr0)
 
-function ask_yes_or_no_default_no() {
-    read -r -p "${GREEN}$1${RESET} ${WHITE}(y/N)${RESET}${GREEN}?${RESET} " response
-    readonly response=`echo "$response" | tr '[:upper:]' '[:lower:]'` # to lowercase
-    if [[ $response =~ ^(no|n| ) ]] || [[ -z $response ]]; then
-        echo "no"
-    else
-        echo "yes"
-    fi
-}
-
 function ask_yes_or_no_default_yes() {
     read -r -p "${GREEN}$1${RESET} ${WHITE}(Y/n)${RESET}${GREEN}?${RESET} " response
     readonly response=`echo "$response" | tr '[:upper:]' '[:lower:]'` # to lowercase
@@ -78,38 +68,10 @@ USING_COMPOSE="yes"
 # make static directories
 mkdir -p public/static
 
-if [[ "no" = $(ask_yes_or_no_default_yes "Are going to use Docker Compose") ]]; then
-    make remove_docker_compose
-    USING_COMPOSE="no"
-else
-    echo "DATABASE_URL=postgres://postgres@db:5432/postgres" >> .env
-fi
-
-if [[ ${USING_COMPOSE} = "no"  ]]; then
-
-    python -m venv .venv && source .venv/bin/activate
-    pip install --upgrade pip
-    pip install --upgrade pip-tools
-    pip install --upgrade --requirement ./config/requirements/dev.in
-    python $PROJECT_DIRECTORY/manage.py migrate
-    python $PROJECT_DIRECTORY/manage.py createsuperuser
-    echo ""
-    echo "Done."
-    echo ""
-    echo "To start the Django runserver in your new project:"
-    echo "$ cd $PROJECT_DIRECTORY"
-    echo "$ npm i"
-    echo "$ source .venv/bin/activate"
-    echo "$ ./manage.py runserver"
-
-elif [[ ${USING_COMPOSE} = "yes" ]]; then
-
-    echo ""
-    echo "Done."
-    echo ""
-    echo "To start Docker Compose run:"
-    echo "$ cd $PROJECT_DIRECTORY"
-    echo "$ docker-compose up"
-    echo ""
-
-fi
+echo ""
+echo "Done."
+echo ""
+echo "To start Docker Compose run:"
+echo "$ cd $PROJECT_DIRECTORY"
+echo "$ docker-compose up"
+echo ""
