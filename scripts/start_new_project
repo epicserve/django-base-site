@@ -75,6 +75,9 @@ EOF
 make remove_extra_files
 USING_COMPOSE="yes"
 
+# make static directories
+mkdir -p public/static
+
 if [[ "no" = $(ask_yes_or_no_default_yes "Are going to use Docker Compose") ]]; then
     make remove_docker_compose
     USING_COMPOSE="no"

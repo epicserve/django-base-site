@@ -8,7 +8,7 @@ services:
     volumes:
       - postgres_data:/var/lib/postgresql/data/
     ports:
-      - 5432:5432
+      - "5432:5432"
     environment:
       - POSTGRES_HOST_AUTH_METHOD=trust
 
@@ -32,7 +32,7 @@ services:
       - .:/srv/app:cached
 
     ports:
-      - 8000:8000
+      - "8000:8000"
 
     depends_on:
       - db
@@ -67,14 +67,14 @@ services:
       dockerfile: Dockerfile.node
     working_dir: /srv/app
 
-    command: sh -c "npm run watch"
+    command: sh -c "npm run build && npm run watch"
 
     volumes:
       - .:/srv/app
       - node_data:/srv/app/node_modules
 
     ports:
-      - 35729:35729
+      - "35729:35729"
 
     environment:
       NODE_ENV: development
