@@ -37,13 +37,9 @@ Documentation is available at [http://django-base-site.readthedocs.org/](http://
 
 ## Install Requirements
 
-Before setting up a new project make sure you have the following installed:
-
-* Python 3.5 or newer 
-* [Pip-tools](https://github.com/jazzband/pip-tools/)
-* [virtualenv](https://github.com/pypa/virtualenv)
-
-It's not a requirement, but it is recommended that you install Python using [Pyenv](https://github.com/pyenv/pyenv) with the [virtualenvwrapper](https://github.com/pyenv/pyenv-virtualenvwrapper) plugin.
+Installing locally with Python is possible but not supported. The preferred way is to use the quickstart script below
+and to use Docker with docker-compose. Before proceeding make sure you've
+[installed Docker](https://docs.docker.com/engine/installation/).
 
 
 ## Quickstart
