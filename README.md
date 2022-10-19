@@ -15,7 +15,7 @@ Documentation is available at [http://django-base-site.readthedocs.org/](http://
 ## Features
 
 * [Black](https://black.readthedocs.io/en/stable/) for automatic Python code formatting
-* [Bootstrap 4](https://getbootstrap.com/)
+* [Bootstrap 5](https://getbootstrap.com/)
 * [Celery](http://docs.celeryproject.org/)
 * [Custom User Model](https://docs.djangoproject.com/en/stable/topics/auth/customizing/#substituting-a-custom-user-model)
 * [Django 3.2 LTS](https://www.djangoproject.com/)
