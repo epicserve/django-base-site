@@ -67,7 +67,7 @@ services:
       dockerfile: Dockerfile.node
     working_dir: /srv/app
 
-    command: sh -c "npm run build && npm run watch"
+    command: sh -c "npm run build"
 
     volumes:
       - .:/srv/app

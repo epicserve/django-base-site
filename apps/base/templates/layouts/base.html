@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-{% load static %}
+{% load vite %}
 <html lang="en">
     <head>
         <meta charset="utf-8">
@@ -8,7 +8,7 @@
         {% block title_tag %}<title>{% block title %}{% endblock %}{% if SITE_NAME %} - {{ SITE_NAME }}{% endif %}</title>{% endblock title_tag %}
 
         {% block style %}
-        <link rel="stylesheet" href="{% static 'dist/css/base.min.css' %}">
+        <link rel="stylesheet" href="{% vite_asset 'js/main.css' %}">
         {% endblock style %}
 
         <!-- HTML5 Shim and Respond.js IE8 support of HTML5 elements and media queries -->
@@ -97,7 +97,7 @@
         {% endblock base_footer %}
 
         {% block bottom_script %}
-            <script src="{% static 'dist/js/base.min.js' %}"></script>
+            <script src="{% vite_asset 'js/main.js' %}"></script>
         {% endblock bottom_script %}
 
     </body>

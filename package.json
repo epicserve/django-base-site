@@ -1,9 +1,16 @@
 {
   "name": "django-base-site",
   "description": "Django Base Site",
-  "dependencies": {},
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview"
+  },
   "devDependencies": {
-    "bootstrap": "~5.x"
+    "@popperjs/core": "^2.11.6",
+    "bootstrap": "^5.2.2",
+    "sass": "^1.55.0",
+    "vite": "^3.1.8"
   },
   "repository": {
     "type": "git",
