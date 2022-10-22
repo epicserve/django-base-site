@@ -56,6 +56,7 @@ INSTALLED_APPS = [
     "allauth",
     "allauth.account",
     "crispy_forms",
+    "crispy_bootstrap5",
     "storages",
 ]
 
@@ -177,7 +178,8 @@ CACHE_URL_DEFAULT = "redis://redis:6379/0"
 CACHES = {"default": env.cache_url("CACHE_URL", default=CACHE_URL_DEFAULT)}
 
 # CRISPY-FORMS
-CRISPY_TEMPLATE_PACK = "bootstrap4"
+CRISPY_ALLOWED_TEMPLATE_PACKS = "bootstrap5"
+CRISPY_TEMPLATE_PACK = "bootstrap5"
 
 # CELERY SETTINGS
 CELERY_BROKER_URL = env("CACHE_URL", CACHE_URL_DEFAULT)
