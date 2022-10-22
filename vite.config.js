@@ -17,7 +17,7 @@ module.exports = {
     extensions: ['.js', '.json'],
     alias: {
       '~bootstrap': resolve(__dirname, 'node_modules/bootstrap'),
-    }
+    },
   },
   build: {
     outDir: resolve(__dirname, 'public/static/dist/js'),

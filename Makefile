@@ -57,7 +57,7 @@ format_py_imports: ## Format Python imports with isort
 	@$(PYTHON_CMD_PREFIX) isort .
 
 .PHONY: format_code
-format_code: format_py_imports format_py format_js format_css ## Format code
+format_code: format_py_imports format_py format_js ## Format code
 
 .PHONY: lint_py
 lint_py: ## Lint Python code flake8
