@@ -6,7 +6,6 @@ django-crispy-forms~=1.9
 django-redis-cache~=3.0
 django-redis-sessions~=0.6
 django-storages~=1.8
-djangorestframework~=3.11
 environs[django]~=9.3
 hiredis~=2.0
 psycopg2-binary~=2.8

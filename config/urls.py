@@ -5,7 +5,6 @@ from django.contrib import admin
 from django.urls import URLPattern, URLResolver, include, path
 from django.views.generic import TemplateView
 
-from apps.accounts.urls import accounts_router
 from apps.base.views import NameChange, http_404, http_500
 
 # Includes
@@ -14,8 +13,6 @@ urlpatterns: list[Union[URLResolver, URLPattern]] = [path(r"admin/", admin.site.
 # Project Urls
 urlpatterns += [
     path("", TemplateView.as_view(template_name="index.html"), name="site_index"),
-    path("api-auth/", include("rest_framework.urls")),
-    path("api/accounts/", include(accounts_router.urls)),
     path("500/", http_500),
     path("404/", http_404),
     path("accounts/name/", NameChange.as_view(), name="account_change_name"),

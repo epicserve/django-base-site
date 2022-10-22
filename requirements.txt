@@ -227,7 +227,6 @@ django==3.2.16 \
     #   dj-database-url
     #   django-allauth
     #   django-storages
-    #   djangorestframework
 django-allauth==0.51.0 \
     --hash=sha256:ca1622733b6faa591580ccd3984042f12d8c79ade93438212de249b7ffb6f91f
     # via -r config/requirements/prod.in
@@ -249,10 +248,6 @@ django-redis-sessions==0.6.2 \
 django-storages==1.13.1 \
     --hash=sha256:3540b45618b04be2c867c0982e8d2bd8e34f84dae922267fcebe4691fb93daf0 \
     --hash=sha256:b3d98ecc09f1b1627c2b2cf430964322ce4e08617dbf9b4236c16a32875a1e0b
-    # via -r config/requirements/prod.in
-djangorestframework==3.14.0 \
-    --hash=sha256:579a333e6256b09489cbe0a067e66abe55c6595d8926be6b99423786334350c8 \
-    --hash=sha256:eb63f58c9f218e1a7d064d17a70751f528ed4e1d35547fdade9aaf4cd103fd08
     # via -r config/requirements/prod.in
 environs[django]==9.5.0 \
     --hash=sha256:1e549569a3de49c05f856f40bce86979e7d5ffbbc4398e7f338574c220189124 \
@@ -450,7 +445,6 @@ pytz==2022.5 \
     # via
     #   celery
     #   django
-    #   djangorestframework
 redis==3.5.3 \
     --hash=sha256:0e7e0cfca8660dea8b7d5cd8c4f6c5e29e11f31158c0b0ae91a397f00e5a05a2 \
     --hash=sha256:432b788c4530cfe16d8d943a09d40ca6c16149727e4afe8c2c9d5580c59d9f24

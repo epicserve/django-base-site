@@ -21,7 +21,6 @@ Documentation is available at [http://django-base-site.readthedocs.org/](http://
 * [Django 3.2 LTS](https://www.djangoproject.com/)
 * [Django Crispy Forms](https://github.com/django-crispy-forms/django-crispy-forms)
 * [Django Debug Toolbar](https://github.com/jazzband/django-debug-toolbar)
-* [Django REST framework](https://www.django-rest-framework.org/)
 * [Django-allauth](http://www.intenct.nl/projects/django-allauth/)
 * [Docker Support](https://www.docker.com/)
 * [Eslint](https://eslint.org/) for linting Javascript
