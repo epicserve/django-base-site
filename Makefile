@@ -9,7 +9,7 @@ SHELL := bash
 # Use docker-compose as the default set these environment variables to an empty
 # string to overwrite running with docker-compose.
 PYTHON_CMD_PREFIX ?= docker-compose run --no-deps --rm web
-PYTHON_CMD_PREFIX_WITH_WEB_PORT ?= docker-compose run -p 8000:8000 --no-deps --rm web
+PYTHON_CMD_PREFIX_WITH_DEPS ?= docker-compose run --rm web
 NODE_CMD_PREFIX ?= docker-compose run --no-deps --rm -e NODE_ENV=production node
 HELP_FIRST_COL_LENGTH := 23
 
@@ -82,7 +82,7 @@ lint_imports: ## Lint Python imports with isort
 .PHONY: lint_migrations
 lint_migrations:  ## Check for missing Django migrations
 	@echo "${GREEN}Check for missing Django migrations ...${RESET}"
-	@$(PYTHON_CMD_PREFIX) ./manage.py makemigrations --check --dry-run
+	@$(PYTHON_CMD_PREFIX_WITH_DEPS) ./manage.py makemigrations --check --dry-run
 	@echo ""
 
 .PHONY: lint_sass
