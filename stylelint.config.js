@@ -11,4 +11,7 @@ module.exports = {
     // Bring in some extra rules for SCSS
     'stylelint-scss',
   ],
+  rules: {
+    'import-notation': 'string'
+  },
 };

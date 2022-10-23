@@ -1,7 +1,6 @@
 name: CI
 
 on:
-  pull_request:
   push:
 
 jobs:
@@ -36,15 +35,16 @@ jobs:
         run: npm ci
       - name: Install Python requirements
         run: |
-          python -m pip install --upgrade pip
+          python -m pip install --upgrade pip wheel
           python -m pip install -r requirements-dev.txt
       - name: Run linting
         run: |
           mkdir -p public/static
-          make lint
+          PYTHON_CMD_PREFIX="" NODE_CMD_PREFIX="" make lint
         env:
           SECRET_KEY: secret-key-for-testing-only
           DEBUG: on
+          PYTHON_CMD_PREFIX_WITH_DEPS: ""
           PYTHON_CMD_PREFIX: ""
           NODE_CMD_PREFIX: ""
   test:
@@ -57,4 +57,5 @@ jobs:
         run: |
           ./scripts/start_new_project "example"
           cd /tmp/example
+          docker-compose run --rm node npm run build
           docker-compose run --rm web pytest
