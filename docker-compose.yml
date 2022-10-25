@@ -68,14 +68,14 @@ services:
       dockerfile: Dockerfile.node
     working_dir: /srv/app
 
-    command: sh -c "npm run build"
+    command: sh -c "npm run dev"
 
     volumes:
       - .:/srv/app
       - node_data:/srv/app/node_modules
 
     ports:
-      - "35729:35729"
+      - "3000:3000"
 
     environment:
       NODE_ENV: development
@@ -84,13 +84,13 @@ services:
     container_name: docs
     image: epicserve/django-base-site:latest
 
-    command: sh -c "mkdocs serve --dev-addr 0.0.0.0:3000"
+    command: sh -c "mkdocs serve --dev-addr 0.0.0.0:5000"
 
     volumes:
       - .:/srv/app:cached
 
     ports:
-      - "3000:3000"
+      - "5000:5000"
 
     environment:
       LIVE_RELOAD_SUPPORT: 'true'

@@ -8,8 +8,11 @@
         {% block title_tag %}<title>{% block title %}{% endblock %}{% if SITE_NAME %} - {{ SITE_NAME }}{% endif %}</title>{% endblock title_tag %}
 
         {% block style %}
-        <link rel="stylesheet" href="{% vite_asset 'js/main.css' %}">
+        {% vite_asset 'js/main.css' %}
         {% endblock style %}
+
+        {% vite_hmr_client %}
+        {% vite_asset 'js/main.js' %}
 
         {% block script %}{% endblock script %}{% include "blocks/google-analytics.html" %}
     </head>
@@ -90,7 +93,6 @@
         </footer>
 
         {% block bottom_script %}
-            <script src="{% vite_asset 'js/main.js' %}"></script>
         {% endblock bottom_script %}
 
     </body>

@@ -1,11 +1,11 @@
-const { resolve } = require('path');
+import { resolve } from 'path';
 
-module.exports = {
+export default {
   plugins: [],
   root: resolve(__dirname, 'src'),
   base: '/public/static/',
   server: {
-    host: 'localhost',
+    host: '0.0.0.0',
     port: 3000,
     open: false,
     watch: {
