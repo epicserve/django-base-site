@@ -1,7 +1,7 @@
 # ------------------------------------------------------------
 # STAGE 1: Build Python requirements layer
 # ------------------------------------------------------------
-FROM python:3-buster as python-requirements
+FROM python:3.10-buster as python-requirements
 
 ENV \
     # This prevents Python from writing out pyc files \
@@ -25,7 +25,7 @@ RUN set -ex \
 # ------------------------------------------------------------
 # STAGE 2: Dev layer
 # ------------------------------------------------------------
-FROM python:3-slim-buster
+FROM python:3.10-slim-buster
 
 # Set the locale
 RUN apt-get update \

@@ -1,6 +1,6 @@
 <!DOCTYPE html>
-{% load static %}
-<html lang="en">
+{% load vite %}
+<html lang="en" class="h-100">
     <head>
         <meta charset="utf-8">
         <meta http-equiv="X-UA-Compatible" content="IE=edge">
@@ -8,96 +8,91 @@
         {% block title_tag %}<title>{% block title %}{% endblock %}{% if SITE_NAME %} - {{ SITE_NAME }}{% endif %}</title>{% endblock title_tag %}
 
         {% block style %}
-        <link rel="stylesheet" href="{% static 'dist/css/base.min.css' %}">
+        {% vite_asset 'js/main.css' %}
         {% endblock style %}
 
-        <!-- HTML5 Shim and Respond.js IE8 support of HTML5 elements and media queries -->
-        <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
-        <!--[if lt IE 9]>
-        <script src="//oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
-        <script src="//oss.maxcdn.com/libs/respond.js/1.4.2/respond.min.js"></script>
-        <![endif]-->
+        {% vite_hmr_client %}
+        {% vite_asset 'js/main.js' %}
 
         {% block script %}{% endblock script %}{% include "blocks/google-analytics.html" %}
     </head>
 
-    <body{% block body_attr %} class="{% block body_class %}{% endblock %}" id="{% block body_id %}{% endblock %}"{% endblock %}>
+    <body{% block body_attr %} class="{% block body_class %}d-flex flex-column h-100{% endblock %}" id="{% block body_id %}{% endblock %}"{% endblock %}>
 
-        {% block base_header %}
+        <header>
+            {% block base_header %}
+                <div class="container">
+                    <nav class="navbar navbar-expand-lg navbar-light bg-faded">
+                        <div class="container-fluid">
+                            <a class="navbar-brand" href="{% url 'site_index' %}">{{ SITE_NAME }}</a>
+                            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+                                <span class="navbar-toggler-icon"></span>
+                            </button>
+                            <div class="collapse navbar-collapse" id="navbarNav">
+                                <ul class="navbar-nav">
+                                    <li class="nav-item">
+                                        <a class="nav-link" href="{% url 'site_index' %}">Home <span class="visually-hidden">(current)</span></a>
+                                    </li>
+                                    <li class="nav-item">
+                                        <a class="nav-link" href="#">About</a>
+                                    </li>
+                                    <li class="nav-item">
+                                        <a class="nav-link" href="#">Contact</a>
+                                    </li>
+                                </ul>
+                            </div>
+                            <div class="d-flex">
+                                <ul class="navbar-nav">
+                                    {% if not user.is_authenticated %}
+                                        <li class="nav-item">
+                                            <a class="nav-link" href="{% url 'account_login' %}">Sign In</a>
+                                        </li>
+                                    {% else %}
+                                        <li class="nav-item dropdown">
+                                            <a class="nav-link dropdown-toggle" href="#" id="navbarScrollingDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">{% firstof user.get_short_name user.get_username %}</a>
+                                            <ul class="dropdown-menu" aria-labelledby="navbarScrollingDropdown">
+                                                <li><a class="dropdown-item" href="{% url 'account_change_name' %}">Account Settings</a></li>
+                                                {% if user.is_staff %}<li><a class="dropdown-item" href="{% url 'admin:index' %}">Administration</a></li>{% endif %}
+                                                <li><a class="dropdown-item" href="{% url 'account_logout' %}">Sign Out</a></li>
+                                            </ul>
+                                        </li>
+                                    {% endif %}
+                                </ul>
+                            </div>
 
-            <div class="container">
-                <nav class="navbar navbar-expand-md navbar-light bg-faded">
+                        </div>
+                    </nav>
+                </div>
+            {% endblock base_header %}
+        </header>
 
-                    <a class="navbar-brand" href="{% url 'site_index' %}">{{ SITE_NAME }}</a>
+        <main class="flex-shrink-0">
+            {% block breadcrumb %}
+            {% endblock breadcrumb %}
 
-                    <button class="navbar-toggler navbar-toggler-right" type="button" data-toggle="collapse" data-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
-                        <span class="navbar-toggler-icon"></span>
-                    </button>
-
-                    <div class="collapse navbar-collapse" id="navbarNav">
-                        <ul class="navbar-nav mr-auto">
-                            <li class="nav-item active">
-                                <a class="nav-link" href="{% url 'site_index' %}">Home <span class="sr-only">(current)</span></a>
-                            </li>
-                            <li class="nav-item">
-                                <a class="nav-link" href="#">About</a>
-                            </li>
-                            <li class="nav-item">
-                                <a class="nav-link" href="#">Contact</a>
-                            </li>
-                        </ul>
-
-                        <ul class="nav navbar-nav">
-                            {% if not user.is_authenticated %}
-                                <li><a href="{% url 'account_login' %}">Sign In</a></li>
-                            {% else %}
-                                <li class="nav-item dropdown">
-                                    <a href="#" class="dropdown-toggle" data-toggle="dropdown"><span class="glyphicon glyphicon-user"></span> {% firstof user.get_short_name user.get_username %} <b class="caret"></b></a>
-                                    <ul class="dropdown-menu">
-                                        <li class="dropdown-item"><a href="{% url 'account_change_name' %}">Account Settings</a></li>
-                                        {% if user.is_staff %}<li class="dropdown-item"><a href="{% url 'admin:index' %}">Administration</a></li>{% endif %}
-                                        <li class="dropdown-item"><a href="{% url 'account_logout' %}">Sign Out</a></li>
-                                    </ul>
-                                </li>
-                            {% endif %}
-                        </ul>
-                    </div>
-                </nav>
+            {% if messages %}
+            <div id="flash-message-container" class="container">
+                {% for message in messages %}
+                <p class="alert alert-{{ message.tags }}">{{ message }}</p>
+                {% endfor %}
             </div>
+            {% endif %}
 
-        {% endblock base_header %}
+            {% block base_content %}
+            <div id="main-content" class="container">
+                {% block content %}
+                {% endblock content %}
+            </div>
+            {% endblock base_content %}
+        </main>
 
-        {% block breadcrumb %}
-        {% endblock breadcrumb %}
-
-        {% if messages %}
-        <div id="flash-message-container" class="container">
-            {% for message in messages %}
-            <p class="alert alert-{{ message.tags }}">{{ message }}</p>
-            {% endfor %}
-        </div>
-        {% endif %}
-
-        {% block base_content %}
-        <div id="main-content" class="container">
-            {% block content %}
-            {% endblock content %}
-        </div>
-        {% endblock base_content %}
-
-        {% block base_footer %}
-        <div class="container">
-
-            <hr>
-            <footer>
-                <p>&copy; {{ SITE_NAME }} {% now "Y" %}</p>
-            </footer>
-
-        </div>
-        {% endblock base_footer %}
+        <footer class="footer mt-auto">
+          <div class="container border-top py-3">
+            <p>&copy; {{ SITE_NAME }} {% now "Y" %}</p>
+          </div>
+        </footer>
 
         {% block bottom_script %}
-            <script src="{% static 'dist/js/base.min.js' %}"></script>
         {% endblock bottom_script %}
 
     </body>

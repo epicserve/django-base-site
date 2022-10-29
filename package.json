@@ -1,33 +1,23 @@
 {
   "name": "django-base-site",
   "description": "Django Base Site",
-  "dependencies": {},
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview",
+    "format-sass": "npx stylelint --fix 'src/**/*.{css,scss}'",
+    "format-js": "npx eslint --fix ."
+  },
   "devDependencies": {
-    "@babel/core": "^7.11.4",
-    "babel-loader": "^8.1.0",
-    "bootstrap": "~5.x",
-    "clean-webpack-plugin": "^4.0.0",
-    "css-loader": "^6.2.0",
-    "eslint": "^7.7.0",
-    "eslint-config-airbnb-base": "^14.2.0",
-    "eslint-loader": "^4.0.2",
-    "eslint-plugin-import": "^2.22.0",
-    "glob": "^7.1.6",
-    "jquery": "^3.5.1",
-    "mini-css-extract-plugin": "^2.6.1",
-    "minimist": ">=1.2.6",
-    "sass": "^1.39.0",
-    "popper.js": "^1.16.1",
-    "sass-loader": "^12.1.0",
-    "style-loader": "^3.2.1",
-    "stylelint": "^13.6.1",
-    "stylelint-config-recess-order": "^2.1.0",
-    "stylelint-config-standard": "^22.0.0",
-    "stylelint-scss": "^3.18.0",
-    "stylelint-webpack-plugin": "^3.0.1",
-    "webpack": "^5.52.0",
-    "webpack-cli": "^4.8.0",
-    "webpack-livereload-plugin": "^3.0.2"
+    "@popperjs/core": "^2.11.6",
+    "bootstrap": "^5.2.2",
+    "eslint-config-airbnb-base": "^15.0.0",
+    "sass": "^1.55.0",
+    "stylelint": "^14.14.0",
+    "stylelint-config-recess-order": "^3.0.0",
+    "stylelint-config-standard-scss": "^6.0.0",
+    "stylelint-scss": "^4.3.0",
+    "vite": "^3.1.8"
   },
   "repository": {
     "type": "git",
@@ -38,14 +28,5 @@
   "bugs": {
     "url": "https://github.com/epicserve/django-base-site/issues"
   },
-  "homepage": "https://github.com/epicserve/django-base-site#readme",
-  "scripts": {
-    "build": "npx webpack",
-    "dev": "npx webpack --watch --progress",
-    "watch": "npx webpack --watch",
-    "lint-js": "npx eslint .",
-    "lint-sass": "npx stylelint '**/*.{css,scss}'",
-    "format-js": "npx eslint --fix .",
-    "format-sass": "npx stylelint --fix '**/*.{css,scss}'"
-  }
+  "homepage": "https://github.com/epicserve/django-base-site#readme"
 }

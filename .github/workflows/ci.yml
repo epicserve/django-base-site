@@ -1,7 +1,6 @@
 name: CI
 
 on:
-  pull_request:
   push:
 
 jobs:
@@ -9,42 +8,41 @@ jobs:
     name: Lint
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
       - name: Setup NPM caching
-        uses: actions/cache@v2
+        uses: actions/cache@v3
         with:
           path: ~/.npm
           key: ${{ runner.os }}-lint-${{ hashFiles('**/package-lock.json') }}
           restore-keys: |
             ${{ runner.os }}-lint-
       - name: Setup pip caching
-        uses: actions/cache@v2
+        uses: actions/cache@v3
         with:
           path: ~/.cache/pip
           key: ${{ runner.os }}-pip-${{ hashFiles('**/requirements-dev.txt') }}
           restore-keys: |
             ${{ runner.os }}-pip-
       - name: Setup Node version 16.17
-        uses: actions/setup-node@v2
-        with:
-          node-version: "16.17"
+        uses: actions/setup-node@v3
       - name: Setup Python 3.10
-        uses: actions/setup-python@v2
+        uses: actions/setup-python@v3
         with:
           python-version: "3.10"
       - name: Install Node requirements
         run: npm ci
       - name: Install Python requirements
         run: |
-          python -m pip install --upgrade pip
+          python -m pip install --upgrade pip wheel
           python -m pip install -r requirements-dev.txt
       - name: Run linting
         run: |
           mkdir -p public/static
-          make lint
+          PYTHON_CMD_PREFIX="" NODE_CMD_PREFIX="" make lint
         env:
           SECRET_KEY: secret-key-for-testing-only
           DEBUG: on
+          PYTHON_CMD_PREFIX_WITH_DEPS: ""
           PYTHON_CMD_PREFIX: ""
           NODE_CMD_PREFIX: ""
   test:
@@ -52,9 +50,10 @@ jobs:
     name: Tests install script
 
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
       - name: Test install script
         run: |
           ./scripts/start_new_project "example"
           cd /tmp/example
+          docker-compose run --rm node npm run build
           docker-compose run --rm web pytest

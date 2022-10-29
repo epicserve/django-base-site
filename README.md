@@ -32,7 +32,7 @@ Documentation is available at [http://django-base-site.readthedocs.org/](http://
 * [Pytest-cov](https://pytest-cov.readthedocs.io)
 * [Pytest Django](https://pytest-django.readthedocs.io/en/latest/index.html)
 * [Stylelint](https://stylelint.io/) for linting SASS
-* [Webpack](https://webpack.js.org/) for building SASS and JS with [Babel](https://babeljs.io/)
+* [Vite](https://vitejs.dev/) for building SASS and JS
 
 ## Install Requirements
 
