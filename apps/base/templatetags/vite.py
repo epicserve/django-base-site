@@ -16,12 +16,12 @@ VITE_SERVER_HOST = getattr(settings, "VITE_SERVER_HOST", "localhost")
 VITE_SERVER_PORT = getattr(settings, "VITE_SERVER_PORT", "3000")
 
 
-def get_css_link(file):
+def get_css_link(file: str) -> str:
     base_url = f"{settings.STATIC_URL}{VITE_OUTPUT_DIR}"
     return mark_safe(f'<link rel="stylesheet" href="{base_url}{file}">')
 
 
-def get_script(file):
+def get_script(file: str) -> str:
     if VITE_DEV_MODE is False:
         base_url = f"{settings.STATIC_URL}{VITE_OUTPUT_DIR}"
     else:
@@ -39,7 +39,7 @@ def get_manifest():
 
 
 @register.simple_tag
-def vite_asset(filename):
+def vite_asset(filename: str):
 
     is_css = str(filename).endswith("css")
     if VITE_DEV_MODE is True:
