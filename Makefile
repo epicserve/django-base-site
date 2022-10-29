@@ -38,8 +38,13 @@ clean: remove_py_cache remove_coverage_data ## Remove build files, python cache 
 
 .PHONY: format_css
 format_css: ## Format SASS/CSS code
-	@echo "${GREEN}Formatting  SASS/CS code using stylelint ...${RESET}"
+	@echo "${GREEN}Formatting SASS/CS code using stylelint ...${RESET}"
 	@$(NODE_CMD_PREFIX) npm run format-sass
+
+.PHONY: format_html
+format_html: ## Format HTML
+	@echo "${GREEN}Formatting HTML using djLint ...${RESET}"
+	@$(PYTHON_CMD_PREFIX) djlint . --reformat
 
 .PHONY: format_js
 format_js: ## Format Javascript code
@@ -57,7 +62,7 @@ format_py_imports: ## Format Python imports with isort
 	@$(PYTHON_CMD_PREFIX) isort .
 
 .PHONY: format_code
-format_code: format_py_imports format_py format_js format_css ## Format code
+format_code: format_py_imports format_py format_js format_css format_html ## Format code
 
 .PHONY: lint_py
 lint_py: ## Lint Python code flake8
@@ -91,6 +96,12 @@ lint_sass: ## Lint SASS code with stylelint
 	@$(NODE_CMD_PREFIX) npx stylelint ./src/scss/
 	@echo ""
 
+.PHONY: lint_html
+lint_html: ## Lint HTML
+	@echo "${GREEN}Checking HTML using djLint ...${RESET}"
+	@$(PYTHON_CMD_PREFIX) djlint . --lint
+	@echo ""
+
 .PHONY: lint_types
 lint_types: ## Lint Python types
 	@echo "${GREEN}Checking python types using mypy ...${RESET}"
@@ -104,7 +115,7 @@ lint_docs: ## Lint docs with mkdocs-linkcheck
 	@echo ""
 
 .PHONY: lint
-lint: lint_js lint_sass lint_py lint_imports lint_migrations lint_types ## Lint Javascript, SASS, Python, Python imports and Python types
+lint: lint_js lint_sass lint_html lint_py lint_imports lint_migrations lint_types ## Lint Javascript, SASS, Python, Python imports and Python types
 
 .PHONY: open_coverage
 open_coverage: ## Run the django test runner with coverage
