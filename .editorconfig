@@ -10,13 +10,13 @@ charset = utf-8
 insert_final_newline = true
 
 # 4 space indentation
-[*.py, *.html]
+[*.py]
 indent_style = space
 indent_size = 4
 trim_trailing_whitespace = true
 
 # 2 space indentation
-[*.js, *.scss, *.css]
+[{*.js, *.scss, *.css, *.html}]
 indent_style = space
 indent_size = 2
 trim_trailing_whitespace = true

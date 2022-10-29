@@ -2,32 +2,32 @@
 
 {% load i18n %}
 
-{% block title %}{% block head_title %}{% endblock %}{% endblock %}
+{% block title %}
+  {% block head_title %}{% endblock head_title %}
+{% endblock title %}
 
 {% block content %}
-
-    <h1>{% trans 'Account Settings' %}</h1>
-
-    <ul class="nav nav-tabs mb-4">
-        <li class="nav-item">
-            <a class="nav-link {% block account_nav_name %}{% endblock %}" aria-current="page" href="{% url 'account_change_name' %}">Name</a>
-        </li>
-        <li class="nav-item">
-            <a class="nav-link {% block account_nav_email %}{% endblock %}" href="{% url 'account_email' %}">{% trans 'E-mail Addresses' %}</a>
-        </li>
-        <li class="nav-item">
-            <a class="nav-link {% block account_nav_change_password %}{% endblock %}" href="{% url 'account_change_password' %}">{% trans 'Change Password' %}</a>
-        </li>
-        {% url 'socialaccount_connections' as connections_url %}
-        {% if connections_url %}
-            <li class="nav-item">
-                <a class="nav-link {% block account_nav_socialaccount_connections %}{% endblock %}" href="{{ connections_url}}">{% trans 'Connected Accounts' %}</a>
-            </li>
-        {% endif %}
-    </ul>
-
-    {% block account_content %}
-    {% endblock %}
-
-{% endblock %}
-
+  <h1>{% trans "Account Settings" %}</h1>
+  <ul class="nav nav-tabs mb-4">
+    <li class="nav-item">
+      <a class="nav-link {% block account_nav_name %}{% endblock account_nav_name %}
+       " aria-current="page" href="{% url 'account_change_name' %}">Name</a>
+    </li>
+    <li class="nav-item">
+      <a class="nav-link {% block account_nav_email %}{% endblock account_nav_email %}
+       " href="{% url 'account_email' %}">{% trans "E-mail Addresses" %}</a>
+    </li>
+    <li class="nav-item">
+      <a class="nav-link {% block account_nav_change_password %}{% endblock account_nav_change_password %}
+       " href="{% url 'account_change_password' %}">{% trans "Change Password" %}</a>
+    </li>
+    {% url 'socialaccount_connections' as connections_url %}
+    {% if connections_url %}
+      <li class="nav-item">
+        <a class="nav-link {% block account_nav_socialaccount_connections %}{% endblock account_nav_socialaccount_connections %}
+         " href="{{ connections_url }}">{% trans "Connected Accounts" %}</a>
+      </li>
+    {% endif %}
+  </ul>
+  {% block account_content %}{% endblock account_content %}
+{% endblock content %}
