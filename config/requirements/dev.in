@@ -2,6 +2,7 @@
 black
 django-debug-toolbar
 django-stubs
+djlint
 flake8
 ipdb
 isort
