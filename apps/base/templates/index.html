@@ -1,15 +1,17 @@
 {% extends "layouts/base.html" %}
 
-{% block title_tag %}<title>{{ SITE_NAME }}</title>{% endblock %}
+{% block title_tag %}<title>{{ SITE_NAME }}</title>{% endblock title_tag %}
 
 {% block content %}
-
-    <div class="jumbotron">
-        <div class="container">
-            <h1>{{ SITE_NAME }}</h1>
-            <p>You've successfully setup a Django base site. Start Coding!</p>
-            <p><a href="http://django-base-site.readthedocs.org/en/latest/" class="btn btn-primary btn-lg" target="_blank">Read documentation &raquo;</a></p>
-        </div>
+  <div class="jumbotron">
+    <div class="container">
+      <h1>{{ SITE_NAME }}</h1>
+      <p>You've successfully set up a Django base site. Start Coding!</p>
+      <p>
+        <a href="https://django-base-site.readthedocs.org/en/latest/"
+           class="btn btn-primary btn-lg"
+           target="_blank">Read documentation »</a>
+      </p>
     </div>
-
+  </div>
 {% endblock content %}
