@@ -8,27 +8,25 @@ jobs:
     name: Lint
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
       - name: Setup NPM caching
-        uses: actions/cache@v2
+        uses: actions/cache@v3
         with:
           path: ~/.npm
           key: ${{ runner.os }}-lint-${{ hashFiles('**/package-lock.json') }}
           restore-keys: |
             ${{ runner.os }}-lint-
       - name: Setup pip caching
-        uses: actions/cache@v2
+        uses: actions/cache@v3
         with:
           path: ~/.cache/pip
           key: ${{ runner.os }}-pip-${{ hashFiles('**/requirements-dev.txt') }}
           restore-keys: |
             ${{ runner.os }}-pip-
       - name: Setup Node version 16.17
-        uses: actions/setup-node@v2
-        with:
-          node-version: "16.17"
+        uses: actions/setup-node@v3
       - name: Setup Python 3.10
-        uses: actions/setup-python@v2
+        uses: actions/setup-python@v3
         with:
           python-version: "3.10"
       - name: Install Node requirements
@@ -52,7 +50,7 @@ jobs:
     name: Tests install script
 
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
       - name: Test install script
         run: |
           ./scripts/start_new_project "example"
