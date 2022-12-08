@@ -7,8 +7,9 @@
   {% trans "Account" %}
 {% endblock head_title %}
 
+{# djlint:off #}
 {% block account_nav_email %}active{% endblock account_nav_email %}
-
+{# djlint:on #}
 {% block account_content %}
   {% if user.emailaddress_set.all %}
     <p>{% trans "The following e-mail addresses are associated to your account:" %}</p>
@@ -56,28 +57,29 @@
         <button class="btn btn-default" type="submit" name="action_send">{% trans "Re-send Verification" %}</button>
         <button class="btn btn-danger" type="submit" name="action_remove">{% trans "Remove" %}</button>
       </div>
+    </form>
+  {% else %}
+    <p>
+      <strong>{% trans "Warning:" %}</strong> {% trans "You currently do not have any e-mail address set up. You should really add an e-mail address so you can receive notifications, reset your password, etc." %}
+    </p>
+  {% endif %}
+  <hr>
+  <h3>{% trans "Add E-mail Address" %}</h3>
+  <form method="post" action=".">
+    {% csrf_token %}
+    {{ add_email_form|crispy }}
+    <div class="form-actions">
+      <button class="btn btn-primary" name="action_add" type="submit">{% trans "Add E-mail" %}</button>
+    </div>
   </form>
-{% else %}
-  <p>
-    <strong>{% trans "Warning:" %}</strong> {% trans "You currently do not have any e-mail address set up. You should really add an e-mail address so you can receive notifications, reset your password, etc." %}
-  </p>
-{% endif %}
-<hr>
-<h3>{% trans "Add E-mail Address" %}</h3>
-<form method="post" action=".">
-  {% csrf_token %}
-  {{ add_email_form|crispy }}
-  <div class="form-actions">
-    <button class="btn btn-primary" name="action_add" type="submit">{% trans "Add E-mail" %}</button>
-  </div>
-</form>
 {% endblock account_content %}
 
 {% block bottom_script %}
   {{ block.super }}
   <script type="text/javascript">
     document.querySelector("button[name=action_remove]").addEventListener("click", function(e) {
-      if (confirm("{% trans "Do you really want to remove the selected e-mail address?" %}")) {
+      if (confirm("{% trans "
+          Do you really want to remove the selected e - mail address ? " %}")) {
         return true;
       }
       e.preventDefault();

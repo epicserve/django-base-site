@@ -38,7 +38,7 @@ format_css:
 # Format HTML
 format_html:
   @just _start_msg "Formatting HTML using djLint"
-  @{{python_cmd_prefix}} djlint . --reformat
+  @{{python_cmd_prefix}} djlint . --reformat --quiet
 
 # Format Javascript code
 format_js:

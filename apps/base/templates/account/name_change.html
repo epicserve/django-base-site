@@ -2,10 +2,10 @@
 
 {% load crispy_forms_tags %}
 
+{# djlint:off #}
 {% block head_title %}Name{% endblock head_title %}
-
 {% block account_nav_name %}active{% endblock account_nav_name %}
-
+{# djlint:on #}
 {% block account_content %}
   <form action="." method="post">
     {% csrf_token %}
