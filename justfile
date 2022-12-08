@@ -111,6 +111,12 @@ lint_docs:
 # Lint everything
 lint: lint_js lint_sass lint_html lint_py lint_imports lint_migrations lint_types
 
+# Run pip-compile make the requirement files
+make_requirements:
+  @rm -rf ./requirements*.txt
+  @{{python_cmd_prefix}} pip-compile --upgrade --generate-hashes --output-file requirements.txt config/requirements/prod.in
+  @{{python_cmd_prefix}} pip-compile --upgrade --generate-hashes --output-file requirements-dev.txt config/requirements/dev.in
+
 # Run the django test runner with coverage
 open_coverage:
   @{{python_cmd_prefix}} coverage html && open htmlcov/index.html
@@ -130,11 +136,13 @@ remove_extra_files:
 remove_py_cache:
   @rm -r `find . -name '__pycache__' -type d`
 
-# Run pip-compile make the requirement files
-make_requirements:
-  @rm -rf ./requirements*.txt
-  @{{python_cmd_prefix}} pip-compile --upgrade --generate-hashes --output-file requirements.txt config/requirements/prod.in
-  @{{python_cmd_prefix}} pip-compile --upgrade --generate-hashes --output-file requirements-dev.txt config/requirements/dev.in
+# Start all docker-compose services
+start:
+  @docker-compose up
+
+# Stop all docker-compose services
+stop:
+  @docker-compose down -t 0
 
 # Run the Django test runner without coverage
 test:

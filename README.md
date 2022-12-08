@@ -68,7 +68,7 @@ Example output:
 
     To start Docker Compose run:
     $ cd /Users/brento/Sites/example
-    $ docker-compose up
+    $ just start
 
 ### Manual
 
@@ -81,7 +81,7 @@ Example output:
     DEBUG=on
     SECRET_KEY='$SECRET_KEY'
     EOF
-    $ docker-compose up
+    $ just start
 
 ## Contribute
 
