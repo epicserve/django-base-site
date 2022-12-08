@@ -26,6 +26,7 @@ Documentation is available at [http://django-base-site.readthedocs.org/](http://
 * [Docker Support](https://www.docker.com/)
 * [Environs](https://github.com/sloria/environs) for [12factor](https://www.12factor.net/) inspired environment variables
 * [Eslint](https://eslint.org/) for linting Javascript
+* [Just](https://github.com/casey/just) for running common commands (make equivalent)
 * [MkDocs](https://www.mkdocs.org/) for documentation
 * [Mypy](http://mypy-lang.org/) for Python Type checking
 * [Pip-tools](https://github.com/jazzband/pip-tools/)
@@ -39,7 +40,8 @@ Documentation is available at [http://django-base-site.readthedocs.org/](http://
 
 Installing locally with Python is possible but not supported. The preferred way is to use the quickstart script below
 and to use Docker with docker-compose. Before proceeding make sure you've
-[installed Docker](https://docs.docker.com/engine/installation/).
+[installed Docker](https://docs.docker.com/engine/installation/). For running common commands install
+[Just](https://github.com/casey/just). Once installed you can run `just` to see the list of commands available.
 
 
 ## Quickstart
