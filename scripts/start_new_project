@@ -80,7 +80,7 @@ DEBUG=on
 SECRET_KEY='$SECRET_KEY'
 EOF
 
-make remove_extra_files
+just remove_extra_files
 
 # make static directories
 mkdir -p public/static
