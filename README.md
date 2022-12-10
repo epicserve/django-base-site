@@ -18,7 +18,7 @@ Documentation is available at [http://django-base-site.readthedocs.org/](http://
 * [Bootstrap 5](https://getbootstrap.com/)
 * [Celery](http://docs.celeryproject.org/)
 * [Custom User Model](https://docs.djangoproject.com/en/stable/topics/auth/customizing/#substituting-a-custom-user-model)
-* [Django 3.2 LTS](https://www.djangoproject.com/)
+* [Django 4.1](https://www.djangoproject.com/)
 * [Django Crispy Forms](https://github.com/django-crispy-forms/django-crispy-forms)
 * [Django Debug Toolbar](https://github.com/jazzband/django-debug-toolbar)
 * [Django-allauth](http://www.intenct.nl/projects/django-allauth/)
