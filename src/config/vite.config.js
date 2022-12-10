@@ -2,7 +2,7 @@ import { resolve } from 'path';
 
 export default {
   plugins: [],
-  root: resolve(__dirname, 'src'),
+  root: resolve(__dirname, '..'),
   base: '/public/static/',
   server: {
     host: '0.0.0.0',
@@ -16,18 +16,18 @@ export default {
   resolve: {
     extensions: ['.js', '.json'],
     alias: {
-      '~bootstrap': resolve(__dirname, 'node_modules/bootstrap'),
+      '~bootstrap': resolve(__dirname, '../../node_modules/bootstrap'),
     },
   },
   build: {
-    outDir: resolve(__dirname, 'public/static/dist/js'),
+    outDir: resolve(__dirname, '../../public/static/dist/js'),
     assetsDir: '',
     manifest: true,
     emptyOutDir: true,
     target: 'es2015',
     rollupOptions: {
       input: {
-        main: resolve(__dirname, 'src/js/main.js'),
+        main: resolve(__dirname, '../js/main.js'),
       },
       output: {
         chunkFileNames: undefined,
