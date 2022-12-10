@@ -71,7 +71,7 @@ reset := `tput -Txterm sgr0`
 # Lint Javascript code with eslint
 @lint_js:
     just _start_msg "Checking Javascript code using eslint"
-    {{ node_cmd_prefix }} npx eslint ./src/js/
+    {{ node_cmd_prefix }} npm run lint-js
 
 # Lint Python imports with isort
 @lint_imports:
