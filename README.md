@@ -50,6 +50,9 @@ and to use Docker with docker-compose. Before proceeding make sure you've
 
 Running the following script mostly does the same thing as manual quickstart method. The exception is that the install
 script has questions to customize your new project setup. Just run the following in your terminal to get started.
+
+**Note:** When start the Django runserver it will take several seconds before the CSS styles take effect. This is
+because Vite is running in dev mode which takes a few seconds to take effect.
     
 ```bash
 bash <(curl -s https://raw.githubusercontent.com/epicserve/django-base-site/main/scripts/start_new_project)
