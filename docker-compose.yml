@@ -24,7 +24,7 @@ services:
     image: epicserve/django-base-site:latest
     build:
       context: .
-      dockerfile: Dockerfile
+      dockerfile: config/docker/Dockerfile
 
     command: sh -c "./manage.py migrate --noinput && ./manage.py runserver 0.0.0.0:8000"
 
@@ -48,7 +48,7 @@ services:
     image: epicserve/django-base-site:latest
     build:
       context: .
-      dockerfile: Dockerfile
+      dockerfile: config/docker/Dockerfile
 
     command: sh -c "celery -A config worker -l info"
 
@@ -65,7 +65,7 @@ services:
     container_name: node
     build:
       context: .
-      dockerfile: Dockerfile.node
+      dockerfile: config/docker/Dockerfile.node
     working_dir: /srv/app
 
     command: sh -c "npm run dev"

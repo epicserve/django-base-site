@@ -15,10 +15,10 @@ RUN set -ex \
     && $VIRTUAL_ENV/bin/pip install -U setuptools wheel pip
 
 # Install Python packages
-COPY requirements-dev.txt ./
+COPY config/requirements/dev.txt ./config/requirements/dev.txt
 
 RUN set -ex \
-    && $VIRTUAL_ENV/bin/pip install -r requirements-dev.txt \
+    && $VIRTUAL_ENV/bin/pip install -r config/requirements/dev.txt \
     && rm -rf /root/.cache/
 
 
