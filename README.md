@@ -22,7 +22,6 @@ Documentation is available at [http://django-base-site.readthedocs.org/](http://
 * [Django Crispy Forms](https://github.com/django-crispy-forms/django-crispy-forms)
 * [Django Debug Toolbar](https://github.com/jazzband/django-debug-toolbar)
 * [Django-allauth](http://www.intenct.nl/projects/django-allauth/)
-* [dj Lint](https://djlint.com/) for formatting and linting HTML
 * [Docker Support](https://www.docker.com/)
 * [Environs](https://github.com/sloria/environs) for [12factor](https://www.12factor.net/) inspired environment variables
 * [Eslint](https://eslint.org/) for linting Javascript
@@ -33,8 +32,10 @@ Documentation is available at [http://django-base-site.readthedocs.org/](http://
 * [Pytest Django](https://pytest-django.readthedocs.io/en/latest/index.html)
 * [Pytest-cov](https://pytest-cov.readthedocs.io)
 * [Pytest](https://docs.pytest.org/)
+* [Ruff](https://github.com/charliermarsh/ruff) for extra Python linting
 * [Stylelint](https://stylelint.io/) for linting SASS
 * [Vite](https://vitejs.dev/) for building SASS and JS
+* [dj Lint](https://djlint.com/) for formatting and linting HTML
 
 ## Install Requirements
 

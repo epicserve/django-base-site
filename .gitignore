@@ -9,3 +9,4 @@
 /public/static/dist
 .mypy_cache/
 .venv/
+.ruff_cache/

@@ -61,12 +61,11 @@ reset := `tput -Txterm sgr0`
 # Format all code
 @format: format_py_imports format_py format_js format_just format_sass format_html
 
-# Lint Python code flake8
+# Lint Python code ruff
 @lint_py:
-    just _start_msg "Checking code using black and flake8"
+    just _start_msg "Checking code using black and ruff"
     {{ python_cmd_prefix }} black . --check
-    # Just use x until the issue https://github.com/PyCQA/flake8/issues/234 is resolved and we can configure in pyproject.toml
-    {{ python_cmd_prefix }} flake8 --ignore=E501 .
+    {{ python_cmd_prefix }} ruff .
 
 # Lint Javascript code with eslint
 @lint_js:

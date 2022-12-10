@@ -79,3 +79,6 @@ indent_size=2
 
 [tool.djlint.css]
 indent_size=2
+
+[tool.ruff]
+line-length = 120
