@@ -29,8 +29,8 @@ reset := `tput -Txterm sgr0`
     rm -rf .mypy_cache
 
 # Format SASS/CSS code
-@format_css:
-    just _start_msg "Formatting SASS/CS code using stylelint"
+@format_sass:
+    just _start_msg "Formatting SASS code using stylelint"
     {{ node_cmd_prefix }} npm run format-sass
 
 # Format HTML
@@ -59,7 +59,7 @@ reset := `tput -Txterm sgr0`
     {{ python_cmd_prefix }} isort .
 
 # Format all code
-@format: format_py_imports format_py format_js format_just format_css format_html
+@format: format_py_imports format_py format_js format_just format_sass format_html
 
 # Lint Python code flake8
 @lint_py:
@@ -86,7 +86,7 @@ reset := `tput -Txterm sgr0`
 # Lint SASS code with stylelint
 @lint_sass:
     just _start_msg "Checking SASS code using stylelint"
-    {{ node_cmd_prefix }} npx stylelint ./src/scss/
+    {{ node_cmd_prefix }} npm run lint-sass
 
 # Lint HTML
 @lint_html:

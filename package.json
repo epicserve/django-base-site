@@ -5,7 +5,8 @@
     "dev": "vite --config src/config/vite.config.js",
     "build": "vite build --config src/config/vite.config.js",
     "preview": "vite preview --config src/config/vite.config.js",
-    "format-sass": "npx stylelint --fix 'src/**/*.{css,scss}'",
+    "lint-sass": "npx stylelint --config src/config/stylelint.config.js ./src/scss/",
+    "format-sass": "npx stylelint --config src/config/stylelint.config.js --fix 'src/**/*.{css,scss}'",
     "format-js": "npx eslint --fix ."
   },
   "devDependencies": {
