@@ -1,5 +1,12 @@
 # CHANGELOG
 
+## 2022-12-11
+
+### Changed
+
+* Upgrade to Vite 4.0
+
+
 ## 2022-12-10
 
 ### Changed
