@@ -2,6 +2,10 @@
 
 ## 2022-12-12
 
+### Added
+
+* Missing accounts migration
+
 ### Changed
 
 * Update the Dockerfile so it could be used for production builds
