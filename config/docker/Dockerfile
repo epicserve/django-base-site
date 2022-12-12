@@ -3,6 +3,8 @@
 # ------------------------------------------------------------
 FROM python:3-buster as python-requirements
 
+ARG ENV_NAME=dev
+
 ENV \
     # This prevents Python from writing out pyc files \
     PYTHONDONTWRITEBYTECODE=1 \
@@ -15,17 +17,17 @@ RUN set -ex \
     && $VIRTUAL_ENV/bin/pip install -U setuptools wheel pip
 
 # Install Python packages
-COPY config/requirements/dev.txt ./config/requirements/dev.txt
+COPY config/requirements/$ENV_NAME.txt ./config/requirements/$ENV_NAME.txt
 
 RUN set -ex \
-    && $VIRTUAL_ENV/bin/pip install -r config/requirements/dev.txt \
+    && $VIRTUAL_ENV/bin/pip install -r config/requirements/$ENV_NAME.txt \
     && rm -rf /root/.cache/
 
 
 # ------------------------------------------------------------
 # STAGE 2: Dev layer
 # ------------------------------------------------------------
-FROM python:3-slim-buster
+FROM python:3-slim-buster as dev
 
 # Set the locale
 RUN apt-get update \
@@ -52,10 +54,48 @@ RUN set -ex \
     && rm -rf /var/lib/apt/lists/*
 
 COPY --from=python-requirements --chown=app:app $VIRTUAL_ENV $VIRTUAL_ENV
-WORKDIR /srv/app
 
 USER app
+
+WORKDIR /srv/app
 
 EXPOSE 8000/tcp 8001/tcp
 
 CMD ["python", "manage.py", "runserver", "0.0.0.0:8000"]
+
+
+# ------------------------------------------------------------
+# STAGE 3: Javascript assets layer
+# ------------------------------------------------------------
+FROM node:16.18 as js_assets
+
+WORKDIR /srv/app
+
+COPY package.json package-lock.json ./
+COPY src src
+
+# Install Node packages
+RUN npm ci \
+    && npm run build \
+    && ls -la public/static/dist/
+
+
+# ------------------------------------------------------------
+# STAGE 4: Prod
+# ------------------------------------------------------------
+
+FROM dev as prod
+
+ARG PORT=8000
+
+WORKDIR /srv/app
+
+COPY . .
+
+USER app
+
+RUN SECRET_KEY=e python manage.py collectstatic --no-input
+
+COPY --from=js_assets --chown=app:app /srv/app/public/static/ ./collected_static
+
+CMD ["uwsgi", "--ini", "config/uwsgi.ini", "--http", "0.0.0.0:$PORT"]

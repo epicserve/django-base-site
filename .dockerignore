@@ -12,3 +12,4 @@
 .ruff_cache/
 .idea/
 .pytest_cache/
+.git/

@@ -1,5 +1,12 @@
 # CHANGELOG
 
+## 2022-12-12
+
+### Changed
+
+* Update the Dockerfile so it could be used for production builds
+
+
 ## 2022-12-11
 
 ### Changed

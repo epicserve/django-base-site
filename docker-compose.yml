@@ -1,4 +1,3 @@
-version: '3.3'
 
 services:
 
@@ -24,6 +23,7 @@ services:
     image: epicserve/django-base-site:latest
     build:
       context: .
+      target: dev
       dockerfile: config/docker/Dockerfile
 
     command: sh -c "./manage.py migrate --noinput && ./manage.py runserver 0.0.0.0:8000"
@@ -48,6 +48,7 @@ services:
     image: epicserve/django-base-site:latest
     build:
       context: .
+      target: dev
       dockerfile: config/docker/Dockerfile
 
     command: sh -c "celery -A config worker -l info"
