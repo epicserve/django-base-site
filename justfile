@@ -24,9 +24,11 @@ reset := `tput -Txterm sgr0`
 
 # Remove build files, python cache files and test coverage data
 @clean: remove_py_cache remove_coverage_data
+    rm -rf .mypy_cache/
+    rm -rf .pytest_cache/
+    rm -rf .ruff_cache/
     rm -rf docs/_build/
     rm -rf public/static/
-    rm -rf .mypy_cache
 
 # Format SASS/CSS code
 @format_sass:
