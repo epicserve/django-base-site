@@ -19,8 +19,6 @@
       {% vite_asset 'js/main.css' %}
     {% endblock style %}
 
-    {% vite_hmr_client %}
-    {% vite_asset 'js/main.js' %}
     {% block script %}
     {% endblock script %}
 
@@ -119,6 +117,8 @@
       </div>
     </footer>
     {% block bottom_script %}
+      {% vite_hmr_client %}
+      {% vite_asset 'js/main.js' %}
     {% endblock bottom_script %}
 
   </body>
