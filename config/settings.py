@@ -3,7 +3,7 @@ import sys
 
 import environs
 
-from apps.base.utils.env import env
+env = environs.Env()
 
 """
 Django settings for config project.
@@ -171,18 +171,22 @@ else:
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
 # CACHE SETTINGS
-CACHE_URL_DEFAULT = "redis://redis:6379/0"
-CACHES = {"default": env.cache_url("CACHE_URL", default=CACHE_URL_DEFAULT)}
+CACHE_URL = env("REDIS_URL", default="redis://redis:6379/0")
+CACHES = {
+    "default": {
+        "BACKEND": "django.core.cache.backends.redis.RedisCache",
+        "LOCATION": CACHE_URL,
+    }
+}
 
 # CRISPY-FORMS
 CRISPY_ALLOWED_TEMPLATE_PACKS = "bootstrap5"
 CRISPY_TEMPLATE_PACK = "bootstrap5"
 
 # CELERY SETTINGS
-CELERY_BROKER_URL = env("CACHE_URL", CACHE_URL_DEFAULT)
+CELERY_BROKER_URL = env("CACHE_URL", CACHE_URL)
 
-SESSION_ENGINE = "redis_sessions.session"
-SESSION_REDIS = env.session_redis_url("CACHE_URL", default=CACHE_URL_DEFAULT)
+SESSION_ENGINE = "django.contrib.sessions.backends.cache"
 
 SITE_ID = 1
 SITE_NAME = "Django Base Site"

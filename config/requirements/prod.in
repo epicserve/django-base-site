@@ -4,12 +4,11 @@ celery==5.3.0b1
 crispy-bootstrap5~=0.7
 django-allauth~=0.42
 django-crispy-forms~=1.9
-django-redis-cache~=3.0
-django-redis-sessions~=0.6
 django-storages~=1.8
 environs[django]~=9.3
-hiredis~=2.0
+hiredis~=2.1  # needed for Django's native cache and sessions
 psycopg2-binary~=2.8
 pytest-cov~=4.0
 pytest-django~=4.5
+redis~=3.5  # needed for celery
 uwsgi~=2.0

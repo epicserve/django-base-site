@@ -1,5 +1,14 @@
 # CHANGELOG
 
+## 2022-12-17
+
+### Changed
+
+* Switched the session backend from django-redis-sessions to the native django.contrib.sessions.backends.cache backend.
+* Switched from using django-redis-cache for parsing a REDIS_URL to using the native django.core.cache.backends.redis.RedisCache backend.
+* Move the vite asset tags to the bottom script block.
+
+
 ## 2022-12-12
 
 ### Added
