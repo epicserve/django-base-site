@@ -30,12 +30,14 @@ RUN set -ex \
 FROM python:3-slim-buster as dev
 
 # Set the locale
+# libxml2-dev is needed for uwsgi in the production stage
 RUN apt-get update \
-    && apt-get install -y locales \
+    && apt-get install -y locales libxml2-dev \
     && echo "LC_ALL=en_US.UTF-8" >> /etc/environment \
     && echo "en_US.UTF-8 UTF-8" >> /etc/locale.gen \
     && echo "LANG=en_US.UTF-8" > /etc/locale.conf \
-    && locale-gen en_US.UTF-8
+    && locale-gen en_US.UTF-8 \
+    && rm -rf /var/lib/apt/lists/*
 
 ENV VIRTUAL_ENV=/opt/venv
 ENV LANG=en_US.UTF-8 \
@@ -47,11 +49,7 @@ ENV LANG=en_US.UTF-8 \
     PATH=$VIRTUAL_ENV/bin:${PATH}
 
 RUN set -ex \
-    && groupadd -r app && useradd --uid=1000 --create-home --home-dir=/home/app --no-log-init -r -g app app \
-    # copy the bashrc to the home and uncomment some helpful aliases \
-#    && cat /etc/skel/.bashrc | awk '{sub("#alias","alias")} {print}' > /home/app/.bashrc \
-    && apt-get update \
-    && rm -rf /var/lib/apt/lists/*
+    && groupadd -r app && useradd --uid=1000 --create-home --home-dir=/home/app --no-log-init -r -g app app
 
 COPY --from=python-requirements --chown=app:app $VIRTUAL_ENV $VIRTUAL_ENV
 
@@ -86,16 +84,14 @@ RUN npm ci \
 
 FROM dev as prod
 
-ARG PORT=8000
-
 WORKDIR /srv/app
 
-COPY . .
-
 USER app
+
+COPY . .
 
 RUN SECRET_KEY=e python manage.py collectstatic --no-input
 
 COPY --from=js_assets --chown=app:app /srv/app/public/static/ ./collected_static
 
-CMD ["uwsgi", "--ini", "config/uwsgi.ini", "--http", "0.0.0.0:$PORT"]
+CMD ["uwsgi", "--ini", "config/uwsgi.ini", "--http", "0.0.0.0:8080"]
