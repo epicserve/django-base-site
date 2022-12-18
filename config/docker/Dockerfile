@@ -31,8 +31,9 @@ FROM python:3-slim-buster as dev
 
 # Set the locale
 # libxml2-dev is needed for uwsgi in the production stage
+# mime-support install (/etc/mime.types) which is needded uWSGI to server static files with the correct mime types
 RUN apt-get update \
-    && apt-get install -y locales libxml2-dev \
+    && apt-get install -y locales libxml2-dev mime-support \
     && echo "LC_ALL=en_US.UTF-8" >> /etc/environment \
     && echo "en_US.UTF-8 UTF-8" >> /etc/locale.gen \
     && echo "LANG=en_US.UTF-8" > /etc/locale.conf \
