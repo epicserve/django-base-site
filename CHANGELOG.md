@@ -1,5 +1,12 @@
 # CHANGELOG
 
+## 2022-12-18
+
+### Changed
+
+* Make changes to settings to make it easier to deploy to platforms like Fly.io
+
+
 ## 2022-12-17
 
 ### Changed
