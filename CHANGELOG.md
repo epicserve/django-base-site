@@ -2,6 +2,10 @@
 
 ## 2022-12-18
 
+### Added
+
+* Instructions on how to deploy to Fly.io
+
 ### Changed
 
 * Make changes to settings to make it easier to deploy to platforms like Fly.io
