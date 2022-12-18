@@ -9,7 +9,7 @@ register = template.Library()
 
 VITE_OUTPUT_DIR = getattr(settings, "VITE_OUTPUT_DIR", "dist/js/")
 VITE_MANIFEST_FILE = getattr(
-    settings, "VITE_MANIFEST_FILE", settings.PUBLIC_STATIC.joinpath(VITE_OUTPUT_DIR, "manifest.json")
+    settings, "VITE_MANIFEST_FILE", settings.STATIC_ROOT.joinpath(VITE_OUTPUT_DIR, "manifest.json")
 )
 VITE_DEV_MODE = getattr(settings, "VITE_DEV_MODE", settings.DEBUG)
 VITE_SERVER_HOST = getattr(settings, "VITE_SERVER_HOST", "localhost")
