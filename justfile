@@ -132,9 +132,13 @@ open_coverage:
 @remove_py_cache:
     rm -r `find . -name '__pycache__' -type d`
 
-# Start all docker-compose services
+# Start docker-compose
 @start:
     docker-compose up
+
+# Start docker-compose with docs
+@start_with_docs:
+    docker-compose --profile docs up
 
 # Stop all docker-compose services
 @stop:
