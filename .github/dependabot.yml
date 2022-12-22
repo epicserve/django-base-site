@@ -16,7 +16,7 @@ updates:
       interval: "weekly"
 
   - package-ecosystem: "npm"
-    directory: "/config/requirements/"
+    directory: "/"
     schedule:
       interval: "weekly"
 
