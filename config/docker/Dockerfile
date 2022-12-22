@@ -17,10 +17,10 @@ RUN set -ex \
     && $VIRTUAL_ENV/bin/pip install -U setuptools wheel pip
 
 # Install Python packages
-COPY config/requirements/$ENV_NAME.txt ./config/requirements/$ENV_NAME.txt
+COPY config/requirements/${ENV_NAME}_lock.txt ./config/requirements/${ENV_NAME}_lock.txt
 
 RUN set -ex \
-    && $VIRTUAL_ENV/bin/pip install -r config/requirements/$ENV_NAME.txt \
+    && $VIRTUAL_ENV/bin/pip install --require-hashes -r config/requirements/${ENV_NAME}_lock.txt \
     && rm -rf /root/.cache/
 
 

@@ -46,10 +46,6 @@ services:
   worker:
     container_name: worker
     image: epicserve/django-base-site:latest
-    build:
-      context: .
-      target: dev
-      dockerfile: config/docker/Dockerfile
 
     command: sh -c "celery -A config worker -l info"
 

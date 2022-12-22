@@ -1,3 +1,7 @@
+# This is a source requirements source file. Edit this file using the compatible release syntax specified in
+# PEP 440 (https://www.python.org/dev/peps/pep-0440/#compatible-release). After making edits run
+# `just make_requirements` in order to compile a new requirement files in config/requirements/*_lock.txt.
+
 Django~=4.1
 boto3~=1.11
 celery==5.3.0b1
