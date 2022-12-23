@@ -1,24 +1,23 @@
 #!/usr/bin/env bash
 
+PROJECT_NAME_SLUG=${1:-}          # Use argument $1 or empty as the default
+BRANCH=${2:-main}                 # Use argument $2 or main as the default
+QUIET_INSTALL=${3:-0}             # Use argument $3 or 0 as the default
+QUIET_INSTALL=$((QUIET_INSTALL))  # Cast QUIET_INSTALL to a number
+
+if [[ -n "$4" ]]; then
+  PROJECT_DIRECTORY=$4
+fi
+
 BRANCH='main'
 ARCHIVE_LOCATION='https://github.com/epicserve/django-base-site/archive/'
 DOWNLOAD_LOCATION="${ARCHIVE_LOCATION}${BRANCH}.zip"
 PROJECT_NAME_SLUG_DEFAULT='example'
-PROJECT_NAME_SLUG=''
 PROJECT_DIRECTORY_DEFAULT="$(pwd)/$PROJECT_NAME_SLUG_DEFAULT"
-PROJECT_DIRECTORY=''
 GREEN=$(tput -Txterm setaf 2)
 YELLOW=$(tput -Txterm setaf 3)
 WHITE=$(tput -Txterm setaf 7)
 RESET=$(tput -Txterm sgr0)
-QUIET_INSTALL=0
-
-# Bypass input questions with the arguments $1 (project name slug)
-if [[ -n "$1" ]]; then
-  QUIET_INSTALL=1
-  PROJECT_NAME_SLUG=$1
-  PROJECT_DIRECTORY="/tmp/$1"
-fi
 
 function ask_yes_or_no_default_yes() {
     read -r -p "${GREEN}$1${RESET} ${WHITE}(Y/n)${RESET}${GREEN}?${RESET} " response
@@ -81,9 +80,7 @@ SECRET_KEY='$SECRET_KEY'
 EOF
 
 just remove_extra_files
-
-# make static directories
-mkdir -p public/static
+find ./public -name ".keep" | xargs rm -rf
 
 echo ""
 echo "Done."
