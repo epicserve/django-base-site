@@ -27,8 +27,9 @@ reset := `tput -Txterm sgr0`
     rm -rf .mypy_cache/
     rm -rf .pytest_cache/
     rm -rf .ruff_cache/
+    rm -rf collected_static/
     rm -rf docs/_build/
-    rm -rf public/static/
+    rm -rf public/static/dist/
 
 # Format SASS/CSS code
 @format_sass:
