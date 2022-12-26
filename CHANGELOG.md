@@ -1,5 +1,19 @@
 # CHANGELOG
 
+## 2022-12-26
+
+### Added
+
+* Just recipe, build_assets
+
+### Changed
+
+* Switch from the using docker-compose to using docker compose
+* Updated Django settings, so you can use config/settings/test_runner.py for pytest
+* Add the lock suffix to generated Python requirement files
+* Clean up and add more arguments to the start project script
+
+
 ## 2022-12-18
 
 ### Added
