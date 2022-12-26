@@ -1,5 +1,4 @@
 import socket
-import sys
 
 import environs
 
@@ -15,7 +14,7 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/4.1/ref/settings/
 """
 
-BASE_DIR = environs.Path(__file__).parent.parent  # type: ignore
+BASE_DIR = environs.Path(__file__).parent.parent.parent  # type: ignore
 
 READ_DOT_ENV_FILE = env.bool("READ_DOT_ENV_FILE", default=True)
 
@@ -216,14 +215,3 @@ EMAIL_PORT = email["EMAIL_PORT"]
 EMAIL_HOST_PASSWORD = email["EMAIL_HOST_PASSWORD"]
 EMAIL_HOST_USER = email["EMAIL_HOST_USER"]
 EMAIL_USE_TLS = email["EMAIL_USE_TLS"]
-
-if "test" in sys.argv:
-
-    PASSWORD_HASHERS = (
-        "django.contrib.auth.hashers.MD5PasswordHasher",
-        "django.contrib.auth.hashers.SHA1PasswordHasher",
-    )
-
-    AUTHENTICATION_BACKENDS = ("django.contrib.auth.backends.ModelBackend",)
-
-    DATABASES["default"] = {"ENGINE": "django.db.backends.sqlite3", "NAME": ":memory:"}
