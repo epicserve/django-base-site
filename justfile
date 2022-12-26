@@ -31,6 +31,10 @@ reset := `tput -Txterm sgr0`
     rm -rf docs/_build/
     rm -rf public/static/dist/
 
+# Build frontend assets
+@build_assets:
+    {{ node_cmd_prefix }} npm run build
+
 # Format SASS/CSS code
 @format_sass:
     just _start_msg "Formatting SASS code using stylelint"
