@@ -6,6 +6,7 @@
 .mypy_cache/**/*
 .pytest_cache/**/*
 .ruff_cache/**/*
+collected_static/
 db.sqlite
 docs/_build
 htmlcov
