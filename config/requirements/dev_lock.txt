@@ -383,6 +383,7 @@ django==4.1.4 \
     #   django-storages
     #   django-stubs
     #   django-stubs-ext
+    #   model-bakery
 django-allauth==0.51.0 \
     --hash=sha256:ca1622733b6faa591580ccd3984042f12d8c79ade93438212de249b7ffb6f91f
     # via -r config/requirements/prod.in
@@ -412,6 +413,10 @@ django-stubs-ext==0.7.0 \
     --hash=sha256:4fd8cdbc68d1a421f21bb7e0d9e76d50f6a4b504d350ba786405daf536e90c21 \
     --hash=sha256:d729fbc7fe8970a7e26b35956c35b48502516f011d523c0577bdfb02ed956284
     # via django-stubs
+django-test-plus==2.2.1 \
+    --hash=sha256:5eaacb7a26b88f12df06538ffe4ad44e81636e07003e4863ef704204069bd8bb \
+    --hash=sha256:980a0ef6705421485a63f93fee849420a4563552acfea83255e57372233c2133
+    # via -r config/requirements/dev.in
 djlint==1.19.10 \
     --hash=sha256:6ab1883bcb5941b9d32180acdbe02d9b445d467efa8567483dc04d874c9dc441 \
     --hash=sha256:bc9a7d0dd63af5a29f58a4c5fab232e9f30aed12b860a90728ac5828963299f0
@@ -768,6 +773,10 @@ mkdocstrings-python==0.8.2 \
     --hash=sha256:213d9592e66e084a9bd2fa4956d6294a3487c6dc9cc45164058d6317249b7b6e \
     --hash=sha256:b22528b7a7a0589d007eced019d97ad14de4eba4b2b9ba6a013bb66edc74ab43
     # via mkdocstrings
+model-bakery==1.9.0 \
+    --hash=sha256:93ac818df49377d4f14316105028fa95231474bf268d6017e420e5d4b74d54fd \
+    --hash=sha256:99571801a26b85b8dcba7f0ad39750aeb2f2477fe770d2291823e16788785000
+    # via -r config/requirements/dev.in
 multidict==6.0.4 \
     --hash=sha256:01a3a55bd90018c9c080fbb0b9f4891db37d148a0a18722b42f94694f8b6d4c9 \
     --hash=sha256:0b1a97283e0c85772d613878028fec909f003993e1007eafa715b24b377cb9b8 \

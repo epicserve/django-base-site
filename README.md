@@ -20,16 +20,18 @@ Documentation is available at [http://django-base-site.readthedocs.org/](http://
 * [Celery](http://docs.celeryproject.org/)
 * [Custom User Model](https://docs.djangoproject.com/en/stable/topics/auth/customizing/#substituting-a-custom-user-model)
 * [Django 4.1](https://www.djangoproject.com/)
+* [Django Allauth](http://www.intenct.nl/projects/django-allauth/)
 * [Django Crispy Forms](https://github.com/django-crispy-forms/django-crispy-forms)
 * [Django Debug Toolbar](https://github.com/jazzband/django-debug-toolbar)
-* [Django-allauth](http://www.intenct.nl/projects/django-allauth/)
+* [Django Test Plus](https://github.com/revsys/django-test-plus/)
 * [Docker Support](https://www.docker.com/)
 * [Environs](https://github.com/sloria/environs) for [12factor](https://www.12factor.net/) inspired environment variables
 * [Eslint](https://eslint.org/) for linting Javascript
 * [Just](https://github.com/casey/just) for running common commands (make equivalent)
 * [MkDocs](https://www.mkdocs.org/) for documentation
+* [Model Bakery](https://github.com/model-bakers/model_bakery)
 * [Mypy](http://mypy-lang.org/) for Python Type checking
-* [Pip-tools](https://github.com/jazzband/pip-tools/)
+* [Pip Tools](https://github.com/jazzband/pip-tools/)
 * [Pytest Django](https://pytest-django.readthedocs.io/en/latest/index.html)
 * [Pytest-cov](https://pytest-cov.readthedocs.io)
 * [Pytest](https://docs.pytest.org/)

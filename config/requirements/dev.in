@@ -6,6 +6,7 @@
 black
 django-debug-toolbar
 django-stubs
+django-test-plus
 djlint
 ipdb
 isort
@@ -13,6 +14,7 @@ mkdocs-include-markdown-plugin
 mkdocs-linkcheck
 mkdocs-material
 mkdocstrings[python]
+model-bakery
 mypy
 pip-tools
 ruff

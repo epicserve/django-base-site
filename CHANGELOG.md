@@ -4,6 +4,13 @@
 
 ### Added
 
+* The packages django-test-plus and model-bakers
+
+
+## 2022-12-26
+
+### Added
+
 * Just recipe, build_assets
 
 ### Changed
