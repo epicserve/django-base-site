@@ -152,3 +152,9 @@ open_coverage:
 # Run the Django test runner without coverage
 @test:
     {{ python_cmd_prefix }} pytest --cov
+
+# Upgrade individual packages and don't increment other packages
+@upgrade_packages +packages:
+    package_args=`python -c "print(' '.join([f'--upgrade-package {package}' for package in '{{ packages }}'.split(' ')]))"` \
+    && {{ python_cmd_prefix }} pip-compile $package_args --generate-hashes --output-file config/requirements/prod_lock.txt config/requirements/prod.in \
+    && {{ python_cmd_prefix }} pip-compile $package_args --generate-hashes --output-file config/requirements/dev_lock.txt config/requirements/dev.in
