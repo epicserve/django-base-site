@@ -1,6 +1,7 @@
 # Django Base Site
 
 ![CI](https://github.com/epicserve/django-base-site/actions/workflows/ci.yml/badge.svg)
+[![Documentation Status](https://readthedocs.org/projects/django-base-site/badge/?version=latest)](https://django-base-site.readthedocs.io/en/latest/?badge=latest)
 
 <!--intro-start-->
 The Django Base Site is a Django site that is built using the best Django practices and comes with all the common Django
