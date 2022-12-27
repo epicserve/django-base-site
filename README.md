@@ -15,6 +15,7 @@ Documentation is available at [http://django-base-site.readthedocs.org/](http://
 <!--readme-start-->
 ## Features
 
+* [Bandit](https://bandit.readthedocs.io/) for automatic security checking
 * [Black](https://black.readthedocs.io/en/stable/) for automatic Python code formatting
 * [Bootstrap 5](https://getbootstrap.com/)
 * [Celery](http://docs.celeryproject.org/)

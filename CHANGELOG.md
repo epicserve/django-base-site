@@ -1,6 +1,6 @@
 # CHANGELOG
 
-## 2022-12-26
+## 2022-12-27
 
 ### Added
 
@@ -8,6 +8,7 @@
 * More tests
 * The upgrade_packages Just recipe
 * Just recipes for removing docker containers, images, volumes
+* Bandit for automatic security scanning
 
 
 ## 2022-12-26

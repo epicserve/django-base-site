@@ -3,6 +3,7 @@
 # `just make_requirements` in order to compile a new requirement files in config/requirements/*_lock.txt.
 
 -r prod.in
+bandit[toml]
 black
 django-debug-toolbar
 django-stubs

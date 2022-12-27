@@ -99,6 +99,11 @@ reset := `tput -Txterm sgr0`
     just _start_msg "Checking SASS code using stylelint"
     {{ node_cmd_prefix }} npm run lint-sass
 
+# Scan project for security issues
+@lint_security:
+    just _start_msg "Scanning project for known security issues"
+    {{ python_cmd_prefix }} bandit -c pyproject.toml -r .
+
 # Lint HTML
 @lint_html:
     just _start_msg "Checking HTML using djLint"
@@ -115,7 +120,7 @@ reset := `tput -Txterm sgr0`
     {{ python_cmd_prefix }} mkdocs-linkcheck ./docs
 
 # Lint everything
-lint: lint_js lint_sass lint_html lint_py lint_imports lint_migrations lint_types
+lint: lint_js lint_sass lint_html lint_py lint_imports lint_migrations lint_security lint_types
 
 # Run pip-compile make the requirement files
 @make_requirements:

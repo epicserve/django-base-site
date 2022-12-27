@@ -123,6 +123,10 @@ backcall==0.2.0 \
     --hash=sha256:5cbdbf27be5e7cfadb448baf0aa95508f91f2bbc6c6437cd9cd06e2a4c215e1e \
     --hash=sha256:fbbce6a29f263178a1f7915c1940bde0ec2b2a967566fe1c65c1dfb7422bd255
     # via ipython
+bandit[toml]==1.7.4 \
+    --hash=sha256:2d63a8c573417bae338962d4b9b06fbc6080f74ecd955a092849e1e65c717bd2 \
+    --hash=sha256:412d3f259dab4077d0e7f0c11f50f650cc7d10db905d98f6520a95a18049658a
+    # via -r config/requirements/dev.in
 billiard==4.1.0 \
     --hash=sha256:0f50d6be051c6b2b75bfbc8bfd85af195c5739c281d3f5b86a5640c65563614a \
     --hash=sha256:1ad2eeae8e28053d729ba3373d34d9d6e210f6e4d8bf0a9c64f92bd053f1edf5
@@ -517,6 +521,14 @@ ghp-import==2.1.0 \
     --hash=sha256:8337dd7b50877f163d4c0289bc1f1c7f127550241988d568c1db512c4324a619 \
     --hash=sha256:9c535c4c61193c2df8871222567d7fd7e5014d835f97dc7b7439069e2413d343
     # via mkdocs
+gitdb==4.0.10 \
+    --hash=sha256:6eb990b69df4e15bad899ea868dc46572c3f75339735663b81de79b06f17eb9a \
+    --hash=sha256:c286cf298426064079ed96a9e4a9d39e7f3e9bf15ba60701e95f5492f28415c7
+    # via gitpython
+gitpython==3.1.29 \
+    --hash=sha256:41eea0deec2deea139b459ac03656f0dd28fc4a3387240ec1d3c259a2c47850f \
+    --hash=sha256:cc36bfc4a3f913e66805a28e84703e419d9c264c1077e537b54f0e1af85dbefd
+    # via bandit
 griffe==0.25.2 \
     --hash=sha256:0868da415c5f43fe186705c041d98b69523c24a6504e841031373eacfdd7ec05 \
     --hash=sha256:555707b3417355e015d837845522cb38ee4ffcec485427868648eafacabe142e
@@ -917,6 +929,10 @@ pathspec==0.10.3 \
     # via
     #   black
     #   djlint
+pbr==5.11.0 \
+    --hash=sha256:b97bc6695b2aff02144133c2e7399d5885223d42b7912ffaec2ca3898e673bfe \
+    --hash=sha256:db2317ff07c84c4c63648c9064a79fe9d9f5c7ce85a9099d4b6258b3db83225a
+    # via stevedore
 pep517==0.13.0 \
     --hash=sha256:4ba4446d80aed5b5eac6509ade100bff3e7943a8489de249654a5ae9b33ee35b \
     --hash=sha256:ae69927c5c172be1add9203726d4b84cf3ebad1edcd5f71fcdc746e66e829f59
@@ -1122,6 +1138,7 @@ pyyaml==6.0 \
     --hash=sha256:e61ceaab6f49fb8bdfaa0f92c4b57bcfbea54c09277b1b4f7ac376bfb7a7c174 \
     --hash=sha256:f84fbc98b019fef2ee9a1cb3ce93e3187a6df0b2538a651bfb890254ba9f90b5
     # via
+    #   bandit
     #   djlint
     #   mkdocs
     #   pyyaml-env-tag
@@ -1265,6 +1282,10 @@ six==1.16.0 \
     #   cssbeautifier
     #   jsbeautifier
     #   python-dateutil
+smmap==5.0.0 \
+    --hash=sha256:2aba19d6a040e78d8b09de5c57e96207b09ed71d8e55ce0959eeee6c8e190d94 \
+    --hash=sha256:c840e62059cd3be204b0c9c9f74be2c09d5648eddd4580d9314c3ecde0b30936
+    # via gitdb
 sqlparse==0.4.3 \
     --hash=sha256:0323c0ec29cd52bceabc1b4d9d579e311f3e4961b98d174201d5622a23b85e34 \
     --hash=sha256:69ca804846bb114d2ec380e4360a8a340db83f0ccf3afceeb1404df028f57268
@@ -1275,6 +1296,14 @@ stack-data==0.6.2 \
     --hash=sha256:32d2dd0376772d01b6cb9fc996f3c8b57a357089dec328ed4b6553d037eaf815 \
     --hash=sha256:cbb2a53eb64e5785878201a97ed7c7b94883f48b87bfb0bbe8b623c74679e4a8
     # via ipython
+stevedore==4.1.1 \
+    --hash=sha256:7f8aeb6e3f90f96832c301bff21a7eb5eefbe894c88c506483d355565d88cc1a \
+    --hash=sha256:aa6436565c069b2946fe4ebff07f5041e0c8bf18c7376dd29edf80cf7d524e4e
+    # via bandit
+toml==0.10.2 \
+    --hash=sha256:806143ae5bfb6a3c6e736a764057db0e6a0e05e338b5630894a5f779cabb4f9b \
+    --hash=sha256:b3bda1d108d5dd99f4a20d24d9c348e91c4db7ab1b749200bded2f839ccbe68f
+    # via bandit
 tomli==2.0.1 \
     --hash=sha256:939de3e7a6161af0c887ef91b7d41a53e7c5a1ca976325f429cb46ea9bc30ecc \
     --hash=sha256:de526c12914f0c550d15924c62d72abc48d6fe7364aa87328337a31007fe8a4f

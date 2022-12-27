@@ -55,6 +55,8 @@ filterwarnings = [
     "error",
 ]
 
+[tool.bandit]
+exclude_dirs = ["tests"]
 
 [tool.coverage.run]
 branch = true

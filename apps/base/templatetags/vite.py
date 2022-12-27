@@ -18,7 +18,7 @@ VITE_SERVER_PORT = getattr(settings, "VITE_SERVER_PORT", "3000")
 
 def get_css_link(file: str) -> str:
     base_url = f"{settings.STATIC_URL}{VITE_OUTPUT_DIR}"
-    return mark_safe(f'<link rel="stylesheet" href="{base_url}{file}">')
+    return mark_safe(f'<link rel="stylesheet" href="{base_url}{file}">')  # nosec B308, B703
 
 
 def get_script(file: str) -> str:
@@ -26,7 +26,7 @@ def get_script(file: str) -> str:
         base_url = f"{settings.STATIC_URL}{VITE_OUTPUT_DIR}"
     else:
         base_url = f"http://{VITE_SERVER_HOST}:{VITE_SERVER_PORT}{settings.STATIC_URL}"
-    return mark_safe(f'<script type="module" src="{base_url}{file}"></script>')
+    return mark_safe(f'<script type="module" src="{base_url}{file}"></script>')  # nosec B308, B703
 
 
 @lru_cache
