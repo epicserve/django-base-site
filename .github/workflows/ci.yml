@@ -41,7 +41,6 @@ jobs:
           python -m pip install -r config/requirements/dev_lock.txt
       - name: Run linting
         run: |
-          mkdir -p public/static
           PYTHON_CMD_PREFIX="" NODE_CMD_PREFIX="" just lint
         env:
           SECRET_KEY: secret-key-for-testing-only
