@@ -45,11 +45,14 @@ plugins = [
 
 
 [tool.django-stubs]
-django_settings_module = "config.settings"
+django_settings_module = "config.settings.test_runner"
 
 
 [tool.pytest.ini_options]
-DJANGO_SETTINGS_MODULE = "config.settings"
+# Set the default behavior for warnings to error, so it forces you to look into fixing them
+filterwarnings = [
+    "error",
+]
 
 
 [tool.coverage.run]

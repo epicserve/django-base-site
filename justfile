@@ -30,6 +30,11 @@ reset := `tput -Txterm sgr0`
     rm -rf collected_static/
     rm -rf docs_site/
     rm -rf public/static/dist/
+    rm -rf .coverage
+
+# Run Django's collectstatic management command
+@collectstatic:
+    {{ python_cmd_prefix }} ./manage.py collectstatic --no-input
 
 # Build frontend assets
 @build_assets:
@@ -151,10 +156,36 @@ open_coverage:
 
 # Run the Django test runner without coverage
 @test:
-    {{ python_cmd_prefix }} pytest --cov
+    {{ python_cmd_prefix }} pytest --cov --ds=config.settings.test_runner
 
 # Upgrade individual packages and don't increment other packages
 @upgrade_packages +packages:
     package_args=`python -c "print(' '.join([f'--upgrade-package {package}' for package in '{{ packages }}'.split(' ')]))"` \
     && {{ python_cmd_prefix }} pip-compile $package_args --generate-hashes --output-file config/requirements/prod_lock.txt config/requirements/prod.in \
     && {{ python_cmd_prefix }} pip-compile $package_args --generate-hashes --output-file config/requirements/dev_lock.txt config/requirements/dev.in
+
+@remove_docker_containers:
+    # kill all stopped containers
+    stopped_containers=$(docker ps | awk '{if (NR!=1) {print $1}}'); \
+    if [[ -n $stopped_containers ]]; then \
+        docker kill $stopped_containers; \
+    fi \
+    # remove all containers
+    containers=$(docker ps -a -q); \
+    if [[ -n $containers ]]; then \
+        docker rm $containers; \
+    fi
+
+# Docker images for the project
+@remove_docker_images: remove_docker_containers
+    project_images=$(docker images | grep django-base-site | awk '{print $3}'); \
+    if [[ -n $project_images ]]; then \
+        docker rmi $project_images; \
+    fi
+
+# Remove all docker volumes except the database volume for the project
+@remove_docker_volumes: remove_docker_images
+    volumes=$(docker volume ls | grep django-base-site | grep -v postgres_data | awk '{print $2}'); \
+    if [[ -n $volumes ]]; then \
+        docker volume rm $volumes; \
+    fi
