@@ -28,7 +28,7 @@ reset := `tput -Txterm sgr0`
     rm -rf .pytest_cache/
     rm -rf .ruff_cache/
     rm -rf collected_static/
-    rm -rf docs/_build/
+    rm -rf docs_site/
     rm -rf public/static/dist/
 
 # Build frontend assets
@@ -107,7 +107,7 @@ reset := `tput -Txterm sgr0`
 # Lint docs with mkdocs-linkcheck
 @lint_docs:
     just _start_msg "Check mkdocs docs using mkdocs-linkcheck"
-    {{ python_cmd_prefix }} mkdocs-linkcheck
+    {{ python_cmd_prefix }} mkdocs-linkcheck ./docs
 
 # Lint everything
 lint: lint_js lint_sass lint_html lint_py lint_imports lint_migrations lint_types

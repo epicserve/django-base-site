@@ -1,7 +1,8 @@
 site_name: Django Base Site
 repo_url: https://github.com/epicserve/django-base-site
 repo_name: epicserve/django-base-site
-docs_dir: .
+docs_dir: ../docs/
+site_dir: ../docs_site/
 
 theme:
   name: material

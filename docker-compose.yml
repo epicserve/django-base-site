@@ -81,7 +81,7 @@ services:
     container_name: docs
     image: epicserve/django-base-site:latest
 
-    command: sh -c "mkdocs serve -f docs/mkdocs.yml --dev-addr 0.0.0.0:4000"
+    command: sh -c "mkdocs serve -f config/mkdocs.yml --dev-addr 0.0.0.0:4000"
 
     volumes:
       - .:/srv/app:cached

@@ -7,7 +7,7 @@
 .pytest_cache/**/*
 .ruff_cache/**/*
 db.sqlite
-docs/_build
+docs_site/
 htmlcov
 latest.dump
 node_modules
