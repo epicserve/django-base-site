@@ -1,16 +1,14 @@
-from django.test import TestCase
-from django.urls import reverse
-
-from apps.accounts.models import User
+from apps.base.tests import BaseTest
 
 
-class TestIndexView(TestCase):
+class TestIndexView(BaseTest):
     def test_index(self):
-        res = self.client.get(reverse("site_index"))
-        assert res.status_code == 200
-        password = "test"
-        user = User.objects.create_user(username="testuser", password=password)
-        self.client.force_login(user)
-        self.client.login(username=user.username, password=password)
-        res = self.client.get(reverse("site_index"))
-        assert res.status_code == 200
+        # test not logged in
+        self.get("site_index")
+        self.assert_http_200_ok()
+
+        # test logged in
+        user = self.make_user()
+        with self.login(user):
+            self.get("site_index")
+            self.assert_http_200_ok()

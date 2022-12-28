@@ -5,7 +5,8 @@ from django.contrib import admin
 from django.urls import URLPattern, URLResolver, include, path
 from django.views.generic import TemplateView
 
-from apps.base.views import NameChange, http_404, http_500
+from apps.accounts.views import NameChange
+from apps.base.views import http_404, http_500
 
 # Includes
 urlpatterns: list[Union[URLResolver, URLPattern]] = [path(r"admin/", admin.site.urls)]
