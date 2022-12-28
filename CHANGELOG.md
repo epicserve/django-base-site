@@ -5,6 +5,9 @@
 ### Added
 
 * The packages django-test-plus and model-bakers
+* More tests
+* The upgrade_packages Just recipe
+* Just recipes for removing docker containers, images, volumes
 
 
 ## 2022-12-26
