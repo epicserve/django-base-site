@@ -1,5 +1,3 @@
-## About
-
 {%
    include-markdown "../README.md"
    start="<!--intro-start-->"
