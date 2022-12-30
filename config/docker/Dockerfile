@@ -87,12 +87,14 @@ FROM dev as prod
 
 WORKDIR /srv/app
 
-USER app
+USER root
 
 COPY . .
 
 RUN SECRET_KEY=e python manage.py collectstatic --no-input
 
 COPY --from=js_assets --chown=app:app /srv/app/public/static/ ./collected_static
+
+USER app
 
 CMD ["uwsgi", "--ini", "config/uwsgi.ini", "--http", "0.0.0.0:8080"]
