@@ -139,8 +139,6 @@ Example output:
     $ find ./public -name ".keep" | xargs rm -rf
     $ just start
 
----
-
 ## Usage
 
 The Django Base Site comes with Just recipes for all the most common commands and tasks that an engineer will use during
@@ -161,16 +159,6 @@ stop               # Stop all docker-compose services
 test               # Run the Django test runner without coverage
 ```
 
-## Contribute
-
-1. Look for an open [issue](https://github.com/epicserve/django-base-site/issues) or create new issue to get a dialog
-   going about the new feature or bug that you've discovered.
-2. Fork the [repository](https://github.com/epicserve/django-base-site) on GitHub to start making your changes to the
-   main branch (or branch off of it).
-4. Make a pull request.
-
----
-
 ## Deploying to Production
 
 The Django base site is designed to be production ready because it comes with a production
@@ -178,5 +166,13 @@ ready [multi-stage Dockerfile](https://github.com/epicserve/django-base-site/blo
 You can also read a [blog post](https://epicserve.com/django/2022/12/30/using-flyio-with-the-django-base-site.html)
 about using it with fly.io. If you want to blog about using the Django Base Site with other PaaS providers, please let
 me know, and I can link to the post here.
+
+## Contribute
+
+1. Look for an open [issue](https://github.com/epicserve/django-base-site/issues) or create new issue to get a dialog
+   going about the new feature or bug that you've discovered.
+2. Fork the [repository](https://github.com/epicserve/django-base-site) on GitHub to start making your changes to the
+   main branch (or branch off of it).
+4. Make a pull request.
 
 <!--readme-end-->
