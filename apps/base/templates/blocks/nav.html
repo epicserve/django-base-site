@@ -1,0 +1,63 @@
+<header>
+  <div class="container">
+    <nav class="navbar navbar-expand-lg navbar-light bg-faded">
+      <div class="container-fluid">
+        <a class="navbar-brand" href="{% url 'site_index' %}">{{ SITE_NAME }}</a>
+        <button class="navbar-toggler"
+                type="button"
+                data-bs-toggle="collapse"
+                data-bs-target="#navbarNav"
+                aria-controls="navbarNav"
+                aria-expanded="false"
+                aria-label="Toggle navigation">
+          <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarNav">
+          <ul class="navbar-nav">
+            <li class="nav-item">
+              <a class="nav-link" href="{% url 'site_index' %}">Home <span class="visually-hidden">(current)</span></a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="#">About</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="#">Contact</a>
+            </li>
+          </ul>
+        </div>
+        <div class="d-flex">
+          <ul class="navbar-nav">
+            {% if not user.is_authenticated %}
+              <li class="nav-item">
+                <a class="nav-link" href="{% url 'account_login' %}">Sign In</a>
+              </li>
+            {% else %}
+              <li class="nav-item dropdown">
+                <a class="nav-link dropdown-toggle"
+                   href="#"
+                   id="navbarScrollingDropdown"
+                   role="button"
+                   data-bs-toggle="dropdown"
+                   aria-expanded="false">{% firstof user.get_short_name user.get_username %}</a>
+                <ul class="dropdown-menu" aria-labelledby="navbarScrollingDropdown">
+                  <li>
+                    <a class="dropdown-item" href="{% url 'account_change_name' %}">Account Settings</a>
+                  </li>
+                  {% if user.is_staff %}
+                    <li>
+                      <a class="dropdown-item" href="{% url 'admin:index' %}">Administration</a>
+                    </li>
+                  {% endif %}
+                  <li>
+                    <a class="dropdown-item" href="{% url 'account_logout' %}">Sign Out</a>
+                  </li>
+                </ul>
+              </li>
+            {% endif %}
+            {% include "blocks/color_mode_picker.html" %}
+          </ul>
+        </div>
+      </div>
+    </nav>
+  </div>
+</header>

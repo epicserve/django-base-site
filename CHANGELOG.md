@@ -1,5 +1,16 @@
 # CHANGELOG
 
+## 2022-12-31
+
+### Added
+
+* A color picker to toggle between dark and light mode
+
+### Changed
+
+* Upgraded to Bootstrap 5.3.0-alpha1 in order to add the color picker 
+
+
 ## 2022-12-27
 
 ### Added
