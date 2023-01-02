@@ -683,9 +683,9 @@ kombu==5.3.0b2 \
     --hash=sha256:6a043f57eb5dc9fb412e38d3b2442f74149520cfa965be16709b6fbccbe2b60f \
     --hash=sha256:cf9e28447754db3bfda01f49177924902ae7adccfd8f3ac05c39bfed891bb8e1
     # via celery
-markdown==3.3.7 \
-    --hash=sha256:cbb516f16218e643d8e0a95b309f77eb118cb138d39a4f27851e6a63581db874 \
-    --hash=sha256:f5da449a6e1c989a4cea2631aa8ee67caa5a2ef855d551c88f9e309f4634c621
+markdown==3.4.1 \
+    --hash=sha256:08fb8465cffd03d10b9dd34a5c3fea908e20391a2a90b88d66362cb05beed186 \
+    --hash=sha256:3b809086bb6efad416156e00a0da66fe47618a5d6918dd688f53f40c8e4cfeff
     # via
     #   mkdocs
     #   mkdocs-autorefs
