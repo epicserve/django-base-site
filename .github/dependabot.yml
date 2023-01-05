@@ -15,6 +15,7 @@ updates:
     directory: "/config/requirements/"
     schedule:
       interval: "weekly"
+    open-pull-requests-limit: 10
     ignore:
       # Per this comment (https://github.com/mkdocs/mkdocs/issues/2892#issuecomment-1200518008) in mkdocs. They won't
       # update to Makrdown 3.4.1 or greater until July 31, 2023.
