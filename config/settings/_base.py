@@ -197,12 +197,23 @@ if DEBUG is True:
     MIDDLEWARE += ["debug_toolbar.middleware.DebugToolbarMiddleware"]
     DEBUG_TOOLBAR_CONFIG = {"INTERCEPT_REDIRECTS": False}
 
-# ALLAUTH SETTINGS
+# ALLAUTH SETTINGS (https://django-allauth.readthedocs.io/en/latest/configuration.html)
+AUTHENTICATION_BACKENDS = ["allauth.account.auth_backends.AuthenticationBackend"]
 LOGIN_REDIRECT_URL = "/"
 ACCOUNT_LOGOUT_ON_GET = True
+ACCOUNT_AUTHENTICATION_METHOD = "email"
 ACCOUNT_EMAIL_REQUIRED = True
 ACCOUNT_CONFIRM_EMAIL_ON_GET = True
-ACCOUNT_EMAIL_VERIFICATION = "mandatory"
+# This is set to "none" so when trying out an app idea you don't have to have sending emails setup, which can be a pain.
+# It's not recommended to leave it as none on a production system. Choose either mandatory or optional.
+ACCOUNT_EMAIL_VERIFICATION = "none"
+ACCOUNT_USERNAME_REQUIRED = False
+ACCOUNT_SIGNUP_PASSWORD_ENTER_TWICE = False
+
+# CUSTOM Django Base Site ALLAUTH settings used in the custom adapter (apps.accounts.auth_adapter)
+ACCOUNT_ADAPTER = "apps.accounts.auth_adapter.AccountAdapter"
+ACCOUNT_SIGNUP_OPEN = False
+ACCOUNT_SHOW_POST_LOGIN_MESSAGE = False
 
 # See https://github.com/migonzalvar/dj-email-url for more examples on how to set the EMAIL_URL
 email = env.dj_email_url(
