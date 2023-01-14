@@ -1,5 +1,23 @@
 # CHANGELOG
 
+
+## 2022-01-14
+
+### Changed
+
+* Removed the "Successfully signed in as" message after a user has signed in by add the ACCOUNT_SHOW_POST_LOGIN_MESSAGE
+  setting with it set to False by default.
+* By default, set ACCOUNT_EMAIL_VERIFICATION to "none" so that new hobby apps don't require transactional email set up.
+* Changed ACCOUNT_USERNAME_REQUIRED to False and ACCOUNT_AUTHENTICATION_METHOD to "email" so you can signup and signin
+  with just your email address.
+* Changed ACCOUNT_SIGNUP_PASSWORD_ENTER_TWICE to False for a nicer sign-up experience
+
+### Added
+
+* Added the adapter apps.accounts.auth_adapter.AccountAdapter to add the new custom settings
+* The ACCOUNT_SIGNUP_OPEN setting set it to false so signup is closed by default
+
+
 ## 2022-12-31
 
 ### Added
