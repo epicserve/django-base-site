@@ -1,0 +1,9 @@
+# some more ls aliases
+alias ll='ls -l'
+alias la='ls -A'
+alias l='ls -CF'
+alias d=./manage.py
+alias dm='d migrate'
+alias dmm='d makemigrations'
+
+source /srv/app/config/bash/django_bash_completion

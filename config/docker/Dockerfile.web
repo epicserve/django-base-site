@@ -49,14 +49,15 @@ ENV LANG=en_US.UTF-8 \
     TERM=xterm-color \
     PATH=$VIRTUAL_ENV/bin:${PATH}
 
+WORKDIR /srv/app
+
 RUN set -ex \
-    && groupadd -r app && useradd --uid=1000 --create-home --home-dir=/home/app --no-log-init -r -g app app
+    && groupadd -r app && useradd --uid=1000 --create-home --home-dir=/home/app --no-log-init -r -g app app \
+    && echo "\nsource ./config/bash/bashrc" >> /home/app/.bashrc
 
 COPY --from=python-requirements --chown=app:app $VIRTUAL_ENV $VIRTUAL_ENV
 
 USER app
-
-WORKDIR /srv/app
 
 EXPOSE 8000/tcp 8001/tcp
 

@@ -16,6 +16,7 @@
 
 * Added the adapter apps.accounts.auth_adapter.AccountAdapter to add the new custom settings
 * The ACCOUNT_SIGNUP_OPEN setting set it to false so signup is closed by default
+* Bash aliases and Django bash completion
 
 
 ## 2022-12-31

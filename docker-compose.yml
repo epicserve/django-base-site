@@ -24,7 +24,7 @@ services:
     build:
       context: .
       target: dev
-      dockerfile: config/docker/Dockerfile
+      dockerfile: config/docker/Dockerfile.web
 
     command: sh -c "./manage.py migrate --noinput && ./manage.py runserver 0.0.0.0:8000"
 
