@@ -5,7 +5,7 @@ PASSWORD_HASHERS = (
     "django.contrib.auth.hashers.SHA1PasswordHasher",
 )
 
-AUTHENTICATION_BACKENDS = ("django.contrib.auth.backends.ModelBackend",)
+AUTHENTICATION_BACKENDS = ["django.contrib.auth.backends.ModelBackend"]
 
 DATABASES["default"] = {"ENGINE": "django.db.backends.sqlite3", "NAME": ":memory:"}  # noqa: F405
 
