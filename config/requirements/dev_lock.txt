@@ -1325,9 +1325,9 @@ types-pytz==2022.7.1.0 \
     --hash=sha256:10ec7d009a02340f1cecd654ac03f0c29b6088a03b63d164401fc52df45936b2 \
     --hash=sha256:918f9c3e7a950ba7e7d6f84b18a7cacabc8886cb7125fb1927ff1c752b4b59de
     # via django-stubs
-types-pyyaml==6.0.12.2 \
-    --hash=sha256:1e94e80aafee07a7e798addb2a320e32956a373f376655128ae20637adb2655b \
-    --hash=sha256:6840819871c92deebe6a2067fb800c11b8a063632eb4e3e755914e7ab3604e83
+types-pyyaml==6.0.12.3 \
+    --hash=sha256:17ce17b3ead8f06e416a3b1d5b8ddc6cb82a422bb200254dd8b469434b045ffc \
+    --hash=sha256:879700e9f215afb20ab5f849590418ab500989f83a57e635689e1d50ccc63f0c
     # via django-stubs
 typing-extensions==4.4.0 \
     --hash=sha256:1511434bb92bf8dd198c12b1cc812e800d4181cfcb867674e0f8279cc93087aa \
