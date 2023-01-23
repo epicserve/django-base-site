@@ -24,13 +24,13 @@ billiard==4.1.0 \
     --hash=sha256:0f50d6be051c6b2b75bfbc8bfd85af195c5739c281d3f5b86a5640c65563614a \
     --hash=sha256:1ad2eeae8e28053d729ba3373d34d9d6e210f6e4d8bf0a9c64f92bd053f1edf5
     # via celery
-boto3==1.26.50 \
-    --hash=sha256:3737d8a506f50065bb2366a6b8e7545d88034f4771527790a125e0abd307d8e8 \
-    --hash=sha256:9c434bcd02c527485c89d6efbd38b7c205e06ab06abe80e5dbf9a8be836c77c2
+boto3==1.26.54 \
+    --hash=sha256:4e876ba5d64928cde0c416dd844f04f22d6b73d14002bbc3ca55591f80f49927 \
+    --hash=sha256:c729bb0af76e85a2776b6bd3da8d9fa0f4b91b425eab51612aa53956f644ee23
     # via -r config/requirements/prod.in
-botocore==1.29.50 \
-    --hash=sha256:0e9ab19787ad7a079c00d3e40b16bc66423e54bc0e8a203b70b543bd8854d5ad \
-    --hash=sha256:5cc68b78a48217550c18b4639420b7c3b48ed9e09e749343143acbfa423ceec5
+botocore==1.29.54 \
+    --hash=sha256:ca3ef7588daa664fe196d3234718db5f6b5dab961507500b4bb921e31133eea1 \
+    --hash=sha256:f2fe17ed6b8e163769a715f81cb6ce3d4628d172918de535256bdf34d29b704f
     # via
     #   boto3
     #   s3transfer
@@ -572,9 +572,9 @@ python-dateutil==2.8.2 \
     --hash=sha256:0123cacc1627ae19ddf3c27a5de5bd67ee4586fbdd6440d9748f8abb483d3e86 \
     --hash=sha256:961d03dc3453ebbc59dbdea9e4e11c5651520a876d0f4db161e8674aae935da9
     # via botocore
-python-dotenv==0.21.0 \
-    --hash=sha256:1684eb44636dd462b66c3ee016599815514527ad99965de77f43e0944634a7e5 \
-    --hash=sha256:b77d08274639e3d34145dfa6c7008e66df0f04b7be7a75fd0d5292c191d79045
+python-dotenv==0.21.1 \
+    --hash=sha256:1c93de8f636cde3ce377292818d0e440b6e45a82f215c3744979151fa8151c49 \
+    --hash=sha256:41e12e0318bebc859fcc4d97d4db8d20ad21721a6aa5047dd59f090391cb549a
     # via environs
 python3-openid==3.2.0 \
     --hash=sha256:33fbf6928f401e0b790151ed2b5290b02545e8775f982485205a066f874aaeaf \
@@ -629,5 +629,6 @@ vine==5.0.0 \
     #   celery
     #   kombu
 wcwidth==0.2.6 \
+    --hash=sha256:795b138f6875577cd91bba52baf9e445cd5118fd32723b460e30a0af30ea230e \
     --hash=sha256:a5220780a404dbe3353789870978e472cfe477761f06ee55077256e509b156d0
     # via prompt-toolkit
