@@ -792,9 +792,9 @@ mkdocstrings-python==0.8.3 \
     --hash=sha256:4e6e1cd6f37a785de0946ced6eb846eb2f5d891ac1cc2c7b832943d3529087a7 \
     --hash=sha256:9ae473f6dc599339b09eee17e4d2b05d6ac0ec29860f3fc9b7512d940fc61adf
     # via mkdocstrings
-model-bakery==1.9.0 \
-    --hash=sha256:93ac818df49377d4f14316105028fa95231474bf268d6017e420e5d4b74d54fd \
-    --hash=sha256:99571801a26b85b8dcba7f0ad39750aeb2f2477fe770d2291823e16788785000
+model-bakery==1.10.1 \
+    --hash=sha256:1b74ada5e33f824bb267adf8a9f81fefd193ecaa53902b0af377c385ab04ad5e \
+    --hash=sha256:fba6f903d1de4bd2cf62b8654306875fa6c3772467044952f1bde76a5ed6300e
     # via -r config/requirements/dev.in
 multidict==6.0.4 \
     --hash=sha256:01a3a55bd90018c9c080fbb0b9f4891db37d148a0a18722b42f94694f8b6d4c9 \
