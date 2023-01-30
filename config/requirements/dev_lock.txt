@@ -409,9 +409,9 @@ django-storages==1.13.2 \
     --hash=sha256:31dc5a992520be571908c4c40d55d292660ece3a55b8141462b4e719aa38eab3 \
     --hash=sha256:cbadd15c909ceb7247d4ffc503f12a9bec36999df8d0bef7c31e57177d512688
     # via -r config/requirements/prod.in
-django-stubs==1.13.2 \
-    --hash=sha256:19e97efecfaf80e42c479ee7ed6179f3120c1b2c11e665b2e8305457e41ee069 \
-    --hash=sha256:f9edb3ef09ac2a014b111d894d86376a70b447f13fe7905ea6c0752e08a1514a
+django-stubs==1.14.0 \
+    --hash=sha256:b081d64d923171f79d4e57899b0980da847e4046b91166e3658a6151645a36c5 \
+    --hash=sha256:d53bcd4975a54ca5c9abbbd33b61f40d44191971018f2ea54f73b0a6a99e1a8b
     # via -r config/requirements/dev.in
 django-stubs-ext==0.7.0 \
     --hash=sha256:4fd8cdbc68d1a421f21bb7e0d9e76d50f6a4b504d350ba786405daf536e90c21 \
