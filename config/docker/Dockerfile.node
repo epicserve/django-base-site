@@ -1,4 +1,4 @@
-FROM node:19.4
+FROM node:19.5
 
 WORKDIR /srv/app
 
