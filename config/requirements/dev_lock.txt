@@ -375,9 +375,9 @@ dj-email-url==1.0.6 \
     --hash=sha256:55ffe3329e48f54f8a75aa36ece08f365e09d61f8a209773ef09a1d4760e699a \
     --hash=sha256:cbd08327fbb08b104eac160fb4703f375532e4c0243eb230f5b960daee7a96db
     # via environs
-django==4.1.5 \
-    --hash=sha256:4b214a05fe4c99476e99e2445c8b978c8369c18d4dea8e22ec412862715ad763 \
-    --hash=sha256:ff56ebd7ead0fd5dbe06fe157b0024a7aaea2e0593bb3785fb594cf94dad58ef
+django==4.1.6 \
+    --hash=sha256:bceb0fe1a386781af0788cae4108622756cd05e7775448deec04a71ddf87685d \
+    --hash=sha256:c6fe7ebe7c017fe59f1029821dae0acb5a2ddcd6c9a0138fd20a8bfefac914bc
     # via
     #   -r config/requirements/prod.in
     #   crispy-bootstrap5
