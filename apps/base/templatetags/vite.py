@@ -31,7 +31,6 @@ def get_script(file: str) -> str:
 
 @lru_cache
 def get_manifest():
-
     with open(VITE_MANIFEST_FILE) as f:
         content = f.read()
         manifest = json.loads(content)
@@ -40,7 +39,6 @@ def get_manifest():
 
 @register.simple_tag
 def vite_asset(filename: str):
-
     is_css = str(filename).endswith("css")
     if VITE_DEV_MODE is True:
         if is_css is True:
