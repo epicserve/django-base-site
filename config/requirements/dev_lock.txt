@@ -482,6 +482,7 @@ django==4.1.7 \
     #   crispy-bootstrap5
     #   dj-database-url
     #   django-allauth
+    #   django-crispy-forms
     #   django-debug-toolbar
     #   django-storages
     #   django-stubs
@@ -494,9 +495,9 @@ django-cache-url==3.4.4 \
     --hash=sha256:5ca4760b4580b80e41279bc60d1e5c16a822e4e462265faab0a330701bb0ef9a \
     --hash=sha256:ef2cfacea361ee22e9b67d6ca941db22e0a9eaf892b67ca71cad52c62a17fd36
     # via environs
-django-crispy-forms==1.14.0 \
-    --hash=sha256:35887b8851a931374dd697207a8f56c57a9c5cb9dbf0b9fa54314da5666cea5b \
-    --hash=sha256:bc4d2037f6de602d39c0bc452ac3029d1f5d65e88458872cc4dbc01c3a400604
+django-crispy-forms==2.0 \
+    --hash=sha256:90193b068bf948d9c68449bc8260afed1a8e2afe11ee0bac8c4ebfaeb175b322 \
+    --hash=sha256:d1d4e585929058a9ab3b797666ea5b69320b9ba7937f9d146d32173246a6fd13
     # via
     #   -r config/requirements/prod.in
     #   crispy-bootstrap5
