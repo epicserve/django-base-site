@@ -10,11 +10,15 @@ updates:
     directory: "/config/docker/"
     schedule:
       interval: "weekly"
+      day: "saturday"
+      time: "11:00" # 11 AM UTC / 5 AM CST
       
   - package-ecosystem: "pip"
     directory: "/config/requirements/"
     schedule:
       interval: "weekly"
+      day: "saturday"
+      time: "11:00" # 11 AM UTC / 5 AM CST
     open-pull-requests-limit: 10
     ignore:
       # Per this comment (https://github.com/mkdocs/mkdocs/issues/2892#issuecomment-1200518008) in mkdocs. They won't
@@ -30,8 +34,12 @@ updates:
     directory: "/"
     schedule:
       interval: "weekly"
+      day: "saturday"
+      time: "11:00" # 11 AM UTC / 5 AM CST
 
   - package-ecosystem: "github-actions"
     directory: "/"
     schedule:
       interval: weekly
+      day: "saturday"
+      time: "11:00" # 11 AM UTC / 5 AM CST
