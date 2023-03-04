@@ -67,7 +67,7 @@ CMD ["python", "manage.py", "runserver", "0.0.0.0:8000"]
 # ------------------------------------------------------------
 # STAGE 3: Javascript assets layer
 # ------------------------------------------------------------
-FROM node:19.6 as js_assets
+FROM node:19.7 as js_assets
 
 WORKDIR /srv/app
 
