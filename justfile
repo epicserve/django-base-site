@@ -122,8 +122,12 @@ reset := `tput -Txterm sgr0`
 # Lint everything
 lint: lint_js lint_sass lint_html lint_py lint_imports lint_migrations lint_security lint_types
 
-# Run pip-compile make the requirement files
-@make_requirements:
+@upgrade_node_requirements:
+    just _start_msg "Upgrading node requirements"
+    {{ node_cmd_prefix }} npm upgrade
+
+# Upgrade python requirements based `config/requirements/*.in` files
+@upgrade_python_requirements:
     rm -rf ./config/requirements/*.txt
     {{ python_cmd_prefix }} pip-compile --upgrade --generate-hashes --output-file config/requirements/prod_lock.txt config/requirements/prod.in
     {{ python_cmd_prefix }} pip-compile --upgrade --generate-hashes --output-file config/requirements/dev_lock.txt config/requirements/dev.in
