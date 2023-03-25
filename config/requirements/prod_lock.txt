@@ -309,8 +309,8 @@ django==4.1.7 \
     #   django-allauth
     #   django-crispy-forms
     #   django-storages
-django-allauth==0.53.0 \
-    --hash=sha256:c8a32a1b163725e9e6b60dcd78e795cec749d68bd35003a33f7707c692928be2
+django-allauth==0.53.1 \
+    --hash=sha256:1336f430d5797e7484dfddc6ddb1d5f61f04bb24a9519b64756847d089b2ffba
     # via -r config/requirements/prod.in
 django-cache-url==3.4.4 \
     --hash=sha256:5ca4760b4580b80e41279bc60d1e5c16a822e4e462265faab0a330701bb0ef9a \
