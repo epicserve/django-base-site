@@ -763,9 +763,9 @@ jsbeautifier==1.14.7 \
     # via
     #   cssbeautifier
     #   djlint
-kombu==5.3.0b2 \
-    --hash=sha256:6a043f57eb5dc9fb412e38d3b2442f74149520cfa965be16709b6fbccbe2b60f \
-    --hash=sha256:cf9e28447754db3bfda01f49177924902ae7adccfd8f3ac05c39bfed891bb8e1
+kombu==5.3.0b3 \
+    --hash=sha256:316df5e840f284d0671b9000bbf747da2b00f3b81433c720de66a5f659e5711d \
+    --hash=sha256:4ad23178dcd11192672d1fad598ace737d1044dbf31edf335a800ed26a9fb2fb
     # via celery
 markdown==3.3.7 \
     --hash=sha256:cbb516f16218e643d8e0a95b309f77eb118cb138d39a4f27851e6a63581db874 \
