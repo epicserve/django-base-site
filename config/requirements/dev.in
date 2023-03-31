@@ -5,6 +5,7 @@
 -r prod.in
 bandit[toml]
 black
+debugpy
 django-debug-toolbar
 django-stubs
 django-test-plus

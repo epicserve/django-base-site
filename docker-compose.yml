@@ -29,7 +29,7 @@ services:
       target: dev
       dockerfile: config/docker/Dockerfile.web
 
-    command: sh -c "/opt/venv/bin/pip install debugpy && ./manage.py migrate --noinput && /opt/venv/bin/python -Xfrozen_modules=off manage.py runserver 0.0.0.0:8000"
+    command: sh -c "./manage.py migrate --noinput && /opt/venv/bin/python -Xfrozen_modules=off manage.py runserver 0.0.0.0:8000"
 
     volumes:
       - .:/srv/app:cached
