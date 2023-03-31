@@ -159,6 +159,41 @@ stop               # Stop all docker-compose services
 test               # Run the Django test runner without coverage
 ```
 
+## Using VS Code
+
+### Install the required extensions
+* Docker
+* Pylance
+* Dev Containers
+
+### Start Project in a Dev Container
+* In a terminal run docker compose with `docker compose up`
+* Open the project in VS Code and click on "Reopen" on the notification that
+  says, "Folder contains a Dev Container configuration file. Reopen"
+
+### Debugging Views
+* Open the project in a dev container (see above section)
+* Set a breakpoint in a Django View
+* Go to Run and Debug (CMD+SHIFT+D)
+* Click the run icon next to "Django Runserver"
+* If you get a prompt that says "Configured debug type 'python' is not supported." Then click "Install python Extension"
+  and then click the "Install in Dev Container" button.
+* In your browser go to the view that has the breakpoint and VS Code should pause at your breakpoint when it's hit.
+
+### Running Tests
+* Open the project in a dev container (see above section)
+* Hit CMD+SHIFT+D and search for "Testing: Focus on Test Explorer View". If this doesn't show up make sure you install
+  the python extension in the dev container.
+* Find a test and run it.
+
+### Using Git
+When working inside a Dev Container you might get a notification that says, "Git not found. Install it or configure it
+using the "git.path" setting." It's probably best to click, the "Don't Show Again" button. This is because Git isn't
+installed inside the container. You could install it by updating the `config/docker/Dockerfile.web` file to install it,
+but it's probably not worth adding the extra space to the container. It's probably easier to just use Git in another
+local window or a different Git client.
+
+
 ## Deploying to Production
 
 The Django base site is designed to be production ready because it comes with a production
