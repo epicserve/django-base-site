@@ -1,6 +1,13 @@
 # CHANGELOG
 
 
+## 2023-04-01
+
+### Added
+
+* Add a pre_commit command to the justfile to run the lint, format, and test commands
+
+
 ## 2022-01-14
 
 ### Changed
