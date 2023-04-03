@@ -1,7 +1,7 @@
 # ------------------------------------------------------------
 # STAGE 1: Build Python requirements layer
 # ------------------------------------------------------------
-FROM python:3-buster as python-requirements
+FROM python:3-bullseye as python-requirements
 
 ARG ENV_NAME=dev
 
