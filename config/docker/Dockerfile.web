@@ -27,7 +27,7 @@ RUN set -ex \
 # ------------------------------------------------------------
 # STAGE 2: Dev layer
 # ------------------------------------------------------------
-FROM python:3-slim-buster as dev
+FROM mcr.microsoft.com/devcontainers/python:3.11-bullseye as dev
 
 # Set the locale
 # libxml2-dev is needed for uwsgi in the production stage
@@ -52,7 +52,7 @@ ENV LANG=en_US.UTF-8 \
 WORKDIR /srv/app
 
 RUN set -ex \
-    && groupadd -r app && useradd --uid=1000 --create-home --home-dir=/home/app --no-log-init -r -g app app \
+    && groupadd -r app && useradd --uid=2000 --create-home --home-dir=/home/app --no-log-init -r -g app app \
     && echo "\nsource ./config/bash/bashrc" >> /home/app/.bashrc
 
 COPY --from=python-requirements --chown=app:app $VIRTUAL_ENV $VIRTUAL_ENV
