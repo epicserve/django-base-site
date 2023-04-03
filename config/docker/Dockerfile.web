@@ -26,10 +26,9 @@ RUN set -ex \
 # ------------------------------------------------------------
 # STAGE 2: Dev layer
 # ------------------------------------------------------------
-# Details about Microsofts Dev Containers can be found in the following locations:
-# * https://hub.docker.com/_/microsoft-devcontainers
-# * https://github.com/devcontainers/images
-FROM mcr.microsoft.com/devcontainers/python:3.11-bullseye as dev
+FROM python:3-slim-bullseye as dev
+
+ARG ENV_NAME=dev
 
 # Set the locale
 # libxml2-dev is needed for uwsgi in the production stage
@@ -56,6 +55,9 @@ WORKDIR /srv/app
 RUN set -ex \
     && groupadd -r app && useradd --uid=2000 --create-home --home-dir=/home/app --no-log-init -r -g app app \
     && echo "\nsource ./config/bash/bashrc" >> /home/app/.bashrc
+
+# Only install Git if it's the dev environment
+RUN if [ "$ENV_NAME" == "dev" ]; then apt-get install git; fi
 
 COPY --from=python-requirements --chown=app:app $VIRTUAL_ENV $VIRTUAL_ENV
 
