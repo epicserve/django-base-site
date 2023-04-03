@@ -28,7 +28,10 @@
 				"ms-python.python",
 				"ms-python.black-formatter",
 				"ms-python.isort"
-			]
+			],
+			"settings": {
+				"terminal.integrated.defaultProfile.linux": "bash"
+			}
 		}
 	}
 
