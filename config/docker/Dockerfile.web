@@ -27,6 +27,9 @@ RUN set -ex \
 # ------------------------------------------------------------
 # STAGE 2: Dev layer
 # ------------------------------------------------------------
+# Details about Microsofts Dev Containers can be found in the following locations:
+# * https://hub.docker.com/_/microsoft-devcontainers
+# * https://github.com/devcontainers/images
 FROM mcr.microsoft.com/devcontainers/python:3.11-bullseye as dev
 
 # Set the locale
