@@ -13,8 +13,7 @@ ENV \
     VIRTUAL_ENV=/opt/venv
 
 RUN set -ex \
-    && python3 -m venv $VIRTUAL_ENV \
-    && $VIRTUAL_ENV/bin/pip install -U setuptools wheel pip
+    && python3 -m venv --upgrade-deps $VIRTUAL_ENV
 
 # Install Python packages
 COPY config/requirements/${ENV_NAME}_lock.txt ./config/requirements/${ENV_NAME}_lock.txt
