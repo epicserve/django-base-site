@@ -34,12 +34,11 @@ ARG ENV_NAME=dev
 # libxml2-dev is needed for uwsgi in the production stage
 # mime-support install (/etc/mime.types) which is needded uWSGI to server static files with the correct mime types
 RUN apt-get update \
-    && apt-get install -y locales libxml2-dev mime-support \
+    && apt-get install -y --no-install-recommends locales libxml2-dev mime-support \
     && echo "LC_ALL=en_US.UTF-8" >> /etc/environment \
     && echo "en_US.UTF-8 UTF-8" >> /etc/locale.gen \
     && echo "LANG=en_US.UTF-8" > /etc/locale.conf \
-    && locale-gen en_US.UTF-8 \
-    && rm -rf /var/lib/apt/lists/*
+    && locale-gen en_US.UTF-8
 
 ENV VIRTUAL_ENV=/opt/venv
 ENV LANG=en_US.UTF-8 \
@@ -52,12 +51,13 @@ ENV LANG=en_US.UTF-8 \
 
 WORKDIR /srv/app
 
+# Only install Git if it's the dev environment
+RUN if [ "$ENV_NAME" = "dev" ]; then apt-get install -y --no-install-recommends git; fi \
+    && rm -rf /var/lib/apt/lists/*
+
 RUN set -ex \
     && groupadd -r app && useradd --uid=2000 --create-home --home-dir=/home/app --no-log-init -r -g app app \
     && echo "\nsource ./config/bash/bashrc" >> /home/app/.bashrc
-
-# Only install Git if it's the dev environment
-RUN if [ "$ENV_NAME" == "dev" ]; then apt-get install git; fi
 
 COPY --from=python-requirements --chown=app:app $VIRTUAL_ENV $VIRTUAL_ENV
 
