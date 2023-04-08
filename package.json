@@ -16,7 +16,7 @@
     "eslint": "^8.36.0",
     "eslint-config-airbnb-base": "^15.0.0",
     "eslint-plugin-import": "^2.27.5",
-    "sass": "^1.59.2",
+    "sass": "^1.61.0",
     "stylelint": "^14.16.1",
     "stylelint-config-recess-order": "^3.1.0",
     "stylelint-config-standard-scss": "^6.1.0",
