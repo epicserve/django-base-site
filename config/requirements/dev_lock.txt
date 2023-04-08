@@ -865,9 +865,9 @@ mkdocs-linkcheck==1.0.6 \
     --hash=sha256:70dceae090101778002d949dc7b55f56eeb0c294bd9053fb6b197c26591665b1 \
     --hash=sha256:908ca6f370eee0b55b5337142e2f092f1a0af9e50ab3046712b4baefdc989672
     # via -r config/requirements/dev.in
-mkdocs-material==9.1.5 \
-    --hash=sha256:744519bca52b1e8fe7c2e80e15ed59baf8948111ec763ae6ae629c409bd16d6e \
-    --hash=sha256:981e1ef0250e2fbcc23610e9b20e5f242fe1f808079b9bcfbb6c49aa2999343c
+mkdocs-material==9.1.6 \
+    --hash=sha256:2e555152f9771646bfa62dc78a86052876183eff69ce30db03a33e85702b21fc \
+    --hash=sha256:f2eb1d40db89da9922944833c1387207408f8937e1c2b46ab86e0c8f170b71e0
     # via -r config/requirements/dev.in
 mkdocs-material-extensions==1.1.1 \
     --hash=sha256:9c003da71e2cc2493d910237448c672e00cefc800d3d6ae93d2fc69979e3bd93 \
