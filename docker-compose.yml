@@ -4,6 +4,7 @@ services:
   db:
     container_name: db
     image: postgres:latest
+    init: true
     volumes:
       - postgres_data:/var/lib/postgresql/data/
     ports:
@@ -14,6 +15,7 @@ services:
   redis:
     container_name: redis
     image: redis:7.0
+    init: true
     command: ["redis-server", "--appendonly", "yes"]
     volumes:
       - redis_data:/data
@@ -21,6 +23,7 @@ services:
   web:
     container_name: web
     image: epicserve/django-base-site:latest
+    init: true
     build:
       context: .
       target: dev
@@ -46,6 +49,7 @@ services:
   worker:
     container_name: worker
     image: epicserve/django-base-site:latest
+    init: true
 
     command: sh -c "celery -A config worker -l info"
 
@@ -63,6 +67,7 @@ services:
     build:
       context: .
       dockerfile: config/docker/Dockerfile.node
+    init: true
     working_dir: /srv/app
 
     command: sh -c "npm run dev"
@@ -80,6 +85,7 @@ services:
   docs:
     container_name: docs
     image: epicserve/django-base-site:latest
+    init: true
 
     command: sh -c "mkdocs serve -f config/mkdocs.yml --dev-addr 0.0.0.0:4000"
 
