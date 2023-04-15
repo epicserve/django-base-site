@@ -2,7 +2,7 @@
 # PEP 440 (https://www.python.org/dev/peps/pep-0440/#compatible-release). After making edits run
 # `just make_requirements` in order to compile a new requirement files in config/requirements/*_lock.txt.
 
-Django~=4.1.0
+Django~=4.2
 boto3~=1.26
 celery==5.3.0b2
 crispy-bootstrap5~=0.7
