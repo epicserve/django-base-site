@@ -1,8 +1,6 @@
 from ._base import *  # noqa: F403
 
-PASSWORD_HASHERS = (
-    "django.contrib.auth.hashers.MD5PasswordHasher",
-)
+PASSWORD_HASHERS = ("django.contrib.auth.hashers.MD5PasswordHasher",)
 
 AUTHENTICATION_BACKENDS = ["django.contrib.auth.backends.ModelBackend"]
 
