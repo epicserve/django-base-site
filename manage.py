@@ -10,7 +10,12 @@ def main() -> None:
 
     from django.conf import settings
 
-    if settings.DEBUG and os.environ.get("RUN_MAIN") or os.environ.get("WERKZEUG_RUN_MAIN"):
+    if (
+        settings.DEBUG
+        and os.environ.get("PYCHARM_HOSTED") != "1"
+        and os.environ.get("RUN_MAIN")
+        or os.environ.get("WERKZEUG_RUN_MAIN")
+    ):
         import debugpy
 
         # Use "nosec" inline comment to ignore security check because this doesn't run in production
