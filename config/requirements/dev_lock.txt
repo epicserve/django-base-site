@@ -502,9 +502,9 @@ django-test-plus==2.2.1 \
     --hash=sha256:5eaacb7a26b88f12df06538ffe4ad44e81636e07003e4863ef704204069bd8bb \
     --hash=sha256:980a0ef6705421485a63f93fee849420a4563552acfea83255e57372233c2133
     # via -r config/requirements/dev.in
-djlint==1.23.0 \
-    --hash=sha256:1fca84f80763d909538384e5e2a2e5ab41dd32851ccba90a0432980f19b8de59 \
-    --hash=sha256:b59f7364f5f4fe88f8a9d3b14580c473f4ed669e88b730ce6012f0c9be81b3db
+djlint==1.23.3 \
+    --hash=sha256:165033e5237e432c86fc90e0a3c59aeb7079df4284bdb054f84214af344899d8 \
+    --hash=sha256:68cdd6047cd8c45ca17c82782b70d9cb2bd5282c6a863fe1e1e63e697265ec85
     # via -r config/requirements/dev.in
 editorconfig==0.12.3 \
     --hash=sha256:57f8ce78afcba15c8b18d46b5170848c88d56fd38f05c2ec60dbbfcb8996e89e \
