@@ -510,9 +510,9 @@ django-storages==1.13.2 \
     --hash=sha256:31dc5a992520be571908c4c40d55d292660ece3a55b8141462b4e719aa38eab3 \
     --hash=sha256:cbadd15c909ceb7247d4ffc503f12a9bec36999df8d0bef7c31e57177d512688
     # via -r config/requirements/prod.in
-django-stubs==1.16.0 \
-    --hash=sha256:1bd96207576cd220221a0e615f0259f13d453d515a80f576c1246e0fb547f561 \
-    --hash=sha256:c95f948e2bfc565f3147e969ff361ef033841a0b8a51cac974a6cc6d0486732c
+django-stubs==4.2.0 \
+    --hash=sha256:93baff824f0a056e71036b423b942a74f07b909e45e3fa38185b910f597c5c08 \
+    --hash=sha256:d2c671989efb3f7b0fa91e461909ad5a5a52155fe7fe6d1f2058cb88e3afb123
     # via -r config/requirements/dev.in
 django-stubs-ext==0.8.0 \
     --hash=sha256:9a9ba9e2808737949de96a0fce8b054f12d38e461011d77ebc074ffe8c43dfcb \
