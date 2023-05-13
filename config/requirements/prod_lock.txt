@@ -26,9 +26,9 @@ botocore==1.29.133 \
     # via
     #   boto3
     #   s3transfer
-celery==5.3.0b2 \
-    --hash=sha256:9ca1c46c40a5fd0946783d3a5a1ee532e283a586b1eeebd88a40a17af757a875 \
-    --hash=sha256:b034f1e6475a90cf3e8c47357f132d0ed23fede22206ef5fc78b91f40f43ad67
+celery==5.3.0rc1 \
+    --hash=sha256:0f104775617974c9a108857c883dd5a5b0a9058278bccf1881ff5d3317fa15ab \
+    --hash=sha256:3afa81e7c6393097a4079badc11117ac20a1bf145c92ae5f1cc3ed24c2b1f165
     # via -r config/requirements/prod.in
 certifi==2023.5.7 \
     --hash=sha256:0f0d56dc5a6ad56fd4ba36484d6cc34451e1c6548c61daad8c320169f91eddc7 \
