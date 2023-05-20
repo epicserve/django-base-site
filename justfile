@@ -123,7 +123,7 @@ reset := `tput -Txterm sgr0`
 lint: lint_js lint_sass lint_html lint_py lint_imports lint_migrations lint_security lint_types
 
 # Run pre-commit checks
-pre_commit: lint format test
+pre_commit: format lint test
 
 @upgrade_node_requirements:
     just _start_msg "Upgrading node requirements"
