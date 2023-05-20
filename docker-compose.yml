@@ -22,7 +22,7 @@ services:
 
   web:
     container_name: web
-    image: epicserve/django-base-site:latest
+    image: epicserve/django-base-site:python
     init: true
     build:
       context: .
@@ -64,6 +64,7 @@ services:
 
   node:
     container_name: node
+    image: epicserve/django-base-site:node
     build:
       context: .
       dockerfile: config/docker/Dockerfile.node
