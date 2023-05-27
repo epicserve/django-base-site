@@ -873,9 +873,9 @@ mkdocs-material-extensions==1.1.1 \
     --hash=sha256:9c003da71e2cc2493d910237448c672e00cefc800d3d6ae93d2fc69979e3bd93 \
     --hash=sha256:e41d9f38e4798b6617ad98ca8f7f1157b1e4385ac1459ca1e4ea219b556df945
     # via mkdocs-material
-mkdocstrings[python]==0.21.2 \
-    --hash=sha256:304e56a2e90595708a38a13a278e538a67ad82052dd5c8b71f77a604a4f3d911 \
-    --hash=sha256:949ef8da92df9d692ca07be50616459a6b536083a25520fd54b00e8814ce019b
+mkdocstrings[python]==0.22.0 \
+    --hash=sha256:2d4095d461554ff6a778fdabdca3c00c468c2f1459d469f7a7f622a2b23212ba \
+    --hash=sha256:82a33b94150ebb3d4b5c73bab4598c3e21468c79ec072eff6931c8f3bfc38256
     # via
     #   -r config/requirements/dev.in
     #   mkdocstrings-python
