@@ -608,9 +608,9 @@ gitpython==3.1.31 \
     --hash=sha256:8ce3bcf69adfdf7c7d503e78fd3b1c492af782d58893b650adb2ac8912ddd573 \
     --hash=sha256:f04893614f6aa713a60cbbe1e6a97403ef633103cdd0ef5eb6efe0deb98dbe8d
     # via bandit
-griffe==0.28.0 \
-    --hash=sha256:42823aafa666e38bc14d6ab3c955e5eccadd5ada61a8b780f580c8e763a34327 \
-    --hash=sha256:f2253359bdf84427a46c04c28d59680195863f94cc9453af2a7728cb3d92b7d6
+griffe==0.29.0 \
+    --hash=sha256:6fc892aaa251b3761e3a8d2f5893758e1850ec5d81d4605c4557be0666202a0b \
+    --hash=sha256:e62ff34b04630c2382e2e277301cb2c29221fb09c04028e62ef35afccc64344b
     # via mkdocstrings-python
 hiredis==2.2.3 \
     --hash=sha256:071c5814b850574036506a8118034f97c3cbf2fe9947ff45a27b07a48da56240 \
