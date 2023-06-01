@@ -146,17 +146,17 @@ development. To see the full list of commands run `just` in the root of the proj
 abbreviated list of the most common commands.
 
 ```
-build_assets       # Build frontend assets
-clean              # Remove build files, python cache files and test coverage data
-collectstatic      # Run Django's collectstatic management command
-format             # Format all code
-lint               # Lint everything
-make_requirements  # Run pip-compile make the requirement files
-open_coverage      # Run the django test runner with coverage
-start              # Start docker-compose
-start_with_docs    # Start docker-compose with docs
-stop               # Stop all docker-compose services
-test               # Run the Django test runner without coverage
+build_assets                 # Build frontend assets
+clean                        # Remove build files, python cache files and test coverage data
+collectstatic                # Run Django's collectstatic management command
+format                       # Format all code
+lint                         # Lint everything
+upgrade_python_requirements  # Run pip-compile make the requirement files
+open_coverage                # Run the django test runner with coverage
+start                        # Start docker-compose
+start_with_docs              # Start docker-compose with docs
+stop                         # Stop all docker-compose services
+test                         # Run the Django test runner without coverage
 ```
 
 ## Deploying to Production
