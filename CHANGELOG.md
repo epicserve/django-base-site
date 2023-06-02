@@ -1,6 +1,13 @@
 # CHANGELOG
 
 
+## 2023-06-01
+
+### Fixed
+
+* Fixed Vite not being available after changes to package.json. This fixes [#289](https://github.com/epicserve/django-base-site/issues/289)
+
+
 ## 2023-04-01
 
 ### Added
