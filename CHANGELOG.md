@@ -3,6 +3,12 @@
 
 ## 2023-06-01
 
+### Changed
+
+* Remove the Docker Compose volume for node for more consistent builds. This fixes the problem where sometimes you had
+  to run `docker compose run node npm install` after running `docker compose build` to install the node modules into the
+  local node volume. Instead the node modules are always installed into the docker image.
+
 ### Fixed
 
 * Fixed Vite not being available after changes to package.json. This fixes [#289](https://github.com/epicserve/django-base-site/issues/289)

@@ -75,7 +75,7 @@ services:
 
     volumes:
       - .:/srv/app
-      - node_data:/srv/app/node_modules
+      - /srv/app/node_modules
 
     ports:
       - "3000:3000"
@@ -108,4 +108,3 @@ services:
 volumes:
   postgres_data:
   redis_data:
-  node_data:
