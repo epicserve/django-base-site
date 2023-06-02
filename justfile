@@ -125,11 +125,12 @@ lint: lint_js lint_sass lint_html lint_py lint_imports lint_migrations lint_secu
 # Run pre-commit checks
 pre_commit: format lint test
 
+# Upgrade node requirements based on `package.json` file
 @upgrade_node_requirements:
     just _start_msg "Upgrading node requirements"
     {{ node_cmd_prefix }} npm upgrade
 
-# Upgrade python requirements based `config/requirements/*.in` files
+# Upgrade python requirements based on `config/requirements/*.in` files
 @upgrade_python_requirements:
     rm -rf ./config/requirements/*.txt
     {{ python_cmd_prefix }} pip-compile --upgrade --generate-hashes --output-file config/requirements/prod_lock.txt config/requirements/prod.in
