@@ -134,6 +134,8 @@ Example output:
     $ cat > .env <<EOF
     DEBUG=on
     SECRET_KEY='$SECRET_KEY'
+    DATABASE_URL=postgres://postgres:@db:5432/postgres
+    INTERNAL_IPS=127.0.0.1,0.0.0.0
     EOF
     $ just remove_extra_files
     $ find ./public -name ".keep" | xargs rm -rf
