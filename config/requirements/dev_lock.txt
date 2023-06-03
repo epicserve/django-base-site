@@ -432,8 +432,8 @@ cryptography==41.0.0 \
     --hash=sha256:bf8fc66012ca857d62f6a347007e166ed59c0bc150cefa49f28376ebe7d992a2 \
     --hash=sha256:f5d0bf9b252f30a31664b6f64432b4730bb7038339bd18b1fafe129cfc2be9be
     # via pyjwt
-cssbeautifier==1.14.7 \
-    --hash=sha256:be7f1ea7a7b009f0172c2c0d0bebb2d136346e786f7182185ea944affb52135a
+cssbeautifier==1.14.8 \
+    --hash=sha256:9ad4c5b2ffe0b439a4bed278bc440b6a89c40823c3f19db38f808d256216a592
     # via djlint
 decorator==5.1.1 \
     --hash=sha256:637996211036b6385ef91435e4fae22989472f9d571faba8927ba8253acbc330 \
