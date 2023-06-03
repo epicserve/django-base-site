@@ -170,9 +170,9 @@ build==0.10.0 \
     --hash=sha256:af266720050a66c893a6096a2f410989eeac74ff9a68ba194b3f6473e8e26171 \
     --hash=sha256:d5b71264afdb5951d6704482aac78de887c80691c52b88a9ad195983ca2c9269
     # via pip-tools
-celery==5.3.0rc1 \
-    --hash=sha256:0f104775617974c9a108857c883dd5a5b0a9058278bccf1881ff5d3317fa15ab \
-    --hash=sha256:3afa81e7c6393097a4079badc11117ac20a1bf145c92ae5f1cc3ed24c2b1f165
+celery==5.3.0rc2 \
+    --hash=sha256:37a7fa2cbb5af4e0b25d338639e49b7b5d5731309d2874f424550602a40dc233 \
+    --hash=sha256:abd32f66ccb297a82339c0a4e761247387b4150b2f4c1db26408b84fd5ca7647
     # via -r config/requirements/prod.in
 certifi==2023.5.7 \
     --hash=sha256:0f0d56dc5a6ad56fd4ba36484d6cc34451e1c6548c61daad8c320169f91eddc7 \
