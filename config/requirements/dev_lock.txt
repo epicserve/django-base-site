@@ -1049,9 +1049,9 @@ pip-tools==6.13.0 \
     --hash=sha256:50943f151d87e752abddec8158622c34ad7f292e193836e90e30d87da60b19d9 \
     --hash=sha256:61d46bd2eb8016ed4a924e196e6e5b0a268cd3babd79e593048720db23522bb1
     # via -r config/requirements/dev.in
-platformdirs==3.5.1 \
-    --hash=sha256:412dae91f52a6f84830f39a8078cecd0e866cb72294a5c66808e74d5e88d251f \
-    --hash=sha256:e2378146f1964972c03c085bb5662ae80b2b8c06226c54b2ff4aa9483e8a13a5
+platformdirs==3.5.3 \
+    --hash=sha256:0ade98a4895e87dc51d47151f7d2ec290365a585151d97b4d8d6312ed6132fed \
+    --hash=sha256:e48fabd87db8f3a7df7150a4a5ea22c546ee8bc39bc2473244730d4b56d2cc4e
     # via black
 pluggy==1.0.0 \
     --hash=sha256:4224373bacce55f955a878bf9cfa763c1e360858e330072059e10bad68531159 \
