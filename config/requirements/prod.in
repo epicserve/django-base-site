@@ -14,5 +14,5 @@ hiredis~=2.1  # needed for Django's native cache and sessions
 psycopg2-binary~=2.8
 pytest-cov~=4.0
 pytest-django~=4.5
-redis~=4.4  # needed for celery
+redis~=4.6  # needed for celery
 uwsgi~=2.0
