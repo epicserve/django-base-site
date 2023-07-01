@@ -16,13 +16,13 @@ billiard==4.1.0 \
     --hash=sha256:0f50d6be051c6b2b75bfbc8bfd85af195c5739c281d3f5b86a5640c65563614a \
     --hash=sha256:1ad2eeae8e28053d729ba3373d34d9d6e210f6e4d8bf0a9c64f92bd053f1edf5
     # via celery
-boto3==1.26.160 \
-    --hash=sha256:5218869eddeeb70efead1dd01037c3553dc7b268de3b80a0c3a2baeec2b97fc9 \
-    --hash=sha256:d12643d6c18caa79b385a0c4251698391da7a6f5ffa0879b4c10c5d64e5c8b31
+boto3==1.26.165 \
+    --hash=sha256:9e7242b9059d937f34264125fecd844cb5e01acce6be093f6c44869fdf7c6e30 \
+    --hash=sha256:fa85b67147c8dc99b6e7c699fc086103f958f9677db934f70659e6e6a72a818c
     # via -r config/requirements/prod.in
-botocore==1.29.160 \
-    --hash=sha256:15d38dae978aba829daaf8d1b02ba2f2b73d4c1e4edc75234163d65a1328c1b5 \
-    --hash=sha256:dacf41787978c0d550321d334e0001a488145200f8a6c9bd893fb8e281b25cf7
+botocore==1.29.165 \
+    --hash=sha256:6f35d59e230095aed7cd747604fe248fa384bebb7d09549077892f936a8ca3df \
+    --hash=sha256:988b948be685006b43c4bbd8f5c0cb93e77c66deb70561994e0c5b31b5a67210
     # via
     #   boto3
     #   s3transfer
@@ -558,9 +558,9 @@ python3-openid==3.2.0 \
     --hash=sha256:33fbf6928f401e0b790151ed2b5290b02545e8775f982485205a066f874aaeaf \
     --hash=sha256:6626f771e0417486701e0b4daff762e7212e820ca5b29fcc0d05f6f8736dfa6b
     # via django-allauth
-redis==4.5.5 \
-    --hash=sha256:77929bc7f5dab9adf3acba2d3bb7d7658f1e0c2f1cafe7eb36434e751c471119 \
-    --hash=sha256:dc87a0bdef6c8bfe1ef1e1c40be7034390c2ae02d92dcd0c7ca1729443899880
+redis==4.6.0 \
+    --hash=sha256:585dc516b9eb042a619ef0a39c3d7d55fe81bdb4df09a52c9cdde0d07bf1aa7d \
+    --hash=sha256:e2b03db868160ee4591de3cb90d40ebb50a90dd302138775937f6a42b7ed183c
     # via -r config/requirements/prod.in
 requests==2.31.0 \
     --hash=sha256:58cd2187c01e70e6e26505bca751777aa9f2ee0b7f4300988b709f44e013003f \
@@ -584,9 +584,9 @@ sqlparse==0.4.4 \
     --hash=sha256:5430a4fe2ac7d0f93e66f1efc6e1338a41884b7ddf2a350cedd20ccc4d9d28f3 \
     --hash=sha256:d446183e84b8349fa3061f0fe7f06ca94ba65b426946ffebe6e3e8295332420c
     # via django
-typing-extensions==4.6.3 \
-    --hash=sha256:88a4153d8505aabbb4e13aacb7c486c2b4a33ca3b3f807914a9b4c844c471c26 \
-    --hash=sha256:d91d5919357fe7f681a9f2b5b4cb2a5f1ef0a1e9f59c4d8ff0d3491e05c0ffd5
+typing-extensions==4.7.0 \
+    --hash=sha256:5d8c9dac95c27d20df12fb1d97b9793ab8b2af8a3a525e68c80e21060c161771 \
+    --hash=sha256:935ccf31549830cda708b42289d44b6f74084d616a00be651601a4f968e77c82
     # via dj-database-url
 tzdata==2023.3 \
     --hash=sha256:11ef1e08e54acb0d4f95bdb1be05da659673de4acbd21bf9c69e94cc5e907a3a \
