@@ -505,9 +505,9 @@ django-stubs-ext==4.2.2 \
     --hash=sha256:c69d1cc46f1c4c3b7894b685a5022c29b2a36c7cfb52e23762eaf357ebfc2c98 \
     --hash=sha256:fdacc65a14d2d4b97334b58ff178a5853ec8c8c76cec406e417916ad67536ce4
     # via django-stubs
-django-test-plus==2.2.1 \
-    --hash=sha256:5eaacb7a26b88f12df06538ffe4ad44e81636e07003e4863ef704204069bd8bb \
-    --hash=sha256:980a0ef6705421485a63f93fee849420a4563552acfea83255e57372233c2133
+django-test-plus==2.2.3 \
+    --hash=sha256:5a8e26c9bf8eab092012c2cce9c605e0dba5a15879771feeb992c424504a18fe \
+    --hash=sha256:72e1ca5dcaaf4ad73c9c796ad6e0dc165db39f706c3ad822074d961f72eed743
     # via -r config/requirements/dev.in
 djlint==1.31.1 \
     --hash=sha256:9b2e2fc3a059a8e5a62f309edea15c1aeee331a279ab2699b9fb51a31d8c0934 \
