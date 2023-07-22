@@ -876,9 +876,9 @@ mkdocstrings[python]==0.22.0 \
     # via
     #   -r config/requirements/dev.in
     #   mkdocstrings-python
-mkdocstrings-python==1.2.0 \
-    --hash=sha256:2924c9c4286fd236bdae64402b5cc5010dee13779b3edf1a65d97bc02303657b \
-    --hash=sha256:e16bedc236a3a6aa04c916ae6b9d37d2299c80c6e7169fc481a30ed9f8f362a4
+mkdocstrings-python==1.2.1 \
+    --hash=sha256:7c08f33e9ba7b1655e9cf0608eba3ce7a9513bd8b42a68a8d24ffaf4a6a50cfc \
+    --hash=sha256:ae40825b3b676a94626882901ed9c8fcf9a7f0330e466ffe37ce15c525987aa9
     # via mkdocstrings
 model-bakery==1.12.0 \
     --hash=sha256:70e991dd503e3f1956632c621946bb8e71012172db740bab75cd9d2a447283a3 \
