@@ -1,7 +1,7 @@
 # ------------------------------------------------------------
 # STAGE 1: Build Python requirements layer
 # ------------------------------------------------------------
-FROM python:3-buster as python-requirements
+FROM python:3-bullseye as python-requirements
 
 ARG ENV_NAME=dev
 
@@ -13,8 +13,7 @@ ENV \
     VIRTUAL_ENV=/opt/venv
 
 RUN set -ex \
-    && python3 -m venv $VIRTUAL_ENV \
-    && $VIRTUAL_ENV/bin/pip install -U setuptools wheel pip
+    && python3 -m venv --upgrade-deps $VIRTUAL_ENV
 
 # Install Python packages
 COPY config/requirements/${ENV_NAME}_lock.txt ./config/requirements/${ENV_NAME}_lock.txt
@@ -27,18 +26,19 @@ RUN set -ex \
 # ------------------------------------------------------------
 # STAGE 2: Dev layer
 # ------------------------------------------------------------
-FROM python:3-slim-buster as dev
+FROM python:3-slim-bullseye as dev
+
+ARG ENV_NAME=dev
 
 # Set the locale
 # libxml2-dev is needed for uwsgi in the production stage
 # mime-support install (/etc/mime.types) which is needded uWSGI to server static files with the correct mime types
 RUN apt-get update \
-    && apt-get install -y locales libxml2-dev mime-support \
+    && apt-get install -y --no-install-recommends locales libxml2-dev mime-support \
     && echo "LC_ALL=en_US.UTF-8" >> /etc/environment \
     && echo "en_US.UTF-8 UTF-8" >> /etc/locale.gen \
     && echo "LANG=en_US.UTF-8" > /etc/locale.conf \
-    && locale-gen en_US.UTF-8 \
-    && rm -rf /var/lib/apt/lists/*
+    && locale-gen en_US.UTF-8
 
 ENV VIRTUAL_ENV=/opt/venv
 ENV LANG=en_US.UTF-8 \
@@ -51,8 +51,12 @@ ENV LANG=en_US.UTF-8 \
 
 WORKDIR /srv/app
 
+# Only install Git if it's the dev environment
+RUN if [ "$ENV_NAME" = "dev" ]; then apt-get install -y --no-install-recommends git; fi \
+    && rm -rf /var/lib/apt/lists/*
+
 RUN set -ex \
-    && groupadd -r app && useradd --uid=1000 --create-home --home-dir=/home/app --no-log-init -r -g app app \
+    && groupadd -r app && useradd --uid=2000 --create-home --home-dir=/home/app --no-log-init -r -g app app \
     && echo "\nsource ./config/bash/bashrc" >> /home/app/.bashrc
 
 COPY --from=python-requirements --chown=app:app $VIRTUAL_ENV $VIRTUAL_ENV

@@ -161,6 +161,32 @@ stop                         # Stop all docker-compose services
 test                         # Run the Django test runner without coverage
 ```
 
+## Using VS Code
+
+### Install the required extensions
+* Docker
+* Dev Containers
+
+### Start Project in a Dev Container
+* In a terminal run docker compose with `docker compose up` or run the command "Docker: Compose Up" in VS Code.
+* Then run the command "Dev Containers: Attach to Running Container..." and choose the "/web" container
+
+### Debugging Views
+* Open the project in a dev container (see above section)
+* Set a breakpoint in a Django View
+* Go to Run and Debug (CMD+SHIFT+D)
+* Click the run icon next to "Django Runserver Attach"
+* If you get a prompt that says "Configured debug type 'python' is not supported." Then click "Install python Extension"
+  and then click the "Install in Dev Container" button.
+* In your browser go to the view that has the breakpoint and VS Code should pause at your breakpoint when it's hit.
+
+### Running Tests
+* Open the project in a dev container (see above section)
+* Hit CMD+SHIFT+P and search for "Testing: Focus on Test Explorer View". If this doesn't show up make sure you install
+  the python extension in the dev container.
+* Find a test and run it.
+
+
 ## Deploying to Production
 
 The Django base site is designed to be production ready because it comes with a production
