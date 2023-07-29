@@ -157,9 +157,9 @@ boto3==1.28.9 \
     --hash=sha256:01f078047eb4d238c6b9c6cc623f2af33b4ae67980c5326691e35cb5493ff6c7 \
     --hash=sha256:4cc0c6005be910e52077227e670930ab55a41ba86cdb6d1c052571d08cd4d32c
     # via -r config/requirements/prod.in
-botocore==1.31.9 \
-    --hash=sha256:bd849d3ac95f1781385ed831d753a04a3ec870a59d6598175aaedd71dc2baf5f \
-    --hash=sha256:e56ccd3536a90094ea5b176b5dd33bfe4f049efdf71af468ea1661bd424c787d
+botocore==1.31.15 \
+    --hash=sha256:b3a0f787f275711875476cbe12a0123b2e6570b2f505e2fa509dcec3c5410b57 \
+    --hash=sha256:b46d1ce4e0cf42d28fdf61ce0c999904645d38b51cb809817a361c0cec16d487
     # via
     #   boto3
     #   s3transfer
