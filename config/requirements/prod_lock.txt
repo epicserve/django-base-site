@@ -602,8 +602,8 @@ urllib3==1.26.16 \
     # via
     #   botocore
     #   requests
-uwsgi==2.0.21 \
-    --hash=sha256:35a30d83791329429bc04fe44183ce4ab512fcf6968070a7bfba42fc5a0552a9
+uwsgi==2.0.22 \
+    --hash=sha256:4cc4727258671ac5fa17ab422155e9aaef8a2008ebb86e4404b66deaae965db2
     # via -r config/requirements/prod.in
 vine==5.0.0 \
     --hash=sha256:4c9dceab6f76ed92105027c49c823800dd33cacce13bdedc5b914e3514b7fb30 \
