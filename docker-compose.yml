@@ -11,8 +11,6 @@ services:
       - "5432:5432"
     environment:
       - POSTGRES_HOST_AUTH_METHOD=trust
-    profiles:
-      - full
 
   redis:
     container_name: redis
@@ -21,8 +19,6 @@ services:
     command: ["redis-server", "--appendonly", "yes"]
     volumes:
       - redis_data:/data
-    profiles:
-      - full
 
   web:
     container_name: web
@@ -50,9 +46,6 @@ services:
       USE_DOCKER: 'on'
       DJANGO_SETTINGS_MODULE: config.settings
 
-    profiles:
-      - full
-
   worker:
     container_name: worker
     image: epicserve/django-base-site:python
@@ -68,9 +61,6 @@ services:
 
     environment:
       DJANGO_SETTINGS_MODULE: config.settings
-
-    profiles:
-      - full
 
   node:
     container_name: node
@@ -92,9 +82,6 @@ services:
 
     environment:
       NODE_ENV: development
-
-    profiles:
-      - full
 
   docs:
     container_name: docs
