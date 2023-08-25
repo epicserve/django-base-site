@@ -16,13 +16,13 @@ billiard==4.1.0 \
     --hash=sha256:0f50d6be051c6b2b75bfbc8bfd85af195c5739c281d3f5b86a5640c65563614a \
     --hash=sha256:1ad2eeae8e28053d729ba3373d34d9d6e210f6e4d8bf0a9c64f92bd053f1edf5
     # via celery
-boto3==1.28.30 \
-    --hash=sha256:2b509a959966a572f15db5768a18066ce1f53022ac53fca9421c620219fa3998 \
-    --hash=sha256:e095ede98d3680e65966ab71f273b7d86938f5d853773ef96f4cb646277c2a4b
+boto3==1.28.34 \
+    --hash=sha256:2ccbea42fe4cbd22a8ba1e90a37ac65f05c1932e63432e429fb7158d8255bbc0 \
+    --hash=sha256:4713a4e69120db5f358f4d378459fb4ea04be98664a0908088f6e04ab49d2583
     # via -r config/requirements/prod.in
-botocore==1.31.30 \
-    --hash=sha256:269f20dcadd8dfd0c26d0e6fbceb84814ff6638ff3aafcc5324b9fb9949a7051 \
-    --hash=sha256:3cf6a9d7621b897c9ff23cd02113826141b3dd3d7e90273b661efc4dc05f84e2
+botocore==1.31.34 \
+    --hash=sha256:23ba9e3a8b4c0e5966bbe2db62edb27f61e16b846f153f22aefda7b3c05c7942 \
+    --hash=sha256:456ef8eb458db35b8643eb10e652ed50750d13e5af431593471b2c705c34b5db
     # via
     #   boto3
     #   s3transfer
@@ -302,8 +302,8 @@ django==4.2.4 \
     #   django-allauth
     #   django-crispy-forms
     #   django-storages
-django-allauth==0.54.0 \
-    --hash=sha256:120e265f802b65738899c6cb627b827fde46a4d03067034c633f516c2adf3e3e
+django-allauth==0.55.0 \
+    --hash=sha256:6b9dee8bbfa4b9e4c346a1cda3b880c230c98fbe71253d7c48ae0df0d86a2642
     # via -r config/requirements/prod.in
 django-cache-url==3.4.4 \
     --hash=sha256:5ca4760b4580b80e41279bc60d1e5c16a822e4e462265faab0a330701bb0ef9a \
