@@ -3,7 +3,7 @@
 # `just make_requirements` in order to compile a new requirement files in config/requirements/*_lock.txt.
 
 Django~=4.2
-boto3~=1.26
+boto3~=1.28
 celery~=5.3
 crispy-bootstrap5~=0.7
 django-allauth~=0.42
