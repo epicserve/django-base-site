@@ -1349,9 +1349,9 @@ pyyaml-env-tag==0.1 \
 readtime==3.0.0 \
     --hash=sha256:76c5a0d773ad49858c53b42ba3a942f62fbe20cc8c6f07875797ac7dc30963a9
     # via mkdocs-material
-redis==4.6.0 \
-    --hash=sha256:585dc516b9eb042a619ef0a39c3d7d55fe81bdb4df09a52c9cdde0d07bf1aa7d \
-    --hash=sha256:e2b03db868160ee4591de3cb90d40ebb50a90dd302138775937f6a42b7ed183c
+redis==5.0.0 \
+    --hash=sha256:06570d0b2d84d46c21defc550afbaada381af82f5b83e5b3777600e05d8e2ed0 \
+    --hash=sha256:5cea6c0d335c9a7332a460ed8729ceabb4d0c489c7285b0a86dbbf8a017bd120
     # via -r config/requirements/prod.in
 regex==2023.8.8 \
     --hash=sha256:0085da0f6c6393428bf0d9c08d8b1874d805bb55e17cb1dfa5ddb7cfb11140bf \
