@@ -5,6 +5,16 @@
 
 ### Changed
 
+* Changed to using a root user for local development. This fixes an issue that was happening where Vite and other JS
+  related tools where throwing write permission errors when running because the web service would create files as a
+  non-privileged app user and then JS tools would run as a non-privileged user and then try to write to
+  directories owned by root.
+
+
+## 2023-06-01
+
+### Changed
+
 * Remove the Docker Compose volume for node for more consistent builds. This fixes the problem where sometimes you had
   to run `docker compose run node npm install` after running `docker compose build` to install the node modules into the
   local node volume. Instead the node modules are always installed into the docker image.

@@ -38,7 +38,8 @@ RUN apt-get update \
     && echo "en_US.UTF-8 UTF-8" >> /etc/locale.gen \
     && echo "LANG=en_US.UTF-8" > /etc/locale.conf \
     && locale-gen en_US.UTF-8 \
-    && rm -rf /var/lib/apt/lists/*
+    && rm -rf /var/lib/apt/lists/* \
+    && echo "\nsource /srv/app/config/bash/bashrc" >> /root/.bashrc
 
 ENV VIRTUAL_ENV=/opt/venv
 ENV LANG=en_US.UTF-8 \
@@ -51,13 +52,7 @@ ENV LANG=en_US.UTF-8 \
 
 WORKDIR /srv/app
 
-RUN set -ex \
-    && groupadd -r app && useradd --uid=1000 --create-home --home-dir=/home/app --no-log-init -r -g app app \
-    && echo "\nsource ./config/bash/bashrc" >> /home/app/.bashrc
-
 COPY --from=python-requirements --chown=app:app $VIRTUAL_ENV $VIRTUAL_ENV
-
-USER app
 
 EXPOSE 8000/tcp 8001/tcp
 
@@ -88,14 +83,16 @@ FROM dev as prod
 
 WORKDIR /srv/app
 
-USER root
+RUN set -ex \
+    && groupadd -r app --gid=1000 && useradd --uid=1000 --create-home --home-dir=/home/app --no-log-init -r -g app app \
+    && echo "\nsource ./config/bash/bashrc" >> /home/app/.bashrc
 
-COPY . .
+COPY --chown=app:app . .
+
+USER app
 
 RUN SECRET_KEY=e python manage.py collectstatic --no-input
 
 COPY --from=js_assets --chown=app:app /srv/app/public/static/ ./collected_static
-
-USER app
 
 CMD ["uwsgi", "--ini", "config/uwsgi.ini", "--http", "0.0.0.0:8080"]
