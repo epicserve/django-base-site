@@ -1,7 +1,16 @@
 # CHANGELOG
 
 
-## 2023-06-01
+## 2023-08-31
+
+### Changed
+
+* Upgrade to version 3 of the Compose file
+* Switch to using a named volume for node_modules.
+* Switch to always upgrade npm on build
+
+
+## 2023-08-29
 
 ### Changed
 
