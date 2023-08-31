@@ -1,3 +1,6 @@
+# Reference docs: https://docs.docker.com/compose/compose-file/compose-file-v3/
+
+version: "3"
 
 services:
 
@@ -26,8 +29,9 @@ services:
     init: true
     build:
       context: .
-      target: dev
       dockerfile: config/docker/Dockerfile.web
+      args:
+        - target=dev
 
     command: sh -c "./manage.py migrate --noinput && ./manage.py runserver 0.0.0.0:8000"
 
