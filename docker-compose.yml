@@ -30,8 +30,7 @@ services:
     build:
       context: .
       dockerfile: config/docker/Dockerfile.web
-      args:
-        - target=dev
+      target: dev
 
     command: sh -c "./manage.py migrate --noinput && ./manage.py runserver 0.0.0.0:8000"
 
