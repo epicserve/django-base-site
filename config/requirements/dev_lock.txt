@@ -1252,9 +1252,9 @@ pyjwt[crypto]==2.8.0 \
     --hash=sha256:57e28d156e3d5c10088e0c68abb90bfac3df82b40a71bd0daa20c65ccd5c23de \
     --hash=sha256:59127c392cc44c2da5bb3192169a91f429924e17aff6534d70fdc02ab3e04320
     # via django-allauth
-pymdown-extensions==10.1 \
-    --hash=sha256:508009b211373058debb8247e168de4cbcb91b1bff7b5e961b2c3e864e00b195 \
-    --hash=sha256:ef25dbbae530e8f67575d222b75ff0649b1e841e22c2ae9a20bad9472c2207dc
+pymdown-extensions==10.2.1 \
+    --hash=sha256:bded105eb8d93f88f2f821f00108cb70cef1269db6a40128c09c5f48bfc60ea4 \
+    --hash=sha256:d0c534b4a5725a4be7ccef25d65a4c97dba58b54ad7c813babf0eb5ba9c81591
     # via
     #   mkdocs-material
     #   mkdocstrings
