@@ -16,7 +16,7 @@ indent_size = 4
 trim_trailing_whitespace = true
 
 # 2 space indentation
-[{*.js, *.scss, *.css, *.html}]
+[{*.js,*.scss,*.css,*.html}]
 indent_style = space
 indent_size = 2
 trim_trailing_whitespace = true
