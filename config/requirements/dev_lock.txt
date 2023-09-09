@@ -175,9 +175,9 @@ bracex==2.4 \
     --hash=sha256:a27eaf1df42cf561fed58b7a8f3fdf129d1ea16a81e1fadd1d17989bc6384beb \
     --hash=sha256:efdc71eff95eaff5e0f8cfebe7d01adf2c8637c8c92edaf63ef348c241a82418
     # via wcmatch
-build==1.0.0 \
-    --hash=sha256:49a60f212df4d9925727c2118e1cbe3abf30b393eff7d0e7287d2170eb36844d \
-    --hash=sha256:f4c7b45e70e2c345e673902253d435a9a7729ff09ab574924420cf120c60bcc9
+build==1.0.3 \
+    --hash=sha256:538aab1b64f9828977f84bc63ae570b060a8ed1be419e7870b8b4fc5e6ea553b \
+    --hash=sha256:589bf99a67df7c9cf07ec0ac0e5e2ea5d4b37ac63301c4986d1acb126aa83f8f
     # via pip-tools
 celery==5.3.1 \
     --hash=sha256:27f8f3f3b58de6e0ab4f174791383bbd7445aff0471a43e99cfd77727940753f \
