@@ -8,7 +8,7 @@ jobs:
     name: Lint
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
       - name: Use Just for running commands
         uses: extractions/setup-just@v1
         env:
@@ -57,7 +57,7 @@ jobs:
       READ_DOT_ENV_FILE: on
       DOCKER_COMPOSE_PREFIX: docker compose run -u root --rm --no-deps web
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
       - name: Use Just for running commands
         uses: extractions/setup-just@v1
         env:
