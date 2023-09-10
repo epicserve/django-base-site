@@ -457,8 +457,8 @@ django==4.2.5 \
     #   django-stubs
     #   django-stubs-ext
     #   model-bakery
-django-allauth==0.55.2 \
-    --hash=sha256:7b713c9947f1917e5c1c5a106fd6208d2c2c71435542fec6d60b01fd7bada3a8
+django-allauth==0.56.1 \
+    --hash=sha256:347044c4e268e085ef4b4b26ea5fdc9d40576872d55e630f1736e1c9a7761529
     # via -r config/requirements/prod.in
 django-cache-url==3.4.4 \
     --hash=sha256:5ca4760b4580b80e41279bc60d1e5c16a822e4e462265faab0a330701bb0ef9a \
