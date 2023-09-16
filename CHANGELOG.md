@@ -1,6 +1,13 @@
 # CHANGELOG
 
 
+## 2023-09-10
+
+### Changed
+
+* Upgrade the Python container from Debian buster to bookworm and pin the Python version to 3.11.*.
+
+
 ## 2023-08-31
 
 ### Changed
