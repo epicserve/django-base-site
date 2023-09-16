@@ -1,5 +1,4 @@
 import socket
-from urllib.parse import urlparse
 
 import environs
 
