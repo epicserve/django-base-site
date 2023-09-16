@@ -1,8 +1,9 @@
+import base64
+import os
 import socket
 
 import environs
-
-env = environs.Env()
+from config.env_writer import EnvWriter
 
 """
 Django settings for config project.
@@ -16,25 +17,28 @@ https://docs.djangoproject.com/en/4.2/ref/settings/
 
 BASE_DIR = environs.Path(__file__).parent.parent.parent  # type: ignore
 
-READ_DOT_ENV_FILE = env.bool("READ_DOT_ENV_FILE", default=True)
-
-if READ_DOT_ENV_FILE is True:
-    env.read_env(str(BASE_DIR.joinpath(".env")))
+env = EnvWriter(base_dir=BASE_DIR, read_dot_env_file=False)
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/4.2/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = env("SECRET_KEY")
+SECRET_KEY = env(
+    "SECRET_KEY",
+    initial=lambda: base64.b64encode(os.urandom(60)).decode(),
+    help_text="Django's SECRET_KEY used to provide cryptographic signing.",
+)
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = env.bool("DEBUG", default=False)
+DEBUG = env.bool("DEBUG", default=True, help_text="Set Django Debug mode to on or off")
 
-ALLOWED_HOSTS = env.list("ALLOWED_HOSTS", default=[])
-INTERNAL_IPS = env.list("INTERNAL_IPS", default=["127.0.0.1"])
+ALLOWED_HOSTS = env.list(
+    "ALLOWED_HOSTS", default=["127.0.0.1"], help_text="List of allowed hosts that this Django site can serve"
+)
+INTERNAL_IPS = env.list("INTERNAL_IPS", default=["127.0.0.1"], help_text="IPs allowed to run in debug mode")
 
 # Get the IP to use for Django Debug Toolbar when developing with docker
-if env.bool("USE_DOCKER", default=False) is True:
+if env.bool("USE_DOCKER", default=True, help_text="Used to set add the IP to INTERNAL_IPS for Docker Compose") is True:
     ip = socket.gethostbyname(socket.gethostname())
     INTERNAL_IPS += [ip[:-1] + "1"]
 
@@ -87,14 +91,15 @@ TEMPLATES = [
     },
 ]
 
-WSGI_APPLICATION = env("WSGI_APPLICATION", default="config.wsgi.application")
-DB_SSL_REQUIRED = env.bool("DB_SSL_REQUIRED", default=not DEBUG)
+WSGI_APPLICATION = env("WSGI_APPLICATION", default="config.wsgi.application", help_text="WSGI application to use")
 
 # Database
 # See https://github.com/jacobian/dj-database-url for more examples
 DATABASES = {
     "default": env.dj_db_url(
-        "DATABASE_URL", default=f'sqlite:///{BASE_DIR.joinpath("db.sqlite")}', ssl_require=DB_SSL_REQUIRED
+        "DATABASE_URL",
+        default="postgres://postgres:@db:5432/postgres",
+        help_text="Database URL for connecting to database",
     )
 }
 
@@ -144,7 +149,11 @@ STATICFILES_FINDERS = (
 
 STORAGES = {
     "default": {
-        "BACKEND": env("DEFAULT_FILE_STORAGE", default="django.core.files.storage.FileSystemStorage"),
+        "BACKEND": env(
+            "DEFAULT_FILE_STORAGE",
+            default="django.core.files.storage.FileSystemStorage",
+            help_text="Default storage backend for media files",
+        ),
     },
     "staticfiles": {
         "BACKEND": "django.contrib.staticfiles.storage.StaticFilesStorage",
@@ -154,11 +163,13 @@ STORAGES = {
 
 if STORAGES["default"]["BACKEND"].endswith("MediaS3Storage") is True:
     STORAGES["staticfiles"]["BACKEND"] = env("STATICFILES_STORAGE")
-    AWS_ACCESS_KEY_ID = env("AWS_ACCESS_KEY_ID")
-    AWS_SECRET_ACCESS_KEY = env("AWS_SECRET_ACCESS_KEY")
-    AWS_STORAGE_BUCKET_NAME = env("AWS_STORAGE_BUCKET_NAME")
+    AWS_ACCESS_KEY_ID = env("AWS_ACCESS_KEY_ID", help_text="AWS Access Key ID if using S3 storage backend")
+    AWS_SECRET_ACCESS_KEY = env("AWS_SECRET_ACCESS_KEY", help_text="AWS Secret Access Key if using S3 storage backend")
+    AWS_STORAGE_BUCKET_NAME = env(
+        "AWS_STORAGE_BUCKET_NAME", help_text="AWS Storage Bucket Name if using S3 storage backend"
+    )
     AWS_DEFAULT_ACL = "public-read"
-    AWS_S3_REGION = env("AWS_S3_REGION", default="us-east-2")
+    AWS_S3_REGION = env("AWS_S3_REGION", default="us-east-2", help_text="AWS S3 Region if using S3 storage backend")
     AWS_S3_CUSTOM_DOMAIN = f"s3.{AWS_S3_REGION}.amazonaws.com/{AWS_STORAGE_BUCKET_NAME}"
     AWS_S3_OBJECT_PARAMETERS = {"CacheControl": "max-age=86400"}
     STATIC_URL = f"https://{AWS_S3_CUSTOM_DOMAIN}/static/"
@@ -180,11 +191,11 @@ else:
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
 # CACHE SETTINGS
-CACHE_URL = env("REDIS_URL", default="redis://redis:6379/0")
+REDIS_URL = env("REDIS_URL", default="redis://redis:6379/0", help_text="Redis URL for connecting to redis")
 CACHES = {
     "default": {
         "BACKEND": "django.core.cache.backends.redis.RedisCache",
-        "LOCATION": CACHE_URL,
+        "LOCATION": REDIS_URL,
     }
 }
 
@@ -193,7 +204,7 @@ CRISPY_ALLOWED_TEMPLATE_PACKS = "bootstrap5"
 CRISPY_TEMPLATE_PACK = "bootstrap5"
 
 # CELERY SETTINGS
-CELERY_BROKER_URL = env("CACHE_URL", CACHE_URL)
+CELERY_BROKER_URL = REDIS_URL
 
 SESSION_ENGINE = "django.contrib.sessions.backends.cache"
 
@@ -228,6 +239,7 @@ ACCOUNT_SHOW_POST_LOGIN_MESSAGE = False
 email = env.dj_email_url(
     "EMAIL_URL",
     default="smtp://skroob@planetspaceball.com:12345@smtp.planetspaceball.com:587/?ssl=True&_default_from_email=President%20Skroob%20%3Cskroob@planetspaceball.com%3E",
+    help_text="URL used for setting Django's email settings",
 )
 DEFAULT_FROM_EMAIL = email["DEFAULT_FROM_EMAIL"]
 EMAIL_HOST = email["EMAIL_HOST"]

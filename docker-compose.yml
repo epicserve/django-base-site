@@ -12,6 +12,8 @@ services:
       - postgres_data:/var/lib/postgresql/data/
     ports:
       - "5432:5432"
+    env_file:
+      - .env
     environment:
       - POSTGRES_HOST_AUTH_METHOD=trust
 
@@ -45,6 +47,8 @@ services:
       - db
       - redis
 
+    env_file:
+      - .env
     environment:
       USE_DOCKER: 'on'
       DJANGO_SETTINGS_MODULE: config.settings
@@ -62,6 +66,8 @@ services:
     depends_on:
       - web
 
+    env_file:
+      - .env
     environment:
       DJANGO_SETTINGS_MODULE: config.settings
 
@@ -83,6 +89,8 @@ services:
     ports:
       - "3000:3000"
 
+    env_file:
+      - .env
     environment:
       NODE_ENV: development
 

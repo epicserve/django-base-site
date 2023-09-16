@@ -40,6 +40,12 @@ reset := `tput -Txterm sgr0`
 @build_assets:
     {{ node_cmd_prefix }} npm run build
 
+# Create an initial .env file
+@create_env_file:
+    # Create an empty .env so that docker-compose doesn't fail
+    touch .env;
+    {{ python_cmd_prefix }} ./scripts/create_initial_env.py
+
 # Format SASS/CSS code
 @format_sass:
     just _start_msg "Formatting SASS code using stylelint"

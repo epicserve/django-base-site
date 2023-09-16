@@ -73,15 +73,8 @@ else
   cd $PROJECT_DIRECTORY
 fi
 
-SECRET_KEY=$(python -c "import random; print(''.join(random.SystemRandom().choice('abcdefghijklmnopqrstuvwxyz0123456789%^&*(-_=+)') for i in range(50)))")
-cat > .env <<EOF
-DEBUG=on
-SECRET_KEY='$SECRET_KEY'
-DATABASE_URL=postgres://postgres:@db:5432/postgres
-INTERNAL_IPS=127.0.0.1,0.0.0.0
-EOF
-
 just remove_extra_files
+just create_env_file
 find ./public -name ".keep" | xargs rm -rf
 
 echo ""
