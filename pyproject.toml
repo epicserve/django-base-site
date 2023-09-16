@@ -56,7 +56,7 @@ filterwarnings = [
 ]
 
 [tool.bandit]
-exclude_dirs = ["tests"]
+exclude_dirs = ["tests", "node_modules"]
 
 [tool.coverage.run]
 branch = true
