@@ -1,4 +1,5 @@
 import socket
+from urllib.parse import urlparse
 
 import environs
 
@@ -181,20 +182,25 @@ else:
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
 # CACHE SETTINGS
-CACHE_URL = env("REDIS_URL", default="redis://redis:6379/0")
+# Redis scheme docs: https://redis-py.readthedocs.io/en/stable/connections.html#redis.connection.ConnectionPool.from_url
+REDIS_URL = env("REDIS_URL", "redis://redis:6379/0")
+REDIS_PREFIX = env("REDIS_PREFIX", default="")
 CACHES = {
     "default": {
         "BACKEND": "django.core.cache.backends.redis.RedisCache",
-        "LOCATION": CACHE_URL,
+        "LOCATION": REDIS_URL,
+        "KEY_PREFIX": REDIS_PREFIX,
     }
 }
+
+# CELERY SETTINGS
+# Celery configuration docs: https://docs.celeryq.dev/en/stable/getting-started/backends-and-brokers/redis.html#configuration
+CELERY_BROKER_URL = REDIS_URL
+CELERY_BROKER_TRANSPORT_OPTIONS = {"global_keyprefix": REDIS_PREFIX}
 
 # CRISPY-FORMS
 CRISPY_ALLOWED_TEMPLATE_PACKS = "bootstrap5"
 CRISPY_TEMPLATE_PACK = "bootstrap5"
-
-# CELERY SETTINGS
-CELERY_BROKER_URL = env("CACHE_URL", CACHE_URL)
 
 SESSION_ENGINE = "django.contrib.sessions.backends.cache"
 

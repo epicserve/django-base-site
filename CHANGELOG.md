@@ -3,6 +3,10 @@
 
 ## 2023-09-16
 
+### Changed
+
+* Updated Redis configuration settings to allow for a REDIS_PREFIX
+
 ### Added
 
 * Added Django-alive for health checks
