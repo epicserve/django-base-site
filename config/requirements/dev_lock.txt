@@ -137,9 +137,9 @@ black==23.9.0 \
     --hash=sha256:3511c8a7e22ce653f89ae90dfddaf94f3bb7e2587a245246572d3b9c92adf066 \
     --hash=sha256:9366c1f898981f09eb8da076716c02fd021f5a0e63581c66501d68a2e4eab844
     # via -r config/requirements/dev.in
-boto3==1.28.44 \
-    --hash=sha256:c53c92dfe22489ba31e918c2e7b59ff43e2e778bd3d3559e62351a739382bb5c \
-    --hash=sha256:eea3b07e0f28c9f92bccab972af24a3b0dd951c69d93da75227b8ecd3e18f6c4
+boto3==1.28.49 \
+    --hash=sha256:519639859a3c829ccf7073a58b3716cb26cb5906e306fe63eb4beab68bf9bfab \
+    --hash=sha256:c9fad1b01a1d7e7bd51150b3175b4c32b79d699ce94708082611f59fde2e097a
     # via -r config/requirements/prod.in
 botocore==1.31.44 \
     --hash=sha256:83d61c1ca781e6ede19fcc4d5dd73004eee3825a2b220f0d7727e32069209d98 \
