@@ -46,8 +46,8 @@ features.
 * [Custom User Model][custom_user_model] - Custom user model so that the user model can be easily extended
 * [Django Allauth](http://www.intenct.nl/projects/django-allauth/) - The most popular package for adding authentication
   workflows to a Django project
-* [Django Crispy Forms](https://github.com/django-crispy-forms/django-crispy-forms) - The most popular helper for
-  working with Django forms
+* [Django Crispy Forms](https://github.com/django-crispy-forms/django-crispy-forms) - The most popular helper for working with Django forms
+* [Django Alive](https://github.com/lincolnloop/django-alive/) - A simple health check package for Django
 
 [custom_user_model]: https://docs.djangoproject.com/en/stable/topics/auth/customizing/#substituting-a-custom-user-model
 

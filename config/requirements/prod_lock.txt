@@ -299,9 +299,14 @@ django==4.2.5 \
     #   -r config/requirements/prod.in
     #   crispy-bootstrap5
     #   dj-database-url
+    #   django-alive
     #   django-allauth
     #   django-crispy-forms
     #   django-storages
+django-alive==1.2.1 \
+    --hash=sha256:7c449a7ab29b7047ba522ef5ca2dc6b1be0f7db0374dd77b95eec910f9aa0c11 \
+    --hash=sha256:b758f4e88084140bf40c2f1ca3371af1d3702e3bf47c9c06264f82340f5888fe
+    # via -r config/requirements/prod.in
 django-allauth==0.56.1 \
     --hash=sha256:347044c4e268e085ef4b4b26ea5fdc9d40576872d55e630f1736e1c9a7761529
     # via -r config/requirements/prod.in

@@ -1,6 +1,13 @@
 # CHANGELOG
 
 
+## 2023-09-16
+
+### Added
+
+* Added Django-alive for health checks
+
+
 ## 2023-09-10
 
 ### Changed
