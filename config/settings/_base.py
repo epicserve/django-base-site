@@ -235,3 +235,54 @@ EMAIL_PORT = email["EMAIL_PORT"]
 EMAIL_HOST_PASSWORD = email["EMAIL_HOST_PASSWORD"]
 EMAIL_HOST_USER = email["EMAIL_HOST_USER"]
 EMAIL_USE_TLS = email["EMAIL_USE_TLS"]
+
+DEBUG_LOGGING = {
+    "version": 1,
+    "disable_existing_loggers": False,
+    "formatters": {
+        "verbose": {
+            "format": "{levelname} - {asctime} - {module} - {message}",
+            "style": "{",
+        },
+    },
+    "handlers": {
+        "console": {
+            "class": "logging.StreamHandler",
+            "formatter": "verbose",
+        },
+    },
+    "loggers": {
+        "django.request": {
+            "level": "DEBUG",
+            "handlers": ["console"],
+            "propagate": False,
+        },
+    },
+}
+
+PROD_LOGGING = {
+    "version": 1,
+    "disable_existing_loggers": False,
+    "formatters": {
+        "verbose": {"format": "%(levelname)s - %(asctime)s - %(module)s - %(message)s"},
+    },
+    "handlers": {
+        "console": {
+            "class": "logging.StreamHandler",
+            "formatter": "verbose",
+        },
+    },
+    "loggers": {
+        "django.request": {
+            "level": "ERROR",
+            "handlers": ["console"],
+            "propagate": False,
+        },
+    },
+}
+
+IS_DEBUG_LOGGING_ON = env.bool("IS_DEBUG_LOGGING_ON", default=False)
+LOGGING = PROD_LOGGING
+
+if IS_DEBUG_LOGGING_ON is True:
+    LOGGING = DEBUG_LOGGING
