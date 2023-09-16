@@ -10,6 +10,7 @@
 ### Added
 
 * Added Django-alive for health checks
+* Added a uwsgi.ini config file
 
 
 ## 2023-09-10
