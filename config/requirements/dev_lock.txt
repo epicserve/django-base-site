@@ -1398,9 +1398,9 @@ tqdm==4.66.1 \
     --hash=sha256:d302b3c5b53d47bce91fea46679d9c3c6508cf6332229aa1e7d8653723793386 \
     --hash=sha256:d88e651f9db8d8551a62556d3cff9e3034274ca5d66e93197cf2490e2dcb69c7
     # via djlint
-traitlets==5.9.0 \
-    --hash=sha256:9e6ec080259b9a5940c797d58b613b5e31441c2257b87c2e795c5228ae80d2d8 \
-    --hash=sha256:f6cde21a9c68cf756af02035f72d5a723bf607e862e7be33ece505abf4a3bad9
+traitlets==5.10.0 \
+    --hash=sha256:417745a96681fbb358e723d5346a547521f36e9bd0d50ba7ab368fff5d67aa54 \
+    --hash=sha256:f584ea209240466e66e91f3c81aa7d004ba4cf794990b0c775938a1544217cd1
     # via
     #   ipython
     #   matplotlib-inline
