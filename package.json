@@ -12,7 +12,7 @@
   },
   "devDependencies": {
     "@popperjs/core": "^2.11.6",
-    "bootstrap": "^5.3.1",
+    "bootstrap": "^5.3.2",
     "eslint": "^8.48.0",
     "eslint-config-airbnb-base": "^15.0.0",
     "eslint-plugin-import": "^2.27.5",
