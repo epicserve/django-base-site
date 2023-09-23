@@ -1,6 +1,17 @@
 # CHANGELOG
 
 
+## 2023-09-23
+
+### Added
+
+* Add a gravatar property to the user model
+
+### Changed
+
+* Make the layout and style better for SaaS projects
+
+
 ## 2023-09-16
 
 ### Changed
