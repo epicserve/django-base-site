@@ -1429,9 +1429,9 @@ traitlets==5.10.0 \
     # via
     #   ipython
     #   matplotlib-inline
-types-pytz==2023.3.0.1 \
-    --hash=sha256:1a7b8d4aac70981cfa24478a41eadfcd96a087c986d6f150d77e3ceb3c2bdfab \
-    --hash=sha256:65152e872137926bb67a8fe6cc9cfd794365df86650c5d5fdc7b167b0f38892e
+types-pytz==2023.3.1.1 \
+    --hash=sha256:1999a123a3dc0e39a2ef6d19f3f8584211de9e6a77fe7a0259f04a524e90a5cf \
+    --hash=sha256:cc23d0192cd49c8f6bba44ee0c81e4586a8f30204970fc0894d209a6b08dab9a
     # via django-stubs
 types-pyyaml==6.0.12.11 \
     --hash=sha256:7d340b19ca28cddfdba438ee638cd4084bde213e501a3978738543e27094775b \
