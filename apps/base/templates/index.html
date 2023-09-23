@@ -4,15 +4,12 @@
 {% block title_tag %}<title>{{ SITE_NAME }}</title>{% endblock title_tag %}
 {# djlint:on #}
 {% block content %}
-  <div class="jumbotron">
-    <div class="container">
-      <h1>{{ SITE_NAME }}</h1>
-      <p>You've successfully set up a Django base site. Start Coding!</p>
-      <p>
-        <a href="https://django-base-site.readthedocs.org/en/latest/"
-           class="btn btn-primary btn-lg"
-           target="_blank">Read documentation »</a>
-      </p>
-    </div>
+  <div class="bg-body-secondary mt-5 w-25 p-5 rounded-3 m-auto text-center">
+    <p class="text-muted">You've successfully set up a Django base site!</p>
+    <p class="">
+      <a href="https://django-base-site.readthedocs.org/en/latest/"
+         class="btn btn-primary px-5"
+         target="_blank">Read Documentation</a>
+    </p>
   </div>
 {% endblock content %}

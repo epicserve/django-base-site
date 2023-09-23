@@ -9,6 +9,7 @@
     {% block title_tag %}
       <title>
         {% block title %}
+          {{ page_title }}
         {% endblock title %}
 
         {% if SITE_NAME %}- {{ SITE_NAME }}{% endif %}
@@ -32,28 +33,22 @@
       {% include "blocks/nav.html" %}
     {% endblock base_header %}
 
-    <main class="flex-shrink-0">
+    <main class="{% block content_class %}container-fluid{% endblock content_class %}
+       ">
       {% block breadcrumb %}
       {% endblock breadcrumb %}
 
       {% if messages %}
-        <div id="flash-message-container" class="container">
+        <div id="flash-message-container">
           {% for message in messages %}<p class="alert alert-{{ message.tags }}">{{ message }}</p>{% endfor %}
         </div>
       {% endif %}
-      {% block base_content %}
-        <div id="main-content" class="container">
-          {% block content %}
-          {% endblock content %}
-
-        </div>
-      {% endblock base_content %}
+      {% block content %}
+      {% endblock content %}
 
     </main>
-    <footer class="footer mt-auto">
-      <div class="container border-top py-3">
-        <p>© {{ SITE_NAME }} {% now "Y" %}</p>
-      </div>
+    <footer class="footer mt-auto container-fluid border-top border-top-1 pt-2">
+      <p>©{{ SITE_NAME }} {% now "Y" %}</p>
     </footer>
     {% block bottom_script %}
       {% vite_hmr_client %}

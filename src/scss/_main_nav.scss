@@ -1,0 +1,22 @@
+// User navigation menu
+.navbar-nav--user-nav {
+  // remove dropdown caret
+  .dropdown-toggle::after {
+   display: none;
+  }
+
+  .nav-link {
+    transition: opacity 0.4s ease;
+  }
+
+  .nav-link:hover {
+    opacity: 0.5;
+  }
+}
+
+// Medium max-width container
+.container--mw-md {
+  max-width: 1000px;
+
+  @extend .px-3;
+}
