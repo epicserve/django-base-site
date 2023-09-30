@@ -1486,9 +1486,9 @@ wcmatch==8.5 \
     --hash=sha256:14554e409b142edeefab901dc68ad570b30a72a8ab9a79106c5d5e9a6d241bd5 \
     --hash=sha256:86c17572d0f75cbf3bcb1a18f3bf2f9e72b39a9c08c9b4a74e991e1882a8efb3
     # via mkdocs-include-markdown-plugin
-wcwidth==0.2.7 \
-    --hash=sha256:1b6d30a98ddd5ce9bbdb33658191fd2423fc9da203fe3ef1855407dcb7ee4e26 \
-    --hash=sha256:fabf3e32999d9b0dab7d19d845149f326f04fe29bac67709ee071dbd92640a36
+wcwidth==0.2.8 \
+    --hash=sha256:77f719e01648ed600dfa5402c347481c0992263b81a027344f3e1ba25493a704 \
+    --hash=sha256:8705c569999ffbb4f6a87c6d1b80f324bd6db952f5eb0b95bc07517f4c1813d4
     # via prompt-toolkit
 wheel==0.41.2 \
     --hash=sha256:0c5ac5ff2afb79ac23ab82bab027a0be7b5dbcf2e54dc50efe4bf507de1f7985 \
