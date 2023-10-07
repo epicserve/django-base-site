@@ -1061,9 +1061,9 @@ pip-tools==7.3.0 \
     --hash=sha256:8717693288720a8c6ebd07149c93ab0be1fced0b5191df9e9decd3263e20d85e \
     --hash=sha256:8e9c99127fe024c025b46a0b2d15c7bd47f18f33226cf7330d35493663fc1d1d
     # via -r config/requirements/dev.in
-platformdirs==3.10.0 \
-    --hash=sha256:b45696dab2d7cc691a3226759c0d3b00c47c8b6e293d96f6436f733303f77f6d \
-    --hash=sha256:d7c24979f292f916dc9cbf8648319032f551ea8c49a4c9bf2fb556a02070ec1d
+platformdirs==3.11.0 \
+    --hash=sha256:cf8ee52a3afdb965072dcc652433e0c7e3e40cf5ea1477cd4b3b1d2eb75495b3 \
+    --hash=sha256:e9d171d00af68be50e9202731309c4e658fd8bc76f55c11c7dd760d023bda68e
     # via
     #   black
     #   mkdocs
