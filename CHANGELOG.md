@@ -1,6 +1,13 @@
 # CHANGELOG
 
 
+## 2023-10-07
+
+### Added
+
+* Add the Django Maintenance Mode package
+
+
 ## 2023-09-23
 
 ### Added

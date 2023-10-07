@@ -50,6 +50,7 @@ INSTALLED_APPS = [
     "django.contrib.staticfiles",
     "apps.base",
     "apps.accounts",
+    "maintenance_mode",
     "allauth",
     "allauth.account",
     "crispy_forms",
@@ -67,6 +68,7 @@ MIDDLEWARE = [
     "django.contrib.auth.middleware.AuthenticationMiddleware",
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
+    "maintenance_mode.middleware.MaintenanceModeMiddleware",
 ]
 
 ROOT_URLCONF = "config.urls"
@@ -82,6 +84,7 @@ TEMPLATES = [
                 "django.template.context_processors.request",
                 "django.contrib.auth.context_processors.auth",
                 "django.contrib.messages.context_processors.messages",
+                "maintenance_mode.context_processors.maintenance_mode",
                 "apps.base.context_processors.site_name",
             ],
         },
@@ -292,3 +295,7 @@ LOGGING = PROD_LOGGING
 
 if IS_DEBUG_LOGGING_ON is True:
     LOGGING = DEBUG_LOGGING
+
+# MAINTENANCE MODE SETTINGS
+MAINTENANCE_MODE_STATE_BACKEND = "maintenance_mode.backends.CacheBackend"
+MAINTENANCE_MODE_STATE_BACKEND_FALLBACK_VALUE = True
