@@ -327,9 +327,9 @@ django-maintenance-mode==0.19.0 \
     --hash=sha256:bd2b6677fe8bd348d5bf8fb94deacbe49db56e049d0815903e7baa6107be17d6 \
     --hash=sha256:df8584aae291ebf545c3583fe39f6d478b81324419ac29098d0233eed643f1e1
     # via -r config/requirements/prod.in
-django-storages==1.14.1 \
-    --hash=sha256:18cb6c305fbb2f114c11b5b7b647b6271aa251972dcd4a5651b9cee2b0bd3a8a \
-    --hash=sha256:a2c327d67792eec04c7f5f5bb2900b21f426de8a3a811cea85fac7904bdccf36
+django-storages==1.14.2 \
+    --hash=sha256:1db759346b52ada6c2efd9f23d8241ecf518813eb31db9e2589207174f58f6ad \
+    --hash=sha256:51b36af28cc5813b98d5f3dfe7459af638d84428c8df4a03990c7d74d1bea4e5
     # via -r config/requirements/prod.in
 environs[django]==9.5.0 \
     --hash=sha256:1e549569a3de49c05f856f40bce86979e7d5ffbbc4398e7f338574c220189124 \
