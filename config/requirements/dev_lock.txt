@@ -877,9 +877,9 @@ mkdocs-autorefs==0.5.0 \
     --hash=sha256:7930fcb8ac1249f10e683967aeaddc0af49d90702af111a5e390e8b20b3d97ff \
     --hash=sha256:9a5054a94c08d28855cfab967ada10ed5be76e2bfad642302a610b252c3274c0
     # via mkdocstrings
-mkdocs-include-markdown-plugin==6.0.1 \
-    --hash=sha256:cbb71f06bf6bd03312f0ff79e1aed198ad13c0ff4fcaf5bb7fe5da385fba4849 \
-    --hash=sha256:eb8832b36a72c1c416baec666eeed057c2e613e8b07b353e86fa518157858b0a
+mkdocs-include-markdown-plugin==6.0.2 \
+    --hash=sha256:19f3671af17c6e20b959a202520509800d907101a76df74953dc751bc833e159 \
+    --hash=sha256:29b87c51f75587e62a2c570cd773fed73cf933aed5167c914f6c56067f524d91
     # via -r config/requirements/dev.in
 mkdocs-linkcheck==1.0.6 \
     --hash=sha256:70dceae090101778002d949dc7b55f56eeb0c294bd9053fb6b197c26591665b1 \
