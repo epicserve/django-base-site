@@ -903,9 +903,9 @@ mkdocstrings-python==1.7.2 \
     --hash=sha256:2d005729a90f1b86d6d71fad4953d787140996adec5b00a25fafc6ee48e1b79a \
     --hash=sha256:75b6af86f9dcdc2d864072d8fed5b1d45ad94dd2ce97843ef52ca87ad53d9b26
     # via mkdocstrings
-model-bakery==1.15.0 \
-    --hash=sha256:16178e608e2f414814e3383a9855e39c08810c9dee7b1d8e1354f1fdb7c013bc \
-    --hash=sha256:c76813d8836ce339df4abd8648d6ed195fd0363f395dd1cb11b8a1898224e4e7
+model-bakery==1.16.0 \
+    --hash=sha256:d12a61089d4ba7bd673dc5c5a12597ab3f7c0514499a01941703361a49b21c13 \
+    --hash=sha256:d7261ae31befda0585c677aadc04d39b34c1aff6da48e3f5f89a9ccbd3371ad3
     # via -r config/requirements/dev.in
 multidict==6.0.4 \
     --hash=sha256:01a3a55bd90018c9c080fbb0b9f4891db37d148a0a18722b42f94694f8b6d4c9 \
