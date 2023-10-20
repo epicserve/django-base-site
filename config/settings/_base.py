@@ -53,6 +53,8 @@ INSTALLED_APPS = [
     "maintenance_mode",
     "allauth",
     "allauth.account",
+    "allauth.socialaccount",
+    "allauth.socialaccount.providers.auth0",
     "crispy_forms",
     "crispy_bootstrap5",
     "storages",
@@ -232,6 +234,22 @@ ACCOUNT_SIGNUP_PASSWORD_ENTER_TWICE = False
 ACCOUNT_ADAPTER = "apps.accounts.auth_adapter.AccountAdapter"
 ACCOUNT_SIGNUP_OPEN = False
 ACCOUNT_SHOW_POST_LOGIN_MESSAGE = False
+
+# SOCIAL ACCOUNT SETTINGS
+AUTH0_DOMAIN = env("AUTH0_DOMAIN", default="")
+AUTH0_CLIENT_ID = env("AUTH0_CLIENT_ID", default="")
+AUTH0_SECRET_KEY = env("AUTH0_SECRET_KEY", default="")
+SOCIALACCOUNT_LOGIN_ON_GET = True
+SOCIALACCOUNT_PROVIDERS = {
+    "auth0": {
+        "AUTH0_URL": f"https://{AUTH0_DOMAIN}",
+        "OAUTH_PKCE_ENABLED": True,
+        "APP": {
+            "client_id": AUTH0_CLIENT_ID,
+            "secret": AUTH0_SECRET_KEY,
+        },
+    }
+}
 
 # See https://github.com/migonzalvar/dj-email-url for more examples on how to set the EMAIL_URL
 email = env.dj_email_url(

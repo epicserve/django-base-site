@@ -29,7 +29,7 @@
     {% url 'socialaccount_connections' as connections_url %}
     {% if connections_url %}
       <li class="nav-item">
-        <a class="nav-link {% block account_nav_socialaccount_connections %}{% endblock account_nav_socialaccount_connections %}
+        <a class="nav-link {% block account_nav_connections %}{% endblock account_nav_connections %}
          " href="{{ connections_url }}">{% trans "Connected Accounts" %}</a>
       </li>
     {% endif %}

@@ -3,14 +3,16 @@
 {% load i18n %}
 {% load crispy_forms_tags %}
 {% load account %}
+{% load account socialaccount %}
 
 {% block head_title %}
   {% trans "Sign In" %}
 {% endblock head_title %}
 
 {% block content %}
+  {% get_providers as socialaccount_providers %}
   <h1>{% trans "Sign In" %}</h1>
-  {% if socialaccount.providers %}
+  {% if socialaccount_providers %}
     <p>
       {% blocktrans with site.name as site_name %}Please sign in with one
 of your existing third party accounts. Or, <a href="{{ signup_url }}">sign up</a>
@@ -21,7 +23,7 @@ below:{% endblocktrans %}
       <ul class="socialaccount_providers">
         {% include "socialaccount/snippets/provider_list.html" with process="login" %}
       </ul>
-      <div class="login-or">{% trans "or" %}</div>
+      <div class="login-or text-center my-4 fw-bold fs-5">{% trans "or" %}</div>
     </div>
     {% include "socialaccount/snippets/login_extra.html" %}
   {% endif %}
