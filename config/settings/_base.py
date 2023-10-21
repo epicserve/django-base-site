@@ -239,6 +239,7 @@ ACCOUNT_SHOW_POST_LOGIN_MESSAGE = False
 AUTH0_DOMAIN = env("AUTH0_DOMAIN", default="")
 AUTH0_CLIENT_ID = env("AUTH0_CLIENT_ID", default="")
 AUTH0_SECRET_KEY = env("AUTH0_SECRET_KEY", default="")
+SOCIALACCOUNT_ADAPTER = "apps.accounts.auth_adapter.SocialAccountAdapter"
 SOCIALACCOUNT_LOGIN_ON_GET = True
 SOCIALACCOUNT_PROVIDERS = {
     "auth0": {
