@@ -28,7 +28,7 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-pip-
       - name: Setup Node version 16.17
-        uses: actions/setup-node@v3
+        uses: actions/setup-node@v4
       - name: Setup Python 3.11
         uses: actions/setup-python@v4
         with:
