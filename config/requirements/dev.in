@@ -20,3 +20,4 @@ model-bakery
 mypy
 pip-tools
 ruff
+types-requests
