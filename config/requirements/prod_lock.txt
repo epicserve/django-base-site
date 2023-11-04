@@ -256,9 +256,9 @@ coverage[toml]==7.3.2 \
     # via
     #   coverage
     #   pytest-cov
-crispy-bootstrap5==0.7 \
-    --hash=sha256:0745a67199619149b7feca87dab7a45664876ed50fb582b38fd2aeb3f8a8d869 \
-    --hash=sha256:f3ff1ef5cb379fe80b1b02e245008f276444098a4bdb8d855bed84c623798a85
+crispy-bootstrap5==2023.10 \
+    --hash=sha256:9b5a6c9880f37cd32aa678c0d7576ae60b3e502c444c8712e582f8bd91659afb \
+    --hash=sha256:f16c44f1997310e5a89c0cf230402e7111cc1f942f64fb7e44603958b89b06a1
     # via -r config/requirements/prod.in
 cryptography==41.0.5 \
     --hash=sha256:0c327cac00f082013c7c9fb6c46b7cc9fa3c288ca702c74773968173bda421bf \
