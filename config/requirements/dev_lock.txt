@@ -483,8 +483,8 @@ django-alive==1.2.1 \
     --hash=sha256:7c449a7ab29b7047ba522ef5ca2dc6b1be0f7db0374dd77b95eec910f9aa0c11 \
     --hash=sha256:b758f4e88084140bf40c2f1ca3371af1d3702e3bf47c9c06264f82340f5888fe
     # via -r config/requirements/prod.in
-django-allauth==0.58.0 \
-    --hash=sha256:40ad5c2ae78757261fc1628a94bb67416f91565f578e592d5906948b59682a5c
+django-allauth==0.58.1 \
+    --hash=sha256:485db513f1794f5636ae38a78e9414e8818ce076770b75a6f8a003ab3a32b8fa
     # via -r config/requirements/prod.in
 django-cache-url==3.4.4 \
     --hash=sha256:5ca4760b4580b80e41279bc60d1e5c16a822e4e462265faab0a330701bb0ef9a \
