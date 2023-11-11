@@ -125,9 +125,9 @@ bandit[toml]==1.7.5 \
     --hash=sha256:75665181dc1e0096369112541a056c59d1c5f66f9bb74a8d686c3c362b83f549 \
     --hash=sha256:bdfc739baa03b880c2d15d0431b31c658ffc348e907fe197e54e0389dd59e11e
     # via -r config/requirements/dev.in
-billiard==4.1.0 \
-    --hash=sha256:0f50d6be051c6b2b75bfbc8bfd85af195c5739c281d3f5b86a5640c65563614a \
-    --hash=sha256:1ad2eeae8e28053d729ba3373d34d9d6e210f6e4d8bf0a9c64f92bd053f1edf5
+billiard==4.2.0 \
+    --hash=sha256:07aa978b308f334ff8282bd4a746e681b3513db5c9a514cbdd810cbbdc19714d \
+    --hash=sha256:9a3c3184cb275aa17a732f93f65b20c525d3d9f253722d26a82194803ade5a2c
     # via celery
 black==23.10.1 \
     --hash=sha256:037e9b4664cafda5f025a1728c50a9e9aedb99a759c89f760bd83730e76ba884 \
