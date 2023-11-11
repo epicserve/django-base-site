@@ -175,7 +175,7 @@ else:
     STATIC_ROOT = BASE_DIR.joinpath("collected_static")
     MEDIA_ROOT = PUBLIC_ROOT.joinpath("media")
     PUBLIC_STATIC = PUBLIC_ROOT.joinpath("static")
-    STATICFILES_DIRS = [PUBLIC_STATIC]
+    STATICFILES_DIRS = [str(PUBLIC_STATIC)]
     MEDIA_URL = "/public/media/"
     STATIC_URL = "/public/static/"
 
