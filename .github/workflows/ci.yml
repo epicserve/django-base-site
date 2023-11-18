@@ -71,9 +71,6 @@ jobs:
       - name: Build assets
         working-directory: ${{ env.BUILD_DIR }}
         run: just build_assets
-      - name: Collect static
-        working-directory: ${{ env.BUILD_DIR }}
-        run: ${{ env.DOCKER_COMPOSE_PREFIX }} ./manage.py collectstatic --no-input
       - name: Run tests
         working-directory: ${{ env.BUILD_DIR }}
         run: ${{ env.DOCKER_COMPOSE_PREFIX }} pytest --cov --ds=config.settings.test_runner
