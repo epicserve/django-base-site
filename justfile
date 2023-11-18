@@ -34,11 +34,12 @@ reset := `tput -Txterm sgr0`
 
 # Run Django's collectstatic management command
 @collectstatic:
-    {{ python_cmd_prefix }} ./manage.py collectstatic --no-input
+    {{ python_cmd_prefix }} ./manage.py collectstatic --no-input --no-default-ignore --clear
 
 # Build frontend assets
 @build_assets:
     {{ node_cmd_prefix }} npm run build
+    just collectstatic
 
 # Format SASS/CSS code
 @format_sass:
