@@ -16,13 +16,13 @@ billiard==4.2.0 \
     --hash=sha256:07aa978b308f334ff8282bd4a746e681b3513db5c9a514cbdd810cbbdc19714d \
     --hash=sha256:9a3c3184cb275aa17a732f93f65b20c525d3d9f253722d26a82194803ade5a2c
     # via celery
-boto3==1.33.6 \
-    --hash=sha256:4f62fc1c7f3ea2d22917aa0aa07b86f119abd90bed3d815e4b52fb3d84773e15 \
-    --hash=sha256:b88f0f305186c5fd41f168e006baa45b7002a33029aec8e5bef373237a172fca
+boto3==1.33.11 \
+    --hash=sha256:620f1eb3e18e780be58383b4a4e10db003d2314131190514153996032c8d932d \
+    --hash=sha256:8d54fa3a9290020f9a7f488f9cbe821029de0af05a677751b12973a5f726a5e2
     # via -r config/requirements/prod.in
-botocore==1.33.6 \
-    --hash=sha256:14282cd432c0683770eee932c43c12bb9ad5730e23755204ad102897c996693a \
-    --hash=sha256:938056bab831829f90e09ecd70dd6b295afd52b1482f5582ee7a11d8243d9661
+botocore==1.33.11 \
+    --hash=sha256:b14b328f902d120de0a09eaa657a9a701c0ceeb711197c2f01ef0523f855086c \
+    --hash=sha256:b46227eb3fa9cfdc8f5a83920ef347e67adea8095830ed265a3373b13b54421f
     # via
     #   boto3
     #   s3transfer
@@ -297,9 +297,9 @@ dj-email-url==1.0.6 \
     --hash=sha256:55ffe3329e48f54f8a75aa36ece08f365e09d61f8a209773ef09a1d4760e699a \
     --hash=sha256:cbd08327fbb08b104eac160fb4703f375532e4c0243eb230f5b960daee7a96db
     # via environs
-django==4.2.7 \
-    --hash=sha256:8e0f1c2c2786b5c0e39fe1afce24c926040fad47c8ea8ad30aaf1188df29fc41 \
-    --hash=sha256:e1d37c51ad26186de355cbcec16613ebdabfa9689bbade9c538835205a8abbe9
+django==4.2.8 \
+    --hash=sha256:6cb5dcea9e3d12c47834d32156b8841f533a4493c688e2718cafd51aa430ba6d \
+    --hash=sha256:d69d5e36cc5d9f4eb4872be36c622878afcdce94062716cf3e25bcedcb168b62
     # via
     #   -r config/requirements/prod.in
     #   crispy-bootstrap5
@@ -315,9 +315,9 @@ django-alive==1.2.1 \
 django-allauth==0.58.2 \
     --hash=sha256:b2ad19223e561ef333a54d6c03d52144b0148ce79822eaf708424a0d829f24c8
     # via -r config/requirements/prod.in
-django-cache-url==3.4.4 \
-    --hash=sha256:5ca4760b4580b80e41279bc60d1e5c16a822e4e462265faab0a330701bb0ef9a \
-    --hash=sha256:ef2cfacea361ee22e9b67d6ca941db22e0a9eaf892b67ca71cad52c62a17fd36
+django-cache-url==3.4.5 \
+    --hash=sha256:5f350759978483ab85dc0e3e17b3d53eed3394a28148f6bf0f53d11d0feb5b3c \
+    --hash=sha256:eb9fb194717524348c95cad9905b70b647452741c1d9e481fac6d2125f0ad917
     # via environs
 django-crispy-forms==2.1 \
     --hash=sha256:4d7ec431933ad4d4b5c5a6de4a584d24613c347db9ac168723c9aaf63af4bb96 \
@@ -325,9 +325,9 @@ django-crispy-forms==2.1 \
     # via
     #   -r config/requirements/prod.in
     #   crispy-bootstrap5
-django-maintenance-mode==0.19.0 \
-    --hash=sha256:bd2b6677fe8bd348d5bf8fb94deacbe49db56e049d0815903e7baa6107be17d6 \
-    --hash=sha256:df8584aae291ebf545c3583fe39f6d478b81324419ac29098d0233eed643f1e1
+django-maintenance-mode==0.20.0 \
+    --hash=sha256:137b1151809d0298e869b41e36259653513524cfaec0b44fb593b3f7b2e855a0 \
+    --hash=sha256:2ba061f7af961e56ceeafe4c54b8cfe22c60ea477232285fe9bef496b67583c6
     # via -r config/requirements/prod.in
 django-storages==1.14.2 \
     --hash=sha256:1db759346b52ada6c2efd9f23d8241ecf518813eb31db9e2589207174f58f6ad \
