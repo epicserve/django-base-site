@@ -325,9 +325,9 @@ django-crispy-forms==2.1 \
     # via
     #   -r config/requirements/prod.in
     #   crispy-bootstrap5
-django-maintenance-mode==0.19.0 \
-    --hash=sha256:bd2b6677fe8bd348d5bf8fb94deacbe49db56e049d0815903e7baa6107be17d6 \
-    --hash=sha256:df8584aae291ebf545c3583fe39f6d478b81324419ac29098d0233eed643f1e1
+django-maintenance-mode==0.20.0 \
+    --hash=sha256:137b1151809d0298e869b41e36259653513524cfaec0b44fb593b3f7b2e855a0 \
+    --hash=sha256:2ba061f7af961e56ceeafe4c54b8cfe22c60ea477232285fe9bef496b67583c6
     # via -r config/requirements/prod.in
 django-storages==1.14.2 \
     --hash=sha256:1db759346b52ada6c2efd9f23d8241ecf518813eb31db9e2589207174f58f6ad \
