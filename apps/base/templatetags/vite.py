@@ -47,20 +47,23 @@ def vite_asset(filename: str):
 
     manifest = get_manifest()
     if is_css is True:
-        filename = filename.replace(".css", ".js")
-        file_data = manifest.get(filename)
+        js_filename = filename.replace(".css", ".js")
+        file_data = manifest.get(js_filename)
     else:
         file_data = manifest.get(filename)
 
     if file_data is None:
         raise Exception(f'The vite asset "{filename}" was not found in the manifest file {VITE_MANIFEST_FILE}.')
 
+    hashed_filename = file_data.get("css", [None])[0] if is_css is True else file_data.get("file")
+
     if is_css is True:
-        filename = file_data.get("css", [None])[0]
-        if filename is None:
-            raise Exception(f'The vite asset "{filename}" was not found in the manifest file {VITE_MANIFEST_FILE}.')
-        return get_css_link(filename)
-    return get_script(filename)
+        if hashed_filename is None:
+            raise Exception(
+                f'The vite asset "{hashed_filename}" was not found in the manifest file {VITE_MANIFEST_FILE}.'
+            )
+        return get_css_link(hashed_filename)
+    return get_script(hashed_filename)
 
 
 @register.simple_tag
