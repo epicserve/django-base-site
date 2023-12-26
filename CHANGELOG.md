@@ -1,6 +1,13 @@
 # CHANGELOG
 
 
+## 2023-12-24
+
+### Changed
+
+* Upgrade from Vite 4.5 to 5.0 
+
+
 ## 2023-10-07
 
 ### Added
