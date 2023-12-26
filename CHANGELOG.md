@@ -1,6 +1,14 @@
 # CHANGELOG
 
 
+## 2023-12-26
+
+### Changed
+
+* Refactor and clean up the vite_asset template tag
+* Add tests for the vite_asset and vite_hmr_client template tags
+
+
 ## 2023-12-24
 
 ### Changed
