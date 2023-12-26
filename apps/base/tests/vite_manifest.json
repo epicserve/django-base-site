@@ -1,0 +1,10 @@
+{
+  "js/main.js": {
+    "css": [
+      "main-hashgoeshere.css"
+    ],
+    "file": "main-hashgoeshere.js",
+    "isEntry": true,
+    "src": "js/main.js"
+  }
+}
