@@ -514,9 +514,9 @@ editorconfig==0.12.3 \
     # via
     #   cssbeautifier
     #   jsbeautifier
-environs[django]==9.5.0 \
-    --hash=sha256:1e549569a3de49c05f856f40bce86979e7d5ffbbc4398e7f338574c220189124 \
-    --hash=sha256:a76307b36fbe856bdca7ee9161e6c466fd7fcffc297109a118c59b54e27e30c9
+environs[django]==10.0.0 \
+    --hash=sha256:41aa9d9fdb52953d3083638dca76b157e32714ffc67251d855ade241dee8a3f8 \
+    --hash=sha256:a8968e7d5b2b656cc17f6273d4b312654397ffa7ab0875c33c36699e1106a374
     # via
     #   -r config/requirements/prod.in
     #   environs
