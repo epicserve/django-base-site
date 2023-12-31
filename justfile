@@ -137,6 +137,18 @@ pre_commit: format lint test
     {{ python_cmd_prefix }} pip-compile --upgrade --generate-hashes --output-file config/requirements/prod_lock.txt config/requirements/prod.in
     {{ python_cmd_prefix }} pip-compile --upgrade --generate-hashes --output-file config/requirements/dev_lock.txt config/requirements/dev.in
 
+# Upgrade both Python and Node
+@upgrade_everything:
+    # kill all running containers
+    docker stop $(docker ps -a -q) || true
+    # remove all stopped containers
+    docker rm $(docker ps -a -q)
+    just upgrade_python_requirements
+    just upgrade_node_requirements
+    docker compose build
+    docker compose run --rm node npm ci
+    just pre_commit
+
 # Run the django test runner with coverage
 open_coverage:
     {{ python_cmd_prefix }} coverage html && open htmlcov/index.html

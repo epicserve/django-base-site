@@ -1,6 +1,13 @@
 # CHANGELOG
 
 
+## 2023-12-31
+
+### Added
+
+* Added the Just command update_everything to upgrade Python and Node
+
+
 ## 2023-12-26
 
 ### Changed
