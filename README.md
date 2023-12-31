@@ -41,7 +41,7 @@ features.
 
 ### 📦️ Django Packages
 
-* [Django 4.2](https://www.djangoproject.com/) - Latest version of Django
+* [Django 5](https://www.djangoproject.com/) - Latest version of Django
 * [Celery](http://docs.celeryproject.org/) - Most popular task runner for running asynchronous tasks in the background
 * [Custom User Model][custom_user_model] - Custom user model so that the user model can be easily extended
 * [Django Allauth](http://www.intenct.nl/projects/django-allauth/) - The most popular package for adding authentication

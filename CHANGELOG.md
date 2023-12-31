@@ -7,6 +7,10 @@
 
 * Added the Just command update_everything to upgrade Python and Node
 
+### Changed
+
+* Upgraded to Django 5.0
+
 
 ## 2023-12-26
 
