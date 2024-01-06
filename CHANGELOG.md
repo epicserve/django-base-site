@@ -1,6 +1,13 @@
 # CHANGELOG
 
 
+## 2024-01-06
+
+### Changed
+
+* Upgraded to Python 3.12
+
+
 ## 2023-12-31
 
 ### Added

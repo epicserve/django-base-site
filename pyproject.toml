@@ -50,9 +50,14 @@ django_settings_module = "config.settings.test_runner"
 
 [tool.pytest.ini_options]
 addopts = "--nomigrations --ds config.settings.test_runner --cov-config=config/coverage.ini"
-# Set the default behavior for warnings to error, so it forces you to look into fixing them
+
+# Python warnings documentation: https://docs.python.org/3/library/warnings.html
 filterwarnings = [
+    # Set the default behavior for warnings to error, so it forces you to look into fixing them
     "error",
+    # Ignore the deprecation warning in the python-dateutil library until they have a fix. Follow
+    # issue https://github.com/dateutil/dateutil/issues/1314 for more details.
+    "ignore:datetime.datetime.utcfromtimestamp():DeprecationWarning",
 ]
 
 [tool.bandit]
