@@ -464,9 +464,9 @@ jmespath==1.0.1 \
     # via
     #   boto3
     #   botocore
-kombu==5.3.4 \
-    --hash=sha256:0bb2e278644d11dea6272c17974a3dbb9688a949f3bb60aeb5b791329c44fadc \
-    --hash=sha256:63bb093fc9bb80cfb3a0972336a5cec1fa7ac5f9ef7e8237c6bf8dda9469313e
+kombu==5.3.5 \
+    --hash=sha256:0eac1bbb464afe6fb0924b21bf79460416d25d8abc52546d4f16cad94f789488 \
+    --hash=sha256:30e470f1a6b49c70dc6f6d13c3e4cc4e178aa6c469ceb6bcd55645385fc84b93
     # via celery
 marshmallow==3.20.1 \
     --hash=sha256:5d2371bbe42000f2b3fb5eaa065224df7d8f8597bc19a1bbfa5bfe7fba8da889 \
