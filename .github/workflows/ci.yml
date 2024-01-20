@@ -14,14 +14,14 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       - name: Setup NPM caching
-        uses: actions/cache@v3
+        uses: actions/cache@v4
         with:
           path: ~/.npm
           key: ${{ runner.os }}-lint-${{ hashFiles('**/package-lock.json') }}
           restore-keys: |
             ${{ runner.os }}-lint-
       - name: Setup pip caching
-        uses: actions/cache@v3
+        uses: actions/cache@v4
         with:
           path: ~/.cache/pip
           key: ${{ runner.os }}-pip-${{ hashFiles('**/dev_lock.txt') }}
