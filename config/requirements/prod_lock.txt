@@ -598,9 +598,9 @@ python-dotenv==1.0.0 \
     --hash=sha256:a8df96034aae6d2d50a4ebe8216326c61c3eb64836776504fcca410e5937a3ba \
     --hash=sha256:f5971a9226b701070a4bf2c38c89e5a3f0d64de8debda981d1db98583009122a
     # via environs
-python-fsutil==0.13.0 \
-    --hash=sha256:8cc999d9594da083eb59e6b4d10835ee331bde3658de48bda3202e5298a3ee59 \
-    --hash=sha256:f40d37ba29524b1cef77bb206f1541d2d509ecf03a586709b8c2ec453804ab2e
+python-fsutil==0.13.1 \
+    --hash=sha256:302b0a1739b85151df6e6fddb1593a8fb9648c655fad0fac6c66c21bce900c13 \
+    --hash=sha256:b4ad4c57c243ba46ee5aacebe58ce7a6f62ddeff20ea53e52afc420884b5e544
     # via django-maintenance-mode
 python3-openid==3.2.0 \
     --hash=sha256:33fbf6928f401e0b790151ed2b5290b02545e8775f982485205a066f874aaeaf \
