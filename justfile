@@ -142,7 +142,7 @@ pre_commit: format lint test
     # kill all running containers
     docker stop $(docker ps -a -q) || true
     # remove all stopped containers
-    docker rm $(docker ps -a -q)
+    docker rm $(docker ps -a -q) || true
     just upgrade_python_requirements
     just upgrade_node_requirements
     docker compose build
