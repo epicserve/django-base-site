@@ -780,8 +780,8 @@ jmespath==1.0.1 \
     # via
     #   boto3
     #   botocore
-jsbeautifier==1.14.11 \
-    --hash=sha256:6b632581ea60dd1c133cd25a48ad187b4b91f526623c4b0fb5443ef805250505
+jsbeautifier==1.15.1 \
+    --hash=sha256:ebd733b560704c602d744eafc839db60a1ee9326e30a2a80c4adb8718adc1b24
     # via
     #   cssbeautifier
     #   djlint
