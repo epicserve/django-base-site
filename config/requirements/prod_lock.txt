@@ -16,9 +16,9 @@ billiard==4.2.0 \
     --hash=sha256:07aa978b308f334ff8282bd4a746e681b3513db5c9a514cbdd810cbbdc19714d \
     --hash=sha256:9a3c3184cb275aa17a732f93f65b20c525d3d9f253722d26a82194803ade5a2c
     # via celery
-boto3==1.34.39 \
-    --hash=sha256:35bcbecf1b5d3620c93f0062d2994177f8bda25a9d2cba144d6462793c16065b \
-    --hash=sha256:476896e70d36c9134d4125834280c597c17b54bff4902baf2e5fcde74f8acec8
+boto3==1.34.44 \
+    --hash=sha256:40f89fb2acee0a0879effe81badffcd801a348e715483227223241ae311c48fc \
+    --hash=sha256:86bcf79a56631609a9f8023fe8f53e2869702bdd4c9047c6d9f091eb39c9b0fa
     # via -r config/requirements/prod.in
 botocore==1.34.39 \
     --hash=sha256:9f00bd5e4698bcdd37ce6e224a896baf58d209678ed92834944b767de9061cc5 \
