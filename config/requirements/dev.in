@@ -5,7 +5,7 @@
 -r prod.in
 bandit[toml]
 black
-django-debug-toolbar
+https://github.com/tim-schilling/django-debug-toolbar/archive/refs/heads/1854-docker-workaround.zip
 django-stubs
 django-test-plus
 # importlib-metadata is a dependency of djlint there is a PR to upgrade it in this issue (https://github.com/Riverside-Healthcare/djLint/pull/504) from 5.2.0 to 6.0.0
