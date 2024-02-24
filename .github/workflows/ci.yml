@@ -27,18 +27,27 @@ jobs:
           key: ${{ runner.os }}-pip-${{ hashFiles('**/dev_lock.txt') }}
           restore-keys: |
             ${{ runner.os }}-pip-
+      - name: Setup uv caching
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/uv
+          key: ${{ runner.os }}-uv-${{ hashFiles('**/dev_lock.txt') }}
+          restore-keys: |
+            ${{ runner.os }}-uv-
       - name: Setup Node version 16.17
         uses: actions/setup-node@v4
-      - name: Setup Python 3.11
+      - name: Setup Python 3.12
         uses: actions/setup-python@v5
         with:
-          python-version: "3.11"
+          python-version: "3.12"
       - name: Install Node requirements
         run: npm ci
+      - name: Set VIRTUAL_ENV Path
+        run: echo "VIRTUAL_ENV=${Python_ROOT_DIR}" >> $GITHUB_ENV
       - name: Install Python requirements
         run: |
-          python -m pip install --upgrade setuptools wheel pip
-          python -m pip install -r config/requirements/dev_lock.txt
+          pip install --upgrade uv
+          uv pip install -r config/requirements/dev_lock.txt
       - name: Run linting
         run: |
           PYTHON_CMD_PREFIX="" NODE_CMD_PREFIX="" just lint
