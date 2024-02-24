@@ -36,7 +36,7 @@ features.
 * [Environs](https://github.com/sloria/environs) - Used for managing environment variables
 * [Docker](https://www.docker.com/) - Docker Compose for development and a multi-stage Dockerfile for production ready
   Docker image
-* [Pip Tools](https://github.com/jazzband/pip-tools/) - Used to maintain python requirements
+* [UV](https://github.com/astral-sh/uv) - Used to maintain python requirements
 * [Just](https://github.com/casey/just) - Popular tool for running common commands (make equivalent)
 
 ### 📦️ Django Packages

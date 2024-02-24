@@ -1,5 +1,11 @@
 # CHANGELOG
 
+## 2024-02-24
+
+### Changed
+
+* Switched to using UV instead of pip/pip-tools for managing Python requirements
+
 
 ## 2024-01-06
 

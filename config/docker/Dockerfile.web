@@ -14,13 +14,13 @@ ENV \
 
 RUN set -ex \
     && python3 -m venv $VIRTUAL_ENV \
-    && $VIRTUAL_ENV/bin/pip install -U setuptools wheel pip
+    && $VIRTUAL_ENV/bin/pip install -U setuptools wheel pip uv
 
 # Install Python packages
 COPY config/requirements/${ENV_NAME}_lock.txt ./config/requirements/${ENV_NAME}_lock.txt
 
 RUN set -ex \
-    && $VIRTUAL_ENV/bin/pip install --require-hashes -r config/requirements/${ENV_NAME}_lock.txt \
+    && $VIRTUAL_ENV/bin/uv pip install -r config/requirements/${ENV_NAME}_lock.txt \
     && rm -rf /root/.cache/
 
 
