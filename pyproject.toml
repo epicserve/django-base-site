@@ -1,23 +1,26 @@
-[tool.black]
-line-length = 120
-target-version = ['py311']
-skip-string-normalization = false
-exclude = '''
-(
-  /(
-    | \.git
-    | node_modules
-  )/
-)
-'''
+[project]
+requires-python = ">=3.12"
 
-[tool.isort]
-line_length = 120
-multi_line_output = 5
-balanced_wrapping = true
-known_django = 'django'
-sections = 'FUTURE,STDLIB,DJANGO,THIRDPARTY,FIRSTPARTY,LOCALFOLDER'
-skip = 'node_modules'
+#[tool.black]
+#line-length = 120
+#target-version = ['py311']
+#skip-string-normalization = false
+#exclude = '''
+#(
+#  /(
+#    | \.git
+#    | node_modules
+#  )/
+#)
+#'''
+
+#[tool.isort]
+#line_length = 120
+#multi_line_output = 5
+#balanced_wrapping = true
+#known_django = 'django'
+#sections = 'FUTURE,STDLIB,DJANGO,THIRDPARTY,FIRSTPARTY,LOCALFOLDER'
+#skip = 'node_modules'
 
 
 [tool.mypy]
@@ -94,3 +97,25 @@ indent_size=2
 
 [tool.ruff]
 line-length = 120
+
+[tool.ruff.lint]
+select = [
+    "E",  # pycodestyle
+    "F",  # Pyflakes
+    "UP",  # pyupgrade
+    "B",  # flake8-bugbear
+    "SIM",  # flake8-simplify
+    "I",  # isort
+    "D",  # pydocstyle
+    "S",  # bandit
+]
+ignore = ["D100", "D101", "D102", "D103", "D104", "D106", "D203", "D212"]
+
+[tool.ruff.lint.per-file-ignores]
+"**/{tests}/*" = ["S101"]
+
+[tool.ruff.lint.isort.sections]
+"django" = ["django"]
+
+[tool.ruff.lint.isort]
+section-order = ["future", "standard-library", "django", "third-party", "first-party", "local-folder", ]
