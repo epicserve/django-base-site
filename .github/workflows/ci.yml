@@ -32,7 +32,7 @@ jobs:
           key: ${{ runner.os }}-uv-${{ hashFiles('**/dev_lock.txt') }}
           restore-keys: |
             ${{ runner.os }}-uv-
-      - name: Setup Node version 16.17
+      - name: Setup Node
         uses: actions/setup-node@v4
       - name: Setup Python 3.12
         uses: actions/setup-python@v5

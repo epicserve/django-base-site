@@ -3,15 +3,12 @@
 # `just make_requirements` in order to compile a new requirement files in config/requirements/*_lock.txt.
 
 -r prod.in
-bandit[toml]
-black
 django-debug-toolbar
 django-stubs
 django-test-plus
 # importlib-metadata is a dependency of djlint there is a PR to upgrade it in this issue (https://github.com/Riverside-Healthcare/djLint/pull/504) from 5.2.0 to 6.0.0
 djlint
 ipdb
-isort
 mkdocs-include-markdown-plugin
 mkdocs-linkcheck
 mkdocs-material

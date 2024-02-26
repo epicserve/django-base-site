@@ -1,5 +1,13 @@
 # CHANGELOG
 
+
+## 2024-02-26
+
+### Changed
+
+* Switched to Ruff for linting and formatting Python. This replaces Bandit, Black, and isort.
+
+
 ## 2024-02-24
 
 ### Changed

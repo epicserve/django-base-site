@@ -64,31 +64,22 @@ reset := `tput -Txterm sgr0`
 # Format Python code
 @format_py:
     just _start_msg "Formatting Python code using black"
-    {{ python_cmd_prefix }} black .
-
-# Format Python imports with isort
-@format_py_imports:
-    just _start_msg "Formatting Python imports using isort"
-    {{ python_cmd_prefix }} isort .
+    {{ python_cmd_prefix }} ruff format
+    {{ python_cmd_prefix }} ruff check --fix
 
 # Format all code
-@format: format_py_imports format_py format_js format_just format_sass format_html
+@format: format_py format_js format_just format_sass format_html
 
 # Lint Python code ruff
 @lint_py:
-    just _start_msg "Checking code using black and ruff"
-    {{ python_cmd_prefix }} black . --check
-    {{ python_cmd_prefix }} ruff .
+    just _start_msg "Checking code using Ruff"
+    {{ python_cmd_prefix }} ruff check
+    {{ python_cmd_prefix }} ruff format --check
 
 # Lint Javascript code with eslint
 @lint_js:
     just _start_msg "Checking Javascript code using eslint"
     {{ node_cmd_prefix }} npm run lint-js
-
-# Lint Python imports with isort
-@lint_imports:
-    just _start_msg "Checking python imports using isort"
-    {{ python_cmd_prefix }} isort --check-only --diff .
 
 # Check for missing Django migrations
 @lint_migrations:
@@ -99,11 +90,6 @@ reset := `tput -Txterm sgr0`
 @lint_sass:
     just _start_msg "Checking SASS code using stylelint"
     {{ node_cmd_prefix }} npm run lint-sass
-
-# Scan project for security issues
-@lint_security:
-    just _start_msg "Scanning project for known security issues"
-    {{ python_cmd_prefix }} bandit -c pyproject.toml -r .
 
 # Lint HTML
 @lint_html:
@@ -121,7 +107,7 @@ reset := `tput -Txterm sgr0`
     {{ python_cmd_prefix }} mkdocs-linkcheck ./docs
 
 # Lint everything
-lint: lint_js lint_sass lint_html lint_py lint_imports lint_migrations lint_security lint_types
+lint: lint_js lint_sass lint_html lint_py lint_migrations lint_types
 
 # Run pre-commit checks
 pre_commit: format lint test
