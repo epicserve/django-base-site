@@ -11,8 +11,8 @@ T = TypeVar("T")
 register = template.Library()
 
 
-class ViteSettings(object):
-    """Object to allow settings to be overridden in tests"""
+class ViteSettings:
+    """Object to allow settings to be overridden in tests."""
 
     def _get_setting(self, var_name: str, default: T) -> T:
         return getattr(settings, var_name, default)
@@ -45,7 +45,7 @@ vite_settings = ViteSettings()
 
 def _get_css_link(filename: str) -> str:
     base_url = f"{settings.STATIC_URL}{vite_settings.VITE_OUTPUT_DIR}"
-    return mark_safe(f'<link rel="stylesheet" href="{base_url}{filename}">')  # nosec B308, B703
+    return mark_safe(f'<link rel="stylesheet" href="{base_url}{filename}">')  # noqa: S308
 
 
 def _get_script_tag(filename: str) -> str:
@@ -53,7 +53,7 @@ def _get_script_tag(filename: str) -> str:
         base_url = f"{settings.STATIC_URL}{vite_settings.VITE_OUTPUT_DIR}"
     else:
         base_url = f"http://{vite_settings.VITE_SERVER_HOST}:{vite_settings.VITE_SERVER_PORT}{settings.STATIC_URL}"
-    return mark_safe(f'<script type="module" src="{base_url}{filename}"></script>')  # nosec B308, B703
+    return mark_safe(f'<script type="module" src="{base_url}{filename}"></script>')  # noqa: S308
 
 
 @lru_cache

@@ -63,7 +63,7 @@ class TestChangePasswordView(BaseAccountViewTest):
             assert user.password != old_password_hash
 
         # attempt logging in with new password
-        with self.login(user, password="new-password"):
+        with self.login(user, password="new-password"):  # noqa: S106
             self.get("site_index")
             self.assert_http_200_ok()
 

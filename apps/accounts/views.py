@@ -12,13 +12,13 @@ class NameChange(LoginRequiredMixin, generic.FormView):  # type: ignore
     template_name = "account/name_change.html"
 
     def get_form_kwargs(self):
-        kwargs = super(NameChange, self).get_form_kwargs()
+        kwargs = super().get_form_kwargs()
         kwargs["instance"] = User.objects.get(pk=self.request.user.pk)  # type: ignore
         return kwargs
 
     def form_valid(self, form):
         form.save()
-        return super(NameChange, self).form_valid(form)
+        return super().form_valid(form)
 
     def get_success_url(self):
         messages.success(self.request, "Your name was updated.")

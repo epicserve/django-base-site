@@ -1,5 +1,3 @@
-from typing import Union
-
 from django.conf import settings
 from django.contrib import admin
 from django.urls import URLPattern, URLResolver, include, path
@@ -9,7 +7,7 @@ from apps.accounts.views import NameChange
 from apps.base.views import http_404, http_500
 
 # Includes
-urlpatterns: list[Union[URLResolver, URLPattern]] = [path(r"admin/", admin.site.urls)]
+urlpatterns: list[URLResolver | URLPattern] = [path(r"admin/", admin.site.urls)]
 
 # Project Urls
 urlpatterns += [
