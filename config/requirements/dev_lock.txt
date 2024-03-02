@@ -808,9 +808,9 @@ markupsafe==2.1.5 \
     #   jinja2
     #   mkdocs
     #   mkdocstrings
-marshmallow==3.20.2 \
-    --hash=sha256:4c1daff273513dc5eb24b219a8035559dc573c8f322558ef85f5438ddd1236dd \
-    --hash=sha256:c21d4b98fee747c130e6bc8f45c4b3199ea66bc00c12ee1f639f0aeca034d5e9
+marshmallow==3.21.0 \
+    --hash=sha256:20f53be28c6e374a711a16165fb22a8dc6003e3f7cda1285e3ca777b9193885b \
+    --hash=sha256:e7997f83571c7fd476042c2c188e4ee8a78900ca5e74bd9c8097afa56624e9bd
     # via environs
 matplotlib-inline==0.1.6 \
     --hash=sha256:f1f41aab5328aa5aaea9b16d083b128102f8712542f819fe7e6a420ff581b311 \
