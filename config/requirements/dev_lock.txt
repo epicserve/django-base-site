@@ -838,9 +838,9 @@ mkdocs-include-markdown-plugin==6.0.4 \
 mkdocs-linkcheck==1.0.6 \
     --hash=sha256:70dceae090101778002d949dc7b55f56eeb0c294bd9053fb6b197c26591665b1 \
     --hash=sha256:908ca6f370eee0b55b5337142e2f092f1a0af9e50ab3046712b4baefdc989672
-mkdocs-material==9.5.11 \
-    --hash=sha256:788ee0f3e036dca2dc20298d65e480297d348a44c9d7b2ee05c5262983e66072 \
-    --hash=sha256:7af7f8af0dea16175558f3fb9245d26c83a17199baa5f157755e63d7437bf971
+mkdocs-material==9.5.12 \
+    --hash=sha256:5f69cef6a8aaa4050b812f72b1094fda3d079b9a51cf27a247244c03ec455e97 \
+    --hash=sha256:d6f0c269f015e48c76291cdc79efb70f7b33bbbf42d649cfe475522ebee61b1f
 mkdocs-material-extensions==1.3.1 \
     --hash=sha256:10c9511cea88f568257f960358a467d12b970e1f7b2c0e5fb2bb48cab1928443 \
     --hash=sha256:adff8b62700b25cb77b53358dad940f3ef973dd6db797907c49e3c2ef3ab4e31
