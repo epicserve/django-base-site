@@ -5,7 +5,7 @@
 Django~=5.0
 boto3~=1.28
 celery~=5.3
-crispy-bootstrap5~=2023.10
+crispy-bootstrap5~=2024.2
 django-alive~=1.2
 django-allauth~=0.42
 django-crispy-forms~=2.0
