@@ -58,9 +58,9 @@ addopts = "--nomigrations --ds config.settings.test_runner --cov-config=config/c
 filterwarnings = [
     # Set the default behavior for warnings to error, so it forces you to look into fixing them
     "error",
-    # Ignore the deprecation warning in the python-dateutil library until they have a fix. Follow
-    # issue https://github.com/dateutil/dateutil/issues/1314 for more details.
-    "ignore:datetime.datetime.utcfromtimestamp():DeprecationWarning",
+    # Ingore Marshmallow deprecation warning
+    # Issue: https://github.com/sloria/environs/issues/333
+    "ignore:The '__version_info__' attribute is deprecated:DeprecationWarning",
 ]
 
 [tool.bandit]
