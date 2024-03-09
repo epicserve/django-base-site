@@ -15,5 +15,4 @@ mkdocs-material
 mkdocstrings[python]
 model-bakery
 mypy
-pip-tools
 ruff
