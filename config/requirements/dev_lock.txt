@@ -730,9 +730,9 @@ jsbeautifier==1.15.1 \
     # via
     #   cssbeautifier
     #   djlint
-json5==0.9.18 \
-    --hash=sha256:3f20193ff8dfdec6ab114b344e7ac5d76fac453c8bab9bdfe1460d1d528ec393 \
-    --hash=sha256:ecb8ac357004e3522fb989da1bf08b146011edbd14fdffae6caad3bd68493467
+json5==0.9.22 \
+    --hash=sha256:6621007c70897652f8b5d03885f732771c48d1925591ad989aa80c7e0e5ad32f \
+    --hash=sha256:b729bde7650b2196a35903a597d2b704b8fdf8648bfb67368cfb79f1174a17bd
     # via djlint
 kombu==5.3.5 \
     --hash=sha256:0eac1bbb464afe6fb0924b21bf79460416d25d8abc52546d4f16cad94f789488 \
