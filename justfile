@@ -112,17 +112,6 @@ lint: lint_js lint_sass lint_html lint_py lint_migrations lint_types
 # Run pre-commit checks
 pre_commit: format lint test
 
-# Upgrade node requirements based on `package.json` file
-@upgrade_node_requirements:
-    just _start_msg "Upgrading node requirements"
-    {{ node_cmd_prefix }} npm upgrade
-
-# Upgrade python requirements based on `config/requirements/*.in` files
-@upgrade_python_requirements:
-    rm -rf ./config/requirements/*.txt
-    {{ python_cmd_prefix }} uv pip compile --upgrade --generate-hashes --output-file config/requirements/prod_lock.txt config/requirements/prod.in
-    {{ python_cmd_prefix }} uv pip compile --upgrade --generate-hashes --output-file config/requirements/dev_lock.txt config/requirements/dev.in
-
 # Upgrade both Python and Node
 @upgrade_everything:
     # kill all running containers
@@ -134,6 +123,25 @@ pre_commit: format lint test
     docker compose build
     docker compose run --rm node npm ci
     just pre_commit
+
+# Upgrade node requirements based on `package.json` file
+@upgrade_node_requirements:
+    just _start_msg "Upgrading node requirements"
+    {{ node_cmd_prefix }} npm upgrade
+
+# Upgrade python requirements
+@upgrade_python_requirements +packages="":
+    if [ -z "{{ packages }}" ]; then \
+        echo "Upgrading all requirements based on .in files..."; \
+        rm -rf ./config/requirements/*.txt; \
+        {{ python_cmd_prefix }} uv pip compile --upgrade --generate-hashes --output-file config/requirements/prod_lock.txt config/requirements/prod.in; \
+        {{ python_cmd_prefix }} uv pip compile --upgrade --generate-hashes --output-file config/requirements/dev_lock.txt config/requirements/dev.in; \
+    else \
+        echo "Upgrading specified packages: {{ packages }}"; \
+        package_args=`python -c "print(' '.join([f'--upgrade-package {package}' for package in '{{ packages }}'.split(' ')]))"`; \
+        {{ python_cmd_prefix }} uv pip compile $package_args --generate-hashes --output-file config/requirements/prod_lock.txt config/requirements/prod.in; \
+        {{ python_cmd_prefix }} uv pip compile $package_args --generate-hashes --output-file config/requirements/dev_lock.txt config/requirements/dev.in; \
+    fi
 
 # Run the django test runner with coverage
 open_coverage:
@@ -169,12 +177,6 @@ open_coverage:
 # Run the Django test runner without coverage
 @test:
     {{ python_cmd_prefix }} pytest --cov --ds=config.settings.test_runner
-
-# Upgrade individual packages and don't increment other packages
-@upgrade_packages +packages:
-    package_args=`python -c "print(' '.join([f'--upgrade-package {package}' for package in '{{ packages }}'.split(' ')]))"` \
-    && {{ python_cmd_prefix }} uv pip compile $package_args --generate-hashes --output-file config/requirements/prod_lock.txt config/requirements/prod.in \
-    && {{ python_cmd_prefix }} uv pip compile $package_args --generate-hashes --output-file config/requirements/dev_lock.txt config/requirements/dev.in
 
 @remove_docker_containers:
     # kill all stopped containers
