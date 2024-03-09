@@ -472,9 +472,9 @@ editorconfig==0.12.4 \
     # via
     #   cssbeautifier
     #   jsbeautifier
-environs==10.3.0 \
-    --hash=sha256:cc421ddb143fa30183568164755aa113a160e555cd19e97e664c478662032c24 \
-    --hash=sha256:feeaf28f17fd0499f9cd7c0fcf408c6d82c308e69e335eb92d09322fc9ed8138
+environs==11.0.0 \
+    --hash=sha256:069727a8f73d8ba8d033d3cd95c0da231d44f38f1da773bf076cef168d312ee8 \
+    --hash=sha256:e0bcfd41c718c07a7db422f9109e490746450da38793fe4ee197f397b9343435
 executing==2.0.1 \
     --hash=sha256:35afe2ce3affba8ee97f2d69927fa823b08b472b7b994e36a52a964b93d16147 \
     --hash=sha256:eac49ca94516ccc753f9fb5ce82603156e590b27525a8bc32cce8ae302eb61bc
