@@ -58,9 +58,6 @@ addopts = "--nomigrations --ds config.settings.test_runner --cov-config=config/c
 filterwarnings = [
     # Set the default behavior for warnings to error, so it forces you to look into fixing them
     "error",
-    # Ingore Marshmallow deprecation warning
-    # Issue: https://github.com/sloria/environs/issues/333
-    "ignore:The '__version_info__' attribute is deprecated:DeprecationWarning",
 ]
 
 [tool.bandit]
