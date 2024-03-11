@@ -5,7 +5,8 @@
 
 ### Changed
 
-* Renamed the Just command build_assets to build_frontend 
+* Renamed the Just command build_assets to build_frontend
+* Moved all common/base Just commands to the config/base.just file
 
 
 ## 2024-02-26
