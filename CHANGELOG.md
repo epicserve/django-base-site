@@ -1,6 +1,13 @@
 # CHANGELOG
 
 
+## 2024-03-11
+
+### Changed
+
+* Renamed the Just command build_assets to build_frontend 
+
+
 ## 2024-02-26
 
 ### Changed

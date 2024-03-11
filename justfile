@@ -37,7 +37,7 @@ reset := `tput -Txterm sgr0`
     {{ python_cmd_prefix }} ./manage.py collectstatic --no-input --no-default-ignore --clear
 
 # Build frontend assets
-@build_assets:
+@build_frontend:
     {{ node_cmd_prefix }} npm run build
     just collectstatic
 
