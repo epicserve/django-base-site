@@ -20,6 +20,13 @@ reset := `tput -Txterm sgr0`
 @_start_msg msg:
     just _green "{{ msg }} ..."
 
+# Build Docker images
+@build:
+    just _start_msg "Building docker project"
+    docker volume rm {{ project_sl}}_node_modules
+    docker compose build
+    just collectstatic
+
 # Build frontend assets
 @build_frontend:
     {{ node_cmd_prefix }} npm run build
