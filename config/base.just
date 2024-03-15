@@ -8,6 +8,7 @@ python_cmd_prefix := env_var_or_default('PYTHON_CMD_PREFIX', 'docker compose run
 python_cmd_prefix_with_deps := env_var_or_default('PYTHON_CMD_PREFIX_WITH_DEPS', 'docker compose run --rm web')
 node_cmd_prefix := env_var_or_default('NODE_CMD_PREFIX', 'docker compose run --no-deps --rm -e NODE_ENV=production node')
 project_slug := 'django-base-site'
+set dotenv-load := true
 
 # COLORS
 
@@ -82,6 +83,26 @@ reset := `tput -Txterm sgr0`
 @collectstatic:
     just _start_msg "Collecting static files"
     {{ python_cmd_prefix }} ./manage.py collectstatic --no-input --no-default-ignore --clear
+
+# Dump the database
+@db_dump:
+    just _start_msg "Dumping the database"
+    docker compose up --wait -d db
+    docker compose run -v ~/Downloads:/downloads --rm db pg_dump --no-privileges --no-owner --format=custom ${DATABASE_URL} --file=/downloads/{{ project_slug }}-`date +%Y%m%d-%H%M%S`.dump
+
+# Restore the database
+db_restore dump_file="":
+    #!/usr/bin/env bash
+    if test -z "{{dump_file}}"; then
+      DUMP_FILE=$(ls ~/Downloads/{{ project_slug }}-* | sort | tail -n 1)
+    else
+      DUMP_FILE="{{dump_file}}"
+    fi
+    just _start_msg "Restoring the database "${POSTGRES_DB}" from the latest dump file in ${DUMP_FILE}"
+    docker compose up --wait -d db
+    docker compose exec -T db psql -h db -U ${POSTGRES_DB} -d postgres -c "DROP DATABASE IF EXISTS ${POSTGRES_DB};" > /dev/null
+    docker compose exec -T db psql -h db -U ${POSTGRES_DB} -d postgres -c "CREATE DATABASE ${POSTGRES_DB};" > /dev/null
+    docker compose exec -T db pg_restore -d ${DATABASE_URL} --no-owner --no-privileges < "${DUMP_FILE}"
 
 # Format all code
 @format: format_py format_js format_just format_sass format_html

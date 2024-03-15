@@ -19,6 +19,12 @@ YELLOW=$(tput -Txterm setaf 3)
 WHITE=$(tput -Txterm setaf 7)
 RESET=$(tput -Txterm sgr0)
 
+function ramdom_password() {
+    local password_length=${1:-50}
+    local password=$(python -c "import random; print(''.join(random.SystemRandom().choice('ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789') for i in range(${password_length})))")
+    echo $password
+}
+
 function ask_yes_or_no_default_yes() {
     read -r -p "${GREEN}$1${RESET} ${WHITE}(Y/n)${RESET}${GREEN}?${RESET} " response
     readonly response=`echo "$response" | tr '[:upper:]' '[:lower:]'` # to lowercase
@@ -73,11 +79,15 @@ else
   cd $PROJECT_DIRECTORY
 fi
 
-SECRET_KEY=$(python -c "import random; print(''.join(random.SystemRandom().choice('abcdefghijklmnopqrstuvwxyz0123456789%^&*(-_=+)') for i in range(50)))")
+SECRET_KEY=$(ramdom_password)
+POSTGRES_PASSWORD=$(ramdom_password 12)
 cat > .env <<EOF
 DEBUG=on
-SECRET_KEY='$SECRET_KEY'
-DATABASE_URL=postgres://postgres:@db:5432/postgres
+SECRET_KEY=$SECRET_KEY
+POSTGRES_USER=django_base_site
+POSTGRES_DB=django_base_site
+POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+DATABASE_URL=postgres://\${POSTGRES_USER}:\${POSTGRES_PASSWORD}@db:5432/\${POSTGRES_DB}
 INTERNAL_IPS=127.0.0.1,0.0.0.0
 EOF
 
