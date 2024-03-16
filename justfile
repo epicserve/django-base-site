@@ -16,8 +16,7 @@ import 'config/base.just'
     docker stop $(docker ps -a -q) || true
     # remove all stopped containers
     docker rm $(docker ps -a -q) || true
-    just upgrade_python_requirements
-    just upgrade_node_requirements
-    docker compose build
-    docker compose run --rm node npm ci
+    just upgrade_python_packages
+    just upgrade_node_packages
+    just build
     just pre_commit
