@@ -1,5 +1,7 @@
 import 'config/base.just'
 
+project_slug := 'django-base-site'
+
 # List available commands
 @_default:
     just -l
