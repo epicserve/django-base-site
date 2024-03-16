@@ -23,7 +23,7 @@ reset := `tput -Txterm sgr0`
 # Build Docker images
 @build:
     just _start_msg "Building docker project"
-    docker volume rm {{ project_sl}}_node_modules
+    docker volume rm {{ project_slug }}_node_modules
     docker compose build
     just collectstatic
 
