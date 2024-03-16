@@ -1,5 +1,11 @@
 # CHANGELOG
 
+## 2024-03-16
+
+### Added
+
+* Added Just commands to dump and restore the database
+
 
 ## 2024-03-11
 
