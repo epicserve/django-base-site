@@ -4,20 +4,20 @@ amqp==5.2.0 \
     --hash=sha256:827cb12fb0baa892aad844fd95258143bce4027fdac4fccddbc43330fd281637 \
     --hash=sha256:a1ecff425ad063ad42a486c902807d1482311481c8ad95a72694b2975e75f7fd
     # via kombu
-asgiref==3.7.2 \
-    --hash=sha256:89b2ef2247e3b562a16eef663bc0e2e703ec6468e2fa8a5cd61cd449786d4f6e \
-    --hash=sha256:9e0ce3aa93a819ba5b45120216b23878cf6e8525eb3848653452b4192b92afed
+asgiref==3.8.0 \
+    --hash=sha256:30fc07797ad71a0abb8fe34aa03c8043308a8389abc7942d797ea9911540bc28 \
+    --hash=sha256:ec75d9d0f04e2dbfedef1f20ee73a6594af80c333df47cdd31f37e6701f7c53a
     # via django
 billiard==4.2.0 \
     --hash=sha256:07aa978b308f334ff8282bd4a746e681b3513db5c9a514cbdd810cbbdc19714d \
     --hash=sha256:9a3c3184cb275aa17a732f93f65b20c525d3d9f253722d26a82194803ade5a2c
     # via celery
-boto3==1.34.64 \
-    --hash=sha256:8c6fbd3d45399a4e4685010117fb2dc52fc6afdab5a9460957d463ae0c2cc55d \
-    --hash=sha256:e5d681f443645e6953ed0727bf756bf16d85efefcb69cf051d04a070ce65e545
-botocore==1.34.64 \
-    --hash=sha256:084f8c45216d62dc1add2350e236a2d5283526aacd0681e9818b37a6a5e5438b \
-    --hash=sha256:0ab760908749fe82325698591c49755a5bb20307d85a419aca9cc74e783b9407
+boto3==1.34.68 \
+    --hash=sha256:00a7cff4887e8a46c8b2ce438f33d5f87cf7812f303227adc0266f28338af6d5 \
+    --hash=sha256:14f1e23b3f83ec365628a6ef849f1038b4c7338c4fabff159007c711b8147efc
+botocore==1.34.68 \
+    --hash=sha256:3ad0ec67f78beecc039c3c31c93a83181e30b6f789261bdbb9f5c8e8dc551812 \
+    --hash=sha256:e7ae9d69cc3e7b31d926e6a1a9ae673ba02da263e35cf12ff2bae35a21755cc6
     # via
     #   boto3
     #   s3transfer
@@ -582,9 +582,9 @@ python-dotenv==1.0.1 \
     --hash=sha256:e324ee90a023d808f1959c46bcbc04446a10ced277783dc6ee09987c37ec10ca \
     --hash=sha256:f7b63ef50f1b690dddf550d03497b66d609393b40b564ed0d674909a68ebf16a
     # via environs
-python-fsutil==0.13.1 \
-    --hash=sha256:302b0a1739b85151df6e6fddb1593a8fb9648c655fad0fac6c66c21bce900c13 \
-    --hash=sha256:b4ad4c57c243ba46ee5aacebe58ce7a6f62ddeff20ea53e52afc420884b5e544
+python-fsutil==0.14.1 \
+    --hash=sha256:0d45e623f0f4403f674bdd8ae7aa7d24a4b3132ea45c65416bd2865e6b20b035 \
+    --hash=sha256:8fb204fa8059f37bdeee8a1dc0fff010170202ea47c4225ee71bb3c26f3997be
     # via django-maintenance-mode
 python3-openid==3.2.0 \
     --hash=sha256:33fbf6928f401e0b790151ed2b5290b02545e8775f982485205a066f874aaeaf \
