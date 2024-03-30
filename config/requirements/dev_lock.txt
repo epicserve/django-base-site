@@ -1129,9 +1129,9 @@ pytest==8.1.1 \
     # via
     #   pytest-cov
     #   pytest-django
-pytest-cov==4.1.0 \
-    --hash=sha256:3904b13dfbfec47f003b8e77fd5b589cd11904a21ddf1ab38a64f204d6a10ef6 \
-    --hash=sha256:6ba70b9e97e69fcc3fb45bfeab2d0a138fb65c4d0d6a41ef33983ad114be8c3a
+pytest-cov==5.0.0 \
+    --hash=sha256:4f0764a1219df53214206bf1feea4633c3b558a2925c8b59f144f682861ce652 \
+    --hash=sha256:5837b58e9f6ebd335b0f8060eecce69b662415b16dc503883a02f45dfeb14857
 pytest-django==4.8.0 \
     --hash=sha256:5d054fe011c56f3b10f978f41a8efb2e5adfc7e680ef36fb571ada1f24779d90 \
     --hash=sha256:ca1ddd1e0e4c227cf9e3e40a6afc6d106b3e70868fd2ac5798a22501271cd0c7
