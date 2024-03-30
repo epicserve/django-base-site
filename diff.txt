@@ -1,0 +1,98 @@
+diff --git a/config/requirements/dev_lock.txt b/config/requirements/dev_lock.txt
+index 523e299..7baed84 100644
+--- a/config/requirements/dev_lock.txt
++++ b/config/requirements/dev_lock.txt
+@@ -106,12 +106,12 @@ billiard==4.2.0 \
+     --hash=sha256:07aa978b308f334ff8282bd4a746e681b3513db5c9a514cbdd810cbbdc19714d \
+     --hash=sha256:9a3c3184cb275aa17a732f93f65b20c525d3d9f253722d26a82194803ade5a2c
+     # via celery
+-boto3==1.34.69 \
+-    --hash=sha256:2e25ef6bd325217c2da329829478be063155897d8d3b29f31f7f23ab548519b1 \
+-    --hash=sha256:898a5fed26b1351352703421d1a8b886ef2a74be6c97d5ecc92432ae01fda203
+-botocore==1.34.69 \
+-    --hash=sha256:d1ab2bff3c2fd51719c2021d9fa2f30fbb9ed0a308f69e9a774ac92c8091380a \
+-    --hash=sha256:d3802d076d4d507bf506f9845a6970ce43adc3d819dd57c2791f5c19ed6e5950
++boto3==1.34.74 \
++    --hash=sha256:71f551491fb12fe07727d371d5561c5919fdf33dbc1d4251c57940d267a53a9e \
++    --hash=sha256:b703e22775561a748adc4576c30424b81abd2a00d3c6fb28eec2e5cde92c1eed
++botocore==1.34.74 \
++    --hash=sha256:32bb519bae62483893330c18a0ea4fd09d1ffa32bc573cd8559c2d9a08fb8c5c \
++    --hash=sha256:5d2015b5d91d6c402c122783729ce995ed7283a746b0380957026dc2b3b75969
+     # via
+     #   boto3
+     #   s3transfer
+@@ -725,9 +725,9 @@ json5==0.9.24 \
+     --hash=sha256:0c638399421da959a20952782800e5c1a78c14e08e1dc9738fa10d8ec14d58c8 \
+     --hash=sha256:4ca101fd5c7cb47960c055ef8f4d0e31e15a7c6c48c3b6f1473fc83b6c462a13
+     # via djlint
+-kombu==5.3.5 \
+-    --hash=sha256:0eac1bbb464afe6fb0924b21bf79460416d25d8abc52546d4f16cad94f789488 \
+-    --hash=sha256:30e470f1a6b49c70dc6f6d13c3e4cc4e178aa6c469ceb6bcd55645385fc84b93
++kombu==5.3.6 \
++    --hash=sha256:49f1e62b12369045de2662f62cc584e7df83481a513db83b01f87b5b9785e378 \
++    --hash=sha256:f3da5b570a147a5da8280180aa80b03807283d63ea5081fcdb510d18242431d9
+     # via celery
+ markdown==3.6 \
+     --hash=sha256:48f276f4d8cfb8ce6527c8f79e2ee29708508bf4d40aa410fbc3b4ee832c850f \
+@@ -1103,9 +1103,9 @@ pure-eval==0.2.2 \
+     --hash=sha256:01eaab343580944bc56080ebe0a674b39ec44a945e6d09ba7db3cb8cec289350 \
+     --hash=sha256:2b45320af6dfaa1750f543d714b6d1c520a1688dec6fd24d339063ce0aaa9ac3
+     # via stack-data
+-pycparser==2.21 \
+-    --hash=sha256:8ee45429555515e1f6b185e78100aea234072576aa43ab53aefcae078162fca9 \
+-    --hash=sha256:e644fdec12f7872f86c58ff790da456218b10f863970249516d60a5eaca77206
++pycparser==2.22 \
++    --hash=sha256:491c8be9c040f5390f5bf44a5b07752bd07f56edf992381b05c701439eec10f6 \
++    --hash=sha256:c3702b6d3dd8c7abc1afa565d7e63d53a1d0bd86cdc24edd75470f4de499cfcc
+     # via cffi
+ pygments==2.17.2 \
+     --hash=sha256:b27c2826c47d0f3219f29554824c30c5e8945175d888647acd804ddd04af846c \
+diff --git a/config/requirements/prod_lock.txt b/config/requirements/prod_lock.txt
+index dc398ba..7c6f176 100644
+--- a/config/requirements/prod_lock.txt
++++ b/config/requirements/prod_lock.txt
+@@ -12,12 +12,12 @@ billiard==4.2.0 \
+     --hash=sha256:07aa978b308f334ff8282bd4a746e681b3513db5c9a514cbdd810cbbdc19714d \
+     --hash=sha256:9a3c3184cb275aa17a732f93f65b20c525d3d9f253722d26a82194803ade5a2c
+     # via celery
+-boto3==1.34.69 \
+-    --hash=sha256:2e25ef6bd325217c2da329829478be063155897d8d3b29f31f7f23ab548519b1 \
+-    --hash=sha256:898a5fed26b1351352703421d1a8b886ef2a74be6c97d5ecc92432ae01fda203
+-botocore==1.34.69 \
+-    --hash=sha256:d1ab2bff3c2fd51719c2021d9fa2f30fbb9ed0a308f69e9a774ac92c8091380a \
+-    --hash=sha256:d3802d076d4d507bf506f9845a6970ce43adc3d819dd57c2791f5c19ed6e5950
++boto3==1.34.74 \
++    --hash=sha256:71f551491fb12fe07727d371d5561c5919fdf33dbc1d4251c57940d267a53a9e \
++    --hash=sha256:b703e22775561a748adc4576c30424b81abd2a00d3c6fb28eec2e5cde92c1eed
++botocore==1.34.74 \
++    --hash=sha256:32bb519bae62483893330c18a0ea4fd09d1ffa32bc573cd8559c2d9a08fb8c5c \
++    --hash=sha256:5d2015b5d91d6c402c122783729ce995ed7283a746b0380957026dc2b3b75969
+     # via
+     #   boto3
+     #   s3transfer
+@@ -453,9 +453,9 @@ jmespath==1.0.1 \
+     # via
+     #   boto3
+     #   botocore
+-kombu==5.3.5 \
+-    --hash=sha256:0eac1bbb464afe6fb0924b21bf79460416d25d8abc52546d4f16cad94f789488 \
+-    --hash=sha256:30e470f1a6b49c70dc6f6d13c3e4cc4e178aa6c469ceb6bcd55645385fc84b93
++kombu==5.3.6 \
++    --hash=sha256:49f1e62b12369045de2662f62cc584e7df83481a513db83b01f87b5b9785e378 \
++    --hash=sha256:f3da5b570a147a5da8280180aa80b03807283d63ea5081fcdb510d18242431d9
+     # via celery
+ marshmallow==3.21.1 \
+     --hash=sha256:4e65e9e0d80fc9e609574b9983cf32579f305c718afb30d7233ab818571768c3 \
+@@ -552,9 +552,9 @@ psycopg2-binary==2.9.9 \
+     --hash=sha256:f7ae5d65ccfbebdfa761585228eb4d0df3a8b15cfb53bd953e713e09fbb12957 \
+     --hash=sha256:f7fc5a5acafb7d6ccca13bfa8c90f8c51f13d8fb87d95656d3950f0158d3ce53 \
+     --hash=sha256:f9b5571d33660d5009a8b3c25dc1db560206e2d2f89d3df1cb32d72c0d117d52
+-pycparser==2.21 \
+-    --hash=sha256:8ee45429555515e1f6b185e78100aea234072576aa43ab53aefcae078162fca9 \
+-    --hash=sha256:e644fdec12f7872f86c58ff790da456218b10f863970249516d60a5eaca77206
++pycparser==2.22 \
++    --hash=sha256:491c8be9c040f5390f5bf44a5b07752bd07f56edf992381b05c701439eec10f6 \
++    --hash=sha256:c3702b6d3dd8c7abc1afa565d7e63d53a1d0bd86cdc24edd75470f4de499cfcc
+     # via cffi
+ pyjwt==2.8.0 \
+     --hash=sha256:57e28d156e3d5c10088e0c68abb90bfac3df82b40a71bd0daa20c65ccd5c23de \
