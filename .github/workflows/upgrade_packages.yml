@@ -3,6 +3,10 @@ name: Upgrade Python Packages
 on:
   schedule:
     - cron: '0 0 * * 0'  # Run every Sunday at midnight
+  workflow_dispatch:
+  push:
+    branches:
+      - feature/upgrade-packages-action
 
 jobs:
   upgrade:
