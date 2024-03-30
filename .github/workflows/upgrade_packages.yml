@@ -37,7 +37,8 @@ jobs:
         with open('diff.txt') as f:
             diff = f.read()
         upgrades = re.findall(r'\+\s*([a-zA-Z0-9-]+)==([0-9\.]+)', diff)
-        upgrades_str = ', '.join(f'{pkg}=={ver}' for pkg, ver in upgrades)
+        upgrades_str = '\\n'.join(f'* {pkg} from {old_ver} to {new_ver}' for pkg, old_ver, new_ver in upgrades)
+        rm diff.txt
         print(f'::set-output name=upgrades::{upgrades_str}')
         "
 
