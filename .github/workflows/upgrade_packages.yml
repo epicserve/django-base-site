@@ -1,0 +1,51 @@
+name: Upgrade Python Packages
+
+on:
+  schedule:
+    - cron: '0 0 * * 0'  # Run every Sunday at midnight
+
+jobs:
+  upgrade:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v2
+
+    - name: Set up Python
+      uses: actions/setup-python@v2
+      with:
+        python-version: '3.x'
+
+    - name: Install just
+      run: |
+        curl --proto '=https' --tlsv1.2 -sSf https://just.systems/install.sh | bash -s -- --to /usr/local/bin
+
+    - name: Run just upgrade_python_packages
+      run: just upgrade_python_packages
+
+    - name: Generate diff and extract package upgrades
+      id: diff
+      run: |
+        git diff > diff.txt
+        python -c "
+        import re
+        with open('diff.txt') as f:
+            diff = f.read()
+        upgrades = re.findall(r'\+\s*([a-zA-Z0-9-]+)==([0-9\.]+)', diff)
+        upgrades_str = ', '.join(f'{pkg}=={ver}' for pkg, ver in upgrades)
+        print(f'::set-output name=upgrades::{upgrades_str}')
+        "
+
+    - name: Commit changes
+      run: |
+        git config --local user.email "action@github.com"
+        git config --local user.name "GitHub Action"
+        git commit -am "Upgrade Python packages: ${{ steps.diff.outputs.upgrades }}"
+
+    - name: Create Pull Request
+      uses: peter-evans/create-pull-request@v3
+      with:
+        title: "Upgrade Python packages"
+        commit-message: "Upgrade Python packages: ${{ steps.diff.outputs.upgrades }}"
+        branch: "upgrade-python-packages"
