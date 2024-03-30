@@ -58,7 +58,7 @@ jobs:
       run: |
         git config --local user.email "action@github.com"
         git config --local user.name "GitHub Action"
-        git commit -am "Upgrade Python packages: ${{ steps.diff.outputs.upgrades }}"
+        git commit -am "Upgrade Python packages:\n\n${{ steps.diff.outputs.upgrades }}"
 
     - name: Create Pull Request
       uses: peter-evans/create-pull-request@v3
