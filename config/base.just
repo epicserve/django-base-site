@@ -7,8 +7,10 @@
 python_cmd_prefix := env_var_or_default('PYTHON_CMD_PREFIX', 'docker compose run --no-deps --rm web')
 python_cmd_prefix_with_deps := env_var_or_default('PYTHON_CMD_PREFIX_WITH_DEPS', 'docker compose run --rm web')
 node_cmd_prefix := env_var_or_default('NODE_CMD_PREFIX', 'docker compose run --no-deps --rm -e NODE_ENV=production node')
+dotenv_exists := `test -f .env && echo true || echo false`
 
-set dotenv-load := true
+# Load .env file if it exists
+set dotenv-load := {{ dotenv_exists }}
 
 # COLORS
 
