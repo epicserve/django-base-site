@@ -1,0 +1,3 @@
+Upgrade Python packages:
+
+* boto3 from 1.34.69 to 1.34.74
