@@ -21,12 +21,12 @@ jobs:
       with:
         python-version: '3.x'
 
-    - name: Install just
-      run: |
-        curl --proto '=https' --tlsv1.2 -sSf https://just.systems/install.sh | bash -s -- --to /usr/local/bin
-
     - name: Run just upgrade_python_packages
-      run: just upgrade_python_packages
+      run: |
+        pip install --upgrade pip uv
+        rm -rf ./config/requirements/*.txt; \
+        uv pip compile --upgrade --generate-hashes --output-file config/requirements/prod_lock.txt config/requirements/prod.in; \
+        uv pip compile --upgrade --generate-hashes --output-file config/requirements/dev_lock.txt config/requirements/dev.in; \
 
     - name: Generate diff and extract package upgrades
       id: diff
