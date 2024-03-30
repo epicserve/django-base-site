@@ -1,0 +1,79 @@
+name: Upgrade Python Packages
+
+on:
+  schedule:
+    - cron: '0 0 * * 0'  # Run every Sunday at midnight
+  workflow_dispatch:
+  push:
+    branches:
+      - feature/upgrade-packages-action
+
+jobs:
+  upgrade:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+
+    - name: Set up Python
+      uses: actions/setup-python@v5
+      with:
+        python-version: '3.x'
+
+    - name: Run just upgrade_python_packages
+      run: |
+        pip install --upgrade pip uv
+        rm -rf ./config/requirements/*.txt; \
+        uv pip compile --upgrade --generate-hashes --output-file config/requirements/prod_lock.txt config/requirements/prod.in; \
+        uv pip compile --upgrade --generate-hashes --output-file config/requirements/dev_lock.txt config/requirements/dev.in; \
+
+    - name: Generate diff and extract package upgrades
+      id: diff
+      run: |
+        git diff > diff.txt
+        python -c "
+        import re
+        import os
+        
+        with open('diff.txt') as f:
+            diff = f.read()
+        
+        # Find all the packages that were upgraded
+        packages = re.findall(r'\+\s*([a-zA-Z0-9-]+)==([0-9\.]+)', diff)
+        
+        upgrades = []
+        for pkg, new_ver in packages:
+            # Find the old version of the package
+            old_ver_match = re.search(r'-\s*' + re.escape(pkg) + r'==([0-9\.]+)', diff)
+            if old_ver_match:
+                old_ver = old_ver_match.group(1)
+                upgrades.append((pkg, old_ver, new_ver))
+        
+        upgrades_str = ', '.join(f'{pkg} from {old_ver} to {new_ver}' for pkg, old_ver, new_ver in upgrades)
+        
+        # Write the output value to a file
+        with open(os.environ.get('GITHUB_ENV'), 'a') as f:
+            f.write(f'UPGRADES="{upgrades_str}"\n')
+        "
+        rm diff.txt
+
+#    - name: Commit changes
+#      run: |
+#        git config --local user.email "action@github.com"
+#        git config --local user.name "GitHub Action"
+#        echo -e "Upgrade Python packages:\n\n${{ env.UPGRADES }}" > commit_message.txt
+#        git add config/requirements/*
+#        cat commit_message.txt | git commit -F -
+#        rm commit_message.txt
+
+    - name: Create Pull Request
+      uses: peter-evans/create-pull-request@v6
+      with:
+        title: "Upgrade Python packages"
+        commit-message: |
+          Upgrade Python packages
+          
+          ${{ steps.diff.outputs.upgrades }}"
+        body: "Upgrades:\n${{ steps.diff.outputs.upgrades }}"
+        branch: "task/upgrade-python-packages"
