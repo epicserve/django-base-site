@@ -55,7 +55,7 @@ jobs:
                 upgrades.append({'pkg': pkg, 'old_ver': old_ver, 'new_ver': new_ver})
     
         for upgrade in upgrades:
-            upgrades_str += f'{upgrade[\"pkg\"]} from {upgrade[\"old_ver\"]} to {upgrade[\"new_ver\"]}\n'
+            upgrades_str += f'* {upgrade[\"pkg\"]} from {upgrade[\"old_ver\"]} to {upgrade[\"new_ver\"]}\n'
     
         # Write the output value to a file
         with open('output.txt', 'w') as f:
