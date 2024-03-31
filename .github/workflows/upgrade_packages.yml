@@ -58,19 +58,19 @@ jobs:
         "
         rm diff.txt
 
-    - name: Commit changes
-      run: |
-        git config --local user.email "action@github.com"
-        git config --local user.name "GitHub Action"
-        echo -e "Upgrade Python packages:\n\n${{ env.UPGRADES }}" > commit_message.txt
-        git add config/requirements/*
-        cat commit_message.txt | git commit -F -
-        rm commit_message.txt
+#    - name: Commit changes
+#      run: |
+#        git config --local user.email "action@github.com"
+#        git config --local user.name "GitHub Action"
+#        echo -e "Upgrade Python packages:\n\n${{ env.UPGRADES }}" > commit_message.txt
+#        git add config/requirements/*
+#        cat commit_message.txt | git commit -F -
+#        rm commit_message.txt
 
     - name: Create Pull Request
       uses: peter-evans/create-pull-request@v6
       with:
         title: "Upgrade Python packages"
-        commit-message: "Upgrade Python packages: ${{ steps.diff.outputs.upgrades }}"
+        commit-message: "Upgrade Python packages:\n\n${{ steps.diff.outputs.upgrades }}"
         body: "Upgrades:\n${{ steps.diff.outputs.upgrades }}"
-        branch: "upgrade-python-packages"
+        branch: "task/upgrade-python-packages"
