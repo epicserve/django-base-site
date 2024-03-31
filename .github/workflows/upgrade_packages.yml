@@ -57,9 +57,9 @@ jobs:
         
         # Write the output value to a file
         with open(os.environ.get('GITHUB_ENV'), 'a') as f:
-            f.write(f'{upgrades_str}')
+            f.write(f'upgrades={upgrades_str}')
         "
-        echo "test=$(cat $GITHUB_ENV)" > $GITHUB_OUTPUT
+        cat $GITHUB_ENV > $GITHUB_OUTPUT
         rm diff.txt
 
     - name: Show package upgrades
