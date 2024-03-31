@@ -11,17 +11,17 @@
     "format-js": "npx eslint --config src/config/eslint.config.js --fix ./src/js"
   },
   "devDependencies": {
-    "@popperjs/core": "^2.11.6",
-    "bootstrap": "^5.3.1",
-    "eslint": "^8.48.0",
+    "@popperjs/core": "^2.11.8",
+    "bootstrap": "^5.3.3",
+    "eslint": "^8.57.0",
     "eslint-config-airbnb-base": "^15.0.0",
-    "eslint-plugin-import": "^2.27.5",
+    "eslint-plugin-import": "^2.29.1",
     "sass": "~1.72",
-    "stylelint": "^15.6.2",
-    "stylelint-config-recess-order": "^4.0.0",
-    "stylelint-config-standard-scss": "^11.0.0",
-    "stylelint-scss": "^5.0.0",
-    "vite": "^5.0.0"
+    "stylelint": "^16.3.1",
+    "stylelint-config-recess-order": "^5.0.0",
+    "stylelint-config-standard-scss": "^13.0.0",
+    "stylelint-scss": "^6.2.1",
+    "vite": "^5.2.7"
   },
   "repository": {
     "type": "git",
