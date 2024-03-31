@@ -1,0 +1,71 @@
+name: Upgrade Node Packages
+
+on:
+  schedule:
+    - cron: '0 10 * * 6'  # Run every Sunday at 5:00 AM CDT
+  workflow_dispatch:
+
+jobs:
+  create_pr:
+    name: Create Pull Request
+    runs-on: ubuntu-latest
+
+    outputs:
+      upgrades: ${{ steps.diff.outputs.upgrades }}
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '14.x'
+
+    - name: Install npm-check-updates
+      run: |
+        npm install -g npm-check-updates
+
+    - name: Run npm-check-updates
+      run: |
+        ncu -u
+        npm install
+
+    - name: Generate diff and extract package upgrades
+      id: diff
+      run: |
+        git diff package.json > diff.txt
+        node -e "
+        const fs = require('fs');
+        const diff = fs.readFileSync('diff.txt', 'utf8');
+        const upgrades = diff.match(/\+\s*\"([a-zA-Z0-9-]+)\":\s*\"([^\"]+)\"/g);
+        let upgradesStr = '';
+        upgrades.forEach(upgrade => {
+          const [pkg, newVer] = upgrade.split(':').map(s => s.trim());
+          upgradesStr += `${pkg} to ${newVer}\n`;
+        });
+        fs.writeFileSync('output.txt', upgradesStr);
+        "
+        rm diff.txt
+        {
+          echo 'upgrades<<EOF'
+          cat output.txt
+          echo EOF
+        } >> "$GITHUB_OUTPUT"
+        rm output.txt
+
+    - name: Show package upgrades
+      run: |
+          echo "${{ steps.diff.outputs.upgrades }}"
+
+    - name: Create Pull Request
+      uses: peter-evans/create-pull-request@v6
+      with:
+        title: "Upgrade Node packages"
+        commit-message: |
+          Upgrade Node packages
+
+          ${{ steps.diff.outputs.upgrades }}"
+        body: |
+          ${{ steps.diff.outputs.upgrades }}"
+        branch: "task/upgrade-node-packages"
