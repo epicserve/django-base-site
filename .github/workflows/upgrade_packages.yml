@@ -34,17 +34,17 @@ jobs:
     - name: Generate diff and extract package upgrades
       id: diff
       run: |
-        git diff > diff.txt
+        git diff config/requirements/dev_lock.txt > diff.txt
         python -c "
         import re
         import os
-        
+    
         with open('diff.txt') as f:
             diff = f.read()
-        
+    
         # Find all the packages that were upgraded
         packages = re.findall(r'\+\s*([a-zA-Z0-9-]+)==([0-9\.]+)', diff)
-        
+    
         upgrades = []
         for pkg, new_ver in packages:
             # Find the old version of the package
@@ -52,25 +52,25 @@ jobs:
             if old_ver_match:
                 old_ver = old_ver_match.group(1)
                 upgrades.append({'pkg': pkg, 'old_ver': old_ver, 'new_ver': new_ver})
-        
-        upgrades_str = ''
-        for upgrade in upgrades:
-            upgrades_str += f'{upgrade["pkg"]} from {upgrade["old_ver"]} to {upgrade["new_ver"]}\n'
-        
+    
+            upgrades_str = ''
+            for upgrade in upgrades:
+                upgrades_str += f'{upgrade[\"pkg\"]} from {upgrade[\"old_ver\"]} to {upgrade[\"new_ver\"]}\n'
+    
         # Write the output value to a file
         with open('output.txt', 'w') as f:
             f.write(f'upgrades={upgrades_str}')
-        "
+            "
         rm diff.txt
         UPGRADES=$(cat output.txt)
         UPGRADES="${UPGRADES//'%'/'%25'}"
         UPGRADES="${UPGRADES//$'\n'/'%0A'}"
         UPGRADES="${UPGRADES//$'\r'/'%0D'}"
         echo $UPGRADES
-
-    - name: Show package upgrades
-      run: |
-          echo "${{ steps.diff.outputs.upgrades }}"
+    
+        - name: Show package upgrades
+          run: |
+              echo "${{ steps.diff.outputs.upgrades }}"
 
 #    - name: Create Pull Request
 #      uses: peter-evans/create-pull-request@v6
