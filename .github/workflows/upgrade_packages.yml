@@ -14,12 +14,10 @@ jobs:
 
     steps:
     - name: Checkout repository
-      uses: actions/checkout@v2
+      uses: actions/checkout@v4
 
     - name: Set up Python
-      uses: actions/setup-python@v2
-      with:
-        python-version: '3.x'
+      uses: actions/setup-python@v5
 
     - name: Run just upgrade_python_packages
       run: |
