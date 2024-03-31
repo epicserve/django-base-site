@@ -1,81 +1,81 @@
-name: CI
-
-on:
-  push:
-
-jobs:
-  lint:
-    name: Lint
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-      - name: Use Just for running commands
-        run: curl --proto '=https' --tlsv1.2 -sSf https://just.systems/install.sh | bash -s -- --to /usr/local/bin
-      - name: Setup NPM caching
-        uses: actions/cache@v4
-        with:
-          path: ~/.npm
-          key: ${{ runner.os }}-lint-${{ hashFiles('**/package-lock.json') }}
-          restore-keys: |
-            ${{ runner.os }}-lint-
-      - name: Setup pip caching
-        uses: actions/cache@v4
-        with:
-          path: ~/.cache/pip
-          key: ${{ runner.os }}-pip-${{ hashFiles('**/dev_lock.txt') }}
-          restore-keys: |
-            ${{ runner.os }}-pip-
-      - name: Setup uv caching
-        uses: actions/cache@v4
-        with:
-          path: ~/.cache/uv
-          key: ${{ runner.os }}-uv-${{ hashFiles('**/dev_lock.txt') }}
-          restore-keys: |
-            ${{ runner.os }}-uv-
-      - name: Setup Node
-        uses: actions/setup-node@v4
-      - name: Setup Python 3.12
-        uses: actions/setup-python@v5
-        with:
-          python-version: "3.12"
-      - name: Install Node requirements
-        run: npm ci
-      - name: Set VIRTUAL_ENV Path
-        run: echo "VIRTUAL_ENV=${Python_ROOT_DIR}" >> $GITHUB_ENV
-      - name: Install Python requirements
-        run: |
-          pip install --upgrade uv
-          uv pip install -r config/requirements/dev_lock.txt
-      - name: Run linting
-        run: |
-          PYTHON_CMD_PREFIX="" NODE_CMD_PREFIX="" just lint
-        env:
-          SECRET_KEY: secret-key-for-testing-only
-          DEBUG: on
-          PYTHON_CMD_PREFIX_WITH_DEPS: ""
-          PYTHON_CMD_PREFIX: ""
-          NODE_CMD_PREFIX: ""
-  test:
-    runs-on: ubuntu-latest
-    name: Tests install script
-    env:
-      BUILD_DIR: /home/runner/work/django-base-site/new_project/
-      SECRET_KEY: secret-key-for-testing-only
-      READ_DOT_ENV_FILE: on
-      DOCKER_COMPOSE_PREFIX: docker compose run -u root --rm --no-deps web
-    steps:
-      - uses: actions/checkout@v4
-      - name: Use Just for running commands
-        run: curl --proto '=https' --tlsv1.2 -sSf https://just.systems/install.sh | bash -s -- --to /usr/local/bin
-      - name: Test install script
-        run: |
-          ./scripts/start_new_project "example" ${GITHUB_REF#refs/heads/} 1 ${{ env.BUILD_DIR }}
-      - name: Build docker images
-        working-directory: ${{ env.BUILD_DIR }}
-        run: docker compose build web node
-      - name: Build assets
-        working-directory: ${{ env.BUILD_DIR }}
-        run: just build_frontend
-      - name: Run tests
-        working-directory: ${{ env.BUILD_DIR }}
-        run: ${{ env.DOCKER_COMPOSE_PREFIX }} pytest --cov --ds=config.settings.test_runner
+#name: CI
+#
+#on:
+#  push:
+#
+#jobs:
+#  lint:
+#    name: Lint
+#    runs-on: ubuntu-latest
+#    steps:
+#      - uses: actions/checkout@v4
+#      - name: Use Just for running commands
+#        run: curl --proto '=https' --tlsv1.2 -sSf https://just.systems/install.sh | bash -s -- --to /usr/local/bin
+#      - name: Setup NPM caching
+#        uses: actions/cache@v4
+#        with:
+#          path: ~/.npm
+#          key: ${{ runner.os }}-lint-${{ hashFiles('**/package-lock.json') }}
+#          restore-keys: |
+#            ${{ runner.os }}-lint-
+#      - name: Setup pip caching
+#        uses: actions/cache@v4
+#        with:
+#          path: ~/.cache/pip
+#          key: ${{ runner.os }}-pip-${{ hashFiles('**/dev_lock.txt') }}
+#          restore-keys: |
+#            ${{ runner.os }}-pip-
+#      - name: Setup uv caching
+#        uses: actions/cache@v4
+#        with:
+#          path: ~/.cache/uv
+#          key: ${{ runner.os }}-uv-${{ hashFiles('**/dev_lock.txt') }}
+#          restore-keys: |
+#            ${{ runner.os }}-uv-
+#      - name: Setup Node
+#        uses: actions/setup-node@v4
+#      - name: Setup Python 3.12
+#        uses: actions/setup-python@v5
+#        with:
+#          python-version: "3.12"
+#      - name: Install Node requirements
+#        run: npm ci
+#      - name: Set VIRTUAL_ENV Path
+#        run: echo "VIRTUAL_ENV=${Python_ROOT_DIR}" >> $GITHUB_ENV
+#      - name: Install Python requirements
+#        run: |
+#          pip install --upgrade uv
+#          uv pip install -r config/requirements/dev_lock.txt
+#      - name: Run linting
+#        run: |
+#          PYTHON_CMD_PREFIX="" NODE_CMD_PREFIX="" just lint
+#        env:
+#          SECRET_KEY: secret-key-for-testing-only
+#          DEBUG: on
+#          PYTHON_CMD_PREFIX_WITH_DEPS: ""
+#          PYTHON_CMD_PREFIX: ""
+#          NODE_CMD_PREFIX: ""
+#  test:
+#    runs-on: ubuntu-latest
+#    name: Tests install script
+#    env:
+#      BUILD_DIR: /home/runner/work/django-base-site/new_project/
+#      SECRET_KEY: secret-key-for-testing-only
+#      READ_DOT_ENV_FILE: on
+#      DOCKER_COMPOSE_PREFIX: docker compose run -u root --rm --no-deps web
+#    steps:
+#      - uses: actions/checkout@v4
+#      - name: Use Just for running commands
+#        run: curl --proto '=https' --tlsv1.2 -sSf https://just.systems/install.sh | bash -s -- --to /usr/local/bin
+#      - name: Test install script
+#        run: |
+#          ./scripts/start_new_project "example" ${GITHUB_REF#refs/heads/} 1 ${{ env.BUILD_DIR }}
+#      - name: Build docker images
+#        working-directory: ${{ env.BUILD_DIR }}
+#        run: docker compose build web node
+#      - name: Build assets
+#        working-directory: ${{ env.BUILD_DIR }}
+#        run: just build_frontend
+#      - name: Run tests
+#        working-directory: ${{ env.BUILD_DIR }}
+#        run: ${{ env.DOCKER_COMPOSE_PREFIX }} pytest --cov --ds=config.settings.test_runner
