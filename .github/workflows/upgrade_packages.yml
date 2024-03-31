@@ -51,12 +51,14 @@ jobs:
             old_ver_match = re.search(r'-\s*' + re.escape(pkg) + r'==([0-9\.]+)', diff)
             if old_ver_match:
                 old_ver = old_ver_match.group(1)
-                upgrades.append((pkg, old_ver, new_ver))
+                upgrades.append({'pkg': pkg, 'old_ver': old_ver, 'new_ver': new_ver})
         
-        upgrades_str = '\n'.join(f'{pkg} from {old_ver} to {new_ver}' for pkg, old_ver, new_ver in upgrades)
+        upgrades_str = ''
+        for upgrade in upgrades:
+            upgrades_str += f'{upgrade["pkg"]} from {upgrade["old_ver"]} to {upgrade["new_ver"]}\n'
         
         # Write the output value to a file
-        with open(os.environ.get('output.txt'), 'w') as f:
+        with open('output.txt', 'w') as f:
             f.write(f'upgrades={upgrades_str}')
         "
         rm diff.txt
