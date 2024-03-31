@@ -64,7 +64,8 @@ jobs:
         git config --local user.name "GitHub Action"
         echo -e "Upgrade Python packages:\n\n${{ env.UPGRADES }}" > commit_message.txt
         git add config/requirements/*
-        git commit -F commit_message.txt
+        cat commit_message.txt | git commit -F -
+        rm commit_message.txt
 
     - name: Create Pull Request
       uses: peter-evans/create-pull-request@v4
