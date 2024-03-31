@@ -25,7 +25,7 @@ project_slug := 'django-base-site'
 
 git_upgrades_output:
     #!/usr/bin/env bash
-    git diff > diff.txt
+    git diff config/requirements/dev_lock.txt > diff.txt
     python -c "
     import re
     import os
@@ -44,9 +44,9 @@ git_upgrades_output:
             old_ver = old_ver_match.group(1)
             upgrades.append({'pkg': pkg, 'old_ver': old_ver, 'new_ver': new_ver})
 
-    upgrades_str = ''
-    for upgrade in upgrades:
-        upgrades_str += f'{upgrade["pkg"]} from {upgrade["old_ver"]} to {upgrade["new_ver"]}\n'
+        upgrades_str = ''
+        for upgrade in upgrades:
+            upgrades_str += f'{upgrade[\"pkg\"]} from {upgrade[\"old_ver\"]} to {upgrade[\"new_ver\"]}\n'
 
     # Write the output value to a file
     with open('output.txt', 'w') as f:
