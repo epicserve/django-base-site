@@ -64,8 +64,9 @@ jobs:
         dev_deps_match = re.search(r'\"devDependencies\": \{[\s\S]+?\}', diff_text)
     
         changed_packages = extract_package_changes(dev_deps_match.group(0))
-        for package, versions in changed_packages.items():
-            print(f\"* {package} from {versions['from_version']} to {versions['to_version']}\")
+        with open('output.txt', 'w') as f:
+          for package, versions in changed_packages.items():
+              f.write(f\"* {package} from {versions['from_version']} to {versions['to_version']}\n\")
         "
         rm diff.txt
         {
