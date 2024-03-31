@@ -34,7 +34,7 @@ jobs:
     - name: Generate diff and extract package upgrades
       id: diff
       run: |
-        git diff package.json > diff.txt
+        git diff package-lock.json > diff.txt
         node -e "
         const fs = require('fs');
         const diff = fs.readFileSync('diff.txt', 'utf8');
