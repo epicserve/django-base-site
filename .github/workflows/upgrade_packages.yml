@@ -68,7 +68,7 @@ jobs:
         rm commit_message.txt
 
     - name: Create Pull Request
-      uses: peter-evans/create-pull-request@v4
+      uses: peter-evans/create-pull-request@v6
       with:
         title: "Upgrade Python packages"
         commit-message: "Upgrade Python packages: ${{ steps.diff.outputs.upgrades }}"
