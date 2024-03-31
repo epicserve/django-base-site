@@ -4,7 +4,6 @@ on:
   schedule:
     - cron: '0 10 * * 6'  # Run every Sunday at 5:00 AM CDT
   workflow_dispatch:
-  push:
 
 jobs:
   create_pr:
