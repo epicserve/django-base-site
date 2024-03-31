@@ -36,6 +36,7 @@ git_upgrades_output:
     # Find all the packages that were upgraded
     packages = re.findall(r'\+\s*([a-zA-Z0-9-]+)==([0-9\.]+)', diff)
 
+    upgrades_str = ''
     upgrades = []
     for pkg, new_ver in packages:
         # Find the old version of the package
@@ -44,11 +45,17 @@ git_upgrades_output:
             old_ver = old_ver_match.group(1)
             upgrades.append({'pkg': pkg, 'old_ver': old_ver, 'new_ver': new_ver})
 
-        upgrades_str = ''
-        for upgrade in upgrades:
-            upgrades_str += f'{upgrade[\"pkg\"]} from {upgrade[\"old_ver\"]} to {upgrade[\"new_ver\"]}\n'
+    for upgrade in upgrades:
+        upgrades_str += f'{upgrade[\"pkg\"]} from {upgrade[\"old_ver\"]} to {upgrade[\"new_ver\"]}\n'
 
     # Write the output value to a file
     with open('output.txt', 'w') as f:
-        f.write(f'upgrades={upgrades_str}')
+        f.write(upgrades_str)
     "
+    rm diff.txt
+    UPGRADES=$(cat output.txt)
+    rm output.txt
+    UPGRADES="${UPGRADES//'%'/'%25'}"
+    UPGRADES="${UPGRADES//$'\n'/'%0A'}"
+    UPGRADES="${UPGRADES//$'\r'/'%0D'}"
+    echo "upgrades=${UPGRADES}"
