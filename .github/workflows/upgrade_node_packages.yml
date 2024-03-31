@@ -41,10 +41,12 @@ jobs:
         const diff = fs.readFileSync('diff.txt', 'utf8');
         const upgrades = diff.match(/\+\s*\"([a-zA-Z0-9-]+)\":\s*\"([^\"]+)\"/g);
         let upgradesStr = '';
-        upgrades.forEach(upgrade => {
-          const [pkg, newVer] = upgrade.split(':').map(s => s.trim());
-          upgradesStr += `${pkg} to ${newVer}\n`;
-        });
+        if (upgrades) {
+          upgrades.forEach(upgrade => {
+            const [pkg, newVer] = upgrade.split(':').map(s => s.trim());
+            upgradesStr += `${pkg} to ${newVer}\n`;
+          });
+        }
         fs.writeFileSync('output.txt', upgradesStr);
         "
         rm diff.txt
