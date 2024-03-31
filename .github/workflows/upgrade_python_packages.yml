@@ -22,7 +22,7 @@ jobs:
       with:
         python-version: '3.x'
 
-    - name: Run just upgrade_python_packages
+    - name: Run uv pip compile to upgrade packages
       run: |
         pip install --upgrade pip uv
         rm -rf ./config/requirements/*.txt; \
