@@ -64,7 +64,7 @@ jobs:
         UPGRADES="${UPGRADES//'%'/'%25'}"
         UPGRADES="${UPGRADES//$'\n'/'%0A'}"
         UPGRADES="${UPGRADES//$'\r'/'%0D'}"
-        echo $UPGRADES > $GITHUB_OUTPUT
+        echo $UPGRADES
 
     - name: Show package upgrades
       run: |
