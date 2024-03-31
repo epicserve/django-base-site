@@ -8,16 +8,20 @@ asgiref==3.8.1 \
     --hash=sha256:3e1e3ecc849832fe52ccf2cb6686b7a55f82bb1d6aee72a58826471390335e47 \
     --hash=sha256:c343bd80a0bec947a9860adb4c432ffa7db769836c64238fc34bdc3fec84d590
     # via django
+async-timeout==4.0.3 \
+    --hash=sha256:4640d96be84d82d02ed59ea2b7105a0f7b33abe8703703cd0ab0bf87c427522f \
+    --hash=sha256:7405140ff1230c310e51dc27b3145b9092d659ce68ff733fb0cefe3ee42be028
+    # via redis
 billiard==4.2.0 \
     --hash=sha256:07aa978b308f334ff8282bd4a746e681b3513db5c9a514cbdd810cbbdc19714d \
     --hash=sha256:9a3c3184cb275aa17a732f93f65b20c525d3d9f253722d26a82194803ade5a2c
     # via celery
-boto3==1.34.69 \
-    --hash=sha256:2e25ef6bd325217c2da329829478be063155897d8d3b29f31f7f23ab548519b1 \
-    --hash=sha256:898a5fed26b1351352703421d1a8b886ef2a74be6c97d5ecc92432ae01fda203
-botocore==1.34.69 \
-    --hash=sha256:d1ab2bff3c2fd51719c2021d9fa2f30fbb9ed0a308f69e9a774ac92c8091380a \
-    --hash=sha256:d3802d076d4d507bf506f9845a6970ce43adc3d819dd57c2791f5c19ed6e5950
+boto3==1.34.74 \
+    --hash=sha256:71f551491fb12fe07727d371d5561c5919fdf33dbc1d4251c57940d267a53a9e \
+    --hash=sha256:b703e22775561a748adc4576c30424b81abd2a00d3c6fb28eec2e5cde92c1eed
+botocore==1.34.74 \
+    --hash=sha256:32bb519bae62483893330c18a0ea4fd09d1ffa32bc573cd8559c2d9a08fb8c5c \
+    --hash=sha256:5d2015b5d91d6c402c122783729ce995ed7283a746b0380957026dc2b3b75969
     # via
     #   boto3
     #   s3transfer
@@ -329,6 +333,10 @@ django-storages==1.14.2 \
 environs==11.0.0 \
     --hash=sha256:069727a8f73d8ba8d033d3cd95c0da231d44f38f1da773bf076cef168d312ee8 \
     --hash=sha256:e0bcfd41c718c07a7db422f9109e490746450da38793fe4ee197f397b9343435
+exceptiongroup==1.2.0 \
+    --hash=sha256:4bfd3996ac73b41e9b9628b04e079f193850720ea5945fc96a08633c66912f14 \
+    --hash=sha256:91f5c769735f051a4290d52edd0858999b57e5876e9f85937691bd4c9fa3ed68
+    # via pytest
 hiredis==2.3.2 \
     --hash=sha256:01b6c24c0840ac7afafbc4db236fd55f56a9a0919a215c25a238f051781f4772 \
     --hash=sha256:02fc71c8333586871602db4774d3a3e403b4ccf6446dc4603ec12df563127cee \
@@ -453,9 +461,9 @@ jmespath==1.0.1 \
     # via
     #   boto3
     #   botocore
-kombu==5.3.5 \
-    --hash=sha256:0eac1bbb464afe6fb0924b21bf79460416d25d8abc52546d4f16cad94f789488 \
-    --hash=sha256:30e470f1a6b49c70dc6f6d13c3e4cc4e178aa6c469ceb6bcd55645385fc84b93
+kombu==5.3.6 \
+    --hash=sha256:49f1e62b12369045de2662f62cc584e7df83481a513db83b01f87b5b9785e378 \
+    --hash=sha256:f3da5b570a147a5da8280180aa80b03807283d63ea5081fcdb510d18242431d9
     # via celery
 marshmallow==3.21.1 \
     --hash=sha256:4e65e9e0d80fc9e609574b9983cf32579f305c718afb30d7233ab818571768c3 \
@@ -552,9 +560,9 @@ psycopg2-binary==2.9.9 \
     --hash=sha256:f7ae5d65ccfbebdfa761585228eb4d0df3a8b15cfb53bd953e713e09fbb12957 \
     --hash=sha256:f7fc5a5acafb7d6ccca13bfa8c90f8c51f13d8fb87d95656d3950f0158d3ce53 \
     --hash=sha256:f9b5571d33660d5009a8b3c25dc1db560206e2d2f89d3df1cb32d72c0d117d52
-pycparser==2.21 \
-    --hash=sha256:8ee45429555515e1f6b185e78100aea234072576aa43ab53aefcae078162fca9 \
-    --hash=sha256:e644fdec12f7872f86c58ff790da456218b10f863970249516d60a5eaca77206
+pycparser==2.22 \
+    --hash=sha256:491c8be9c040f5390f5bf44a5b07752bd07f56edf992381b05c701439eec10f6 \
+    --hash=sha256:c3702b6d3dd8c7abc1afa565d7e63d53a1d0bd86cdc24edd75470f4de499cfcc
     # via cffi
 pyjwt==2.8.0 \
     --hash=sha256:57e28d156e3d5c10088e0c68abb90bfac3df82b40a71bd0daa20c65ccd5c23de \
@@ -615,10 +623,18 @@ sqlparse==0.4.4 \
     --hash=sha256:5430a4fe2ac7d0f93e66f1efc6e1338a41884b7ddf2a350cedd20ccc4d9d28f3 \
     --hash=sha256:d446183e84b8349fa3061f0fe7f06ca94ba65b426946ffebe6e3e8295332420c
     # via django
+tomli==2.0.1 \
+    --hash=sha256:939de3e7a6161af0c887ef91b7d41a53e7c5a1ca976325f429cb46ea9bc30ecc \
+    --hash=sha256:de526c12914f0c550d15924c62d72abc48d6fe7364aa87328337a31007fe8a4f
+    # via
+    #   coverage
+    #   pytest
 typing-extensions==4.10.0 \
     --hash=sha256:69b1a937c3a517342112fb4c6df7e72fc39a38e7891a5730ed4985b5214b5475 \
     --hash=sha256:b0abd7c89e8fb96f98db18d86106ff1d90ab692004eb746cf6eda2682f91b3cb
-    # via dj-database-url
+    # via
+    #   asgiref
+    #   dj-database-url
 tzdata==2024.1 \
     --hash=sha256:2674120f8d891909751c38abcdfd386ac0a5a1127954fbc332af6b5ceae07efd \
     --hash=sha256:9068bc196136463f5245e51efda838afa15aaeca9903f49050dfa2679db4d252
