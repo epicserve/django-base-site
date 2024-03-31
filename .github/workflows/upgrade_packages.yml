@@ -69,9 +69,9 @@ jobs:
         UPGRADES="${UPGRADES//$'\r'/'%0D'}"
         echo "upgrades=${UPGRADES}" >> "$GITHUB_OUTPUT"
     
-        - name: Show package upgrades
-          run: |
-              echo "${{ steps.diff.outputs.upgrades }}"
+    - name: Show package upgrades
+      run: |
+          echo "${{ steps.diff.outputs.upgrades }}"
 
 #    - name: Create Pull Request
 #      uses: peter-evans/create-pull-request@v6
