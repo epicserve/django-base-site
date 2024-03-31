@@ -1,0 +1,92 @@
+name: Upgrade Node Packages
+
+on:
+  schedule:
+    - cron: '0 10 * * 6'  # Run every Sunday at 5:00 AM CDT
+  workflow_dispatch:
+
+jobs:
+  create_pr:
+    name: Create Pull Request
+    runs-on: ubuntu-latest
+
+    outputs:
+      upgrades: ${{ steps.diff.outputs.upgrades }}
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '14.x'
+
+    - name: Install npm-check-updates
+      run: |
+        npm install -g npm-check-updates
+
+    - name: Run npm-check-updates
+      run: |
+        ncu -u
+        npm install
+
+    - name: Generate diff and extract package upgrades
+      id: diff
+      run: |
+        git diff package-lock.json > diff.txt
+        python -c "
+        import re
+    
+        def extract_package_changes(diff_text):
+            # Regex pattern to find package name and versions before (-) and after (+) the change
+            pattern = re.compile(r'(\+|\-)\s+\"([^\"]+)\"\: \"\^?([^\"]+)\"', re.MULTILINE)
+    
+            matches = pattern.findall(diff_text)
+    
+            # Formatting the output
+            changed_packages = {}
+            for match in matches:
+                if match[1] not in changed_packages:
+                    changed_packages[match[1]] = {'from_version': None, 'to_version': None}
+    
+                if match[0] == '+':
+                    changed_packages[match[1]]['to_version'] = match[2]
+                else:
+                    changed_packages[match[1]]['from_version'] = match[2]
+    
+            return changed_packages
+    
+        with open('diff.txt', 'r') as f:
+            diff_text = f.read()
+    
+        dev_deps_match = re.search(r'\"devDependencies\": \{[\s\S]+?\}', diff_text)
+    
+        changed_packages = extract_package_changes(dev_deps_match.group(0))
+        with open('output.txt', 'w') as f:
+          for package, versions in changed_packages.items():
+              f.write(f\"* {package} from {versions['from_version']} to {versions['to_version']}\n\")
+        "
+        rm diff.txt
+        {
+          echo 'upgrades<<EOF'
+          cat output.txt
+          echo EOF
+        } >> "$GITHUB_OUTPUT"
+        rm output.txt
+
+    - name: Show package upgrades
+      run: |
+          echo "${{ steps.diff.outputs.upgrades }}"
+
+    - name: Create Pull Request
+      uses: peter-evans/create-pull-request@v6
+      with:
+        title: "Upgrade Node packages"
+        commit-message: |
+          Upgrade Node packages
+
+          ${{ steps.diff.outputs.upgrades }}"
+        body: |
+          ${{ steps.diff.outputs.upgrades }}"
+        branch: "task/upgrade-node-packages"
