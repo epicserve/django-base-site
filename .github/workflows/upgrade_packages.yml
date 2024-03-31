@@ -1,0 +1,84 @@
+name: Upgrade Python Packages
+
+on:
+  schedule:
+    - cron: '0 10 * * 6'  # Run every Sunday at 5:00 AM CDT
+  workflow_dispatch:
+
+jobs:
+  create_pr:
+    name: Create Pull Request
+    runs-on: ubuntu-latest
+
+    outputs:
+      upgrades: ${{ steps.diff.outputs.upgrades }}
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+
+    - name: Set up Python
+      uses: actions/setup-python@v5
+      with:
+        python-version: '3.x'
+
+    - name: Run just upgrade_python_packages
+      run: |
+        pip install --upgrade pip uv
+        rm -rf ./config/requirements/*.txt; \
+        uv pip compile --upgrade --generate-hashes --output-file config/requirements/prod_lock.txt config/requirements/prod.in; \
+        uv pip compile --upgrade --generate-hashes --output-file config/requirements/dev_lock.txt config/requirements/dev.in; \
+
+    - name: Generate diff and extract package upgrades
+      id: diff
+      run: |
+        git diff config/requirements/dev_lock.txt > diff.txt
+        python -c "
+        import re
+        import os
+    
+        with open('diff.txt') as f:
+            diff = f.read()
+    
+        # Find all the packages that were upgraded
+        packages = re.findall(r'\+\s*([a-zA-Z0-9-]+)==([0-9\.]+)', diff)
+    
+        upgrades_str = ''
+        upgrades = []
+        for pkg, new_ver in packages:
+            # Find the old version of the package
+            old_ver_match = re.search(r'-\s*' + re.escape(pkg) + r'==([0-9\.]+)', diff)
+            if old_ver_match:
+                old_ver = old_ver_match.group(1)
+                upgrades.append({'pkg': pkg, 'old_ver': old_ver, 'new_ver': new_ver})
+    
+        for upgrade in upgrades:
+            upgrades_str += f'* {upgrade[\"pkg\"]} from {upgrade[\"old_ver\"]} to {upgrade[\"new_ver\"]}\n'
+    
+        # Write the output value to a file
+        with open('output.txt', 'w') as f:
+            f.write(upgrades_str)
+        "
+        rm diff.txt
+        {
+          echo 'upgrades<<EOF'
+          cat output.txt
+          echo EOF
+        } >> "$GITHUB_OUTPUT"
+        rm output.txt
+    
+    - name: Show package upgrades
+      run: |
+          echo "${{ steps.diff.outputs.upgrades }}"
+
+    - name: Create Pull Request
+      uses: peter-evans/create-pull-request@v6
+      with:
+        title: "Upgrade Python packages"
+        commit-message: |
+          Upgrade Python packages
+
+          ${{ steps.diff.outputs.upgrades }}"
+        body: |
+          ${{ steps.diff.outputs.upgrades }}"
+        branch: "task/upgrade-python-packages"
