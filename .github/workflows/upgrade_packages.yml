@@ -53,13 +53,13 @@ jobs:
                 old_ver = old_ver_match.group(1)
                 upgrades.append((pkg, old_ver, new_ver))
         
-        upgrades_str = ','.join(f'{pkg} from {old_ver} to {new_ver}' for pkg, old_ver, new_ver in upgrades)
+        upgrades_str = ', '.join(f'{pkg} from {old_ver} to {new_ver}' for pkg, old_ver, new_ver in upgrades)
         
         # Write the output value to a file
         with open(os.environ.get('GITHUB_ENV'), 'a') as f:
             f.write(f'{upgrades_str}')
         "
-        cat $GITHUB_ENV > $GITHUB_OUTPUT
+        echo "test=$(cat $GITHUB_ENV)" > $GITHUB_OUTPUT
         rm diff.txt
 
     - name: Show package upgrades
