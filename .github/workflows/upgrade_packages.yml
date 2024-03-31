@@ -10,6 +10,7 @@ on:
 
 jobs:
   create_pr:
+    name: Create Pull Request
     runs-on: ubuntu-latest
 
     outputs:
