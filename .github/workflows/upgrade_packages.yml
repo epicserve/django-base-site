@@ -81,9 +81,7 @@ jobs:
         commit-message: |
           Upgrade Python packages
 
-          Upgrades:
           ${{ steps.diff.outputs.upgrades }}"
         body: |
-          Upgrades:
           ${{ steps.diff.outputs.upgrades }}"
         branch: "task/upgrade-python-packages"
