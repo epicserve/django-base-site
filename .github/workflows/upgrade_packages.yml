@@ -34,6 +34,7 @@ jobs:
         git diff > diff.txt
         python -c "
         import re
+        import os
         
         with open('diff.txt') as f:
             diff = f.read()
@@ -49,8 +50,11 @@ jobs:
                 old_ver = old_ver_match.group(1)
                 upgrades.append((pkg, old_ver, new_ver))
         
-        upgrades_str = '\n'.join(f'* {pkg} from {old_ver} to {new_ver}' for pkg, old_ver, new_ver in upgrades)
-        print(f'::set-output name=upgrades::{upgrades_str}')
+        upgrades_str = '\n'.join(f'- {pkg} from {old_ver} to {new_ver}' for pkg, old_ver, new_ver in upgrades)
+        
+        # Write the output value to a file
+        with open(os.environ.get('GITHUB_ENV'), 'a') as f:
+            f.write(f'UPGRADES="{upgrades_str}"\n')
         "
         rm diff.txt
 
@@ -58,7 +62,7 @@ jobs:
       run: |
         git config --local user.email "action@github.com"
         git config --local user.name "GitHub Action"
-        echo -e "Upgrade Python packages:\n\n${{ steps.diff.outputs.upgrades }}" > commit_message.txt
+        echo -e "Upgrade Python packages:\n\n${{ env.UPGRADES }}" > commit_message.txt
         git add config/requirements/*
         git commit -F commit_message.txt
 
