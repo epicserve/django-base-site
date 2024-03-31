@@ -56,11 +56,11 @@ jobs:
         upgrades_str = '\n'.join(f'{pkg} from {old_ver} to {new_ver}' for pkg, old_ver, new_ver in upgrades)
         
         # Write the output value to a file
-        with open(os.environ.get('GITHUB_ENV'), 'a') as f:
+        with open(os.environ.get('output.txt'), 'w') as f:
             f.write(f'upgrades={upgrades_str}')
         "
         rm diff.txt
-        UPGRADES=$(cat $GITHUB_ENV)
+        UPGRADES=$(cat output.txt)
         UPGRADES="${UPGRADES//'%'/'%25'}"
         UPGRADES="${UPGRADES//$'\n'/'%0A'}"
         UPGRADES="${UPGRADES//$'\r'/'%0D'}"
