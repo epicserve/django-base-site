@@ -21,8 +21,10 @@ updates:
       time: "11:00" # 11 AM UTC / 5 AM CST
     open-pull-requests-limit: 10
     groups:
-      python-updates:
-        applies-to: version-updates
+      production-dependencies:
+        dependency-type: "production"
+      development-dependencies:
+        dependency-type: "development"
 
   - package-ecosystem: "npm"
     directory: "/"
@@ -31,8 +33,10 @@ updates:
       day: "saturday"
       time: "11:00" # 11 AM UTC / 5 AM CST
     groups:
-      node-updates:
-        applies-to: version-updates
+      production-dependencies:
+        dependency-type: "production"
+      development-dependencies:
+        dependency-type: "development"
 
   - package-ecosystem: "github-actions"
     directory: "/"
