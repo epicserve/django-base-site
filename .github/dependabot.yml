@@ -20,15 +20,9 @@ updates:
       day: "saturday"
       time: "11:00" # 11 AM UTC / 5 AM CST
     open-pull-requests-limit: 10
-    ignore:
-      # Per this comment (https://github.com/mkdocs/mkdocs/issues/2892#issuecomment-1200518008) in mkdocs. They won't
-      # update to Makrdown 3.4.1 or greater until July 31, 2023.
-      - dependency-name: "Markdown"
-        versions: ["3.4.x"]
-      # This is a dependency of requrests, and it seems like there are no plans to upgrade, and they might end up
-      # removing this library in future versions.
-      - dependency-name: "charset-normalizer"
-        versions: ["3.x"]
+    groups:
+      python-updates:
+        applies-to: version-updates
 
   - package-ecosystem: "npm"
     directory: "/"
@@ -36,6 +30,9 @@ updates:
       interval: "weekly"
       day: "saturday"
       time: "11:00" # 11 AM UTC / 5 AM CST
+    groups:
+      node-updates:
+        applies-to: version-updates
 
   - package-ecosystem: "github-actions"
     directory: "/"
