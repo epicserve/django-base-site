@@ -845,9 +845,9 @@ mkdocstrings==0.24.1 \
     --hash=sha256:b4206f9a2ca8a648e222d5a0ca1d36ba7dee53c88732818de183b536f9042b5d \
     --hash=sha256:cc83f9a1c8724fc1be3c2fa071dd73d91ce902ef6a79710249ec8d0ee1064401
     # via mkdocstrings-python
-mkdocstrings-python==1.8.0 \
-    --hash=sha256:1488bddf50ee42c07d9a488dddc197f8e8999c2899687043ec5dd1643d057192 \
-    --hash=sha256:4209970cc90bec194568682a535848a8d8489516c6ed4adbe58bbc67b699ca9d
+mkdocstrings-python==1.9.2 \
+    --hash=sha256:8546a103c9b22e1778c72c887696acc39a6635fedde3c912ce00f967518a8847 \
+    --hash=sha256:96d82f6424e08db6245e4a15ca95619f4ecd0ddd254c0aa590d4181814e16ee5
     # via mkdocstrings
 model-bakery==1.17.0 \
     --hash=sha256:1d26f1a7043c46e6729145b964a7740bf8f6dddac16510fd18323a1492fba757 \
