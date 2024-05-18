@@ -91,7 +91,7 @@ DATABASE_URL=postgres://\${POSTGRES_USER}:\${POSTGRES_PASSWORD}@db:5432/\${POSTG
 INTERNAL_IPS=127.0.0.1,0.0.0.0
 EOF
 
-just remove_extra_files
+just clean_extra_files
 find ./public -name ".keep" | xargs rm -rf
 
 echo ""
