@@ -10,6 +10,10 @@ project_slug := 'django-base-site'
 @clean_extra_files:
     rm -f LICENSE.md
     rm -f README.md
+    rm -f CHANGELOG.md
+    rm -rf docs/
+    rm -rf .github/
+    rm -rf .readthedocs.yaml
     rm -r scripts/start_new_project
 
 # Upgrade both Python and Node
