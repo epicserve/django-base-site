@@ -92,7 +92,8 @@ INTERNAL_IPS=127.0.0.1,0.0.0.0
 EOF
 
 just clean_extra_files
-sed -i '' "s|image: epicserve/django-base-site|image: $PROJECT_NAME_SLUG|" docker-compose.yml
+sed -i '' "s|image: epicserve/django-base-site|image: ${PROJECT_NAME_SLUG}|" docker-compose.yml
+sed -i '' "s|django-base-site|${PROJECT_NAME_SLUG}|" justfile
 find ./public -name ".keep" | xargs rm -rf
 
 echo ""
