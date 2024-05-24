@@ -46,12 +46,10 @@ jobs:
           python-version: "3.12"
       - name: Install Node requirements
         run: npm ci
-      - name: Set VIRTUAL_ENV Path
-        run: echo "VIRTUAL_ENV=${Python_ROOT_DIR}" >> $GITHUB_ENV
       - name: Install Python requirements
         run: |
           pip install --upgrade uv
-          uv pip install -r config/requirements/dev_lock.txt
+          uv pip install --system -r config/requirements/dev_lock.txt
       - name: Run linting
         run: |
           PYTHON_CMD_PREFIX="" NODE_CMD_PREFIX="" just lint
