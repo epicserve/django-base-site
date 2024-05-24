@@ -16,3 +16,4 @@ mkdocstrings[python]
 model-bakery
 mypy
 ruff
+ruff-lsp
