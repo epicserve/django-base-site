@@ -51,6 +51,10 @@ services:
     container_name: worker
     image: epicserve/django-base-site:python
     init: true
+    build:
+      context: .
+      dockerfile: config/docker/Dockerfile.web
+      target: dev
 
     command: sh -c "celery -A config worker -l info"
 
@@ -88,6 +92,10 @@ services:
     container_name: docs
     image: epicserve/django-base-site:python
     init: true
+    build:
+      context: .
+      dockerfile: config/docker/Dockerfile.web
+      target: dev
 
     command: sh -c "mkdocs serve -f config/mkdocs.yml --dev-addr 0.0.0.0:4000"
 
