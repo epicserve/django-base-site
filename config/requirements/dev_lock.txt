@@ -111,13 +111,13 @@ billiard==4.2.0 \
     --hash=sha256:07aa978b308f334ff8282bd4a746e681b3513db5c9a514cbdd810cbbdc19714d \
     --hash=sha256:9a3c3184cb275aa17a732f93f65b20c525d3d9f253722d26a82194803ade5a2c
     # via celery
-boto3==1.34.122 \
-    --hash=sha256:56840d8ce91654d182f1c113f0791fa2113c3aa43230c50b4481f235348a6037 \
-    --hash=sha256:b2d7400ff84fa547e53b3d9acfa3c95d65d45b5886ba1ede1f7df4768d1cc0b1
+boto3==1.34.127 \
+    --hash=sha256:58ccdeae3a96811ecc9d5d866d8226faadbd0ee1891756e4a04d5186e9a57a64 \
+    --hash=sha256:d370befe4fb7aea5bc383057d7dad18dda5d0cf3cd3295915bcc8c8c4191905c
     # via -r config/requirements/prod.in
-botocore==1.34.122 \
-    --hash=sha256:6d75df3af831b62f0c7baa109728d987e0a8d34bfadf0476eb32e2f29a079a36 \
-    --hash=sha256:9374e16a36f1062c3e27816e8599b53eba99315dfac71cc84fc3aee3f5d3cbe3
+botocore==1.34.127 \
+    --hash=sha256:a377871742c40603d559103f19acb7bc93cfaf285e68f21b81637ec396099877 \
+    --hash=sha256:e14fa28c8bb141de965e700f88b196d17c67a703c7f0f5c7e14f7dd1cf636011
     # via
     #   boto3
     #   s3transfer
@@ -933,9 +933,9 @@ mypy-extensions==1.0.0 \
     --hash=sha256:4392f6c0eb8a5668a69e23d168ffa70f0be9ccfd32b5cc2d26a34ae5b844552d \
     --hash=sha256:75dbf8955dc00442a438fc4d0666508a9a97b6bd41aa2f0ffe9d2f2725af0782
     # via mypy
-packaging==24.0 \
-    --hash=sha256:2ddfb553fdf02fb784c234c7ba6ccc288296ceabec964ad2eae3777778130bc5 \
-    --hash=sha256:eb82c5e3e56209074766e6885bb04b8c38a0c015d0a30036ebe7ece34c9989e9
+packaging==24.1 \
+    --hash=sha256:026ed72c8ed3fcce5bf8950572258698927fd1dbda10a5e981cdf0ac37f4f002 \
+    --hash=sha256:5b8f2217dbdbd2f7f384c41c628544e6d52f2d0f53c6d0c3ea61aa5d1d7ff124
     # via
     #   marshmallow
     #   mkdocs
@@ -968,9 +968,9 @@ pluggy==1.5.0 \
     --hash=sha256:2cffa88e94fdc978c4c574f15f9e59b7f4201d439195c3715ca9e2486f1d0cf1 \
     --hash=sha256:44e1ad92c8ca002de6377e165f3e0f1be63266ab4d554740532335b9d75ea669
     # via pytest
-prompt-toolkit==3.0.46 \
-    --hash=sha256:45abe60a8300f3c618b23c16c4bb98c6fc80af8ce8b17c7ae92db48db3ee63c1 \
-    --hash=sha256:869c50d682152336e23c4db7f74667639b5047494202ffe7670817053fd57795
+prompt-toolkit==3.0.47 \
+    --hash=sha256:0d7bfa67001d5e39d02c224b663abc33687405033a8c422d0d675a5a13361d10 \
+    --hash=sha256:1e1b29cb58080b1e69f207c893a1a7bf16d127a5c30c9d17a25a5d77792e5360
     # via
     #   click-repl
     #   ipython
@@ -1163,9 +1163,9 @@ pyyaml-env-tag==0.1 \
     --hash=sha256:70092675bda14fdec33b31ba77e7543de9ddc88f2e5b99160396572d11525bdb \
     --hash=sha256:af31106dec8a4d68c60207c1886031cbf839b68aa7abccdb19868200532c2069
     # via mkdocs
-redis==5.0.5 \
-    --hash=sha256:30b47d4ebb6b7a0b9b40c1275a19b87bb6f46b3bed82a89012cf56dea4024ada \
-    --hash=sha256:3417688621acf6ee368dec4a04dd95881be24efd34c79f00d31f62bb528800ae
+redis==5.0.6 \
+    --hash=sha256:38473cd7c6389ad3e44a91f4c3eaf6bcb8a9f746007f29bf4fb20824ff0b2197 \
+    --hash=sha256:c0d6d990850c627bbf7be01c5c4cbaadf67b48593e913bb71c9819c30df37eee
     # via -r config/requirements/prod.in
 regex==2023.12.25 \
     --hash=sha256:0694219a1d54336fd0445ea382d49d36882415c0134ee1e8332afd1529f0baa5 \
