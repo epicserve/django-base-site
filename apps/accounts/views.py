@@ -13,7 +13,7 @@ class NameChange(LoginRequiredMixin, generic.FormView):  # type: ignore
 
     def get_form_kwargs(self):
         kwargs = super().get_form_kwargs()
-        kwargs["instance"] = User.objects.get(pk=self.request.user.pk)  # type: ignore
+        kwargs["instance"] = User.objects.get(pk=self.request.user.pk)
         return kwargs
 
     def form_valid(self, form):
