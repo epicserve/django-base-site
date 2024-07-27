@@ -21,7 +21,7 @@
     "stylelint-config-recess-order": "^5.0.1",
     "stylelint-config-standard-scss": "^13.1.0",
     "stylelint-scss": "^6.4.1",
-    "vite": "^5.3.4"
+    "vite": "^5.3.5"
   },
   "repository": {
     "type": "git",
