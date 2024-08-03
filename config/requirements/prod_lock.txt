@@ -12,13 +12,13 @@ billiard==4.2.0 \
     --hash=sha256:07aa978b308f334ff8282bd4a746e681b3513db5c9a514cbdd810cbbdc19714d \
     --hash=sha256:9a3c3184cb275aa17a732f93f65b20c525d3d9f253722d26a82194803ade5a2c
     # via celery
-boto3==1.34.145 \
-    --hash=sha256:69d5afb7a017d07dd6bdfb680d2912d5d369b3fafa0a45161207d9f393b14d7e \
-    --hash=sha256:ac770fb53dde1743aec56bd8e56b7ee2e2f5ad42a37825968ec4ff8428822640
+boto3==1.34.153 \
+    --hash=sha256:db9f2ac64582d847003a71720cd28dfffff61e2882e5d3db8e0c1fe1902ebb5b \
+    --hash=sha256:ff9af9206fb235605cb65922f9090fe60f78ea89b4adc463f8f6391b30a3df03
     # via -r config/requirements/prod.in
-botocore==1.34.145 \
-    --hash=sha256:2e72e262de02adcb0264ac2bac159a28f55dbba8d9e52aa0308773a42950dff5 \
-    --hash=sha256:edf0fb4c02186ae29b76263ac5fda18b0a085d334a310551c9984407cf1079e6
+botocore==1.34.153 \
+    --hash=sha256:1634a00f996cfff67f0fd4d0ddc436bc3318b2202dfd82ad0bc11c7169694092 \
+    --hash=sha256:9fc2ad40be8c103ab9bfcb48b97b117d299d0b3a542cdd30134ee2935bee827a
     # via
     #   boto3
     #   s3transfer
@@ -127,8 +127,8 @@ django-alive==1.2.1 \
     --hash=sha256:7c449a7ab29b7047ba522ef5ca2dc6b1be0f7db0374dd77b95eec910f9aa0c11 \
     --hash=sha256:b758f4e88084140bf40c2f1ca3371af1d3702e3bf47c9c06264f82340f5888fe
     # via -r config/requirements/prod.in
-django-allauth==0.63.6 \
-    --hash=sha256:f15f49defb09e0604dad5214e53a69a1f723cb03176bb115c8930bcd19b91749
+django-allauth==64.0.0 \
+    --hash=sha256:01952c7540160ef475c12dc881f67a69c7c5e533f4bef6c811bba0417a717588
     # via -r config/requirements/prod.in
 django-cache-url==3.4.5 \
     --hash=sha256:5f350759978483ab85dc0e3e17b3d53eed3394a28148f6bf0f53d11d0feb5b3c \
@@ -354,9 +354,9 @@ psycopg2-binary==2.9.9 \
     --hash=sha256:f7fc5a5acafb7d6ccca13bfa8c90f8c51f13d8fb87d95656d3950f0158d3ce53 \
     --hash=sha256:f9b5571d33660d5009a8b3c25dc1db560206e2d2f89d3df1cb32d72c0d117d52
     # via -r config/requirements/prod.in
-pytest==8.2.2 \
-    --hash=sha256:c434598117762e2bd304e526244f67bf66bbd7b5d6cf22138be51ff661980343 \
-    --hash=sha256:de4bb8104e201939ccdc688b27a89a7be2079b22e2bd2b07f806b6ba71117977
+pytest==8.3.2 \
+    --hash=sha256:4ba08f9ae7dcf84ded419494d229b48d0903ea6407b030eaec46df5e6a73bba5 \
+    --hash=sha256:c132345d12ce551242c87269de812483f5bcc87cdbb4722e48487ba194f9fdce
     # via
     #   pytest-cov
     #   pytest-django
@@ -382,9 +382,9 @@ python-fsutil==0.14.1 \
     --hash=sha256:0d45e623f0f4403f674bdd8ae7aa7d24a4b3132ea45c65416bd2865e6b20b035 \
     --hash=sha256:8fb204fa8059f37bdeee8a1dc0fff010170202ea47c4225ee71bb3c26f3997be
     # via django-maintenance-mode
-redis==5.0.7 \
-    --hash=sha256:0e479e24da960c690be5d9b96d21f7b918a98c0cf49af3b6fafaa0753f93a0db \
-    --hash=sha256:8f611490b93c8109b50adc317b31bfd84fff31def3475b92e7e80bf39f48175b
+redis==5.0.8 \
+    --hash=sha256:0c5b10d387568dfe0698c6fad6615750c24170e548ca2deac10c649d463e9870 \
+    --hash=sha256:56134ee08ea909106090934adc36f65c9bcbbaecea5b21ba704ba6fb561f8eb4
     # via -r config/requirements/prod.in
 s3transfer==0.10.2 \
     --hash=sha256:0711534e9356d3cc692fdde846b4a1e4b0cb6519971860796e6bc4c7aea00ef6 \
