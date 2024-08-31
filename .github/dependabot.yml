@@ -13,8 +13,8 @@ updates:
       day: "saturday"
       time: "11:00" # 11 AM UTC / 5 AM CST
       
-  - package-ecosystem: "pip"
-    directory: "/config/requirements/"
+  - package-ecosystem: "uv"
+    directory: "/"
     schedule:
       interval: "weekly"
       day: "saturday"

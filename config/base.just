@@ -202,15 +202,16 @@ pre_commit: format lint test
     {{ node_cmd_prefix }} npm upgrade
 
 # Upgrade python requirements
-@upgrade_python_packages +packages="":
-    if [ -z "{{ packages }}" ]; then \
-        echo "Upgrading all requirements based on .in files..."; \
-        rm -rf ./config/requirements/*.txt; \
-        {{ python_cmd_prefix }} uv pip compile --upgrade --generate-hashes --output-file config/requirements/prod_lock.txt config/requirements/prod.in; \
-        {{ python_cmd_prefix }} uv pip compile --upgrade --generate-hashes --output-file config/requirements/dev_lock.txt config/requirements/dev.in; \
-    else \
-        echo "Upgrading specified packages: {{ packages }}"; \
-        package_args=`python -c "print(' '.join([f'--upgrade-package {package}' for package in '{{ packages }}'.split(' ')]))"`; \
-        {{ python_cmd_prefix }} uv pip compile $package_args --generate-hashes --output-file config/requirements/prod_lock.txt config/requirements/prod.in; \
-        {{ python_cmd_prefix }} uv pip compile $package_args --generate-hashes --output-file config/requirements/dev_lock.txt config/requirements/dev.in; \
+upgrade_python_packages +packages="":
+    #!/usr/bin/env bash
+    export VIRTUAL_ENV=/opt/venv
+    if [ -z "{{ packages }}" ]; then
+        echo "Upgrading all requirements from pyproject.toml...";
+        {{ python_cmd_prefix }} $VIRTUAL_ENV/bin/uv sync --all-packages --all-extras;
+    else
+        echo "Upgrading specified packages: {{ packages }}";
+        # First install the package with --upgrade
+        {{ python_cmd_prefix }} $VIRTUAL_ENV/bin/uv pip install --upgrade {{ packages }};
+        # Then sync to ensure dependencies are consistent
+        {{ python_cmd_prefix }} $VIRTUAL_ENV/bin/uv sync --all-extras;
     fi
