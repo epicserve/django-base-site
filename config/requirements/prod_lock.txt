@@ -12,13 +12,13 @@ billiard==4.2.0 \
     --hash=sha256:07aa978b308f334ff8282bd4a746e681b3513db5c9a514cbdd810cbbdc19714d \
     --hash=sha256:9a3c3184cb275aa17a732f93f65b20c525d3d9f253722d26a82194803ade5a2c
     # via celery
-boto3==1.34.158 \
-    --hash=sha256:5b7b2ce0ec1e498933f600d29f3e1c641f8c44dd7e468c26795359d23d81fa39 \
-    --hash=sha256:c29e9b7e1034e8734ccaffb9f2b3f3df2268022fd8a93d836604019f8759ce27
+boto3==1.35.10 \
+    --hash=sha256:189ab1e2b4cd86df56f82438d89b4040eb140c92683f1bda7cb2e62624f20ea5 \
+    --hash=sha256:add26dd58e076dfd387013da4704716d5cff215cf14f6d4347c4b9b7fc1f0b8e
     # via -r config/requirements/prod.in
-botocore==1.34.158 \
-    --hash=sha256:0e6fceba1e39bfa8feeba70ba3ac2af958b3387df4bd3b5f2db3f64c1754c756 \
-    --hash=sha256:5934082e25ad726673afbf466092fb1223dafa250e6e756c819430ba6b1b3da5
+botocore==1.35.10 \
+    --hash=sha256:0d96d023b9b0cea99a0a428a431d011329d3a958730aee6ed6a6fec5d9bfbc03 \
+    --hash=sha256:6c8a1377b6636a0d80218115e1cd41bcceba0a2f050b79c206f4cf8d002c54d7
     # via
     #   boto3
     #   s3transfer
@@ -143,12 +143,12 @@ django==5.1 \
     #   django-allauth
     #   django-crispy-forms
     #   django-storages
-django-alive==1.2.1 \
-    --hash=sha256:7c449a7ab29b7047ba522ef5ca2dc6b1be0f7db0374dd77b95eec910f9aa0c11 \
-    --hash=sha256:b758f4e88084140bf40c2f1ca3371af1d3702e3bf47c9c06264f82340f5888fe
+django-alive==1.2.2 \
+    --hash=sha256:00246da76b83737cb8fc3ebcc4fa4ed2af5de5446ec27a7325a836eff8c480c0 \
+    --hash=sha256:0805d724e5037b636af965488156e99da7fd883f94f41eb01c4d1701af13f85e
     # via -r config/requirements/prod.in
-django-allauth==64.0.0 \
-    --hash=sha256:01952c7540160ef475c12dc881f67a69c7c5e533f4bef6c811bba0417a717588
+django-allauth==64.2.0 \
+    --hash=sha256:71b404b3a7631502005e549800411e77939754e6864f2d24c17741a42e8e50e5
     # via -r config/requirements/prod.in
 django-cache-url==3.4.5 \
     --hash=sha256:5f350759978483ab85dc0e3e17b3d53eed3394a28148f6bf0f53d11d0feb5b3c \
@@ -282,9 +282,9 @@ kombu==5.4.0 \
     --hash=sha256:ad200a8dbdaaa2bbc5f26d2ee7d707d9a1fded353a0f4bd751ce8c7d9f449c60 \
     --hash=sha256:c8dd99820467610b4febbc7a9e8a0d3d7da2d35116b67184418b51cc520ea6b6
     # via celery
-marshmallow==3.21.3 \
-    --hash=sha256:4f57c5e050a54d66361e826f94fba213eb10b67b2fdb02c3e0343ce207ba1662 \
-    --hash=sha256:86ce7fb914aa865001a4b2092c4c2872d13bc347f3d42673272cabfdbad386f1
+marshmallow==3.22.0 \
+    --hash=sha256:4972f529104a220bb8637d595aa4c9762afbe7f7a77d82dc58c1615d70c5823e \
+    --hash=sha256:71a2dce49ef901c3f97ed296ae5051135fd3febd2bf43afe0ae9a82143a494d9
     # via environs
 packaging==24.1 \
     --hash=sha256:026ed72c8ed3fcce5bf8950572258698927fd1dbda10a5e981cdf0ac37f4f002 \
