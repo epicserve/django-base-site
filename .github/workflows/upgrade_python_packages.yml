@@ -22,70 +22,87 @@ jobs:
       with:
         python-version: '3.x'
 
-    - name: Run uv pip compile to upgrade packages
+    - name: Run uv sync to upgrade packages
       run: |
         pip install --upgrade pip uv
-        rm -rf ./config/requirements/*.txt; \
-        uv pip compile --upgrade --generate-hashes --output-file config/requirements/prod_lock.txt config/requirements/prod.in; \
-        uv pip compile --upgrade --generate-hashes --output-file config/requirements/dev_lock.txt config/requirements/dev.in; \
+        # Create a backup of the current lock file
+        if [ -f uv.lock ]; then
+          cp uv.lock uv.lock.bak
+        fi
+        # Sync and upgrade all dependencies
+        uv pip sync --upgrade
+        # Create lock file if it doesn't exist
+        if [ ! -f uv.lock ]; then
+          uv lock
+        else
+          # Update the lock file with new resolved dependencies
+          uv lock --upgrade
+        fi
 
     - name: Generate diff and extract package upgrades
       id: diff
       run: |
-        git diff config/requirements/dev_lock.txt > diff.txt
-        python -c "
-        import re
-        import os
-    
-        with open('diff.txt') as f:
-            diff = f.read()
-    
-        # Find all the packages that were upgraded
-        packages = re.findall(r'\+\s*([a-zA-Z0-9-]+)==([0-9\.]+)', diff)
-    
-        upgrades_str = ''
-        upgrades = []
-        for pkg, new_ver in packages:
-            # Find the old version of the package
-            old_ver_match = re.search(r'-\s*' + re.escape(pkg) + r'==([0-9\.]+)', diff)
-            if old_ver_match:
-                old_ver = old_ver_match.group(1)
-                upgrades.append({'pkg': pkg, 'old_ver': old_ver, 'new_ver': new_ver})
-    
-        for upgrade in upgrades:
-            pkg = upgrade['pkg']
-            old_ver = upgrade['old_ver']
-            new_ver = upgrade['new_ver']
-            
-            # Parse version components
-            old_parts = old_ver.split('.')
-            new_parts = new_ver.split('.')
-            
-            # Check if it's more than a patch update (major or minor version change)
-            # Compare at least the first two parts if available
-            is_major_minor_change = False
-            for i in range(min(2, min(len(old_parts), len(new_parts)))):
-                if old_parts[i] != new_parts[i]:
-                    is_major_minor_change = True
-                    break
-            
-            # Apply bold formatting for major or minor version changes
-            if is_major_minor_change:
-                upgrades_str += f'* **{pkg} from {old_ver} to {new_ver}**\n'
-            else:
-                upgrades_str += f'* {pkg} from {old_ver} to {new_ver}\n'
-    
-        # Write the output value to a file
-        with open('output.txt', 'w') as f:
-            f.write(upgrades_str)
-        "
-        rm diff.txt
-        {
-          echo 'upgrades<<EOF'
-          cat output.txt
-          echo EOF
-        } >> "$GITHUB_OUTPUT"
-        rm output.txt
+        if [ -f uv.lock.bak ]; then
+          git diff uv.lock > diff.txt
+          python -c "
+          import re
+          import os
+      
+          with open('diff.txt') as f:
+              diff = f.read()
+      
+          # Find all the packages that were upgraded
+          packages = re.findall(r'\+\\s+\"([a-zA-Z0-9-_]+)\\\"?:\\s+\"([0-9\.]+)', diff)
+      
+          upgrades_str = ''
+          upgrades = []
+          for pkg, new_ver in packages:
+              # Find the old version of the package
+              old_ver_match = re.search(r'-\\s+\"' + re.escape(pkg) + r'\\\"?:\\s+\"([0-9\.]+)', diff)
+              if old_ver_match:
+                  old_ver = old_ver_match.group(1)
+                  upgrades.append({'pkg': pkg, 'old_ver': old_ver, 'new_ver': new_ver})
+      
+          for upgrade in upgrades:
+              pkg = upgrade['pkg']
+              old_ver = upgrade['old_ver']
+              new_ver = upgrade['new_ver']
+              
+              # Parse version components
+              old_parts = old_ver.split('.')
+              new_parts = new_ver.split('.')
+              
+              # Check if it's more than a patch update (major or minor version change)
+              # Compare at least the first two parts if available
+              is_major_minor_change = False
+              for i in range(min(2, min(len(old_parts), len(new_parts)))):
+                  if old_parts[i] != new_parts[i]:
+                      is_major_minor_change = True
+                      break
+              
+              # Apply bold formatting for major or minor version changes
+              if is_major_minor_change:
+                  upgrades_str += f'* **{pkg} from {old_ver} to {new_ver}**\\n'
+              else:
+                  upgrades_str += f'* {pkg} from {old_ver} to {new_ver}\\n'
+      
+          # Write the output value to a file
+          with open('output.txt', 'w') as f:
+              f.write(upgrades_str)
+          "
+          rm diff.txt
+          {
+            echo 'upgrades<<EOF'
+            cat output.txt
+            echo EOF
+          } >> "$GITHUB_OUTPUT"
+          rm output.txt
+        else
+          echo "No previous lock file found. Cannot generate diff."
+          echo "upgrades=No previous lock file found. This is the initial lock file creation." >> "$GITHUB_OUTPUT"
+        fi
+        # Remove backup file
+        rm -f uv.lock.bak
     
     - name: Show package upgrades
       run: |
