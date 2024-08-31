@@ -26,10 +26,10 @@ jobs:
       - name: Install Python requirements
         run: |
           pip install --upgrade uv
-          uv pip install --system -r config/requirements/dev_lock.txt
+          uv sync --frozen
       - name: Run linting
         run: |
-          PYTHON_CMD_PREFIX="" NODE_CMD_PREFIX="" just lint
+          PATH=$(pwd)/.venv/bin/:${PATH} just lint
         env:
           SECRET_KEY: secret-key-for-testing-only
           DEBUG: on
