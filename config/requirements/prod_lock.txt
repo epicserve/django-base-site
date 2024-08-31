@@ -143,9 +143,9 @@ django==5.1 \
     #   django-allauth
     #   django-crispy-forms
     #   django-storages
-django-alive==1.2.2 \
-    --hash=sha256:00246da76b83737cb8fc3ebcc4fa4ed2af5de5446ec27a7325a836eff8c480c0 \
-    --hash=sha256:0805d724e5037b636af965488156e99da7fd883f94f41eb01c4d1701af13f85e
+django-alive==2.0.0 \
+    --hash=sha256:c8e5a767080566aefac6b05d60e4371871f292e0e32a753b6c18b8c28f473c3e \
+    --hash=sha256:f7aa691db23b1065bdbaee96d8c347e3d9df2be783c9d5514f7fd82e9c9ee088
     # via -r config/requirements/prod.in
 django-allauth==64.2.0 \
     --hash=sha256:71b404b3a7631502005e549800411e77939754e6864f2d24c17741a42e8e50e5
