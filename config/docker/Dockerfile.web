@@ -1,33 +1,38 @@
 # ------------------------------------------------------------
 # STAGE 1: Build Python requirements layer
 # ------------------------------------------------------------
-FROM python:3.13-bookworm AS python-requirements
+FROM python:3.12-bookworm AS python-requirements
 
 ARG ENV_NAME=dev
 
+ENV VIRTUAL_ENV=/opt/venv
 ENV \
     # This prevents Python from writing out pyc files \
     PYTHONDONTWRITEBYTECODE=1 \
     # This keeps Python from buffering stdin/stdout \
     PYTHONUNBUFFERED=1 \
-    VIRTUAL_ENV=/opt/venv
+    UV_PROJECT_ENVIRONMENT=$VIRTUAL_ENV
 
 RUN set -ex \
     && python3 -m venv $VIRTUAL_ENV \
     && $VIRTUAL_ENV/bin/pip install -U setuptools wheel pip uv
 
 # Install Python packages
-COPY config/requirements/${ENV_NAME}_lock.txt ./config/requirements/${ENV_NAME}_lock.txt
+COPY uv.lock pyproject.toml ./
 
 RUN set -ex \
-    && $VIRTUAL_ENV/bin/uv pip install -r config/requirements/${ENV_NAME}_lock.txt \
+    && if [ "$ENV_NAME" = "prod" ]; then \
+        $VIRTUAL_ENV/bin/uv sync --no-dev; \
+    else \
+        $VIRTUAL_ENV/bin/uv sync; \
+    fi \
     && rm -rf /root/.cache/
 
 
 # ------------------------------------------------------------
 # STAGE 2: Dev layer
 # ------------------------------------------------------------
-FROM python:3.13-slim-bookworm AS dev
+FROM python:3.12-slim-bookworm AS dev
 
 # Set the locale
 # libxml2-dev is needed for uwsgi in the production stage
@@ -39,7 +44,8 @@ RUN apt-get update \
     && echo "LANG=en_US.UTF-8" > /etc/locale.conf \
     && locale-gen en_US.UTF-8 \
     && rm -rf /var/lib/apt/lists/* \
-    && echo "\nsource /srv/app/config/bash/bashrc" >> /root/.bashrc
+    && echo "\nsource /srv/app/config/bash/bashrc" >> /root/.bashrc \
+    && echo "\nsource /opt/venv/bin/activate" >> /root/.bashrc
 
 ENV VIRTUAL_ENV=/opt/venv
 ENV LANG=en_US.UTF-8 \
@@ -85,7 +91,8 @@ WORKDIR /srv/app
 
 RUN set -ex \
     && groupadd -r app --gid=1000 && useradd --uid=1000 --create-home --home-dir=/home/app --no-log-init -r -g app app \
-    && echo "\nsource ./config/bash/bashrc" >> /home/app/.bashrc
+    && echo "\nsource ./config/bash/bashrc" >> /home/app/.bashrc \
+    && echo "\nsource /opt/venv/bin/activate" >> /home/app/.bashrc
 
 COPY --chown=app:app . .
 
