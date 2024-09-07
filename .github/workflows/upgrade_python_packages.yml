@@ -72,7 +72,7 @@ jobs:
           echo "${{ steps.diff.outputs.upgrades }}"
 
     - name: Create Pull Request
-      uses: peter-evans/create-pull-request@v6
+      uses: peter-evans/create-pull-request@v7
       with:
         title: "Upgrade Python packages"
         commit-message: |
