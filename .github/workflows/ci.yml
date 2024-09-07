@@ -2,11 +2,9 @@ name: CI
 
 on:
   push:
-  pull_request:
     branches:
       - main
-      - task/upgrade-python-packages
-      - task/upgrade-python-packages
+  pull_request:
   workflow_dispatch:
 
 jobs:
@@ -17,27 +15,6 @@ jobs:
       - uses: actions/checkout@v4
       - name: Use Just for running commands
         run: curl --proto '=https' --tlsv1.2 -sSf https://just.systems/install.sh | bash -s -- --to /usr/local/bin
-      - name: Setup NPM caching
-        uses: actions/cache@v4
-        with:
-          path: ~/.npm
-          key: ${{ runner.os }}-lint-${{ hashFiles('**/package-lock.json') }}
-          restore-keys: |
-            ${{ runner.os }}-lint-
-      - name: Setup pip caching
-        uses: actions/cache@v4
-        with:
-          path: ~/.cache/pip
-          key: ${{ runner.os }}-pip-${{ hashFiles('**/dev_lock.txt') }}
-          restore-keys: |
-            ${{ runner.os }}-pip-
-      - name: Setup uv caching
-        uses: actions/cache@v4
-        with:
-          path: ~/.cache/uv
-          key: ${{ runner.os }}-uv-${{ hashFiles('**/dev_lock.txt') }}
-          restore-keys: |
-            ${{ runner.os }}-uv-
       - name: Setup Node
         uses: actions/setup-node@v4
       - name: Setup Python 3.12
