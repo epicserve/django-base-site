@@ -2,11 +2,9 @@ name: CI
 
 on:
   push:
-  pull_request:
     branches:
       - main
-      - task/upgrade-python-packages
-      - task/upgrade-python-packages
+  pull_request:
   workflow_dispatch:
 
 jobs:
