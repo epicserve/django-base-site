@@ -91,7 +91,8 @@ COPY --chown=app:app . .
 
 USER app
 
-RUN SECRET_KEY=e python manage.py collectstatic --no-input
+# The app user doesn't have permissions to create collected_static on some systems, so we create it here
+RUN mkdir -p /srv/app/collected_static && chown -R app:app /srv/app/collected_static
 
 COPY --from=js_assets --chown=app:app /srv/app/public/static/ ./collected_static
 
