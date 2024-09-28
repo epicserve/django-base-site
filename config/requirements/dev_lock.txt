@@ -258,7 +258,6 @@ click==8.1.7 \
     #   click-didyoumean
     #   click-plugins
     #   click-repl
-    #   djlint
     #   mkdocs
     #   mkdocstrings
 click-didyoumean==0.3.1 \
@@ -277,7 +276,6 @@ colorama==0.4.6 \
     --hash=sha256:08695f5cb7ed6e0531a20572697297273c47b8cae5a63ffc6d6ed5c201be6e44 \
     --hash=sha256:4f1d9991f5acc0ca119f9d443620b77f9d6b33703e51011c16baf57afb285fc6
     # via
-    #   djlint
     #   griffe
     #   mkdocs-material
 coverage==7.6.1 \
@@ -358,9 +356,6 @@ crispy-bootstrap5==2024.2 \
     --hash=sha256:3867e320920a6ef156e94f9e0f06a80344c453e1b3bd96cd9dc0522ae9e9afb8 \
     --hash=sha256:7d1fa40c6faf472e30e85c72551a3d2c9eedbf0abfff920683315e4e6f670f2b
     # via -r config/requirements/prod.in
-cssbeautifier==1.15.1 \
-    --hash=sha256:9f7064362aedd559c55eeecf6b6bed65e05f33488dcbe39044f0403c26e1c006
-    # via djlint
 decorator==5.1.1 \
     --hash=sha256:637996211036b6385ef91435e4fae22989472f9d571faba8927ba8253acbc330 \
     --hash=sha256:b8c3f85900b9dc423225913c5aace94729fe1fa9763b38939a95226f02d37186
@@ -375,6 +370,20 @@ dj-email-url==1.0.6 \
     --hash=sha256:55ffe3329e48f54f8a75aa36ece08f365e09d61f8a209773ef09a1d4760e699a \
     --hash=sha256:cbd08327fbb08b104eac160fb4703f375532e4c0243eb230f5b960daee7a96db
     # via environs
+djade==1.1.0 \
+    --hash=sha256:21c4f37252c5e5ec010eba9f653f0708f24f1f42a7a96db850490d7120c21c6a \
+    --hash=sha256:31040c7d9495746e3a953eba9b8991de19a5c11c5d35dc6ca30a31118bcb9ee3 \
+    --hash=sha256:36643cf355eee64fdb14d890aeaa11dfd3296d8b1b49de6a7b14800dfc4b7a06 \
+    --hash=sha256:37cd42fb971476a2278557af84b3160021bb515d0df66cd534881bf04239ce4b \
+    --hash=sha256:4d95feecf48768e2fa9a1379609eb3e7cd36983378e06a106f57a80a9a0831da \
+    --hash=sha256:68f9cf8a604c506d6453043bee499ccf5660b503e48b7ccad4259702f9fcc745 \
+    --hash=sha256:89fe51129274e897f36e0297a8dd2c80ca8c1aeaea05a5022eee3e385a915088 \
+    --hash=sha256:8ed22aa1c952f70adf6784d8e552a74cd5866bd34f98ae2902936661cbb16644 \
+    --hash=sha256:99b6cdf982fec86a480e3c4419cb38c9fad85881818139d76f4123ffbc8a955c \
+    --hash=sha256:9c7f050e0496b896969204175d304c2fe232a4f75d0a9cbb5b324e50711630e8 \
+    --hash=sha256:aec378be36db53f735a7de0ea87aadeb9a19fc8cd499b0bf5640a4f0757392cd \
+    --hash=sha256:e1f9ba6189a257811c026499b4512688efac9c7e6e94d18dddb03f521ebeb548
+    # via -r config/requirements/dev.in
 django==5.1.1 \
     --hash=sha256:021ffb7fdab3d2d388bc8c7c2434eb9c1f6f4d09e6119010bbb1694dda286bc2 \
     --hash=sha256:71603f27dac22a6533fb38d83072eea9ddb4017fead6f67f2562a40402d61c3f
@@ -431,15 +440,6 @@ django-test-plus==2.2.4 \
     --hash=sha256:06488209a07dca60dc2bbeaeae5ce340d17344163e0b121709cdac7405c6d9ef \
     --hash=sha256:96e4e16fabd3e0339a4b46e02a0a88c92c19800de38d00446571ea036614d332
     # via -r config/requirements/dev.in
-djlint==1.35.2 \
-    --hash=sha256:318de9d4b9b0061a111f8f5164ecbacd8215f449dd4bd5a76d2a691c815ee103 \
-    --hash=sha256:4ba995bad378f2afa77c8ea56ba1c14429d9ff26a18e8ae23bc71eedb9152243
-    # via -r config/requirements/dev.in
-editorconfig==0.12.4 \
-    --hash=sha256:24857fa1793917dd9ccf0c7810a07e05404ce9b823521c7dce22a4fb5d125f80
-    # via
-    #   cssbeautifier
-    #   jsbeautifier
 environs==11.0.0 \
     --hash=sha256:069727a8f73d8ba8d033d3cd95c0da231d44f38f1da773bf076cef168d312ee8 \
     --hash=sha256:e0bcfd41c718c07a7db422f9109e490746450da38793fe4ee197f397b9343435
@@ -633,14 +633,6 @@ hiredis==3.0.0 \
     --hash=sha256:fe91d62b0594db5ea7d23fc2192182b1a7b6973f628a9b8b2e0a42a2be721ac6 \
     --hash=sha256:fed8581ae26345dea1f1e0d1a96e05041a727a45e7d8d459164583e23c6ac441
     # via -r config/requirements/prod.in
-html-tag-names==0.1.2 \
-    --hash=sha256:04924aca48770f36b5a41c27e4d917062507be05118acb0ba869c97389084297 \
-    --hash=sha256:eeb69ef21078486b615241f0393a72b41352c5219ee648e7c61f5632d26f0420
-    # via djlint
-html-void-elements==0.1.0 \
-    --hash=sha256:784cf39db03cdeb017320d9301009f8f3480f9d7b254d0974272e80e0cb5e0d2 \
-    --hash=sha256:931b88f84cd606fee0b582c28fcd00e41d7149421fb673e1e1abd2f0c4f231f0
-    # via djlint
 idna==3.10 \
     --hash=sha256:12f65c9b470abda6dc35cf8e63cc574b1c52b11df2c86030af0ac09b01b13ea9 \
     --hash=sha256:946d195a0d259cbba61165e88e65941f16e9b36ea6ddb97f00452bae8b1287d3
@@ -676,15 +668,6 @@ jmespath==1.0.1 \
     # via
     #   boto3
     #   botocore
-jsbeautifier==1.15.1 \
-    --hash=sha256:ebd733b560704c602d744eafc839db60a1ee9326e30a2a80c4adb8718adc1b24
-    # via
-    #   cssbeautifier
-    #   djlint
-json5==0.9.25 \
-    --hash=sha256:34ed7d834b1341a86987ed52f3f76cd8ee184394906b6e22a1e0deb9ab294e8f \
-    --hash=sha256:548e41b9be043f9426776f05df8635a00fe06104ea51ed24b67f908856e151ae
-    # via djlint
 kombu==5.4.2 \
     --hash=sha256:14212f5ccf022fc0a70453bb025a1dcc32782a588c49ea866884047d66e14763 \
     --hash=sha256:eef572dd2fd9fc614b37580e3caeafdd5af46c1eff31e7fba89138cdb406f2cf
@@ -980,9 +963,7 @@ parso==0.8.4 \
 pathspec==0.12.1 \
     --hash=sha256:a0d503e138a4c123b27490a4f7beda6a01c6f288df0e4a8b79c7eb0dc7b4cc08 \
     --hash=sha256:a482d51503a1ab33b1c67a6c3813a26953dbdc71c31dacaef9a838c4e29f5712
-    # via
-    #   djlint
-    #   mkdocs
+    # via mkdocs
 pexpect==4.9.0 \
     --hash=sha256:7236d1e080e4936be2dc3e326cec0af72acf9212a7e1d060210e70a47e253523 \
     --hash=sha256:ee7d41123f3c9911050ea2c2dac107568dc43b2d3b0c7557a33212c398ead30f
@@ -1185,7 +1166,6 @@ pyyaml==6.0.2 \
     --hash=sha256:f753120cb8181e736c57ef7636e83f31b9c0d1722c516f7e86cf15b7aa57ff12 \
     --hash=sha256:ff3824dc5261f50c9b0dfb3be22b4567a6f938ccce4587b38952d85fd9e9afe4
     # via
-    #   djlint
     #   mkdocs
     #   mkdocs-get-deps
     #   pymdown-extensions
@@ -1293,9 +1273,7 @@ regex==2024.9.11 \
     --hash=sha256:f8404bf61298bb6f8224bb9176c1424548ee1181130818fcd2cbffddc768bed8 \
     --hash=sha256:f9268774428ec173654985ce55fc6caf4c6d11ade0f6f914d48ef4719eb05ebb \
     --hash=sha256:faa3c142464efec496967359ca99696c896c591c56c53506bac1ad465f66e919
-    # via
-    #   djlint
-    #   mkdocs-material
+    # via mkdocs-material
 requests==2.32.3 \
     --hash=sha256:55365417734eb18255590a9ff9eb97e9e1da868d4ccd6402399eaf68af20a760 \
     --hash=sha256:70761cfe03c773ceb22aa2f671b4757976145175cdfca038c02654d061d6dcc6
@@ -1335,8 +1313,6 @@ six==1.16.0 \
     --hash=sha256:8abb2f1d86890a2dfb989f9a77cfcfd3e47c2a354b01111771326f8aa26e0254
     # via
     #   asttokens
-    #   cssbeautifier
-    #   jsbeautifier
     #   python-dateutil
 sqlparse==0.5.1 \
     --hash=sha256:773dcbf9a5ab44a090f3441e2180efe2560220203dc2f8c0b0fa141e18b505e4 \
@@ -1348,10 +1324,6 @@ stack-data==0.6.3 \
     --hash=sha256:836a778de4fec4dcd1dcd89ed8abff8a221f58308462e1c4aa2a3cf30148f0b9 \
     --hash=sha256:d5558e0c25a4cb0853cddad3d77da9891a08cb85dd9f9f91b9f8cd66e511e695
     # via ipython
-tqdm==4.66.5 \
-    --hash=sha256:90279a3770753eafc9194a0364852159802111925aa30eb3f9d85b0e805ac7cd \
-    --hash=sha256:e1020aef2e5096702d8a025ac7d16b1577279c9d63f8375b63083e9a5f0fcbad
-    # via djlint
 traitlets==5.14.3 \
     --hash=sha256:9ed0579d3502c94b4b3732ac120375cda96f923114522847de4b3bb98b96b6b7 \
     --hash=sha256:b74e89e397b1ed28cc831db7aea759ba6640cb3de13090ca145426688ff1ac4f

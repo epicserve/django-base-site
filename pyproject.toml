@@ -75,23 +75,6 @@ omit = [
 [tool.coverage.html]
 directory = "htmlcov"
 
-[tool.djlint]
-indent = 2
-profile="django"
-max_line_length=120
-blank_line_after_tag="endblock,extends,load"
-format_css=true
-format_js=true
-use_gitignore=true
-ignore="H030,H031,H017"
-exclude="base-email.html"
-
-[tool.djlint.js]
-indent_size=2
-
-[tool.djlint.css]
-indent_size=2
-
 [tool.ruff]
 line-length = 120
 
