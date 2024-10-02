@@ -15,5 +15,6 @@ mkdocs-material
 mkdocstrings[python]
 model-bakery
 mypy
+readable-log-formatter
 ruff
 ruff-lsp

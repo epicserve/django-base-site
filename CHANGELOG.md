@@ -1,5 +1,11 @@
 # CHANGELOG
 
+## 2024-10-02
+
+### Changed
+
+* Use [python-json-logger](https://github.com/madzak/python-json-logger) and [readable-log-formatter](https://github.com/ipmb/readable-log-formatter) for for better log parsing with JSON
+
 ## 2024-03-16
 
 ### Added

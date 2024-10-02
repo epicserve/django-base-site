@@ -1130,6 +1130,10 @@ python-fsutil==0.14.1 \
     --hash=sha256:0d45e623f0f4403f674bdd8ae7aa7d24a4b3132ea45c65416bd2865e6b20b035 \
     --hash=sha256:8fb204fa8059f37bdeee8a1dc0fff010170202ea47c4225ee71bb3c26f3997be
     # via django-maintenance-mode
+python-json-logger==2.0.7 \
+    --hash=sha256:23e7ec02d34237c5aa1e29a070193a4ea87583bb4e7f8fd06d3de8264c4b2e1c \
+    --hash=sha256:f380b826a991ebbe3de4d897aeec42760035ac760345e57b812938dc8b35e2bd
+    # via -r config/requirements/prod.in
 pyyaml==6.0.2 \
     --hash=sha256:01179a4a8559ab5de078078f37e5c1a30d76bb88519906844fd7bdea1b7729ff \
     --hash=sha256:0833f8694549e586547b576dcfaba4a6b55b9e96098b36cdc7ebefe667dfed48 \
@@ -1194,6 +1198,10 @@ pyyaml-env-tag==0.1 \
     --hash=sha256:70092675bda14fdec33b31ba77e7543de9ddc88f2e5b99160396572d11525bdb \
     --hash=sha256:af31106dec8a4d68c60207c1886031cbf839b68aa7abccdb19868200532c2069
     # via mkdocs
+readable-log-formatter==0.1.4 \
+    --hash=sha256:3cbbd4737074e1ffa13d62c68fa5d10019737971ac33656fe328766e18e72a89 \
+    --hash=sha256:b9054caa2b3ad4d3e49f7d0dda5f53955396912d46a7b14b2eda814e4a1f4550
+    # via -r config/requirements/dev.in
 redis==5.1.0 \
     --hash=sha256:b756df1e4a3858fcc0ef861f3fc53623a96c41e2b1f5304e09e0fe758d333d40 \
     --hash=sha256:fd4fccba0d7f6aa48c58a78d76ddb4afc698f5da4a2c1d03d916e4fd7ab88cdd

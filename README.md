@@ -38,6 +38,7 @@ features.
   Docker image
 * [UV](https://github.com/astral-sh/uv) - Used to maintain python requirements
 * [Just](https://github.com/casey/just) - Popular tool for running common commands (make equivalent)
+* [python-json-logger](https://github.com/madzak/python-json-logger) and [readable-log-formatter](https://github.com/ipmb/readable-log-formatter) - Use JSON logging for better log parsing
 
 ### 📦️ Django Packages
 

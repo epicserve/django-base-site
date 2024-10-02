@@ -1,3 +1,4 @@
+import contextlib
 import socket
 
 import environs
@@ -245,56 +246,62 @@ EMAIL_HOST_PASSWORD = email["EMAIL_HOST_PASSWORD"]
 EMAIL_HOST_USER = email["EMAIL_HOST_USER"]
 EMAIL_USE_TLS = email["EMAIL_USE_TLS"]
 
-DEBUG_LOGGING = {
-    "version": 1,
-    "disable_existing_loggers": False,
-    "formatters": {
-        "verbose": {
-            "format": "{levelname} - {asctime} - {module} - {message}",
-            "style": "{",
-        },
-    },
-    "handlers": {
-        "console": {
-            "class": "logging.StreamHandler",
-            "formatter": "verbose",
-        },
-    },
-    "loggers": {
-        "django.request": {
-            "level": "DEBUG",
-            "handlers": ["console"],
-            "propagate": False,
-        },
-    },
-}
 
-PROD_LOGGING = {
-    "version": 1,
-    "disable_existing_loggers": False,
-    "formatters": {
-        "verbose": {"format": "%(levelname)s - %(asctime)s - %(module)s - %(message)s"},
-    },
-    "handlers": {
-        "console": {
-            "class": "logging.StreamHandler",
-            "formatter": "verbose",
-        },
-    },
-    "loggers": {
-        "django.request": {
-            "level": "ERROR",
-            "handlers": ["console"],
-            "propagate": False,
-        },
-    },
-}
+def log_format() -> str:
+    """Dump all available values into the JSON log output."""
+    keys = (
+        "asctime",
+        "created",
+        "levelname",
+        "levelno",
+        "filename",
+        "funcName",
+        "lineno",
+        "module",
+        "message",
+        "name",
+        "pathname",
+        "process",
+        "processName",
+    )
+    return " ".join([f"%({i:s})" for i in keys])
 
+
+log_level = "WARNING"
 IS_DEBUG_LOGGING_ON = env.bool("IS_DEBUG_LOGGING_ON", default=False)
-LOGGING = PROD_LOGGING
-
 if IS_DEBUG_LOGGING_ON is True:
-    LOGGING = DEBUG_LOGGING
+    log_level = "DEBUG"
+
+LOGGING = {
+    "version": 1,
+    "disable_existing_loggers": False,
+    "formatters": {
+        "default": {
+            "format": log_format(),
+            "class": "pythonjsonlogger.jsonlogger.JsonFormatter",
+        },
+    },
+    "handlers": {
+        # console logs to stderr
+        "console": {
+            "class": "logging.StreamHandler",
+            "formatter": "default",
+        },
+    },
+    "loggers": {
+        # default for all Python modules not listed below
+        "": {
+            "level": log_level,
+            "handlers": ["console"],
+        },
+    },
+}
+
+# setup pretty logging for local dev
+with contextlib.suppress(ModuleNotFoundError):
+    import readable_log_formatter  # noqa: F401
+
+    LOGGING["formatters"]["default"]["class"] = "readable_log_formatter.ReadableFormatter"  # type: ignore
 
 # MAINTENANCE MODE SETTINGS
 MAINTENANCE_MODE_STATE_BACKEND = "maintenance_mode.backends.CacheBackend"
