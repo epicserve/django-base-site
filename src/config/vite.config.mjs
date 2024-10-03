@@ -1,6 +1,7 @@
+import { defineConfig } from 'vite';
 import { resolve } from 'path';
 
-export default {
+export default defineConfig({
   plugins: [],
   root: resolve(__dirname, '..'),
   base: '/public/static/',
@@ -34,4 +35,14 @@ export default {
       },
     },
   },
-};
+  css: {
+    preprocessorOptions: {
+      scss: {
+        api: 'modern-compiler',
+        // Suppress Sass deprecation warnings that are caused by Bootstrap. These should be fixed in the next major
+        // release, v5.3.4.
+        silenceDeprecations: ['mixed-decls', 'color-functions'],
+      },
+    },
+  },
+});

@@ -2,9 +2,9 @@
   "name": "django-base-site",
   "description": "Django Base Site",
   "scripts": {
-    "dev": "npx vite --config src/config/vite.config.js",
-    "build": "npx vite build --config src/config/vite.config.js",
-    "preview": "npx vite preview --config src/config/vite.config.js",
+    "dev": "npx vite --config src/config/vite.config.mjs",
+    "build": "npx vite build --config src/config/vite.config.mjs",
+    "preview": "npx vite preview --config src/config/vite.config.mjs",
     "lint-sass": "npx stylelint --config src/config/stylelint.config.js ./src/scss/",
     "format-sass": "npx stylelint --config src/config/stylelint.config.js --fix 'src/**/*.{css,scss}'",
     "lint-js": "npx eslint --config src/config/eslint.config.js ./src/js",
