@@ -7,8 +7,8 @@
     "preview": "npx vite preview --config src/config/vite.config.mjs",
     "lint-sass": "npx stylelint --config src/config/stylelint.config.js ./src/scss/",
     "format-sass": "npx stylelint --config src/config/stylelint.config.js --fix 'src/**/*.{css,scss}'",
-    "lint-js": "npx eslint --config src/config/eslint.config.js ./src/js",
-    "format-js": "npx eslint --config src/config/eslint.config.js --fix ./src/js"
+    "lint-js": "npx eslint --config src/config/eslint.config.js ./src/",
+    "format-js": "npx eslint --config src/config/eslint.config.js --fix ./src/"
   },
   "devDependencies": {
     "@popperjs/core": "^2.11.8",

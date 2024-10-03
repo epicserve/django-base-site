@@ -13,6 +13,7 @@ module.exports = {
 
   extends: [
     'airbnb-base',
+    'plugin:import/recommended',
   ],
 
   rules: {
@@ -29,5 +30,14 @@ module.exports = {
     // just one var declaration per function
     'one-var': ['error', 'always'],
 
+    'max-len': ['error', { code: 120 }],
+
   },
+
+  overrides: [
+    {
+      files: ['*.js', '*.mjs'],
+    },
+  ],
+
 };
