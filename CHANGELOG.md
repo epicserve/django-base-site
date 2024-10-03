@@ -4,7 +4,16 @@
 
 ### Changed
 
+* Updated ESLint to format config files
+* Suppress SASS warnings until Bootstrap v5.3.4 is released
+
+
+## 2024-10-02
+
+### Changed
+
 * Use [python-json-logger](https://github.com/madzak/python-json-logger) and [readable-log-formatter](https://github.com/ipmb/readable-log-formatter) for for better log parsing with JSON
+
 
 ## 2024-03-16
 
