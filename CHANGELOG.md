@@ -1,5 +1,12 @@
 # CHANGELOG
 
+## 2024-10-04
+
+### Fixed
+
+* The quickstart script not replacing the project name in the compose.yml file.
+
+
 ## 2024-10-02
 
 ### Changed
