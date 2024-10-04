@@ -108,9 +108,9 @@ db_restore dump_file="":
 @format: format_py format_js format_just format_sass format_html
 
 # Format HTML
-@format_html:
-    just _start_msg "Formatting HTML using djLint"
-    {{ python_cmd_prefix }} djlint . --reformat --quiet
+format_html:
+    just _start_msg "Formatting HTML using Djade"
+    {{ python_cmd_prefix }} djade --target-version=5.1 **/*.html
 
 # Format Javascript code
 @format_js:
