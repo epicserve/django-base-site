@@ -354,9 +354,9 @@ coverage==7.6.1 \
     --hash=sha256:fc5a77d0c516700ebad189b587de289a20a78324bc54baee03dd486f0855d234 \
     --hash=sha256:fd21f6ae3f08b41004dfb433fa895d858f3f5979e7762d052b12aef444e29afc
     # via pytest-cov
-crispy-bootstrap5==2024.2 \
-    --hash=sha256:3867e320920a6ef156e94f9e0f06a80344c453e1b3bd96cd9dc0522ae9e9afb8 \
-    --hash=sha256:7d1fa40c6faf472e30e85c72551a3d2c9eedbf0abfff920683315e4e6f670f2b
+crispy-bootstrap5==2024.10 \
+    --hash=sha256:55b442fe675dd95ad280123c7fe464f454186e90b8e5642e751f436c87627c44 \
+    --hash=sha256:59e91dac5e45a8c954af3fbcaa6804cd5aef4402f027af2f99a352b096c4016f
     # via -r config/requirements/prod.in
 cssbeautifier==1.15.1 \
     --hash=sha256:9f7064362aedd559c55eeecf6b6bed65e05f33488dcbe39044f0403c26e1c006
