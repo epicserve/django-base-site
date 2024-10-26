@@ -1513,8 +1513,8 @@ urllib3==2.2.3 \
     # via
     #   botocore
     #   requests
-uwsgi==2.0.27 \
-    --hash=sha256:3ee5bfb7e6e9c93478c22aa8183eef35b95a2d5b14cca16172e67f135565c458
+uwsgi==2.0.28 \
+    --hash=sha256:79ca1891ef2df14508ab0471ee8c0eb94bd2d51d03f32f90c4bbe557ab1e99d0
     # via -r config/requirements/prod.in
 vine==5.1.0 \
     --hash=sha256:40fdf3c48b2cfe1c38a49e9ae2da6fda88e4794c810050a728bd7413811fb1dc \
