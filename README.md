@@ -164,7 +164,7 @@ test                         # Run the Django test runner without coverage
 ## Deploying to Production
 
 The Django base site is designed to be production ready because it comes with a production
-ready [multi-stage Dockerfile](https://github.com/epicserve/django-base-site/blob/main/config/docker/Dockerfile).
+ready [multi-stage Dockerfile](https://github.com/epicserve/django-base-site/blob/main/config/docker/Dockerfile.web).
 You can also read a [blog post](https://epicserve.com/django/2022/12/30/using-flyio-with-the-django-base-site.html)
 about using it with fly.io. If you want to blog about using the Django Base Site with other PaaS providers, please let
 me know, and I can link to the post here.
