@@ -14,13 +14,13 @@ billiard==4.2.1 \
     --hash=sha256:12b641b0c539073fc8d3f5b8b7be998956665c4233c7c1fcd66a7e677c4fb36f \
     --hash=sha256:40b59a4ac8806ba2c2369ea98d876bc6108b051c227baffd928c644d15d8f3cb
     # via celery
-boto3==1.35.63 \
-    --hash=sha256:d0f938d4f6f392b6ffc5e75fff14a42e5bbb5228675a0367c8af55398abadbec \
-    --hash=sha256:deb593d9a0fb240deb4c43e4da8e6626d7c36be7b2fd2fe28f49d44d395b7de0
+boto3==1.35.68 \
+    --hash=sha256:091d6bed1422370987a839bff3f8755df7404fc15e9fac2a48e8505356f07433 \
+    --hash=sha256:9b26fa31901da7793c1dcd65eee9bab7e897d8aa1ffed0b5e1c3bce93d2aefe4
     # via -r config/requirements/prod.in
-botocore==1.35.63 \
-    --hash=sha256:0ca1200694a4c0a3fa846795d8e8a08404c214e21195eb9e010c4b8a4ca78a4a \
-    --hash=sha256:2b8196bab0a997d206c3d490b52e779ef47dffb68c57c685443f77293aca1589
+botocore==1.35.68 \
+    --hash=sha256:42c3700583a82f2b5316281a073d644a521d6358837e2b446dc458ba5d990fb4 \
+    --hash=sha256:599139d5564291f5be873800711f9e4e14a823395ae9ce7b142be775e9849b94
     # via
     #   boto3
     #   s3transfer
@@ -160,9 +160,9 @@ django-storages==1.14.4 \
     --hash=sha256:69aca94d26e6714d14ad63f33d13619e697508ee33ede184e462ed766dc2a73f \
     --hash=sha256:d61930acb4a25e3aebebc6addaf946a3b1df31c803a6bf1af2f31c9047febaa3
     # via -r config/requirements/prod.in
-environs==11.2.0 \
-    --hash=sha256:536fc3572fb32b67896bdf4a9fb77eceeeca85f873123268e3a035804fbff0e3 \
-    --hash=sha256:87c5759dad117ebd36d8d10a24caf13ec1056b6cd42343a758b08ac6b9195be0
+environs==11.2.1 \
+    --hash=sha256:9d2080cf25807a26fc0d4301e2d7b62c64fbf547540f21e3a30cc02bc5fbe948 \
+    --hash=sha256:e068ae3174cef52ba4b95ead22e639056a02465f616e62323e04ae08e86a75a4
     # via -r config/requirements/prod.in
 hiredis==3.0.0 \
     --hash=sha256:00018f22f38530768b73ea86c11f47e8d4df65facd4e562bd78773bd1baef35e \
@@ -397,9 +397,9 @@ redis==5.2.0 \
     --hash=sha256:0b1087665a771b1ff2e003aa5bdd354f15a70c9e25d5a7dbf9c722c16528a7b0 \
     --hash=sha256:ae174f2bb3b1bf2b09d54bf3e51fbc1469cf6c10aa03e21141f51969801a7897
     # via -r config/requirements/prod.in
-s3transfer==0.10.3 \
-    --hash=sha256:263ed587a5803c6c708d3ce44dc4dfedaab4c1a32e8329bab818933d79ddcf5d \
-    --hash=sha256:4f50ed74ab84d474ce614475e0b8d5047ff080810aac5d01ea25231cfc944b0c
+s3transfer==0.10.4 \
+    --hash=sha256:244a76a24355363a68164241438de1b72f8781664920260c48465896b712a41e \
+    --hash=sha256:29edc09801743c21eb5ecbc617a152df41d3c287f67b615f73e5f750583666a7
     # via boto3
 six==1.16.0 \
     --hash=sha256:1e61c37477a1626458e36f7b1d82aa5c9b094fa4802892072e49de9c60c4c926 \
