@@ -99,7 +99,7 @@ used common project commands.
 
 ### Quickstart Install Script
 
-Copy and past the following into your terminal to run the install script:
+Copy and paste the following into your terminal to run the install script:
 
 ```bash
 bash <(curl -s https://raw.githubusercontent.com/epicserve/django-base-site/main/scripts/start_new_project)
