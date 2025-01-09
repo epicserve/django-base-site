@@ -95,7 +95,7 @@ your new project. The following are MkDocs plugins being used:
 
 Before proceeding make sure you have installed [Docker](https://docs.docker.com/engine/installation/) and
 [Just](https://github.com/casey/just#installation). Docker with Docker Compose is used for local development and Just is
-used common project commands.
+used for common project commands.
 
 ### Quickstart Install Script
 
