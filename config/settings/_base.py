@@ -37,7 +37,8 @@ INTERNAL_IPS = env.list("INTERNAL_IPS", default=["127.0.0.1"])
 # Get the IP to use for Django Debug Toolbar when developing with docker
 if env.bool("USE_DOCKER", default=False) is True:
     ip = socket.gethostbyname(socket.gethostname())
-    INTERNAL_IPS += [ip[:-1] + "1"]
+    if ip is not None:
+        INTERNAL_IPS += [ip[:-1] + "1"]
 
 # Application definition
 
