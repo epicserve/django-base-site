@@ -99,7 +99,7 @@ DB_SSL_REQUIRED = env.bool("DB_SSL_REQUIRED", default=not DEBUG)
 # See https://github.com/jacobian/dj-database-url for more examples
 DATABASES = {
     "default": env.dj_db_url(
-        "DATABASE_URL", default=f'sqlite:///{BASE_DIR.joinpath("db.sqlite")}', ssl_require=DB_SSL_REQUIRED
+        "DATABASE_URL", default=f"sqlite:///{BASE_DIR.joinpath('db.sqlite')}", ssl_require=DB_SSL_REQUIRED
     )
 }
 
