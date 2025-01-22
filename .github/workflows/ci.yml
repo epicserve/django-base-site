@@ -37,6 +37,20 @@ jobs:
           PYTHON_CMD_PREFIX: ""
           NODE_CMD_PREFIX: ""
   test:
+    services:
+      postgres:
+        image: postgres:latest
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: postgres
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
     runs-on: ubuntu-latest
     name: Tests install script
     env:
@@ -44,7 +58,7 @@ jobs:
       SECRET_KEY: secret-key-for-testing-only
       READ_DOT_ENV_FILE: on
       PYTHON_CMD_PREFIX: docker compose run -u root --rm --no-deps web
-      DOCKER_COMPOSE_PREFIX: docker compose run -u root --rm --no-deps web
+      DOCKER_COMPOSE_PREFIX: docker compose run -u root -e DATABASE_URL -e READ_DOT_ENV_FILE -e SECRET_KEY -e DB_SSL_REQUIRED --rm --no-deps web
     steps:
       - uses: actions/checkout@v4
       - name: Use Just for running commands
@@ -61,3 +75,7 @@ jobs:
       - name: Run tests
         working-directory: ${{ env.BUILD_DIR }}
         run: ${{ env.DOCKER_COMPOSE_PREFIX }} pytest --cov --ds=config.settings.test_runner
+        env:
+          DATABASE_URL: postgres://postgres:postgres@172.17.0.1:5432/postgres
+          READ_DOT_ENV_FILE: False
+          DB_SSL_REQUIRED: False
