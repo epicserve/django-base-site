@@ -1,6 +1,13 @@
 # CHANGELOG
 
 
+## 2025-05-13
+
+### Changed
+
+* Changed Pytest to run tests using Postgres instead of SQLite.
+
+
 ## 2025-05-03
 
 ### Changed
