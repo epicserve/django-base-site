@@ -58,7 +58,7 @@ jobs:
       BUILD_DIR: /home/runner/work/django-base-site/new_project/
       SECRET_KEY: secret-key-for-testing-only
       READ_DOT_ENV_FILE: on
-      DOCKER_COMPOSE_PREFIX: docker compose run -u root --rm --no-deps web
+      DOCKER_COMPOSE_PREFIX: docker compose run -u root -e DATABASE_URL --rm --no-deps web
     steps:
       - uses: actions/checkout@v4
       - name: Use Just for running commands
@@ -75,3 +75,5 @@ jobs:
       - name: Run tests
         working-directory: ${{ env.BUILD_DIR }}
         run: ${{ env.DOCKER_COMPOSE_PREFIX }} pytest --cov --ds=config.settings.test_runner
+        env:
+          DATABASE_URL: postgres://postgres@postgres/postgres
