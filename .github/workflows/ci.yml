@@ -37,6 +37,16 @@ jobs:
           PYTHON_CMD_PREFIX: ""
           NODE_CMD_PREFIX: ""
   test:
+    services:
+      postgres:
+        image: postgres:latest
+        env:
+          POSTGRES_PASSWORD: postgres
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
     runs-on: ubuntu-latest
     name: Tests install script
     env:
