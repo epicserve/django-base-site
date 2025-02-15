@@ -1,3 +1,5 @@
+@use "bootstrap" as bs;
+
 .bi {
   width: 1em;
   height: 1em;
@@ -8,7 +10,7 @@
 .icon-link {
   display: flex;
   align-items: center;
-  text-decoration-color: rgba($primary, 0.5);
+  text-decoration-color: rgba(bs.$primary, 0.5);
   text-underline-offset: 0.5rem;
   backface-visibility: hidden;
 

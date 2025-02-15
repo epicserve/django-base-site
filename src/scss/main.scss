@@ -1,6 +1,6 @@
-@import "~bootstrap/scss/bootstrap";
-@import "main_nav";
-@import "color_mode_picker";
+@use "~bootstrap/scss/bootstrap" as bs;
+@use "main_nav";
+@use "color_mode_picker";
 
 .c-jumbotron {
   @extend .bg-body-secondary;
