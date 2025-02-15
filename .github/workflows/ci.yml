@@ -4,6 +4,7 @@ on:
   push:
     branches:
       - main
+      - feature/use-postgres-for-tests
   pull_request:
   workflow_dispatch:
 
@@ -37,13 +38,27 @@ jobs:
           PYTHON_CMD_PREFIX: ""
           NODE_CMD_PREFIX: ""
   test:
+    services:
+      postgres:
+        image: postgres:latest
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: postgres
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
     runs-on: ubuntu-latest
     name: Tests install script
     env:
       BUILD_DIR: /home/runner/work/django-base-site/new_project/
       SECRET_KEY: secret-key-for-testing-only
       READ_DOT_ENV_FILE: on
-      DOCKER_COMPOSE_PREFIX: docker compose run -u root --rm --no-deps web
+      DOCKER_COMPOSE_PREFIX: docker compose run -u root -e DATABASE_URL --rm --no-deps --add-host=postgres:host-gateway web
     steps:
       - uses: actions/checkout@v4
       - name: Use Just for running commands
@@ -60,3 +75,5 @@ jobs:
       - name: Run tests
         working-directory: ${{ env.BUILD_DIR }}
         run: ${{ env.DOCKER_COMPOSE_PREFIX }} pytest --cov --ds=config.settings.test_runner
+        env:
+          DATABASE_URL: postgres://postgres@postgres/postgres

@@ -189,7 +189,7 @@ pre_commit: format lint test
 
 # Run tests without coverage
 @test:
-    {{ python_cmd_prefix }} pytest --ds=config.settings.test_runner
+    {{ python_cmd_prefix_with_deps }} pytest --ds=config.settings.test_runner
 
 # Run tests with coverage
 @test_with_coverage:
