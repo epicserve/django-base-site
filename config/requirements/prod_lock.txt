@@ -430,9 +430,9 @@ typing-extensions==4.13.0 \
     --hash=sha256:0a4ac55a5820789d87e297727d229866c9650f6521b64206413c4fbada24d95b \
     --hash=sha256:c8dd92cc0d6425a97c18fbb9d1954e5ff92c1ca881a309c45f06ebc0b79058e5
     # via dj-database-url
-tzdata==2025.1 \
-    --hash=sha256:24894909e88cdb28bd1636c6887801df64cb485bd593f2fd83ef29075a81d694 \
-    --hash=sha256:7e127113816800496f027041c570f50bcd464a020098a3b6b199517772303639
+tzdata==2025.2 \
+    --hash=sha256:1a403fada01ff9221ca8044d701868fa132215d84beb92242d9acd2147f667a8 \
+    --hash=sha256:b60a638fcc0daffadf82fe0f57e53d06bdec2f36c4df66280ae79bce6bd6f2b9
     # via
     #   celery
     #   kombu
