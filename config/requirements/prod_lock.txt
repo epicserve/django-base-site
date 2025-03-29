@@ -18,9 +18,9 @@ boto3==1.37.18 \
     --hash=sha256:1545c943f36db41853cdfdb6ff09c4eda9220dd95bd2fae76fc73091603525d1 \
     --hash=sha256:9b272268794172b0b8bb9fb1f3c470c3b6c0ffb92fbd4882465cc740e40fbdcd
     # via -r config/requirements/prod.in
-botocore==1.37.18 \
-    --hash=sha256:99e8eefd5df6347ead15df07ce55f4e62a51ea7b54de1127522a08597923b726 \
-    --hash=sha256:a8b97d217d82b3c4f6bcc906e264df7ebb51e2c6a62b3548a97cd173fb8759a1
+botocore==1.37.23 \
+    --hash=sha256:3a249c950cef9ee9ed7b2278500ad83a4ad6456bc433a43abd1864d1b61b2acb \
+    --hash=sha256:ffbe1f5958adb1c50d72d3ad1018cb265fe349248c08782d334601c0814f0e38
     # via
     #   boto3
     #   s3transfer
@@ -286,9 +286,9 @@ jmespath==1.0.1 \
     # via
     #   boto3
     #   botocore
-kombu==5.5.0 \
-    --hash=sha256:526c6cf038c986b998639109a1eb762502f831e8da148cc928f1f95cd91eb874 \
-    --hash=sha256:72e65c062e903ee1b4e8b68d348f63c02afc172eda409e3aca85867752e79c0b
+kombu==5.5.1 \
+    --hash=sha256:3b66add422e1655235c7c9244000600368ef6f2ba66278a5cf0ba2e7b2dc6425 \
+    --hash=sha256:a4c2250396cdfb947c5e5322f3094fd36c3f86a1cff655f5cffdf45f371dddb8
     # via celery
 marshmallow==3.26.1 \
     --hash=sha256:3350409f20a70a7e4e11a27661187b77cdcaeb20abca41c1454fe33636bea09c \
@@ -398,9 +398,9 @@ python-dateutil==2.9.0.post0 \
     # via
     #   botocore
     #   celery
-python-dotenv==1.0.1 \
-    --hash=sha256:e324ee90a023d808f1959c46bcbc04446a10ced277783dc6ee09987c37ec10ca \
-    --hash=sha256:f7b63ef50f1b690dddf550d03497b66d609393b40b564ed0d674909a68ebf16a
+python-dotenv==1.1.0 \
+    --hash=sha256:41f90bc6f5f177fb41f53e87666db362025010eb28f60a01c9143bfa33a2b2d5 \
+    --hash=sha256:d7c01d9e2293916c18baf562d95698754b0dbbb5e74d457c45d4f6561fb9d55d
     # via environs
 python-fsutil==0.15.0 \
     --hash=sha256:8ae31def522916e35caf67723b8526fe6e5fcc1e160ea2dc23c845567708ca6e \
@@ -430,9 +430,9 @@ typing-extensions==4.12.2 \
     --hash=sha256:04e5ca0351e0f3f85c6853954072df659d0d13fac324d0072316b67d7794700d \
     --hash=sha256:1a7ead55c7e559dd4dee8856e3a88b41225abfe1ce8df57b7c13915fe121ffb8
     # via dj-database-url
-tzdata==2025.1 \
-    --hash=sha256:24894909e88cdb28bd1636c6887801df64cb485bd593f2fd83ef29075a81d694 \
-    --hash=sha256:7e127113816800496f027041c570f50bcd464a020098a3b6b199517772303639
+tzdata==2025.2 \
+    --hash=sha256:1a403fada01ff9221ca8044d701868fa132215d84beb92242d9acd2147f667a8 \
+    --hash=sha256:b60a638fcc0daffadf82fe0f57e53d06bdec2f36c4df66280ae79bce6bd6f2b9
     # via
     #   celery
     #   kombu
