@@ -1,7 +1,7 @@
 # ------------------------------------------------------------
 # STAGE 1: Build Python requirements layer
 # ------------------------------------------------------------
-FROM python:3.13-bookworm as python-requirements
+FROM python:3.13-bookworm AS python-requirements
 
 ARG ENV_NAME=dev
 
@@ -27,7 +27,7 @@ RUN set -ex \
 # ------------------------------------------------------------
 # STAGE 2: Dev layer
 # ------------------------------------------------------------
-FROM python:3.13-slim-bookworm as dev
+FROM python:3.13-slim-bookworm AS dev
 
 # Set the locale
 # libxml2-dev is needed for uwsgi in the production stage
@@ -62,7 +62,7 @@ CMD ["python", "manage.py", "runserver", "0.0.0.0:8000"]
 # ------------------------------------------------------------
 # STAGE 3: Javascript assets layer
 # ------------------------------------------------------------
-FROM node:23.11 as js_assets
+FROM node:23.11 AS js_assets
 
 WORKDIR /srv/app
 
@@ -79,7 +79,7 @@ RUN npm ci \
 # STAGE 4: Prod
 # ------------------------------------------------------------
 
-FROM dev as prod
+FROM dev AS prod
 
 WORKDIR /srv/app
 
