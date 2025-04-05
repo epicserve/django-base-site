@@ -33,6 +33,7 @@
 
     if (!btnToActive) return;
 
+    // eslint-disable-next-line one-var
     const svgOfActiveBtn = btnToActive.querySelector('svg use').getAttribute('href');
 
     document.querySelectorAll('[data-bs-theme-value]').forEach((element) => {
