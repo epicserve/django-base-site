@@ -53,7 +53,27 @@ jobs:
                 upgrades.append({'pkg': pkg, 'old_ver': old_ver, 'new_ver': new_ver})
     
         for upgrade in upgrades:
-            upgrades_str += f'* {upgrade[\"pkg\"]} from {upgrade[\"old_ver\"]} to {upgrade[\"new_ver\"]}\n'
+            pkg = upgrade['pkg']
+            old_ver = upgrade['old_ver']
+            new_ver = upgrade['new_ver']
+            
+            # Parse version components
+            old_parts = old_ver.split('.')
+            new_parts = new_ver.split('.')
+            
+            # Check if it's more than a patch update (major or minor version change)
+            # Compare at least the first two parts if available
+            is_major_minor_change = False
+            for i in range(min(2, min(len(old_parts), len(new_parts)))):
+                if old_parts[i] != new_parts[i]:
+                    is_major_minor_change = True
+                    break
+            
+            # Apply bold formatting for major or minor version changes
+            if is_major_minor_change:
+                upgrades_str += f'* **{pkg} from {old_ver} to {new_ver}**\n'
+            else:
+                upgrades_str += f'* {pkg} from {old_ver} to {new_ver}\n'
     
         # Write the output value to a file
         with open('output.txt', 'w') as f:
