@@ -222,7 +222,7 @@ LOGIN_REDIRECT_URL = "/"
 ACCOUNT_LOGOUT_ON_GET = True
 ACCOUNT_LOGIN_METHODS = {"email"}
 ACCOUNT_CONFIRM_EMAIL_ON_GET = True
-ACCOUNT_SIGNUP_FIELDS = ['email*', 'password1*']
+ACCOUNT_SIGNUP_FIELDS = ["email*", "password1*"]
 # This is set to "none" so when trying out an app idea you don't have to have sending emails setup, which can be a pain.
 # It's not recommended to leave it as none on a production system. Choose either mandatory or optional.
 ACCOUNT_EMAIL_VERIFICATION = "none"
