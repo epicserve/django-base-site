@@ -4,8 +4,8 @@
 # Use docker compose as the default prefix for commands. Set these environment variables to an empty string to overwrite
 # running with docker-compose.
 
-python_cmd_prefix := env_var_or_default('PYTHON_CMD_PREFIX', 'docker compose run --no-deps --rm web')
-python_cmd_prefix_with_deps := env_var_or_default('PYTHON_CMD_PREFIX_WITH_DEPS', 'docker compose run --rm web')
+python_cmd_prefix := env_var_or_default('PYTHON_CMD_PREFIX', 'docker compose exec web')
+python_cmd_prefix_with_deps := env_var_or_default('PYTHON_CMD_PREFIX_WITH_DEPS', 'docker compose exec web')
 node_cmd_prefix := env_var_or_default('NODE_CMD_PREFIX', 'docker compose run --no-deps --rm -e NODE_ENV=production node')
 
 set dotenv-load := true
@@ -124,7 +124,7 @@ db_restore dump_file="":
 
 # Format Python code
 @format_py:
-    just _start_msg "Formatting Python code using black"
+    just _start_msg "Formatting Python code using ruff"
     {{ python_cmd_prefix }} ruff format
     {{ python_cmd_prefix }} ruff check --fix
 
