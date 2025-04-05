@@ -29,8 +29,11 @@
   // eslint-disable-next-line one-var
   const showActiveTheme = (theme) => {
     const activeThemeIcon = document.querySelector('.theme-icon-active use'),
-      btnToActive = document.querySelector(`[data-bs-theme-value="${theme}"]`),
-      svgOfActiveBtn = btnToActive.querySelector('svg use').getAttribute('href');
+      btnToActive = document.querySelector(`[data-bs-theme-value="${theme}"]`);
+
+    if (!btnToActive) return;
+
+    const svgOfActiveBtn = btnToActive.querySelector('svg use').getAttribute('href');
 
     document.querySelectorAll('[data-bs-theme-value]').forEach((element) => {
       element.classList.remove('active');
