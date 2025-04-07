@@ -1,5 +1,23 @@
 # CHANGELOG
 
+
+## 2025-04-05
+
+### Changed
+
+* Switch to using `docker compose exec` instead of `docker compose run` for faster Just commands
+* Switch to using the base_entrance.html template for Allauth, so templates that aren't overridden like the signup_closed.html template still work
+* Update the Githut Action that creates a PR for Python upgrades so that it bolds upgrades greater than a patch
+
+### Fixed
+
+* Fix a JS exception in color picker
+* Remove the extra double quote in the Github Action that creats a PR for Python upgrades
+* Fix the browser trying to load the Favicon
+* Fix the case for "AS" in the docker config file
+* Fix linting errors
+
+
 ## 2024-10-04
 
 ### Fixed
