@@ -43,6 +43,7 @@ jobs:
       BUILD_DIR: /home/runner/work/django-base-site/new_project/
       SECRET_KEY: secret-key-for-testing-only
       READ_DOT_ENV_FILE: on
+      PYTHON_CMD_PREFIX: docker compose run -u root --rm --no-deps web
       DOCKER_COMPOSE_PREFIX: docker compose run -u root --rm --no-deps web
     steps:
       - uses: actions/checkout@v4
