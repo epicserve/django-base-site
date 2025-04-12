@@ -1,6 +1,13 @@
 # CHANGELOG
 
 
+## 2025-04-12
+
+### Changed
+
+* Improved the sign in UI/UX
+
+
 ## 2025-04-05
 
 ### Changed
