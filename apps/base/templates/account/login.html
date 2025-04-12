@@ -8,8 +8,41 @@
   {% trans "Sign In" %}
 {% endblock head_title %}
 
+{% block style %}
+  {{ block.super }}
+  <style>
+    #login-form main {
+      max-width: 400px;
+    }
+
+    #id_login {
+      border-bottom-right-radius: 0;
+      border-bottom-left-radius: 0;
+    }
+
+    #id_password {
+      border-top-right-radius: 0;
+      border-top-left-radius: 0;
+    }
+
+    #div_id_login {
+      margin-bottom: -1px !important;
+    }
+  </style>
+{% endblock style %}
+
+{% block base_header %}
+{% endblock base_header %}
+
+{# djlint:off #}
+{% block body_id %}login-form{% endblock body_id %}
+{# djlint:on #}
+{% block content_class %}
+  w-100 m-auto
+{% endblock content_class %}
+
 {% block content %}
-  <h1>{% trans "Sign In" %}</h1>
+  <h2>{% trans "Sign In" %}</h2>
   {% if socialaccount.providers %}
     <p>
       {% blocktrans with site.name as site_name %}Please sign in with one
@@ -25,21 +58,16 @@ below:{% endblocktrans %}
     </div>
     {% include "socialaccount/snippets/login_extra.html" %}
   {% endif %}
-  <p>
-    {% blocktrans %}If you have not created an account yet, then please
-<a href="{{ signup_url }}">sign up</a> first.{% endblocktrans %}
-  </p>
   <form class="login" method="post" action="{% url 'account_login' %}">
     {% csrf_token %}
-    {{ form|crispy }}
+    {% crispy form %}
     {% if redirect_field_value %}
       <input type="hidden"
              name="{{ redirect_field_name }}"
              value="{{ redirect_field_value }}" />
     {% endif %}
-    <div class="form-actions">
-      <button class="btn btn-primary" type="submit">{% trans "Sign In" %}</button>
-      <a class="btn" href="{% url 'account_reset_password' %}">{% trans "Forgot Password?" %}</a>
-    </div>
+    <p class="mt-3">
+      {% blocktrans %}Don't have an account? <a href="{{ signup_url }}">Sign up</a>{% endblocktrans %}
+    </p>
   </form>
 {% endblock content %}

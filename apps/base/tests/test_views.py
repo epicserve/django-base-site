@@ -5,7 +5,7 @@ class TestIndexView(BaseTest):
     def test_index(self):
         # test not logged in
         self.get("site_index")
-        self.assert_http_200_ok()
+        self.assert_http_302_found()
 
         # test logged in
         user = self.make_user()

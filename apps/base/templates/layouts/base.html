@@ -26,35 +26,48 @@
 
     {% include "blocks/google-analytics.html" %}
   </head>
-  <body {% block body_attr %} class="{% block body_class %}d-flex flex-column h-100{% endblock body_class %}
-     " id="{% block body_id %}{% endblock body_id %}
-     " {% endblock body_attr %}
+  {# djlint:off #}
+  <body
+    {% block body_attr %}
+      class="{% block body_class %}d-flex flex-column h-100{% endblock body_class %}"
+      id="{% block body_id %}{% endblock body_id %}"
+    {% endblock body_attr %}
     >
-    {% block base_header %}
-      {% include "blocks/nav.html" %}
-    {% endblock base_header %}
+  {# djlint:on #}
+  {% block base_header %}
+    {% include "blocks/nav.html" %}
+  {% endblock base_header %}
 
-    <main class="{% block content_class %}container-fluid{% endblock content_class %}
-       ">
-      {% block breadcrumb %}
-      {% endblock breadcrumb %}
+  <main class="{% block content_class %}container-fluid{% endblock content_class %}
+     ">
+    {% block breadcrumb %}
+    {% endblock breadcrumb %}
 
-      {% if messages %}
-        <div id="flash-message-container">
-          {% for message in messages %}<p class="alert alert-{{ message.tags }}">{{ message }}</p>{% endfor %}
-        </div>
-      {% endif %}
-      {% block content %}
-      {% endblock content %}
+    {% if messages %}
+      <div id="flash-message-container">
+        {% for message in messages %}
+          <div class="alert alert-{{ message.tags }} alert-dismissible fade show"
+               role="alert">
+            {{ message }}
+            <button type="button"
+                    class="btn-close"
+                    data-bs-dismiss="alert"
+                    aria-label="Close"></button>
+          </div>
+        {% endfor %}
+      </div>
+    {% endif %}
+    {% block content %}
+    {% endblock content %}
 
-    </main>
-    <footer class="footer mt-auto container-fluid border-top border-top-1 pt-2">
-      <p>©{{ SITE_NAME }} {% now "Y" %}</p>
-    </footer>
-    {% block bottom_script %}
-      {% vite_hmr_client %}
-      {% vite_asset 'js/main.js' %}
-    {% endblock bottom_script %}
+  </main>
+  <footer class="footer mt-auto container-fluid border-top border-top-1 pt-2">
+    <p>©{{ SITE_NAME }} {% now "Y" %}</p>
+  </footer>
+  {% block bottom_script %}
+    {% vite_hmr_client %}
+    {% vite_asset 'js/main.js' %}
+  {% endblock bottom_script %}
 
-  </body>
+</body>
 </html>

@@ -106,7 +106,7 @@ select = [
     "D",  # pydocstyle
     "S",  # bandit
 ]
-ignore = ["D100", "D101", "D102", "D103", "D104", "D106", "D203", "D212"]
+ignore = ["D100", "D101", "D102", "D103", "D104", "D106", "D107", "D203", "D212", ]
 
 [tool.ruff.lint.per-file-ignores]
 "**/{tests}/*" = ["S101"]
