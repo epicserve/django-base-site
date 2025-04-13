@@ -1,4 +1,4 @@
-{% extends "account/base_entrance.html" %}
+{% extends "layouts/fullscreen_no_nav.html" %}
 
 {% load i18n %}
 {% load crispy_forms_tags %}
@@ -30,9 +30,6 @@
     }
   </style>
 {% endblock style %}
-
-{% block base_header %}
-{% endblock base_header %}
 
 {# djlint:off #}
 {% block body_id %}login-form{% endblock body_id %}

@@ -38,32 +38,39 @@
     {% include "blocks/nav.html" %}
   {% endblock base_header %}
 
-  <main class="{% block content_class %}container-fluid{% endblock content_class %}
+  <main class="{% block content_class %}d-flex flex-nowrap vh-100{% endblock content_class %}
      ">
-    {% block breadcrumb %}
-    {% endblock breadcrumb %}
+    {% block sidenav %}
+      {% include "blocks/sidenav.html" %}
+    {% endblock sidenav %}
 
-    {% if messages %}
-      <div id="flash-message-container">
-        {% for message in messages %}
-          <div class="alert alert-{{ message.tags }} alert-dismissible fade show"
-               role="alert">
-            {{ message }}
-            <button type="button"
-                    class="btn-close"
-                    data-bs-dismiss="alert"
-                    aria-label="Close"></button>
-          </div>
-        {% endfor %}
-      </div>
-    {% endif %}
-    {% block content %}
-    {% endblock content %}
+    <div class="d-flex flex-column flex-fill">
+      {% block breadcrumb %}
+      {% endblock breadcrumb %}
 
+      {% if messages %}
+        <div id="flash-message-container">
+          {% for message in messages %}
+            <div class="alert alert-{{ message.tags }} alert-dismissible fade show"
+                 role="alert">
+              {{ message }}
+              <button type="button"
+                      class="btn-close"
+                      data-bs-dismiss="alert"
+                      aria-label="Close"></button>
+            </div>
+          {% endfor %}
+        </div>
+      {% endif %}
+      {% block content %}
+      {% endblock content %}
+
+      <footer class="{% block footer_class %}footer mt-auto container-fluid border-top border-top-1 pt-2{% endblock footer_class %}
+         ">
+        <p class="text-end text-muted pe-2">©{{ SITE_NAME }} {% now "Y" %}</p>
+      </footer>
+    </div>
   </main>
-  <footer class="footer mt-auto container-fluid border-top border-top-1 pt-2">
-    <p>©{{ SITE_NAME }} {% now "Y" %}</p>
-  </footer>
   {% block bottom_script %}
     {% vite_hmr_client %}
     {% vite_asset 'js/main.js' %}

@@ -1,0 +1,23 @@
+{% extends "layouts/fullscreen_no_nav.html" %}
+
+{% load i18n %}
+{% load allauth %}
+
+{% block title %}
+  {% trans "Sign Up Closed" %}
+{% endblock title %}
+
+{% block content_class %}
+  w-100 m-auto
+{% endblock content_class %}
+
+{% block content %}
+  <div class="c-jumbotron">
+    {% element h1 %}
+    {% trans "Sign Up Closed" %}
+  {% endelement %}
+  {% element p %}
+  {% trans "We are sorry, but the sign up is currently closed." %}
+{% endelement %}
+</div>
+{% endblock content %}
