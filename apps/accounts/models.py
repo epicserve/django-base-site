@@ -7,7 +7,8 @@ from django.utils.safestring import mark_safe
 
 class User(AbstractUser):
     def _get_gravatar_url(self, size: int = 40):
-        default = "https://example.com/static/images/defaultavatar.jpg"
+        # See the documentation for the default parameter: https://docs.gravatar.com/api/avatars/images/
+        default = "mp"
         hashed_email = hashlib.md5(self.email.lower().encode()).hexdigest()  # noqa: S324
         params = urllib.parse.urlencode({"d": default, "s": str(size)})
         return f"https://www.gravatar.com/avatar/{hashed_email}?{params}"

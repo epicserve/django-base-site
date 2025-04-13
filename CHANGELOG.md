@@ -1,6 +1,13 @@
 # CHANGELOG
 
 
+## 2025-04-13
+
+### Changed
+
+* Make the default gravatar cartoon-style silhouetted outline of a person
+
+
 ## 2025-04-12
 
 ### Changed
