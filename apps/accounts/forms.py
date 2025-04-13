@@ -1,11 +1,12 @@
+from django import forms
+from django.contrib.auth import REDIRECT_FIELD_NAME
+
 from allauth.account.forms import LoginForm
 from allauth.utils import get_request_param
 from crispy_bootstrap5.bootstrap5 import FloatingField
 from crispy_forms.bootstrap import FormActions
 from crispy_forms.helper import FormHelper
-from crispy_forms.layout import Layout, Field, Submit
-from django import forms
-from django.contrib.auth import REDIRECT_FIELD_NAME
+from crispy_forms.layout import Field, Layout, Submit
 
 
 class SignInForm(LoginForm):
