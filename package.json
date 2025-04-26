@@ -16,12 +16,12 @@
     "eslint": "^8.57.1",
     "eslint-config-airbnb-base": "^15.0.0",
     "eslint-plugin-import": "^2.31.0",
-    "sass": "~1.86",
-    "stylelint": "^16.18.0",
+    "sass": "~1.87",
+    "stylelint": "^16.19.1",
     "stylelint-config-recess-order": "^6.0.0",
     "stylelint-config-standard-scss": "^14.0.0",
     "stylelint-scss": "^6.11.1",
-    "vite": "^6.3.2"
+    "vite": "^6.3.3"
   },
   "repository": {
     "type": "git",
