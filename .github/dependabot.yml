@@ -20,11 +20,6 @@ updates:
       day: "saturday"
       time: "11:00" # 11 AM UTC / 5 AM CST
     open-pull-requests-limit: 10
-    groups:
-      production-dependencies:
-        dependency-type: "production"
-      development-dependencies:
-        dependency-type: "development"
 
   - package-ecosystem: "npm"
     directory: "/"
