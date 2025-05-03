@@ -1,6 +1,13 @@
 # CHANGELOG
 
 
+## 2025-05-03
+
+### Changed
+
+* Switch to using `uv sync` and the `uv.lock` with `pyproject.toml` instead of `uv pip` with `*.in` requirement files.
+
+
 ## 2025-04-13
 
 ### Changed
