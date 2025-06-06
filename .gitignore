@@ -13,3 +13,6 @@ htmlcov
 latest.dump
 node_modules
 public/static/dist
+
+# Claude Code settings
+.claude/

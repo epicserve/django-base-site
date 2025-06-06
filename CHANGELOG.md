@@ -8,6 +8,7 @@
 * Added CLAUDE.md with project overview and development commands for Claude Code
 * Added Docker Compose healthchecks for PostgreSQL, Redis, and Vite services to ensure reliable service startup
 * Added Docker build cache mounts for pip, uv, and npm with project-specific IDs to speed up builds
+* Added .claude/ to .gitignore for local Claude Code settings
 
 ### Changed
 
