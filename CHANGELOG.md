@@ -13,6 +13,7 @@
 ### Changed
 
 * Updated Docker Compose depends_on to wait for services to be healthy before starting dependent services
+* Updated the `scripts/start_new_project` script with environment variables for docker compose build
 
 
 ## 2025-05-13
