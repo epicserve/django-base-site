@@ -1,6 +1,18 @@
 # CHANGELOG
 
 
+## 2025-06-06
+
+### Added
+
+* Added CLAUDE.md with project overview and development commands for Claude Code
+* Added Docker Compose healthchecks for PostgreSQL, Redis, and Vite services to ensure reliable service startup
+
+### Changed
+
+* Updated Docker Compose depends_on to wait for services to be healthy before starting dependent services
+
+
 ## 2025-05-13
 
 ### Changed

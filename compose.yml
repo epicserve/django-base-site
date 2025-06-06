@@ -12,6 +12,12 @@ services:
       - "5432:5432"
     env_file:
       - .env
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-postgres} -d ${POSTGRES_DB:-postgres}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
 
   redis:
     container_name: redis
@@ -20,6 +26,12 @@ services:
     command: ["redis-server", "--appendonly", "yes"]
     volumes:
       - redis_data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 3s
+      retries: 3
+      start_period: 10s
 
   web:
     container_name: web
@@ -39,9 +51,12 @@ services:
       - "8000:8000"
 
     depends_on:
-      - node
-      - db
-      - redis
+      node:
+        condition: service_healthy
+      db:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
 
     environment:
       USE_DOCKER: 'on'
@@ -58,7 +73,8 @@ services:
       - .:/srv/app:cached
 
     depends_on:
-      - web
+      web:
+        condition: service_started
 
     environment:
       DJANGO_SETTINGS_MODULE: config.settings
@@ -84,6 +100,13 @@ services:
     environment:
       NODE_ENV: development
 
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:3000"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+      start_period: 30s
+
   docs:
     container_name: docs
     image: epicserve/django-base-site:python
@@ -106,7 +129,8 @@ services:
       - docs
 
     depends_on:
-      - web
+      web:
+        condition: service_started
 
 volumes:
   postgres_data:
