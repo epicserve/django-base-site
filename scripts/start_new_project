@@ -94,6 +94,7 @@ EOF
 just clean_extra_files
 sed -i '' "s|image: epicserve/django-base-site|image: ${PROJECT_NAME_SLUG}|" compose.yml
 sed -i '' "s|django-base-site|${PROJECT_NAME_SLUG}|" justfile
+sed -i '' "s|django-base-site|${PROJECT_NAME_SLUG}|" config/docker/Dockerfile.web
 find ./public -name ".keep" | xargs rm -rf
 
 echo ""

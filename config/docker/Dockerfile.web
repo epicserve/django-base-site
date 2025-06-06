@@ -13,20 +13,21 @@ ENV \
     PYTHONUNBUFFERED=1 \
     UV_PROJECT_ENVIRONMENT=$VIRTUAL_ENV
 
-RUN set -ex \
+RUN --mount=type=cache,target=/root/.cache/pip,id=django-base-site-pip \
+    set -ex \
     && python3 -m venv $VIRTUAL_ENV \
     && $VIRTUAL_ENV/bin/pip install -U setuptools wheel pip uv
 
 # Install Python packages
 COPY uv.lock pyproject.toml ./
 
-RUN set -ex \
+RUN --mount=type=cache,target=/root/.cache/uv,id=django-base-site-uv \
+    set -ex \
     && if [ "$ENV_NAME" = "prod" ]; then \
         $VIRTUAL_ENV/bin/uv sync --no-dev; \
     else \
         $VIRTUAL_ENV/bin/uv sync; \
-    fi \
-    && rm -rf /root/.cache/
+    fi
 
 
 # ------------------------------------------------------------
@@ -76,7 +77,8 @@ COPY package.json package-lock.json ./
 COPY src src
 
 # Install Node packages
-RUN npm ci \
+RUN --mount=type=cache,target=/root/.npm,id=django-base-site-npm \
+    npm ci \
     && npm run build \
     && ls -la public/static/dist/
 
