@@ -1,21 +1,26 @@
-@use "~bootstrap/scss/bootstrap" as bs;
 @use "main_nav";
 @use "color_mode_picker";
 
+/* Tailwind disabled until container rebuild */
+/* @tailwind base; */
+/* @tailwind components; */
+/* @tailwind utilities; */
+
 .c-jumbotron {
-  @extend .bg-body-secondary;
-  @extend .mt-5;
-  @extend .p-5;
-  @extend .rounded-3;
-  @extend .m-auto;
-  @extend .text-center;
+  background-color: #f3f4f6;
+  margin-top: 3rem;
+  padding: 3rem;
+  border-radius: 0.5rem;
+  margin-left: auto;
+  margin-right: auto;
+  text-align: center;
 
   h1 {
-    @extend .display-5;
-    @extend .fw-bold;
+    font-size: 3rem;
+    font-weight: bold;
   }
 
   p {
-    @extend .fs-4;
+    font-size: 1.25rem;
   }
 }

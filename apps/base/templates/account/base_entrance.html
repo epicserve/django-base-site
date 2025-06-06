@@ -12,28 +12,22 @@
 {% endblock content_class %}
 
 {% block content %}
-  <h1>{% trans "Account Settings" %}</h1>
-  <ul class="nav nav-tabs mb-4">
-    <li class="nav-item">
-      <a class="nav-link {% block account_nav_name %}{% endblock account_nav_name %}
-       " aria-current="page" href="{% url 'account_change_name' %}">Name</a>
-    </li>
-    <li class="nav-item">
-      <a class="nav-link {% block account_nav_email %}{% endblock account_nav_email %}
-       " href="{% url 'account_email' %}">{% trans "E-mail Addresses" %}</a>
-    </li>
-    <li class="nav-item">
-      <a class="nav-link {% block account_nav_change_password %}{% endblock account_nav_change_password %}
-       " href="{% url 'account_change_password' %}">{% trans "Change Password" %}</a>
-    </li>
-    {% url 'socialaccount_connections' as connections_url %}
-    {% if connections_url %}
-      <li class="nav-item">
-        <a class="nav-link {% block account_nav_socialaccount_connections %}{% endblock account_nav_socialaccount_connections %}
-         " href="{{ connections_url }}">{% trans "Connected Accounts" %}</a>
-      </li>
-    {% endif %}
-  </ul>
+  <div class="mb-8">
+    <h1 class="text-3xl font-bold text-gray-900 dark:text-white mb-6">{% trans "Account Settings" %}</h1>
+    <nav class="flex space-x-8 border-b border-gray-200 dark:border-gray-700 mb-6">
+      <a class="py-2 px-1 border-b-2 font-medium text-sm {% block account_nav_name %}border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300 dark:text-gray-400 dark:hover:text-gray-300{% endblock account_nav_name %}"
+         href="{% url 'account_change_name' %}">Name</a>
+      <a class="py-2 px-1 border-b-2 font-medium text-sm {% block account_nav_email %}border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300 dark:text-gray-400 dark:hover:text-gray-300{% endblock account_nav_email %}"
+         href="{% url 'account_email' %}">{% trans "E-mail Addresses" %}</a>
+      <a class="py-2 px-1 border-b-2 font-medium text-sm {% block account_nav_change_password %}border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300 dark:text-gray-400 dark:hover:text-gray-300{% endblock account_nav_change_password %}"
+         href="{% url 'account_change_password' %}">{% trans "Change Password" %}</a>
+      {% url 'socialaccount_connections' as connections_url %}
+      {% if connections_url %}
+        <a class="py-2 px-1 border-b-2 font-medium text-sm {% block account_nav_socialaccount_connections %}border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300 dark:text-gray-400 dark:hover:text-gray-300{% endblock account_nav_socialaccount_connections %}"
+           href="{{ connections_url }}">{% trans "Connected Accounts" %}</a>
+      {% endif %}
+    </nav>
+  </div>
   {% block account_content %}
   {% endblock account_content %}
 {% endblock content %}
