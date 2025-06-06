@@ -11,7 +11,7 @@ Django Base Site is an opinionated Django starter template that provides a produ
 - **Apps Structure**: Located in `apps/` directory with `accounts/` (custom user model) and `base/` (core utilities)
 - **Configuration**: Settings split into modules in `config/settings/` with environment-based configuration via Environs
 - **Frontend**: Vite-based build system with Bootstrap 5, assets in `src/` directory
-- **Docker**: Multi-stage production Dockerfile with development compose setup
+- **Docker**: Multi-stage production Dockerfile with development compose setup using Docker Desktop
 - **Static Files**: Custom storage backend in `apps/base/storage.py`, collected to `collected_static/`
 
 ## Development Commands

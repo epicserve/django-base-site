@@ -16,3 +16,4 @@ public/static/dist
 
 # Claude Code settings
 .claude/
+CLAUDE.local.md
