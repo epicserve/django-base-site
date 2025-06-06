@@ -9,6 +9,7 @@
 * Added Docker Compose healthchecks for PostgreSQL, Redis, and Vite services to ensure reliable service startup
 * Added Docker build cache mounts for pip, uv, and npm with project-specific IDs to speed up builds
 * Added .claude/ to .gitignore for local Claude Code settings
+* Added Docker build cache mounts for apt update and install operations
 
 ### Changed
 

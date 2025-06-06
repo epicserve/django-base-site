@@ -38,8 +38,10 @@ FROM python:3.13-slim-bookworm AS dev
 # Set the locale
 # libxml2-dev is needed for uwsgi in the production stage
 # mime-support install (/etc/mime.types) which is needded uWSGI to server static files with the correct mime types
-RUN apt-get update \
-    && apt-get install -y locales libxml2-dev mime-support \
+RUN --mount=type=cache,target=/var/cache/apt,id=django-base-site-apt \
+    --mount=type=cache,target=/var/lib/apt,id=django-base-site-apt \
+    apt update \
+    && apt install -yqq --no-install-recommends locales libxml2-dev mime-support \
     && echo "LC_ALL=en_US.UTF-8" >> /etc/environment \
     && echo "en_US.UTF-8 UTF-8" >> /etc/locale.gen \
     && echo "LANG=en_US.UTF-8" > /etc/locale.conf \
