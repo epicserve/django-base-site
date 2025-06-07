@@ -1,5 +1,8 @@
 import { defineConfig } from 'vite';
 import { resolve } from 'path';
+import { fileURLToPath, URL } from 'node:url';
+
+const __dirname = fileURLToPath(new URL('.', import.meta.url));
 
 export default defineConfig({
   plugins: [],
@@ -16,9 +19,6 @@ export default defineConfig({
   },
   resolve: {
     extensions: ['.js', '.json'],
-    alias: {
-      '~bootstrap': resolve(__dirname, '../../node_modules/bootstrap'),
-    },
   },
   build: {
     outDir: resolve(__dirname, '../../public/static/dist/js'),
@@ -39,9 +39,6 @@ export default defineConfig({
     preprocessorOptions: {
       scss: {
         api: 'modern-compiler',
-        // Suppress Sass deprecation warnings that are caused by Bootstrap.
-        // See this issue for more details: https://github.com/twbs/bootstrap/issues/40849
-        silenceDeprecations: ['color-functions', 'import', 'global-builtin', 'mixed-decls'],
       },
     },
   },

@@ -17,10 +17,18 @@
 
     // eslint-disable-next-line func-names
     setTheme = function (theme) {
-      if (theme === 'auto' && window.matchMedia('(prefers-color-scheme: dark)').matches) {
-        document.documentElement.setAttribute('data-bs-theme', 'dark');
+      const html = document.documentElement;
+      
+      if (theme === 'auto') {
+        if (window.matchMedia('(prefers-color-scheme: dark)').matches) {
+          html.classList.add('dark');
+        } else {
+          html.classList.remove('dark');
+        }
+      } else if (theme === 'dark') {
+        html.classList.add('dark');
       } else {
-        document.documentElement.setAttribute('data-bs-theme', theme);
+        html.classList.remove('dark');
       }
     };
 
@@ -29,37 +37,42 @@
   // eslint-disable-next-line one-var
   const showActiveTheme = (theme) => {
     const activeThemeIcon = document.querySelector('.theme-icon-active use'),
-      btnToActive = document.querySelector(`[data-bs-theme-value="${theme}"]`);
+      btnToActive = document.querySelector(`[data-theme-value="${theme}"]`);
 
     if (!btnToActive) return;
 
     // eslint-disable-next-line one-var
     const svgOfActiveBtn = btnToActive.querySelector('svg use').getAttribute('href');
 
-    document.querySelectorAll('[data-bs-theme-value]').forEach((element) => {
-      element.classList.remove('active');
+    document.querySelectorAll('[data-theme-value]').forEach((element) => {
+      element.classList.remove('bg-gray-100', 'dark:bg-gray-700');
     });
 
-    btnToActive.classList.add('active');
+    btnToActive.classList.add('bg-gray-100', 'dark:bg-gray-700');
     activeThemeIcon.setAttribute('href', svgOfActiveBtn);
   };
 
   window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', () => {
-    if (storedTheme !== 'light' || storedTheme !== 'dark') {
+    if (storedTheme !== 'light' && storedTheme !== 'dark') {
       setTheme(getPreferredTheme());
     }
   });
 
+  // Make setTheme available globally for Alpine.js
+  window.setTheme = (theme) => {
+    localStorage.setItem('theme', theme);
+    setTheme(theme);
+    showActiveTheme(theme);
+  };
+
   window.addEventListener('DOMContentLoaded', () => {
     showActiveTheme(getPreferredTheme());
 
-    document.querySelectorAll('[data-bs-theme-value]')
+    document.querySelectorAll('[data-theme-value]')
       .forEach((toggle) => {
         toggle.addEventListener('click', () => {
-          const theme = toggle.getAttribute('data-bs-theme-value');
-          localStorage.setItem('theme', theme);
-          setTheme(theme);
-          showActiveTheme(theme);
+          const theme = toggle.getAttribute('data-theme-value');
+          window.setTheme(theme);
         });
       });
   });

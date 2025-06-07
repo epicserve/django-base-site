@@ -55,7 +55,6 @@ INSTALLED_APPS = [
     "allauth",
     "allauth.account",
     "crispy_forms",
-    "crispy_bootstrap5",
     "storages",
 ]
 
@@ -202,8 +201,8 @@ CELERY_BROKER_URL = REDIS_URL
 CELERY_BROKER_TRANSPORT_OPTIONS = {"global_keyprefix": REDIS_PREFIX}
 
 # CRISPY-FORMS
-CRISPY_ALLOWED_TEMPLATE_PACKS = "bootstrap5"
-CRISPY_TEMPLATE_PACK = "bootstrap5"
+CRISPY_ALLOWED_TEMPLATE_PACKS = "uni_form"
+CRISPY_TEMPLATE_PACK = "uni_form"
 
 SESSION_ENGINE = "django.contrib.sessions.backends.cache"
 

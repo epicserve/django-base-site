@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 {% load vite %}
 
-<html lang="en" class="h-100">
+<html lang="en" class="h-full">
   <head>
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
@@ -29,7 +29,7 @@
   {# djlint:off #}
   <body
     {% block body_attr %}
-      class="{% block body_class %}d-flex flex-column h-100{% endblock body_class %}"
+      class="{% block body_class %}flex flex-col min-h-full{% endblock body_class %}"
       id="{% block body_id %}{% endblock body_id %}"
     {% endblock body_attr %}
     >
@@ -38,21 +38,27 @@
     {% include "blocks/nav.html" %}
   {% endblock base_header %}
 
-  <main class="{% block content_class %}container-fluid{% endblock content_class %}
+  <main class="{% block content_class %}flex-1 w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8{% endblock content_class %}
      ">
     {% block breadcrumb %}
     {% endblock breadcrumb %}
 
     {% if messages %}
-      <div id="flash-message-container">
+      <div id="flash-message-container" class="mb-4">
         {% for message in messages %}
-          <div class="alert alert-{{ message.tags }} alert-dismissible fade show"
+          <div class="rounded-md p-4 mb-4 {% if message.tags == 'error' %}bg-red-50 border border-red-200 text-red-800{% elif message.tags == 'warning' %}bg-yellow-50 border border-yellow-200 text-yellow-800{% elif message.tags == 'success' %}bg-green-50 border border-green-200 text-green-800{% else %}bg-blue-50 border border-blue-200 text-blue-800{% endif %}"
                role="alert">
-            {{ message }}
-            <button type="button"
-                    class="btn-close"
-                    data-bs-dismiss="alert"
-                    aria-label="Close"></button>
+            <div class="flex justify-between items-start">
+              <div class="flex-1">{{ message }}</div>
+              <button type="button"
+                      class="ml-3 text-gray-400 hover:text-gray-600 transition-colors"
+                      onclick="this.parentElement.parentElement.remove()"
+                      aria-label="Close">
+                <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+                  <path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd"></path>
+                </svg>
+              </button>
+            </div>
           </div>
         {% endfor %}
       </div>
@@ -61,8 +67,10 @@
     {% endblock content %}
 
   </main>
-  <footer class="footer mt-auto container-fluid border-top border-top-1 pt-2">
-    <p>©{{ SITE_NAME }} {% now "Y" %}</p>
+  <footer class="mt-auto w-full border-t border-gray-200 pt-4 px-4 sm:px-6 lg:px-8">
+    <div class="max-w-7xl mx-auto">
+      <p class="text-sm text-gray-600">©{{ SITE_NAME }} {% now "Y" %}</p>
+    </div>
   </footer>
   {% block bottom_script %}
     {% vite_hmr_client %}

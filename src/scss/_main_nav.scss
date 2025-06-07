@@ -1,8 +1,6 @@
-@use "bootstrap" as bs;
-
 // User navigation menu
 .navbar-nav--user-nav {
-  // remove dropdown caret
+  // remove dropdown caret for custom implementation
   .dropdown-toggle::after {
    display: none;
   }
@@ -18,7 +16,7 @@
 
 // Medium max-width container
 .container--mw-md {
-  max-width: 1000px;
-
-  @extend .px-3;
+  max-width: 56rem;
+  padding-left: 0.75rem;
+  padding-right: 0.75rem;
 }

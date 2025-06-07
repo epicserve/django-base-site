@@ -10,25 +10,6 @@
 
 {% block style %}
   {{ block.super }}
-  <style>
-    #login-form main {
-      max-width: 400px;
-    }
-
-    #id_login {
-      border-bottom-right-radius: 0;
-      border-bottom-left-radius: 0;
-    }
-
-    #id_password {
-      border-top-right-radius: 0;
-      border-top-left-radius: 0;
-    }
-
-    #div_id_login {
-      margin-bottom: -1px !important;
-    }
-  </style>
 {% endblock style %}
 
 {% block base_header %}
@@ -38,36 +19,53 @@
 {% block body_id %}login-form{% endblock body_id %}
 {# djlint:on #}
 {% block content_class %}
-  w-100 m-auto
+  flex items-center justify-center min-h-screen py-12 px-4 sm:px-6 lg:px-8
 {% endblock content_class %}
 
 {% block content %}
-  <h2>{% trans "Sign In" %}</h2>
-  {% if socialaccount.providers %}
-    <p>
-      {% blocktrans with site.name as site_name %}Please sign in with one
-of your existing third party accounts. Or, <a href="{{ signup_url }}">sign up</a>
-for a {{site_name}} account and sign in
-below:{% endblocktrans %}
-    </p>
-    <div class="socialaccount_ballot">
-      <ul class="socialaccount_providers">
-        {% include "socialaccount/snippets/provider_list.html" with process="login" %}
-      </ul>
-      <div class="login-or">{% trans "or" %}</div>
+  <div class="max-w-md w-full space-y-8">
+    <div>
+      <h2 class="mt-6 text-center text-3xl font-extrabold text-gray-900 dark:text-white">{% trans "Sign In" %}</h2>
+      {% if socialaccount.providers %}
+        <p class="mt-2 text-center text-sm text-gray-600 dark:text-gray-400">
+          {% blocktrans with site.name as site_name %}Please sign in with one
+  of your existing third party accounts. Or, <a href="{{ signup_url }}" class="font-medium text-blue-600 hover:text-blue-500">sign up</a>
+  for a {{site_name}} account and sign in
+  below:{% endblocktrans %}
+        </p>
+        <div class="mt-6">
+          <div class="socialaccount_providers">
+            {% include "socialaccount/snippets/provider_list.html" with process="login" %}
+          </div>
+          <div class="mt-6">
+            <div class="relative">
+              <div class="absolute inset-0 flex items-center">
+                <div class="w-full border-t border-gray-300 dark:border-gray-600"></div>
+              </div>
+              <div class="relative flex justify-center text-sm">
+                <span class="px-2 bg-white dark:bg-gray-900 text-gray-500">{% trans "or" %}</span>
+              </div>
+            </div>
+          </div>
+        </div>
+        {% include "socialaccount/snippets/login_extra.html" %}
+      {% endif %}
     </div>
-    {% include "socialaccount/snippets/login_extra.html" %}
-  {% endif %}
-  <form class="login" method="post" action="{% url 'account_login' %}">
-    {% csrf_token %}
-    {% crispy form %}
-    {% if redirect_field_value %}
-      <input type="hidden"
-             name="{{ redirect_field_name }}"
-             value="{{ redirect_field_value }}" />
-    {% endif %}
-    <p class="mt-3">
-      {% blocktrans %}Don't have an account? <a href="{{ signup_url }}">Sign up</a>{% endblocktrans %}
-    </p>
-  </form>
+    <form class="mt-8 space-y-6" method="post" action="{% url 'account_login' %}">
+      {% csrf_token %}
+      <div class="space-y-4">
+        {% crispy form %}
+      </div>
+      {% if redirect_field_value %}
+        <input type="hidden"
+               name="{{ redirect_field_name }}"
+               value="{{ redirect_field_value }}" />
+      {% endif %}
+      <div class="text-center">
+        <p class="mt-2 text-sm text-gray-600 dark:text-gray-400">
+          {% blocktrans %}Don't have an account? <a href="{{ signup_url }}" class="font-medium text-blue-600 hover:text-blue-500">Sign up</a>{% endblocktrans %}
+        </p>
+      </div>
+    </form>
+  </div>
 {% endblock content %}
