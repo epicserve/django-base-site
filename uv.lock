@@ -429,6 +429,7 @@ dependencies = [
     { name = "django-alive" },
     { name = "django-allauth" },
     { name = "django-crispy-forms" },
+    { name = "django-envtools" },
     { name = "django-maintenance-mode" },
     { name = "django-storages" },
     { name = "environs", extra = ["django"] },
@@ -468,6 +469,7 @@ requires-dist = [
     { name = "django-alive", specifier = "~=2.0" },
     { name = "django-allauth", specifier = "~=65.0" },
     { name = "django-crispy-forms", specifier = "~=2.2" },
+    { name = "django-envtools", specifier = "~=0.2" },
     { name = "django-maintenance-mode", specifier = "~=0.19" },
     { name = "django-storages", specifier = "~=1.8" },
     { name = "environs", extras = ["django"], specifier = "~=14.1" },
@@ -530,6 +532,18 @@ dependencies = [
 sdist = { url = "https://files.pythonhosted.org/packages/d4/9c/0a3238eda0a46df20f2e3fe2a30313d34f5042a1a737d08230b77c29a3e9/django_debug_toolbar-4.4.6.tar.gz", hash = "sha256:36e421cb908c2f0675e07f9f41e3d1d8618dc386392ec82d23bcfcd5d29c7044", size = 272610, upload-time = "2024-07-10T13:18:13.302Z" }
 wheels = [
     { url = "https://files.pythonhosted.org/packages/2f/33/2036a472eedfbe49240dffea965242b3f444de4ea4fbeceb82ccea33a2ce/django_debug_toolbar-4.4.6-py3-none-any.whl", hash = "sha256:3beb671c9ec44ffb817fad2780667f172bd1c067dbcabad6268ce39a81335f45", size = 229621, upload-time = "2024-07-10T13:18:35.71Z" },
+]
+
+[[package]]
+name = "django-envtools"
+version = "0.2.0"
+source = { registry = "https://pypi.org/simple" }
+dependencies = [
+    { name = "environs", extra = ["django"] },
+]
+sdist = { url = "https://files.pythonhosted.org/packages/4f/73/3c64364d62e692b13fd758ead7e83dc8a5f97db2364e5d20f571b3b561bc/django_envtools-0.2.0.tar.gz", hash = "sha256:2ae85797f34856f8b0da004fc9c6ee6e53d262f2f04ab8482fc8d1c97e52a45c", size = 32956, upload-time = "2025-06-07T19:42:36.342Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/9c/52/9a1371b0eb470ad13860698486c01d830aefd948d47119bb7c2676d3fd21/django_envtools-0.2.0-py3-none-any.whl", hash = "sha256:b26d0834d00ec4cf8da810d62bb12750c28325b09ad1c570197ed33a7cddcebe", size = 7867, upload-time = "2025-06-07T19:42:35.098Z" },
 ]
 
 [[package]]
