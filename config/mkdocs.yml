@@ -1,6 +1,6 @@
-site_name: Django Base Site
-repo_url: https://github.com/epicserve/django-base-site
-repo_name: epicserve/django-base-site
+site_name: Budgeteer
+repo_url: https://github.com/zanemyers/Budgeteer
+repo_name: zanemyers/Budgeteer
 docs_dir: ../docs/
 site_dir: ../docs_site/
 

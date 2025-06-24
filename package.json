@@ -1,6 +1,6 @@
 {
-  "name": "django-base-site",
-  "description": "Django Base Site",
+  "name": "budgeteer",
+  "description": "Budgeteer",
   "scripts": {
     "dev": "npx vite --config src/config/vite.config.mjs",
     "build": "npx vite build --config src/config/vite.config.mjs",
