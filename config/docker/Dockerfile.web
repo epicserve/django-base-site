@@ -13,7 +13,7 @@ ENV \
     PYTHONUNBUFFERED=1 \
     UV_PROJECT_ENVIRONMENT=$VIRTUAL_ENV
 
-RUN --mount=type=cache,target=/root/.cache/pip,id=django-base-site-pip \
+RUN --mount=type=cache,target=/root/.cache/pip,id=budgeteer-pip \
     set -ex \
     && python3 -m venv $VIRTUAL_ENV \
     && $VIRTUAL_ENV/bin/pip install -U setuptools wheel pip uv
@@ -21,12 +21,12 @@ RUN --mount=type=cache,target=/root/.cache/pip,id=django-base-site-pip \
 # Install Python packages
 COPY uv.lock pyproject.toml ./
 
-RUN --mount=type=cache,target=/root/.cache/uv,id=django-base-site-uv \
+RUN --mount=type=cache,target=/root/.cache/uv,id=budgeteer-uv \
     set -ex \
     && if [ "$ENV_NAME" = "prod" ]; then \
-        $VIRTUAL_ENV/bin/uv sync --no-dev; \
+    $VIRTUAL_ENV/bin/uv sync --no-dev; \
     else \
-        $VIRTUAL_ENV/bin/uv sync; \
+    $VIRTUAL_ENV/bin/uv sync; \
     fi
 
 
@@ -38,8 +38,8 @@ FROM python:3.13-slim-bookworm AS dev
 # Set the locale
 # libxml2-dev is needed for uwsgi in the production stage
 # mime-support install (/etc/mime.types) which is needded uWSGI to server static files with the correct mime types
-RUN --mount=type=cache,target=/var/cache/apt,id=django-base-site-apt \
-    --mount=type=cache,target=/var/lib/apt,id=django-base-site-apt \
+RUN --mount=type=cache,target=/var/cache/apt,id=budgeteer-apt \
+    --mount=type=cache,target=/var/lib/apt,id=budgeteer-apt \
     apt update \
     && apt install -yqq --no-install-recommends locales libxml2-dev mime-support \
     && echo "LC_ALL=en_US.UTF-8" >> /etc/environment \
@@ -79,7 +79,7 @@ COPY package.json package-lock.json ./
 COPY src src
 
 # Install Node packages
-RUN --mount=type=cache,target=/root/.npm,id=django-base-site-npm \
+RUN --mount=type=cache,target=/root/.npm,id=budgeteer-npm \
     npm ci \
     && npm run build \
     && ls -la public/static/dist/

@@ -35,7 +35,7 @@ services:
 
   web:
     container_name: web
-    image: epicserve/django-base-site:python
+    image: budgeteer:python
     init: true
     build:
       context: .
@@ -64,7 +64,7 @@ services:
 
   worker:
     container_name: worker
-    image: epicserve/django-base-site:python
+    image: budgeteer:python
     init: true
 
     command: sh -c "celery -A config worker -l info"
@@ -81,7 +81,7 @@ services:
 
   node:
     container_name: node
-    image: epicserve/django-base-site:node
+    image: budgeteer:node
     build:
       context: .
       dockerfile: config/docker/Dockerfile.node
@@ -109,7 +109,7 @@ services:
 
   docs:
     container_name: docs
-    image: epicserve/django-base-site:python
+    image: budgeteer:python
     init: true
 
     command: sh -c "mkdocs serve -f config/mkdocs.yml --dev-addr 0.0.0.0:4000"
