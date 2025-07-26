@@ -11,6 +11,7 @@ dependencies = [
     "django-alive~=2.0",
     "django-allauth~=65.0",
     "django-crispy-forms~=2.2",
+    "django-envtools~=0.2",
     "django-maintenance-mode~=0.19",
     "django-storages~=1.8",
     "environs[django]~=14.1",
