@@ -18,10 +18,10 @@
     "eslint-plugin-import": "^2.32.0",
     "sass": "~1.90",
     "stylelint": "^16.23.1",
-    "stylelint-config-recess-order": "^7.1.0",
+    "stylelint-config-recess-order": "^7.2.0",
     "stylelint-config-standard-scss": "^15.0.1",
     "stylelint-scss": "^6.12.1",
-    "vite": "^7.1.1"
+    "vite": "^7.1.2"
   },
   "repository": {
     "type": "git",
