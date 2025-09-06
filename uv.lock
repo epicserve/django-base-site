@@ -131,30 +131,30 @@ wheels = [
 
 [[package]]
 name = "boto3"
-version = "1.40.21"
+version = "1.40.25"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "botocore" },
     { name = "jmespath" },
     { name = "s3transfer" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/d8/54/5ba3f69a892ff486f5925008da21618665cf321880f279e9605399d9cec3/boto3-1.40.21.tar.gz", hash = "sha256:876ccc0b25517b992bd27976282510773a11ebc771aa5b836a238ea426c82187", size = 111590, upload-time = "2025-08-29T19:20:57.901Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/2c/36/de7e622fd7907faec3823eaee7299b55130f577a4ba609717a290e9f3897/boto3-1.40.25.tar.gz", hash = "sha256:debfa4b2c67492d53629a52c999d71cddc31041a8b62ca1a8b1fb60fb0712ee1", size = 111534, upload-time = "2025-09-05T19:23:21.942Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/86/76/48b982bb504ffbff8eb5522df8c144b98cdc38d574b3c55db1d82b5c0c7f/boto3-1.40.21-py3-none-any.whl", hash = "sha256:3772fb828864d3b7046c8bdf2f4860aaca4a79f25b7b060206c6a5f4944ea7f9", size = 139322, upload-time = "2025-08-29T19:20:55.888Z" },
+    { url = "https://files.pythonhosted.org/packages/c7/9a/6b280f01f5ec7e812ac8be9803bf52868b190e15c500bee3319d9d68eb34/boto3-1.40.25-py3-none-any.whl", hash = "sha256:d39bc3deb6780d910f00580837b720132055b0604769fd978780865ed3c019ea", size = 139325, upload-time = "2025-09-05T19:23:20.551Z" },
 ]
 
 [[package]]
 name = "botocore"
-version = "1.40.21"
+version = "1.40.25"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "jmespath" },
     { name = "python-dateutil" },
     { name = "urllib3" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/50/11/d9a500a0e86b74017854e3ff12fd943f74f4358337799e0b272eaa6b4e27/botocore-1.40.21.tar.gz", hash = "sha256:f77e9c199df0252b14ea739a9ac99723940f6bde90f4c2e7802701553a62827b", size = 14321194, upload-time = "2025-08-29T19:20:46.892Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/1a/ba/7faa7e1061c2d2d60700815928ec0e5a7eeb83c5311126eccc6125e1797b/botocore-1.40.25.tar.gz", hash = "sha256:41fd186018a48dc517a4312a8d3085d548cb3fb1f463972134140bf7ee55a397", size = 14331329, upload-time = "2025-09-05T19:23:12.37Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/df/6a/effb671afa31d35805d0760b45676136fd1209e263641861456b4566ae9b/botocore-1.40.21-py3-none-any.whl", hash = "sha256:574ecf9b68c1721650024a27e00e0080b6f141c281ebfce49e0d302969270ef4", size = 13993859, upload-time = "2025-08-29T19:20:41.404Z" },
+    { url = "https://files.pythonhosted.org/packages/45/e5/4c32b35109bc3f8f8ebe3d78f952d2bf702bacce975a45997cc268c11860/botocore-1.40.25-py3-none-any.whl", hash = "sha256:5603ea9955cd31974446f0b5688911a5dad71fbdfbf7457944cda8a83fcf2a9e", size = 14003384, upload-time = "2025-09-05T19:23:09.731Z" },
 ]
 
 [[package]]
@@ -383,16 +383,16 @@ wheels = [
 
 [[package]]
 name = "django"
-version = "5.2.5"
+version = "5.2.6"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "asgiref" },
     { name = "sqlparse" },
     { name = "tzdata", marker = "sys_platform == 'win32'" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/62/9b/779f853c3d2d58b9e08346061ff3e331cdec3fe3f53aae509e256412a593/django-5.2.5.tar.gz", hash = "sha256:0745b25681b129a77aae3d4f6549b62d3913d74407831abaa0d9021a03954bae", size = 10859748, upload-time = "2025-08-06T08:26:29.978Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/4c/8c/2a21594337250a171d45dda926caa96309d5136becd1f48017247f9cdea0/django-5.2.6.tar.gz", hash = "sha256:da5e00372763193d73cecbf71084a3848458cecf4cee36b9a1e8d318d114a87b", size = 10858861, upload-time = "2025-09-03T13:04:03.23Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/9d/6e/98a1d23648e0085bb5825326af17612ecd8fc76be0ce96ea4dc35e17b926/django-5.2.5-py3-none-any.whl", hash = "sha256:2b2ada0ee8a5ff743a40e2b9820d1f8e24c11bac9ae6469cd548f0057ea6ddcd", size = 8302999, upload-time = "2025-08-06T08:26:23.562Z" },
+    { url = "https://files.pythonhosted.org/packages/f5/af/6593f6d21404e842007b40fdeb81e73c20b6649b82d020bb0801b270174c/django-5.2.6-py3-none-any.whl", hash = "sha256:60549579b1174a304b77e24a93d8d9fafe6b6c03ac16311f3e25918ea5a20058", size = 8303111, upload-time = "2025-09-03T13:03:47.808Z" },
 ]
 
 [[package]]
