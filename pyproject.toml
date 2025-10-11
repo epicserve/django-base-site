@@ -18,7 +18,7 @@ dependencies = [
     "psycopg2-binary~=2.9",
     "pytest-cov~=7.0",
     "pytest-django~=4.5",
-    "python-json-logger~=3.2",
+    "python-json-logger~=4.0",
     "redis~=5.0",  # needed for celery
     "uwsgi~=2.0",
 ]
