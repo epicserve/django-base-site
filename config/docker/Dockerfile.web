@@ -1,7 +1,7 @@
 # ------------------------------------------------------------
 # STAGE 1: Build Python requirements layer
 # ------------------------------------------------------------
-FROM python:3.13-bookworm AS python-requirements
+FROM python:3.14-bookworm AS python-requirements
 
 ARG ENV_NAME=dev
 
@@ -33,7 +33,7 @@ RUN --mount=type=cache,target=/root/.cache/uv,id=django-base-site-uv \
 # ------------------------------------------------------------
 # STAGE 2: Dev layer
 # ------------------------------------------------------------
-FROM python:3.13-slim-bookworm AS dev
+FROM python:3.14-slim-bookworm AS dev
 
 # Set the locale
 # libxml2-dev is needed for uwsgi in the production stage
