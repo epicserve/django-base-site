@@ -16,7 +16,7 @@ jobs:
       - name: Use Just for running commands
         run: curl --proto '=https' --tlsv1.2 -sSf https://just.systems/install.sh | bash -s -- --to /usr/local/bin
       - name: Setup Node
-        uses: actions/setup-node@v5
+        uses: actions/setup-node@v6
       - name: Setup Python 3.12
         uses: actions/setup-python@v6
         with:
