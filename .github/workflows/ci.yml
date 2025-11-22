@@ -12,7 +12,7 @@ jobs:
     name: Lint
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v6
       - name: Use Just for running commands
         run: curl --proto '=https' --tlsv1.2 -sSf https://just.systems/install.sh | bash -s -- --to /usr/local/bin
       - name: Setup Node
@@ -60,7 +60,7 @@ jobs:
       PYTHON_CMD_PREFIX: docker compose run -u root --rm --no-deps web
       DOCKER_COMPOSE_PREFIX: docker compose run -u root -e DATABASE_URL -e READ_DOT_ENV_FILE -e SECRET_KEY -e DB_SSL_REQUIRED --rm --no-deps web
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v6
       - name: Use Just for running commands
         run: curl --proto '=https' --tlsv1.2 -sSf https://just.systems/install.sh | bash -s -- --to /usr/local/bin
       - name: Test install script
