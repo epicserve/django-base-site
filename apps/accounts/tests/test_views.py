@@ -9,6 +9,8 @@ from apps.base.tests import BaseTest
 
 
 class BaseAccountViewTest(BaseTest):
+    url_name: str
+
     def _test_not_logged_in(self) -> None:
         self.get(self.url_name)
         self.assert_http_302_found()

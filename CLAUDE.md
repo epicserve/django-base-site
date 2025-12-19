@@ -26,7 +26,7 @@ Use Just for all development tasks. Key commands:
 
 **Code Quality:**
 - `just format` - Format all code (Python with Ruff, JS with ESLint, SASS with Stylelint, HTML with djLint)
-- `just lint` - Lint everything (includes type checking with mypy)
+- `just lint` - Lint everything (includes type checking with ty)
 - `just pre_commit` - Run format, lint, and test pipeline
 
 **Testing:**
@@ -51,7 +51,7 @@ Use Just for all development tasks. Key commands:
 
 ## Code Standards
 
-- **Python**: Formatted with Ruff, type-checked with mypy, follows Django conventions
+- **Python**: Formatted with Ruff, type-checked with ty, follows Django conventions
 - **JavaScript**: ESLint with Airbnb base config
 - **SASS/CSS**: Stylelint with standard SCSS config and recess order
 - **HTML**: djLint for Django template formatting and linting
@@ -69,4 +69,4 @@ Uses `.env` file for local development with these key variables:
 
 - **Backend**: Django 5, Celery, Redis, PostgreSQL, Django Allauth, Crispy Forms
 - **Frontend**: Vite, Bootstrap 5, SASS
-- **Development**: Docker, pytest, Ruff, mypy, ESLint, Stylelint
+- **Development**: Docker, pytest, Ruff, ty, ESLint, Stylelint

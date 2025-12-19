@@ -64,7 +64,7 @@ features.
 ### 🩺 Code Quality, Formatting, and Linting Tools
 
 * [Ruff](https://github.com/charliermarsh/ruff) - Python formatting and linting. Lighting fast because it's written in Rust! Replaces Black and other tools.
-* [Mypy](http://mypy-lang.org/) - Python Type checking
+* [Ty](https://github.com/astral-sh/ty) - Python Type checking
 * [dj Lint](https://djlint.com/) - Automatic Django HTML template formatting and linting
 * [Django Debug Toolbar](https://github.com/jazzband/django-debug-toolbar) - A toolbar for debugging and
   optimizing Django queries

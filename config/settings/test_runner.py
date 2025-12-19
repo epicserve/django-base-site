@@ -10,4 +10,4 @@ CACHES = {
     }
 }
 
-SESSION_ENGINE = "django.contrib.sessions.backends.cached_db"
+SESSION_ENGINE: str = "django.contrib.sessions.backends.cached_db"

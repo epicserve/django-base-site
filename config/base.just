@@ -35,7 +35,7 @@ reset := `tput -Txterm sgr0`
 
 # Remove build files, python cache files and test coverage data
 @clean: clean_py_cache clean_coverage_data
-    rm -rf .mypy_cache/
+    rm -rf .ty_cache/
     rm -rf .pytest_cache/
     rm -rf .ruff_cache/
     rm -rf collected_static/
@@ -169,8 +169,8 @@ lint: lint_js lint_sass lint_html lint_py lint_migrations lint_types
 
 # Lint Python types
 @lint_types:
-    just _start_msg "Checking python types using mypy"
-    {{ python_cmd_prefix }} mypy .
+    just _start_msg "Checking python types using ty"
+    {{ python_cmd_prefix }} ty check .
 
 # Run pre-commit checks
 pre_commit: format lint test
