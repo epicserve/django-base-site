@@ -1,6 +1,13 @@
 # CHANGELOG
 
 
+## 2025-12-19
+
+### Changed
+
+* Switched from MyPy to Ty for Python type checking. Ty is a fast, modern type checker from Astral that provides significantly better performance than MyPy.
+
+
 ## 2025-06-06
 
 ### Added
