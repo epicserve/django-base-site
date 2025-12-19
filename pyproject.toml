@@ -23,8 +23,8 @@ dependencies = [
     "uwsgi~=2.0",
 ]
 
-[tool.uv]
-dev-dependencies = [
+[dependency-groups]
+dev = [
     "django-debug-toolbar",
     "django-stubs",
     "django-test-plus",
