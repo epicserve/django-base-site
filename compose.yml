@@ -4,7 +4,7 @@ services:
 
   db:
     container_name: db
-    image: postgres:latest
+    image: postgres:17
     init: true
     volumes:
       - postgres_data:/var/lib/postgresql/data/
