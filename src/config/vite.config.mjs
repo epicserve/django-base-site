@@ -39,9 +39,9 @@ export default defineConfig({
     preprocessorOptions: {
       scss: {
         api: 'modern-compiler',
-        // Suppress Sass deprecation warnings that are caused by Bootstrap.
-        // See this issue for more details: https://github.com/twbs/bootstrap/issues/40849
-        silenceDeprecations: ['color-functions', 'import', 'global-builtin', 'mixed-decls'],
+        // TODO: Remove silenceDeprecations once Bootstrap fixes Sass compatibility.
+        // Track progress: https://github.com/twbs/bootstrap/issues/40849
+        silenceDeprecations: ['color-functions', 'import', 'global-builtin', 'if-function'],
       },
     },
   },
