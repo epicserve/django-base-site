@@ -2,17 +2,16 @@ from django.conf import settings
 from django.contrib import admin
 from django.contrib.auth.decorators import login_required
 from django.urls import URLPattern, URLResolver, include, path
-from django.views.generic import TemplateView
 
 from apps.accounts.views import NameChange, SignInView
-from apps.base.views import http_404, http_500
+from apps.base.views import IndexView, http_404, http_500
 
 # Includes
 urlpatterns: list[URLResolver | URLPattern] = [path(r"admin/", admin.site.urls)]
 
 # Project Urls
 urlpatterns += [
-    path("", login_required(TemplateView.as_view(template_name="index.html")), name="site_index"),
+    path("", login_required(IndexView.as_view()), name="site_index"),
     path("-/", include("django_alive.urls")),
     path("500/", http_500),
     path("404/", http_404),
