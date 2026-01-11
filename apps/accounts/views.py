@@ -14,7 +14,7 @@ class SignInView(LoginView):
     form_class = SignInForm
 
 
-class NameChange(LoginRequiredMixin, generic.FormView):  # type: ignore
+class NameChange(LoginRequiredMixin, generic.FormView):
     form_class = NameForm
     template_name = "account/name_change.html"
 

@@ -15,7 +15,7 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/4.2/ref/settings/
 """
 
-BASE_DIR = environs.Path(__file__).parent.parent.parent  # type: ignore
+BASE_DIR = environs.Path(__file__).parent.parent.parent
 
 READ_DOT_ENV_FILE = env.bool("READ_DOT_ENV_FILE", default=True)
 
