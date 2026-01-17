@@ -32,5 +32,8 @@
   "bugs": {
     "url": "https://github.com/epicserve/django-base-site/issues"
   },
-  "homepage": "https://github.com/epicserve/django-base-site#readme"
+  "homepage": "https://github.com/epicserve/django-base-site#readme",
+  "overrides": {
+    "stylelint-order": "^7.0.1"
+  }
 }
