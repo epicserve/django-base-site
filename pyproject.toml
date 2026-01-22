@@ -25,6 +25,7 @@ dependencies = [
 
 [dependency-groups]
 dev = [
+    "debugpy",
     "django-debug-toolbar",
     "django-stubs",
     "django-test-plus",

@@ -42,13 +42,14 @@ services:
       dockerfile: config/docker/Dockerfile.web
       target: dev
 
-    command: sh -c "./manage.py migrate --noinput && ./manage.py runserver 0.0.0.0:8000"
+    command: sh -c "./scripts/start_dev.sh"
 
     volumes:
       - .:/srv/app:cached
 
     ports:
       - "8000:8000"
+      - "5678:5678"  # debugpy port for VS Code/LazyVim debugging
 
     depends_on:
       node:
@@ -61,6 +62,8 @@ services:
     environment:
       USE_DOCKER: 'on'
       DJANGO_SETTINGS_MODULE: config.settings
+      # Uncomment the line below to enable debugging (or set in .env file)
+      # ENABLE_DEBUGGER: 'true'
 
   worker:
     container_name: worker

@@ -1,0 +1,25 @@
+{
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "name": "Django: Attach to Docker",
+      "type": "debugpy",
+      "request": "attach",
+      "connect": {
+        "host": "localhost",
+        "port": 5678
+      },
+      "pathMappings": [
+        {
+          "localRoot": "${workspaceFolder}",
+          "remoteRoot": "/srv/app"
+        }
+      ],
+      "justMyCode": false,
+      "django": true,
+      "showReturnValue": true,
+      "redirectOutput": true,
+      "preLaunchTask": null
+    }
+  ]
+}
