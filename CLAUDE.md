@@ -57,6 +57,30 @@ Use Just for all development tasks. Key commands:
 - **HTML**: djLint for Django template formatting and linting
 - **Line Length**: 120 characters for Python and HTML
 
+## Debugging
+
+The project supports remote debugging with VS Code, LazyVim/Neovim, or any DAP-compatible editor.
+
+**Enable Debugging:**
+1. Set `ENABLE_DEBUGGER=true` in your `.env` file, OR
+2. Uncomment the `ENABLE_DEBUGGER` line in `compose.yml`, OR
+3. Run: `ENABLE_DEBUGGER=true docker compose up`
+
+**VS Code:**
+- Use the "Django: Attach to Docker" configuration in `.vscode/launch.json`
+- Start the containers with debugging enabled
+- Press F5 or Run > Start Debugging
+- Set breakpoints in your Python code
+
+**LazyVim/Neovim:**
+- Configure nvim-dap to connect to `localhost:5678`
+- The debugger uses the standard Debug Adapter Protocol (DAP)
+
+**Notes:**
+- Debugger listens on port 5678
+- Auto-reload is disabled when debugging is enabled
+- Restart the server manually after code changes when debugging
+
 ## Environment Configuration
 
 Uses `.env` file for local development with these key variables:
@@ -64,6 +88,7 @@ Uses `.env` file for local development with these key variables:
 - `SECRET_KEY` - Django secret key
 - `DATABASE_URL` - PostgreSQL connection string
 - `INTERNAL_IPS` - For Django Debug Toolbar
+- `ENABLE_DEBUGGER=true` - Enable remote debugging (optional)
 
 ## Key Dependencies
 
