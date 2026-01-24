@@ -42,7 +42,20 @@ services:
       dockerfile: config/docker/Dockerfile.web
       target: dev
 
-    command: sh -c "./scripts/start_dev.sh"
+    command: >
+      sh -c "
+        ./manage.py migrate --noinput &&
+        if [ \"$$ENABLE_DEBUGGER\" = \"true\" ]; then
+          echo '=========================================' &&
+          echo 'Starting Django with debugger enabled' &&
+          echo 'Debugger listening on 0.0.0.0:5678' &&
+          echo 'Attach from VS Code, LazyVim, or any DAP client' &&
+          echo '=========================================' &&
+          python -m debugpy --listen 0.0.0.0:5678 ./manage.py runserver 0.0.0.0:8000 --nothreading --noreload
+        else
+          ./manage.py runserver 0.0.0.0:8000
+        fi
+      "
 
     volumes:
       - .:/srv/app:cached
@@ -62,8 +75,8 @@ services:
     environment:
       USE_DOCKER: 'on'
       DJANGO_SETTINGS_MODULE: config.settings
-      # Uncomment the line below to enable debugging (or set in .env file)
-      # ENABLE_DEBUGGER: 'true'
+      # Pass through ENABLE_DEBUGGER from shell or .env file (defaults to empty/false)
+      ENABLE_DEBUGGER: ${ENABLE_DEBUGGER:-}
 
   worker:
     container_name: worker

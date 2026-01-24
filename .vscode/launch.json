@@ -2,7 +2,7 @@
   "version": "0.2.0",
   "configurations": [
     {
-      "name": "Django: Attach to Docker",
+      "name": "Django: Attach Debugger",
       "type": "debugpy",
       "request": "attach",
       "connect": {
@@ -18,8 +18,7 @@
       "justMyCode": false,
       "django": true,
       "showReturnValue": true,
-      "redirectOutput": true,
-      "preLaunchTask": null
+      "redirectOutput": true
     }
   ]
 }
