@@ -61,38 +61,29 @@ Use Just for all development tasks. Key commands:
 
 The project supports remote debugging with VS Code, LazyVim/Neovim, or any DAP-compatible editor.
 
-**Enable Debugging:**
-1. Set `USE_DEBUGPY=true` in your `.env` file, OR
-2. Uncomment the `USE_DEBUGPY` line in `compose.yml`, OR
-3. Run: `USE_DEBUGPY=true docker compose up`
+**Quick Start:**
+1. Start with debugging: `just start_with_debugpy`
+2. Wait for "Debugger listening on 0.0.0.0:5678"
+3. Attach your debugger (see below for editor-specific instructions)
+
+**Important:** Auto-reload is disabled when debugging. You must manually restart the server after code changes. Use `just start` for normal development with auto-reload.
 
 **VS Code:**
 
-Simple two-step debugging workflow:
+1. Run: `just start_with_debugpy`
+2. Press F5 or select "Django: Attach Debugger" from debug dropdown
+3. Set breakpoints and debug your code
 
-1. **Start with debugging:**
-   - Open Command Palette (Cmd/Ctrl+Shift+P)
-   - Run "Tasks: Run Task" → "Django: Runserver with Debugging"
-   - Wait for "Debugger listening on 0.0.0.0:5678" in terminal
-
-2. **Attach debugger:**
-   - Press F5 or select "Django: Attach Debugger" from debug dropdown
-   - Set breakpoints and debug your code
-
-**Switching Between Modes:**
-- From Command Palette (Cmd/Ctrl+Shift+P), run "Tasks: Run Task" then:
-  - **"Django: Runserver with Debugging"** - Start with debugger (no auto-reload)
-  - **"Django: Runserver"** - Start in normal mode (auto-reload enabled)
-  - **"Django: Stop All Containers"** - Stop all containers
+VS Code tasks are also available via Command Palette for convenience.
 
 **LazyVim/Neovim:**
 - Configure nvim-dap to connect to `localhost:5678`
 - The debugger uses the standard Debug Adapter Protocol (DAP)
+- See [docs/debugging.md](docs/debugging.md) for full configuration
 
 **Notes:**
 - Debugger listens on port 5678
-- Auto-reload is disabled when debugging is enabled
-- Restart the server manually after code changes when debugging
+- Use `just stop` then `just start` to switch back to normal mode
 
 ## Environment Configuration
 
