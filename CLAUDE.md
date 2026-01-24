@@ -76,6 +76,12 @@ The project supports remote debugging with VS Code, LazyVim/Neovim, or any DAP-c
 
 VS Code tasks are also available via Command Palette for convenience.
 
+**PyCharm:**
+1. Configure Docker Compose Python interpreter (Settings → Python Interpreter)
+2. Create Django Server run configuration
+3. Click Debug button - PyCharm handles everything automatically
+4. See [docs/debugging.md](docs/debugging.md) for detailed setup
+
 **LazyVim/Neovim:**
 - Configure nvim-dap to connect to `localhost:5678`
 - The debugger uses the standard Debug Adapter Protocol (DAP)
@@ -84,6 +90,7 @@ VS Code tasks are also available via Command Palette for convenience.
 **Notes:**
 - Debugger listens on port 5678
 - Use `just stop` then `just start` to switch back to normal mode
+- PyCharm uses native Docker Compose debugging (doesn't require debugpy)
 
 ## Environment Configuration
 
