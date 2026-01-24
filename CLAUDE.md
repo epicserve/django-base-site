@@ -62,9 +62,9 @@ Use Just for all development tasks. Key commands:
 The project supports remote debugging with VS Code, LazyVim/Neovim, or any DAP-compatible editor.
 
 **Enable Debugging:**
-1. Set `ENABLE_DEBUGGER=true` in your `.env` file, OR
-2. Uncomment the `ENABLE_DEBUGGER` line in `compose.yml`, OR
-3. Run: `ENABLE_DEBUGGER=true docker compose up`
+1. Set `USE_DEBUGPY=true` in your `.env` file, OR
+2. Uncomment the `USE_DEBUGPY` line in `compose.yml`, OR
+3. Run: `USE_DEBUGPY=true docker compose up`
 
 **VS Code:**
 
@@ -101,7 +101,7 @@ Uses `.env` file for local development with these key variables:
 - `SECRET_KEY` - Django secret key
 - `DATABASE_URL` - PostgreSQL connection string
 - `INTERNAL_IPS` - For Django Debug Toolbar
-- `ENABLE_DEBUGGER=true` - Enable remote debugging (optional)
+- `USE_DEBUGPY=true` - Enable remote debugging (optional)
 
 ## Key Dependencies
 

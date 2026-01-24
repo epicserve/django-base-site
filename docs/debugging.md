@@ -11,18 +11,18 @@ Choose one of these methods:
 **Option A: Using .env file (Recommended)**
 ```bash
 # Uncomment this line in your .env file
-ENABLE_DEBUGGER=true
+USE_DEBUGPY=true
 ```
 
 **Option B: Using docker compose command**
 ```bash
-ENABLE_DEBUGGER=true docker compose up
+USE_DEBUGPY=true docker compose up
 ```
 
 **Option C: Edit compose.yml**
 ```yaml
 # Uncomment this line in the web service environment section
-ENABLE_DEBUGGER: 'true'
+USE_DEBUGPY: 'true'
 ```
 
 ### 2. Restart the containers
@@ -159,7 +159,7 @@ vim.keymap.set('n', '<Leader>b', function() require('dap').toggle_breakpoint() e
 
 ## How It Works
 
-When `ENABLE_DEBUGGER=true`:
+When `USE_DEBUGPY=true`:
 
 1. The Docker Compose startup command (in [compose.yml](../compose.yml)) runs Django with debugpy
 2. debugpy listens on `0.0.0.0:5678` inside the container
@@ -171,7 +171,7 @@ When `ENABLE_DEBUGGER=true`:
 
 - **Auto-reload is disabled** when debugging is enabled to prevent conflicts with the debugger
 - You must **manually restart the server** after code changes when debugging
-- For normal development (with auto-reload), leave `ENABLE_DEBUGGER` unset or set to `false`
+- For normal development (with auto-reload), leave `USE_DEBUGPY` unset or set to `false`
 
 ## Port Configuration
 

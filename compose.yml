@@ -45,7 +45,7 @@ services:
     command: >
       sh -c "
         ./manage.py migrate --noinput &&
-        if [ \"$$ENABLE_DEBUGGER\" = \"true\" ]; then
+        if [ \"$$USE_DEBUGPY\" = \"true\" ]; then
           echo '=========================================' &&
           echo 'Starting Django with debugger enabled' &&
           echo 'Debugger listening on 0.0.0.0:5678' &&
@@ -75,8 +75,8 @@ services:
     environment:
       USE_DOCKER: 'on'
       DJANGO_SETTINGS_MODULE: config.settings
-      # Pass through ENABLE_DEBUGGER from shell or .env file (defaults to empty/false)
-      ENABLE_DEBUGGER: ${ENABLE_DEBUGGER:-}
+      # Pass through USE_DEBUGPY from shell or .env file (defaults to empty/false)
+      USE_DEBUGPY: ${USE_DEBUGPY:-}
 
   worker:
     container_name: worker
