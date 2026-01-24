@@ -1,61 +1,91 @@
 <header class="container-fluid border-bottom border-bottom-1 mb-4">
   <nav class="navbar navbar-expand-lg navbar-light bg-faded mb-0">
     <a class="navbar-brand" href="{% url 'site_index' %}">{{ SITE_NAME }}</a>
-    <button class="navbar-toggler"
-            type="button"
-            data-bs-toggle="collapse"
-            data-bs-target="#navbarNav"
-            aria-controls="navbarNav"
-            aria-expanded="false"
-            aria-label="Toggle navigation">
-      <span class="navbar-toggler-icon"></span>
-    </button>
+    <div class="ms-auto d-flex align-items-center gap-2">
+      <button class="navbar-toggler"
+              type="button"
+              data-bs-toggle="offcanvas"
+              data-bs-target="#navbarOffcanvas"
+              aria-controls="navbarOffcanvas"
+              aria-label="Toggle navigation">
+        <span class="navbar-toggler-icon"></span>
+      </button>
+      {% if maintenance_mode is False and user.is_authenticated %}
+        {# Mobile-only profile icon (visible on < lg screens) #}
+        <div class="d-lg-none dropdown">
+          <a class="nav-link py-0"
+             href="#"
+             id="navbarMobileProfile"
+             role="button"
+             data-bs-toggle="dropdown"
+             aria-expanded="false">{{ user.gravatar }}</a>
+          <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="navbarMobileProfile">
+            <li>
+              <a class="dropdown-item" href="{% url 'account_change_name' %}">Account Settings</a>
+            </li>
+            {% if user.is_staff %}
+              <li>
+                <a class="dropdown-item" href="{% url 'admin:index' %}">Administration</a>
+              </li>
+            {% endif %}
+            <li>
+              <a class="dropdown-item" href="{% url 'account_logout' %}">Sign Out</a>
+            </li>
+          </ul>
+        </div>
+      {% endif %}
+    </div>
     {% if maintenance_mode is False %}
-      <div class="collapse navbar-collapse" id="navbarNav">
-        <ul class="navbar-nav">
-          <li class="nav-item">
-            <a class="nav-link" href="{% url 'site_index' %}">Home <span class="visually-hidden">(current)</span></a>
-          </li>
-          <li class="nav-item">
-            <a class="nav-link" href="#">About</a>
-          </li>
-          <li class="nav-item">
-            <a class="nav-link" href="#">Contact</a>
-          </li>
-        </ul>
-      </div>
-      <div class="d-flex">
-        <ul class="navbar-nav navbar-nav--user-nav align-items-center">
-          {% if not user.is_authenticated %}
+      <div class="offcanvas offcanvas-end offcanvas-lg" tabindex="-1" id="navbarOffcanvas" aria-labelledby="navbarOffcanvasLabel">
+        <div class="offcanvas-header">
+          <h5 class="offcanvas-title" id="navbarOffcanvasLabel">{{ SITE_NAME }}</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="offcanvas" data-bs-target="#navbarOffcanvas" aria-label="Close"></button>
+        </div>
+        <div class="offcanvas-body p-lg-0 d-lg-flex flex-lg-row align-items-lg-center">
+          <ul class="navbar-nav me-auto">
             <li class="nav-item">
-              <a class="nav-link" href="{% url 'account_login' %}">Sign In</a>
+              <a class="nav-link" href="{% url 'site_index' %}">Home <span class="visually-hidden">(current)</span></a>
             </li>
-          {% else %}
-            {% include "blocks/color_mode_picker.html" %}
-            <li class="nav-item dropdown">
-              <a class="nav-link dropdown-toggle"
-                 href="#"
-                 id="navbarScrollingDropdown"
-                 role="button"
-                 data-bs-toggle="dropdown"
-                 aria-expanded="false">{{ user.gravatar }}</a>
-              <ul class="dropdown-menu dropdown-menu-end"
-                  aria-labelledby="navbarScrollingDropdown">
-                <li>
-                  <a class="dropdown-item" href="{% url 'account_change_name' %}">Account Settings</a>
-                </li>
-                {% if user.is_staff %}
+            <li class="nav-item">
+              <a class="nav-link" href="#">About</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="#">Contact</a>
+            </li>
+          </ul>
+          <ul class="navbar-nav navbar-nav--user-nav align-items-center ms-auto">
+            {% if not user.is_authenticated %}
+              <li class="nav-item">
+                <a class="nav-link" href="{% url 'account_login' %}">Sign In</a>
+              </li>
+            {% else %}
+              {% include "blocks/color_mode_picker.html" %}
+              {# Desktop profile dropdown (visible on lg+ screens) #}
+              <li class="nav-item dropdown d-none d-lg-block">
+                <a class="nav-link dropdown-toggle"
+                   href="#"
+                   id="navbarScrollingDropdown"
+                   role="button"
+                   data-bs-toggle="dropdown"
+                   aria-expanded="false">{{ user.gravatar }}</a>
+                <ul class="dropdown-menu dropdown-menu-end"
+                    aria-labelledby="navbarScrollingDropdown">
                   <li>
-                    <a class="dropdown-item" href="{% url 'admin:index' %}">Administration</a>
+                    <a class="dropdown-item" href="{% url 'account_change_name' %}">Account Settings</a>
                   </li>
-                {% endif %}
-                <li>
-                  <a class="dropdown-item" href="{% url 'account_logout' %}">Sign Out</a>
-                </li>
-              </ul>
-            </li>
-          {% endif %}
-        </ul>
+                  {% if user.is_staff %}
+                    <li>
+                      <a class="dropdown-item" href="{% url 'admin:index' %}">Administration</a>
+                    </li>
+                  {% endif %}
+                  <li>
+                    <a class="dropdown-item" href="{% url 'account_logout' %}">Sign Out</a>
+                  </li>
+                </ul>
+              </li>
+            {% endif %}
+          </ul>
+        </div>
       </div>
     {% endif %}
   </nav>
