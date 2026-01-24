@@ -1,5 +1,7 @@
 #!/usr/bin/env bash
 
+set -e  # Exit on any error
+
 PROJECT_NAME_SLUG=${1:-}          # Use argument $1 or empty as the default
 BRANCH=${2:-main}                 # Use argument $2 or main as the default
 QUIET_INSTALL=${3:-0}             # Use argument $3 or 0 as the default
@@ -95,9 +97,9 @@ COMPOSE_DOCKER_CLI_BUILD=1
 EOF
 
 just clean_extra_files
-sed -i '' "s|image: epicserve/django-base-site|image: ${PROJECT_NAME_SLUG}|" compose.yml
-sed -i '' "s|django-base-site|${PROJECT_NAME_SLUG}|" justfile
-sed -i '' "s|django-base-site|${PROJECT_NAME_SLUG}|" config/docker/Dockerfile.web
+sed -i.bak "s|image: epicserve/django-base-site|image: ${PROJECT_NAME_SLUG}|" compose.yml && rm compose.yml.bak
+sed -i.bak "s|django-base-site|${PROJECT_NAME_SLUG}|" justfile && rm justfile.bak
+sed -i.bak "s|django-base-site|${PROJECT_NAME_SLUG}|" config/docker/Dockerfile.web && rm config/docker/Dockerfile.web.bak
 find ./public -name ".keep" | xargs rm -rf
 
 echo ""

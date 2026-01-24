@@ -66,6 +66,20 @@ jobs:
       - name: Test install script
         run: |
           ./scripts/start_new_project "example" ${GITHUB_REF#refs/heads/} 1 ${{ env.BUILD_DIR }}
+      - name: Verify project files were updated correctly
+        working-directory: ${{ env.BUILD_DIR }}
+        run: |
+          echo "Verifying compose.yml was updated..."
+          grep -q "image: example" compose.yml || (echo "ERROR: compose.yml not updated correctly" && exit 1)
+          ! grep -q "image: epicserve/django-base-site" compose.yml || (echo "ERROR: compose.yml still contains template text" && exit 1)
+
+          echo "Verifying justfile was updated..."
+          grep -q "example" justfile || (echo "ERROR: justfile not updated correctly" && exit 1)
+
+          echo "Verifying Dockerfile.web was updated..."
+          grep -q "example" config/docker/Dockerfile.web || (echo "ERROR: Dockerfile.web not updated correctly" && exit 1)
+
+          echo "All verification checks passed!"
       - name: Build docker images
         working-directory: ${{ env.BUILD_DIR }}
         run: docker compose build web node
