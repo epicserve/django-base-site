@@ -4,7 +4,7 @@
     {
       "label": "Django: Runserver with Debugging",
       "type": "shell",
-      "command": "docker compose down && ENABLE_DEBUGGER=true docker compose up",
+      "command": "docker compose down && USE_DEBUGPY=true docker compose up",
       "presentation": {
         "reveal": "always",
         "panel": "dedicated",
