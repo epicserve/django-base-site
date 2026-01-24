@@ -2,6 +2,18 @@
 
 This project supports remote debugging of Django running inside Docker containers using the Debug Adapter Protocol (DAP). This works with VS Code, LazyVim/Neovim, and any other DAP-compatible editor.
 
+## Table of Contents
+
+- [Quick Start](#quick-start)
+- [PyCharm Setup](#pycharm-setup)
+- [VS Code Setup](#vs-code-setup)
+- [LazyVim/Neovim Setup](#lazyvimneovim-setup)
+- [How It Works](#how-it-works)
+- [Port Configuration](#port-configuration)
+- [Debugging Best Practices](#debugging-best-practices)
+- [Other DAP-Compatible Editors](#other-dap-compatible-editors)
+- [Additional Resources](#additional-resources)
+
 ## Quick Start
 
 ### 1. Start Django with debugpy
@@ -20,6 +32,55 @@ Debugger listening on 0.0.0.0:5678
 ### 2. Attach your debugger
 
 The debugger will be listening on `localhost:5678`.
+
+## PyCharm Setup
+
+PyCharm Professional supports debugging Django applications running in Docker Compose directly.
+
+### 1. Configure Docker Compose Python Interpreter
+
+1. Open **Settings/Preferences** → **Project** → **Python Interpreter**
+2. Click the gear icon → **Add Interpreter** → **On Docker Compose**
+3. Configure:
+   - **Server:** Docker (should auto-detect)
+   - **Configuration files:** `./compose.yml`
+   - **Service:** `web`
+   - **Python interpreter path:** `/opt/venv/bin/python`
+4. Click **OK** and wait for PyCharm to build the interpreter
+
+### 2. Create Django Server Run Configuration
+
+1. Go to **Run** → **Edit Configurations**
+2. Click **+** → **Django Server**
+3. Configure:
+   - **Name:** Django Server (Debug)
+   - **Host:** 0.0.0.0
+   - **Port:** 8000
+   - **Python interpreter:** Select the Docker Compose interpreter from step 1
+   - **Environment variables:** Add any needed variables from your `.env` file
+   - **Working directory:** `/srv/app`
+4. Click **OK**
+
+### 3. Start Debugging
+
+1. Ensure containers are stopped: `just stop`
+2. Set breakpoints in your Python code by clicking in the gutter
+3. Click the **Debug** button (bug icon) or press **Shift+F9**
+4. PyCharm will start the Docker Compose services and attach the debugger
+5. Make requests to http://localhost:8000 to hit your breakpoints
+
+### 4. Stop Debugging
+
+1. Click the **Stop** button or press **Cmd/Ctrl+F2**
+2. PyCharm will stop the Django server
+3. Run `just stop` to clean up any remaining containers
+
+### Notes
+
+- PyCharm's debugger includes hot-reload by default
+- You can use all standard PyCharm debugging features (watches, evaluate expression, etc.)
+- This approach is simpler than using debugpy since PyCharm manages everything
+- Requires PyCharm Professional (not available in Community Edition)
 
 ## VS Code Setup
 
@@ -72,55 +133,6 @@ If you prefer using VS Code tasks:
 - **Breakpoints not hitting**: Ensure the code path is being executed and breakpoints are in valid locations
 - **"Source not found"**: Check that path mappings in launch.json are correct
 - **Containers not stopping**: Use "Django: Stop All Containers" task from Command Palette
-
-## PyCharm/IntelliJ Setup
-
-PyCharm Professional supports debugging Django applications running in Docker Compose directly.
-
-### 1. Configure Docker Compose Python Interpreter
-
-1. Open **Settings/Preferences** → **Project** → **Python Interpreter**
-2. Click the gear icon → **Add Interpreter** → **On Docker Compose**
-3. Configure:
-   - **Server:** Docker (should auto-detect)
-   - **Configuration files:** `./compose.yml`
-   - **Service:** `web`
-   - **Python interpreter path:** `/opt/venv/bin/python`
-4. Click **OK** and wait for PyCharm to build the interpreter
-
-### 2. Create Django Server Run Configuration
-
-1. Go to **Run** → **Edit Configurations**
-2. Click **+** → **Django Server**
-3. Configure:
-   - **Name:** Django Server (Debug)
-   - **Host:** 0.0.0.0
-   - **Port:** 8000
-   - **Python interpreter:** Select the Docker Compose interpreter from step 1
-   - **Environment variables:** Add any needed variables from your `.env` file
-   - **Working directory:** `/srv/app`
-4. Click **OK**
-
-### 3. Start Debugging
-
-1. Ensure containers are stopped: `just stop`
-2. Set breakpoints in your Python code by clicking in the gutter
-3. Click the **Debug** button (bug icon) or press **Shift+F9**
-4. PyCharm will start the Docker Compose services and attach the debugger
-5. Make requests to http://localhost:8000 to hit your breakpoints
-
-### 4. Stop Debugging
-
-1. Click the **Stop** button or press **Cmd/Ctrl+F2**
-2. PyCharm will stop the Django server
-3. Run `just stop` to clean up any remaining containers
-
-### Notes
-
-- PyCharm's debugger includes hot-reload by default
-- You can use all standard PyCharm debugging features (watches, evaluate expression, etc.)
-- This approach is simpler than using debugpy since PyCharm manages everything
-- Requires PyCharm Professional (not available in Community Edition)
 
 ## LazyVim/Neovim Setup
 
