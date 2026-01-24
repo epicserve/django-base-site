@@ -21,10 +21,19 @@ YELLOW=$(tput -Txterm setaf 3)
 WHITE=$(tput -Txterm setaf 7)
 RESET=$(tput -Txterm sgr0)
 
-function ramdom_password() {
-    local password_length=${1:-50}
-    local password=$(python -c "import random; print(''.join(random.SystemRandom().choice('ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789') for i in range(${password_length})))")
-    echo $password
+function create_env_file() {
+    local project_name=$1
+    local create_env_script="scripts/create_env.sh"
+
+    # If running locally and script exists, use it directly
+    if [ -f "$create_env_script" ]; then
+        bash "$create_env_script" "$project_name"
+    else
+        # Download the script from GitHub for remote execution
+        local script_url="https://raw.githubusercontent.com/epicserve/django-base-site/${BRANCH}/scripts/create_env.sh"
+        echo "Downloading create_env.sh from GitHub..."
+        curl -sS "$script_url" | bash -s "$project_name"
+    fi
 }
 
 function ask_yes_or_no_default_yes() {
@@ -81,20 +90,7 @@ else
   cd $PROJECT_DIRECTORY
 fi
 
-SECRET_KEY=$(ramdom_password)
-POSTGRES_PASSWORD=$(ramdom_password 12)
-cat > .env <<EOF
-DEBUG=on
-SECRET_KEY=$SECRET_KEY
-POSTGRES_USER=${PROJECT_NAME_SLUG}
-POSTGRES_DB=${PROJECT_NAME_SLUG}
-POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
-DATABASE_URL=postgres://\${POSTGRES_USER}:\${POSTGRES_PASSWORD}@db:5432/\${POSTGRES_DB}
-INTERNAL_IPS=127.0.0.1,0.0.0.0
-COMPOSE_BAKE=true
-DOCKER_BUILDKIT=1
-COMPOSE_DOCKER_CLI_BUILD=1
-EOF
+create_env_file "$PROJECT_NAME_SLUG"
 
 just clean_extra_files
 sed -i.bak "s|image: epicserve/django-base-site|image: ${PROJECT_NAME_SLUG}|" compose.yml && rm compose.yml.bak
