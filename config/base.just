@@ -179,6 +179,10 @@ pre_commit: format lint test
 @start:
     docker compose up
 
+# Start docker compose with debugpy
+@start_with_debugpy:
+    USE_DEBUGPY=true docker compose up
+
 # Start docker compose with full services
 @start_full:
     docker compose --profile full up

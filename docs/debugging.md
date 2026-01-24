@@ -4,41 +4,20 @@ This project supports remote debugging of Django running inside Docker container
 
 ## Quick Start
 
-### 1. Enable Debugging
-
-Choose one of these methods:
-
-**Option A: Using .env file (Recommended)**
-```bash
-# Uncomment this line in your .env file
-USE_DEBUGPY=true
-```
-
-**Option B: Using docker compose command**
-```bash
-USE_DEBUGPY=true docker compose up
-```
-
-**Option C: Edit compose.yml**
-```yaml
-# Uncomment this line in the web service environment section
-USE_DEBUGPY: 'true'
-```
-
-### 2. Restart the containers
+### 1. Start Django with debugpy
 
 ```bash
-just stop
-just start
+just start_with_debugpy
 ```
 
-Or using docker compose directly:
-```bash
-docker compose down
-docker compose up
+This starts all services with the debugger enabled. Wait for the message:
+```
+Debugger listening on 0.0.0.0:5678
 ```
 
-### 3. Attach your debugger
+**Important:** Auto-reload is disabled when debugging. You must manually restart the server after code changes.
+
+### 2. Attach your debugger
 
 The debugger will be listening on `localhost:5678`.
 
@@ -49,8 +28,7 @@ The project includes pre-configured launch configurations in [.vscode/launch.jso
 ### Quick Start Workflow
 
 1. **Start Django with debugging:**
-   - Open Command Palette (Cmd/Ctrl+Shift+P)
-   - Type "Tasks: Run Task" → "Django: Runserver with Debugging"
+   - Run: `just start_with_debugpy`
    - Wait for "Debugger listening on 0.0.0.0:5678" in the terminal output
 
 2. **Attach the debugger:**
@@ -59,22 +37,27 @@ The project includes pre-configured launch configurations in [.vscode/launch.jso
    - Make requests to your Django app (http://localhost:8000)
 
 3. **Switch to normal mode:**
-   - Disconnect from debugger
-   - Open Command Palette
-   - Type "Tasks: Run Task" → "Django: Runserver"
-   - Django restarts with auto-reload enabled
+   - Stop containers: `just stop`
+   - Start in normal mode: `just start` (with auto-reload)
 
-4. **Stop everything:**
-   - Open Command Palette
-   - Type "Tasks: Run Task" → "Django: Stop All Containers"
+**VS Code Tasks (Alternative):**
 
-### Available Tasks
+If you prefer using VS Code tasks:
+- Command Palette → "Tasks: Run Task" → "Django: Runserver with Debugging"
+- Then press F5 to attach
 
-| Task | Purpose |
-|------|---------|
-| Django: Runserver with Debugging | Start Django with debugger enabled (no auto-reload) |
-| Django: Runserver | Start Django in normal mode (with auto-reload) |
-| Django: Stop All Containers | Stop all Docker containers |
+### Available Commands
+
+| Command | Purpose |
+|---------|---------|
+| `just start_with_debugpy` | Start Django with debugger (no auto-reload) |
+| `just start` | Start Django in normal mode (with auto-reload) |
+| `just stop` | Stop all containers |
+
+**VS Code Tasks** (optional alternative):
+- "Django: Runserver with Debugging"
+- "Django: Runserver"
+- "Django: Stop All Containers"
 
 ### Launch Configuration
 
@@ -138,12 +121,14 @@ Using lazy.nvim:
 
 ### Usage
 
-1. Enable debugging (see Quick Start above)
-2. Start the containers
+1. Start with debugging: `just start_with_debugpy`
+2. Wait for "Debugger listening on 0.0.0.0:5678"
 3. Open your file in Neovim
 4. Set breakpoints: `:lua require('dap').toggle_breakpoint()`
 5. Start debugging: `:lua require('dap').continue()`
 6. Use standard nvim-dap commands to step through code
+
+**Note:** Auto-reload is disabled when debugging. Restart manually after code changes.
 
 ### Key Bindings (Example)
 
@@ -159,19 +144,17 @@ vim.keymap.set('n', '<Leader>b', function() require('dap').toggle_breakpoint() e
 
 ## How It Works
 
-When `USE_DEBUGPY=true`:
+When you run `just start_with_debugpy`:
 
-1. The Docker Compose startup command (in [compose.yml](../compose.yml)) runs Django with debugpy
-2. debugpy listens on `0.0.0.0:5678` inside the container
-3. Docker exposes this port to `localhost:5678` on your host machine
-4. Your editor connects to this port using the DAP protocol
-5. You can set breakpoints, inspect variables, and step through code
+1. Django starts with debugpy listening on `0.0.0.0:5678` inside the container
+2. Docker exposes port 5678 to `localhost:5678` on your host machine
+3. Your editor connects via the Debug Adapter Protocol (DAP)
+4. You can set breakpoints, inspect variables, and step through code
 
 ### Important Notes
 
-- **Auto-reload is disabled** when debugging is enabled to prevent conflicts with the debugger
-- You must **manually restart the server** after code changes when debugging
-- For normal development (with auto-reload), leave `USE_DEBUGPY` unset or set to `false`
+- **Auto-reload is disabled** when debugging - you must manually restart after code changes
+- For normal development with auto-reload, use `just start` instead
 
 ## Port Configuration
 
