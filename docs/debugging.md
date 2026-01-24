@@ -14,8 +14,8 @@ This starts all services with the debugger enabled. Wait for the message:
 ```
 Debugger listening on 0.0.0.0:5678
 ```
-
-**Important:** Auto-reload is disabled when debugging. You must manually restart the server after code changes.
+> [!NOTE]  
+> **Important:** Auto-reload is disabled when debugging. You must manually restart the server after code changes.
 
 ### 2. Attach your debugger
 
@@ -151,10 +151,9 @@ When you run `just start_with_debugpy`:
 3. Your editor connects via the Debug Adapter Protocol (DAP)
 4. You can set breakpoints, inspect variables, and step through code
 
-### Important Notes
-
-- **Auto-reload is disabled** when debugging - you must manually restart after code changes
-- For normal development with auto-reload, use `just start` instead
+> [!NOTE]
+> * **Auto-reload is disabled** when debugging - you must manually restart after code changes
+> * For normal development with auto-reload, use `just start` instead
 
 ## Port Configuration
 
