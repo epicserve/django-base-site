@@ -67,10 +67,23 @@ The project supports remote debugging with VS Code, LazyVim/Neovim, or any DAP-c
 3. Run: `ENABLE_DEBUGGER=true docker compose up`
 
 **VS Code:**
-- Use the "Django: Attach to Docker" configuration in `.vscode/launch.json`
-- Start the containers with debugging enabled
-- Press F5 or Run > Start Debugging
-- Set breakpoints in your Python code
+
+Simple two-step debugging workflow:
+
+1. **Start with debugging:**
+   - Open Command Palette (Cmd/Ctrl+Shift+P)
+   - Run "Tasks: Run Task" → "Django: Runserver with Debugging"
+   - Wait for "Debugger listening on 0.0.0.0:5678" in terminal
+
+2. **Attach debugger:**
+   - Press F5 or select "Django: Attach Debugger" from debug dropdown
+   - Set breakpoints and debug your code
+
+**Switching Between Modes:**
+- From Command Palette (Cmd/Ctrl+Shift+P), run "Tasks: Run Task" then:
+  - **"Django: Runserver with Debugging"** - Start with debugger (no auto-reload)
+  - **"Django: Runserver"** - Start in normal mode (auto-reload enabled)
+  - **"Django: Stop All Containers"** - Stop all containers
 
 **LazyVim/Neovim:**
 - Configure nvim-dap to connect to `localhost:5678`

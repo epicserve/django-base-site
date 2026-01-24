@@ -44,24 +44,51 @@ The debugger will be listening on `localhost:5678`.
 
 ## VS Code Setup
 
-The project includes a pre-configured launch configuration in [.vscode/launch.json](.vscode/launch.json).
+The project includes pre-configured launch configurations in [.vscode/launch.json](.vscode/launch.json).
 
-### Usage
+### Quick Start Workflow
 
-1. Enable debugging (see Quick Start above)
-2. Start the containers
-3. Open VS Code
-4. Go to Run and Debug (Ctrl+Shift+D / Cmd+Shift+D)
-5. Select "Django: Attach to Docker" from the dropdown
-6. Press F5 or click the green play button
-7. Set breakpoints in your Python code
-8. Make requests to your Django app (http://localhost:8000)
+1. **Start Django with debugging:**
+   - Open Command Palette (Cmd/Ctrl+Shift+P)
+   - Type "Tasks: Run Task" → "Django: Runserver with Debugging"
+   - Wait for "Debugger listening on 0.0.0.0:5678" in the terminal output
+
+2. **Attach the debugger:**
+   - Press F5 or select "Django: Attach Debugger" from the debug dropdown
+   - Set breakpoints in your Python code
+   - Make requests to your Django app (http://localhost:8000)
+
+3. **Switch to normal mode:**
+   - Disconnect from debugger
+   - Open Command Palette
+   - Type "Tasks: Run Task" → "Django: Runserver"
+   - Django restarts with auto-reload enabled
+
+4. **Stop everything:**
+   - Open Command Palette
+   - Type "Tasks: Run Task" → "Django: Stop All Containers"
+
+### Available Tasks
+
+| Task | Purpose |
+|------|---------|
+| Django: Runserver with Debugging | Start Django with debugger enabled (no auto-reload) |
+| Django: Runserver | Start Django in normal mode (with auto-reload) |
+| Django: Stop All Containers | Stop all Docker containers |
+
+### Launch Configuration
+
+**"Django: Attach Debugger"**
+- Attaches to debugpy running on port 5678
+- Use after starting "Django: Runserver with Debugging" task
+- Press F5 to attach
 
 ### Troubleshooting
 
-- **"Cannot connect to runtime process"**: Make sure `ENABLE_DEBUGGER=true` is set and containers are running
+- **"Cannot connect to runtime process"**: Make sure containers are running with debugger enabled
 - **Breakpoints not hitting**: Ensure the code path is being executed and breakpoints are in valid locations
 - **"Source not found"**: Check that path mappings in launch.json are correct
+- **Containers not stopping**: Use "Django: Stop All Containers" task from Command Palette
 
 ## LazyVim/Neovim Setup
 
@@ -134,7 +161,7 @@ vim.keymap.set('n', '<Leader>b', function() require('dap').toggle_breakpoint() e
 
 When `ENABLE_DEBUGGER=true`:
 
-1. The startup script ([scripts/start_dev.sh](../scripts/start_dev.sh)) runs Django with debugpy
+1. The Docker Compose startup command (in [compose.yml](../compose.yml)) runs Django with debugpy
 2. debugpy listens on `0.0.0.0:5678` inside the container
 3. Docker exposes this port to `localhost:5678` on your host machine
 4. Your editor connects to this port using the DAP protocol
