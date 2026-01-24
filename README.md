@@ -61,6 +61,14 @@ features.
 * [Model Bakery](https://github.com/model-bakers/model_bakery) - A faster way to create model instances for tests
 * [Django Test Plus](https://github.com/revsys/django-test-plus/) - Helper functions to write tests faster
 
+### 🐛 Debugging Support
+
+* **Remote Debugging** - Full debugging support for PyCharm, VS Code, LazyVim/Neovim, and any DAP-compatible editor
+* **One Command Setup** - Start debugging with `just start_with_debugpy`
+* **PyCharm Integration** - Native Docker Compose debugging support with hot-reload
+* **VS Code Integration** - Pre-configured launch configurations and tasks
+* **[Detailed Documentation](docs/debugging.md)** - Complete setup guides for all supported editors
+
 ### 🩺 Code Quality, Formatting, and Linting Tools
 
 * [Ruff](https://github.com/charliermarsh/ruff) - Python formatting and linting. Lighting fast because it's written in Rust! Replaces Black and other tools.
@@ -156,6 +164,7 @@ lint                         # Lint everything
 upgrade_python_requirements  # Run pip-compile make the requirement files
 open_coverage                # Run the django test runner with coverage
 start                        # Start docker-compose
+start_with_debugpy           # Start docker-compose with debugpy for remote debugging
 start_with_docs              # Start docker-compose with docs
 stop                         # Stop all docker-compose services
 test                         # Run the Django test runner without coverage
