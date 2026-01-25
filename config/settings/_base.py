@@ -1,10 +1,3 @@
-import contextlib
-import socket
-
-from epicenv import Env
-
-env = Env()
-
 """
 Django settings for config project.
 
@@ -15,7 +8,13 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/4.2/ref/settings/
 """
 
+import contextlib
+import socket
 from pathlib import Path
+
+from epicenv import Env
+
+env = Env()
 
 BASE_DIR = Path(__file__).resolve().parent.parent.parent
 
