@@ -19,7 +19,8 @@
              role="button"
              data-bs-toggle="dropdown"
              aria-expanded="false">{{ user.gravatar }}</a>
-          <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="navbarMobileProfile">
+          <ul class="dropdown-menu dropdown-menu-end"
+              aria-labelledby="navbarMobileProfile">
             <li>
               <a class="dropdown-item" href="{% url 'account_change_name' %}">Account Settings</a>
             </li>
@@ -36,10 +37,17 @@
       {% endif %}
     </div>
     {% if maintenance_mode is False %}
-      <div class="offcanvas offcanvas-end offcanvas-lg" tabindex="-1" id="navbarOffcanvas" aria-labelledby="navbarOffcanvasLabel">
+      <div class="offcanvas offcanvas-end offcanvas-lg"
+           tabindex="-1"
+           id="navbarOffcanvas"
+           aria-labelledby="navbarOffcanvasLabel">
         <div class="offcanvas-header">
           <h5 class="offcanvas-title" id="navbarOffcanvasLabel">{{ SITE_NAME }}</h5>
-          <button type="button" class="btn-close" data-bs-dismiss="offcanvas" data-bs-target="#navbarOffcanvas" aria-label="Close"></button>
+          <button type="button"
+                  class="btn-close"
+                  data-bs-dismiss="offcanvas"
+                  data-bs-target="#navbarOffcanvas"
+                  aria-label="Close"></button>
         </div>
         <div class="offcanvas-body p-lg-0 d-lg-flex flex-lg-row align-items-lg-center">
           <ul class="navbar-nav me-auto">
