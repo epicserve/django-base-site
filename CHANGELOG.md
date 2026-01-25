@@ -5,7 +5,7 @@
 
 ### Changed
 
-* Upgraded epicenv to v1.1 and switched to using the built-in `epicenv.initializers.url_safe_password` function for generating `SECRET_KEY` and `POSTGRES_PASSWORD`
+* Upgraded epicenv to v1.2 and switched to using the built-in `epicenv.initializers.url_safe_password` function for generating `SECRET_KEY` and `POSTGRES_PASSWORD`
 
 
 ## 2026-01-24

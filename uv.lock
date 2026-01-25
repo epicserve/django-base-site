@@ -1,5 +1,5 @@
 version = 1
-revision = 3
+revision = 2
 requires-python = ">=3.12"
 
 [[package]]
@@ -759,15 +759,15 @@ django = [
 
 [[package]]
 name = "epicenv"
-version = "1.1.0"
+version = "1.2.0"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "click" },
     { name = "environs" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/94/41/68c2c3b8212e5ac2f6832d9041e42be48646ae252181bce14df7e4dda82d/epicenv-1.1.0.tar.gz", hash = "sha256:ad1ed4befa1140aaa599ff4e53026b0cdb7eeca52535e95db8502009f80aead8", size = 42029, upload-time = "2026-01-25T17:52:54.638Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/fa/6e/39b47d0117abbab00a1fbe6a5bdb4fb7dd2fb77c9d5565e50e6214730190/epicenv-1.2.0.tar.gz", hash = "sha256:5491174f31cfdfeea7cd2e345354c998871e67dc24150f8659166cfce0cb5669", size = 48047, upload-time = "2026-01-25T21:50:57.344Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/e5/f5/b564e8f972b5d626ad9ebda18083ae7d3b6d81504273d10838c9356073fa/epicenv-1.1.0-py3-none-any.whl", hash = "sha256:61a6739f5c83d4d6681b9175d79cbc35bf30f6f8708a5f62874526aae86c4dc9", size = 18214, upload-time = "2026-01-25T17:52:53.757Z" },
+    { url = "https://files.pythonhosted.org/packages/4d/3e/b5d74bdcbc9695f969c1b0f7c48c5eb4476185946acbbd86d9962f876633/epicenv-1.2.0-py3-none-any.whl", hash = "sha256:fa20d9d6829b8bf3df7b59a1b58489ff53e46973766e3b5985378a0a1e63b5ba", size = 21866, upload-time = "2026-01-25T21:50:55.915Z" },
 ]
 
 [package.optional-dependencies]
