@@ -536,7 +536,7 @@ dependencies = [
     { name = "django-crispy-forms" },
     { name = "django-maintenance-mode" },
     { name = "django-storages" },
-    { name = "environs", extra = ["django"] },
+    { name = "epicenv", extra = ["django"] },
     { name = "hiredis" },
     { name = "psycopg2-binary" },
     { name = "pytest-cov" },
@@ -576,7 +576,7 @@ requires-dist = [
     { name = "django-crispy-forms", specifier = "~=2.2" },
     { name = "django-maintenance-mode", specifier = "~=0.19" },
     { name = "django-storages", specifier = "~=1.8" },
-    { name = "environs", extras = ["django"], specifier = "~=14.1" },
+    { name = "epicenv", extras = ["django"], specifier = "~=1.0" },
     { name = "hiredis", specifier = "~=3.0" },
     { name = "psycopg2-binary", specifier = "~=2.9" },
     { name = "pytest-cov", specifier = "~=7.0" },
@@ -755,6 +755,24 @@ django = [
     { name = "dj-database-url" },
     { name = "dj-email-url" },
     { name = "django-cache-url" },
+]
+
+[[package]]
+name = "epicenv"
+version = "1.0.0"
+source = { registry = "https://pypi.org/simple" }
+dependencies = [
+    { name = "click" },
+    { name = "environs" },
+]
+sdist = { url = "https://files.pythonhosted.org/packages/0a/de/dd2856e1b1e0d55adf14022e824fe1a628cc2acb5c38944221224a6711a8/epicenv-1.0.0.tar.gz", hash = "sha256:2cf4c89ae3731629ee714f042301b67f5ebd8a2a8a9ff0b2cff2719c4e4b3d94", size = 39945, upload-time = "2026-01-25T01:10:46.45Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/03/09/5ab47c3cadefdba5109c19e8af0ce8d77e3ad387fd82395f381d3acf1abe/epicenv-1.0.0-py3-none-any.whl", hash = "sha256:a3ce256bc30bf046e6cfcab37b7a0b6d84ca9ce7037c1082c03004999fa6161b", size = 16740, upload-time = "2026-01-25T01:10:07.825Z" },
+]
+
+[package.optional-dependencies]
+django = [
+    { name = "environs", extra = ["django"] },
 ]
 
 [[package]]

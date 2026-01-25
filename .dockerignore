@@ -1,7 +1,7 @@
 **/.venv
 *console.log
 .coverage
-.env
+.env*
 .idea/
 .mypy_cache/**/*
 .pytest_cache/**/*

@@ -6,9 +6,9 @@ project_slug := 'django-base-site'
 @_default:
     just -l
 
-# Create or regenerate .env file (backs up existing one)
-@create_env project_name=project_slug:
-    bash scripts/create_env.sh {{ project_name }}
+# Create or regenerate .env file from pyproject.toml schema
+@create_env:
+    uvx epicenv create
 
 # Remove extra Django Base Site files not needed in a new project
 @clean_extra_files:
