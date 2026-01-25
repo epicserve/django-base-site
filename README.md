@@ -33,7 +33,7 @@ features.
 
 ### 🧑‍💻 Best Practices
 
-* [Environs](https://github.com/sloria/environs) - Used for managing environment variables
+* [Epicenv](https://github.com/epicserve/epicenv) - A delightful environment variable manager with schema validation, type coercion, and CLI tools for generating `.env` files. See the [epicenv documentation](https://github.com/epicserve/epicenv#readme) for more details.
 * [Docker](https://www.docker.com/) - Docker Compose for development and a multi-stage Dockerfile for production ready
   Docker image
 * [UV](https://github.com/astral-sh/uv) - Used to maintain python requirements
