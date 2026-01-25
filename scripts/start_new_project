@@ -23,17 +23,14 @@ RESET=$(tput -Txterm sgr0)
 
 function create_env_file() {
     local project_name=$1
-    local create_env_script="scripts/create_env.sh"
 
-    # If running locally and script exists, use it directly
-    if [ -f "$create_env_script" ]; then
-        bash "$create_env_script" "$project_name"
-    else
-        # Download the script from GitHub for remote execution
-        local script_url="https://raw.githubusercontent.com/epicserve/django-base-site/${BRANCH}/scripts/create_env.sh"
-        echo "Downloading create_env.sh from GitHub..."
-        curl -sS "$script_url" | bash -s "$project_name"
-    fi
+    # Update pyproject.toml with project-specific initial values for Postgres
+    sed -i.bak "s|POSTGRES_USER = { type = \"str\", initial = \"django_base_site\"|POSTGRES_USER = { type = \"str\", initial = \"${project_name}\"|" pyproject.toml
+    sed -i.bak "s|POSTGRES_DB = { type = \"str\", initial = \"django_base_site\"|POSTGRES_DB = { type = \"str\", initial = \"${project_name}\"|" pyproject.toml
+    rm -f pyproject.toml.bak
+
+    # Generate .env file using epicenv
+    uvx epicenv create
 }
 
 function ask_yes_or_no_default_yes() {

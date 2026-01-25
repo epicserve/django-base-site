@@ -13,7 +13,7 @@ dependencies = [
     "django-crispy-forms~=2.2",
     "django-maintenance-mode~=0.19",
     "django-storages~=1.8",
-    "environs[django]~=14.1",
+    "epicenv[django]~=1.0",
     "hiredis~=3.0",  # needed for Django's native cache and sessions
     "psycopg2-binary~=2.9",
     "pytest-cov~=7.0",
@@ -115,3 +115,53 @@ ignore = ["D100", "D101", "D102", "D103", "D104", "D106", "D107", "D203", "D212"
 
 [tool.ruff.lint.isort]
 section-order = ["future", "standard-library", "django", "third-party", "first-party", "local-folder", ]
+
+# Epicenv schema for environment variables
+# https://pypi.org/project/epicenv/
+[tool.epicenv]
+env_file = ".env"
+
+[tool.epicenv.variables]
+# Django Core Settings
+DEBUG = { type = "bool", default = false, initial = "on", help_text = "Enable Django debug mode" }
+SECRET_KEY = { type = "str", required = true, initial_func = "secrets.token_urlsafe", help_text = "Django secret key for cryptographic signing" }
+ALLOWED_HOSTS = { type = "list", default = [], help_text = "List of allowed host/domain names" }
+INTERNAL_IPS = { type = "list", default = ["127.0.0.1"], initial = "127.0.0.1,0.0.0.0", help_text = "IPs that can see debug toolbar" }
+
+# Database Settings
+POSTGRES_USER = { type = "str", initial = "django_base_site", help_text = "PostgreSQL username" }
+POSTGRES_DB = { type = "str", initial = "django_base_site", help_text = "PostgreSQL database name" }
+POSTGRES_PASSWORD = { type = "str", initial_func = "secrets.token_urlsafe", help_text = "PostgreSQL password" }
+DATABASE_URL = { type = "url", initial = "postgres://${POSTGRES_USER}:${POSTGRES_PASSWORD}@db:5432/${POSTGRES_DB}", help_text = "Database connection URL" }
+DB_SSL_REQUIRED = { type = "bool", default="false", help_text = "Require SSL for database connections" }
+
+# Redis/Cache Settings
+REDIS_URL = { type = "str", default = "redis://redis:6379/0", help_text = "Redis connection URL" }
+REDIS_PREFIX = { type = "str", default = "", help_text = "Prefix for Redis keys" }
+
+# Docker Compose Settings
+COMPOSE_BAKE = { type = "str", initial = "true", help_text = "Enable Docker Compose bake" }
+DOCKER_BUILDKIT = { type = "str", initial = "1", help_text = "Enable Docker BuildKit" }
+COMPOSE_DOCKER_CLI_BUILD = { type = "str", initial = "1", help_text = "Use Docker CLI for builds" }
+
+# Development/Debug Settings
+USE_DOCKER = { type = "bool", default = false, help_text = "Running inside Docker container" }
+IS_DEBUG_LOGGING_ON = { type = "bool", default = false, help_text = "Enable debug-level logging" }
+VITE_DEV_MODE = { type = "bool", default="true", help_text = "Enable Vite development mode" }
+READ_DOT_ENV_FILE = { type = "bool", default = true, help_text = "Read .env file on startup" }
+
+# WSGI Settings
+WSGI_APPLICATION = { type = "str", default = "config.wsgi.application", help_text = "WSGI application path" }
+
+# Storage Settings
+DEFAULT_FILE_STORAGE = { type = "str", default = "django.core.files.storage.FileSystemStorage", help_text = "Default file storage backend" }
+STATICFILES_STORAGE = { type = "str", help_text = "Static files storage backend" }
+
+# AWS Settings (optional, for S3 storage)
+AWS_ACCESS_KEY_ID = { type = "str", help_text = "AWS access key ID" }
+AWS_SECRET_ACCESS_KEY = { type = "str", help_text = "AWS secret access key" }
+AWS_STORAGE_BUCKET_NAME = { type = "str", help_text = "S3 bucket name" }
+AWS_S3_REGION = { type = "str", default = "us-east-2", help_text = "AWS S3 region" }
+
+# Email Settings
+EMAIL_URL = { type = "str", default="smtp://skroob@planetspaceball.com:12345@smtp.planetspaceball.com:587/?ssl=True&_default_from_email=President%20Skroob%20%3Cskroob@planetspaceball.com%3E", help_text = "Email server connection URL" }

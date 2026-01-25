@@ -9,7 +9,7 @@ Django Base Site is an opinionated Django starter template that provides a produ
 ## Architecture
 
 - **Apps Structure**: Located in `apps/` directory with `accounts/` (custom user model) and `base/` (core utilities)
-- **Configuration**: Settings split into modules in `config/settings/` with environment-based configuration via Environs
+- **Configuration**: Settings split into modules in `config/settings/` with environment-based configuration via epicenv (schema defined in pyproject.toml)
 - **Frontend**: Vite-based build system with Bootstrap 5, assets in `src/` directory
 - **Docker**: Multi-stage production Dockerfile with development compose setup using Docker Desktop
 - **Static Files**: Custom storage backend in `apps/base/storage.py`, collected to `collected_static/`
@@ -94,9 +94,13 @@ VS Code tasks are also available via Command Palette for convenience.
 
 ## Environment Configuration
 
-Uses `.env` file for local development with these key variables:
+Uses `.env` file for local development. Environment variable schema is defined in `pyproject.toml` under `[tool.epicenv.variables]`.
+
+Generate a new `.env` file with `just create_env` (uses epicenv).
+
+Key variables:
 - `DEBUG=on` for development
-- `SECRET_KEY` - Django secret key
+- `SECRET_KEY` - Django secret key (auto-generated)
 - `DATABASE_URL` - PostgreSQL connection string
 - `INTERNAL_IPS` - For Django Debug Toolbar
 - `USE_DEBUGPY=true` - Enable remote debugging (optional)

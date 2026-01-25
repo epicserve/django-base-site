@@ -1,9 +1,9 @@
 import contextlib
 import socket
 
-import environs
+from epicenv import Env
 
-env = environs.Env()
+env = Env()
 
 """
 Django settings for config project.
@@ -15,7 +15,9 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/4.2/ref/settings/
 """
 
-BASE_DIR = environs.Path(__file__).parent.parent.parent
+from pathlib import Path
+
+BASE_DIR = Path(__file__).resolve().parent.parent.parent
 
 READ_DOT_ENV_FILE = env.bool("READ_DOT_ENV_FILE", default=True)
 
@@ -186,7 +188,7 @@ DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
 # CACHE SETTINGS
 # Redis scheme docs: https://redis-py.readthedocs.io/en/stable/connections.html#redis.connection.ConnectionPool.from_url
-REDIS_URL = env("REDIS_URL", "redis://redis:6379/0")
+REDIS_URL = env("REDIS_URL", default="redis://redis:6379/0")
 REDIS_PREFIX = env("REDIS_PREFIX", default="")
 CACHES = {
     "default": {
