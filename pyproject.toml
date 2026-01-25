@@ -13,7 +13,7 @@ dependencies = [
     "django-crispy-forms~=2.2",
     "django-maintenance-mode~=0.19",
     "django-storages~=1.8",
-    "epicenv[django]~=1.0",
+    "epicenv[django]~=1.1",
     "hiredis~=3.0",  # needed for Django's native cache and sessions
     "psycopg2-binary~=2.9",
     "pytest-cov~=7.0",
@@ -124,14 +124,14 @@ env_file = ".env"
 [tool.epicenv.variables]
 # Django Core Settings
 DEBUG = { type = "bool", default = false, initial = "on", help_text = "Enable Django debug mode" }
-SECRET_KEY = { type = "str", required = true, initial_func = "secrets.token_urlsafe", help_text = "Django secret key for cryptographic signing" }
+SECRET_KEY = { type = "str", required = true, initial_func = "epicenv.initializers.url_safe_password", args = [50], help_text = "Django secret key for cryptographic signing" }
 ALLOWED_HOSTS = { type = "list", default = [], help_text = "List of allowed host/domain names" }
 INTERNAL_IPS = { type = "list", default = ["127.0.0.1"], initial = "127.0.0.1,0.0.0.0", help_text = "IPs that can see debug toolbar" }
 
 # Database Settings
 POSTGRES_USER = { type = "str", initial = "django_base_site", help_text = "PostgreSQL username" }
 POSTGRES_DB = { type = "str", initial = "django_base_site", help_text = "PostgreSQL database name" }
-POSTGRES_PASSWORD = { type = "str", initial_func = "secrets.token_urlsafe", help_text = "PostgreSQL password" }
+POSTGRES_PASSWORD = { type = "str", initial_func = "epicenv.initializers.url_safe_password", args = [24], help_text = "PostgreSQL password" }
 DATABASE_URL = { type = "url", initial = "postgres://${POSTGRES_USER}:${POSTGRES_PASSWORD}@db:5432/${POSTGRES_DB}", help_text = "Database connection URL" }
 DB_SSL_REQUIRED = { type = "bool", default="false", help_text = "Require SSL for database connections" }
 
