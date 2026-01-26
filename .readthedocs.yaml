@@ -4,6 +4,7 @@
 
 # Required
 version: 2
+# Last updated: 2026-01-25
 
 # Set the version of Python and other tools you might need
 build:
