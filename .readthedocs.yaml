@@ -12,9 +12,11 @@ build:
   tools:
     python: "3.12"
   jobs:
-    post_install:
+    pre_install:
       - pip install uv
-      - uv pip install --system --group dev .
+      - uv export --group dev --no-hashes > requirements-rtd.txt
+    post_install:
+      - pip install -r requirements-rtd.txt
 
 mkdocs:
   configuration: config/mkdocs.yml
