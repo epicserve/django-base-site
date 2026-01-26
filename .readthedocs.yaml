@@ -14,7 +14,7 @@ build:
   jobs:
     post_install:
       - pip install uv
-      - uv pip install --group dev .
+      - uv sync --dev --system
 
 mkdocs:
   configuration: config/mkdocs.yml
