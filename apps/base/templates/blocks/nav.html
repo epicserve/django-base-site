@@ -31,7 +31,12 @@
             {% endif %}
             {% if debug %}
               <li>
-                <a class="dropdown-item" href="http://localhost:8025" target="_blank" rel="noopener">Mailpit</a>
+                {# djlint:off H022 #}
+                <a class="dropdown-item"
+                   href="http://localhost:8025"
+                   target="_blank"
+                   rel="noopener">Mailpit</a>
+                {# djlint:on H022 #}
               </li>
             {% endif %}
             <li>
@@ -93,7 +98,12 @@
                   {% endif %}
                   {% if debug %}
                     <li>
-                      <a class="dropdown-item" href="http://localhost:8025" target="_blank" rel="noopener">Mailpit</a>
+                      {# djlint:off H022 #}
+                      <a class="dropdown-item"
+                         href="http://localhost:8025"
+                         target="_blank"
+                         rel="noopener">Mailpit</a>
+                      {# djlint:on H022 #}
                     </li>
                   {% endif %}
                   <li>
