@@ -36,6 +36,7 @@ features.
 * [Epicenv](https://github.com/epicserve/epicenv) - A delightful environment variable manager with schema validation, type coercion, and CLI tools for generating `.env` files. See the [epicenv documentation](https://github.com/epicserve/epicenv#readme) for more details.
 * [Docker](https://www.docker.com/) - Docker Compose for development and a multi-stage Dockerfile for production ready
   Docker image
+* [Mailpit](https://mailpit.axllent.org/) - Email testing tool for local development with a web UI at http://localhost:8025
 * [UV](https://github.com/astral-sh/uv) - Used to maintain python requirements
 * [Just](https://github.com/casey/just) - Popular tool for running common commands (make equivalent)
 * [python-json-logger](https://github.com/madzak/python-json-logger) and [readable-log-formatter](https://github.com/ipmb/readable-log-formatter) - Use JSON logging for better log parsing

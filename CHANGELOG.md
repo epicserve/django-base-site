@@ -1,6 +1,14 @@
 # CHANGELOG
 
 
+## 2026-03-05
+
+### Added
+
+* Added [Mailpit](https://mailpit.axllent.org/) for local email capture with a web UI at http://localhost:8025
+* Changed `ACCOUNT_EMAIL_VERIFICATION` from `"none"` to `"optional"` now that local email delivery works via Mailpit
+
+
 ## 2026-01-25
 
 ### Changed

@@ -224,9 +224,9 @@ ACCOUNT_LOGOUT_ON_GET = True
 ACCOUNT_LOGIN_METHODS = {"email"}
 ACCOUNT_CONFIRM_EMAIL_ON_GET = True
 ACCOUNT_SIGNUP_FIELDS = ["email*", "password1*"]
-# This is set to "none" so when trying out an app idea you don't have to have sending emails setup, which can be a pain.
-# It's not recommended to leave it as none on a production system. Choose either mandatory or optional.
-ACCOUNT_EMAIL_VERIFICATION = "none"
+# Set to "optional" so users can verify their email. Mailpit captures emails locally during development.
+# For production, consider changing to "mandatory".
+ACCOUNT_EMAIL_VERIFICATION = "optional"
 
 # CUSTOM Django Base Site ALLAUTH settings used in the custom adapter (apps.accounts.auth_adapter)
 ACCOUNT_ADAPTER = "apps.accounts.auth_adapter.AccountAdapter"
@@ -236,9 +236,9 @@ ACCOUNT_SHOW_POST_LOGIN_MESSAGE = False
 # See https://github.com/migonzalvar/dj-email-url for more examples on how to set the EMAIL_URL
 email = env.dj_email_url(
     "EMAIL_URL",
-    default="smtp://skroob@planetspaceball.com:12345@smtp.planetspaceball.com:587/?ssl=True&_default_from_email=President%20Skroob%20%3Cskroob@planetspaceball.com%3E",
+    default="smtp://mailpit:1025",
 )
-DEFAULT_FROM_EMAIL = email["DEFAULT_FROM_EMAIL"]
+DEFAULT_FROM_EMAIL = email.get("DEFAULT_FROM_EMAIL", "webmaster@localhost")
 EMAIL_HOST = email["EMAIL_HOST"]
 EMAIL_PORT = email["EMAIL_PORT"]
 EMAIL_HOST_PASSWORD = email["EMAIL_HOST_PASSWORD"]

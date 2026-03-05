@@ -164,4 +164,4 @@ AWS_STORAGE_BUCKET_NAME = { type = "str", help_text = "S3 bucket name" }
 AWS_S3_REGION = { type = "str", default = "us-east-2", help_text = "AWS S3 region" }
 
 # Email Settings
-EMAIL_URL = { type = "str", default="smtp://skroob@planetspaceball.com:12345@smtp.planetspaceball.com:587/?ssl=True&_default_from_email=President%20Skroob%20%3Cskroob@planetspaceball.com%3E", help_text = "Email server connection URL" }
+EMAIL_URL = { type = "str", default="smtp://mailpit:1025", help_text = "Email server connection URL (Mailpit for local development)" }
