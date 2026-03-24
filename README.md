@@ -51,6 +51,7 @@ features.
 * [Django Crispy Forms](https://github.com/django-crispy-forms/django-crispy-forms) - The most popular helper for working with Django forms
 * [Django Alive](https://github.com/lincolnloop/django-alive/) - A simple health check package for Django
 * [Django Maintenance Mode](https://github.com/fabiocaccamo/django-maintenance-mode) - A simple maintenance mode package for Django
+* [Django SES](https://github.com/django-ses/django-ses) - A Django email backend for Amazon Simple Email Service (SES)
 
 [custom_user_model]: https://docs.djangoproject.com/en/stable/topics/auth/customizing/#substituting-a-custom-user-model
 

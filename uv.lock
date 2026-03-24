@@ -535,6 +535,7 @@ dependencies = [
     { name = "django-allauth" },
     { name = "django-crispy-forms" },
     { name = "django-maintenance-mode" },
+    { name = "django-ses" },
     { name = "django-storages" },
     { name = "epicenv", extra = ["django"] },
     { name = "hiredis" },
@@ -575,6 +576,7 @@ requires-dist = [
     { name = "django-allauth", specifier = "~=65.0" },
     { name = "django-crispy-forms", specifier = "~=2.2" },
     { name = "django-maintenance-mode", specifier = "~=0.19" },
+    { name = "django-ses", specifier = "~=4.3" },
     { name = "django-storages", specifier = "~=1.8" },
     { name = "epicenv", extras = ["django"], specifier = "~=1.2" },
     { name = "hiredis", specifier = "~=3.0" },
@@ -649,6 +651,19 @@ dependencies = [
 sdist = { url = "https://files.pythonhosted.org/packages/36/16/1be35f8c44f7ff05bfc6465eb4bf7ceb2ab0f85970baac6c91742a0d72d0/django_maintenance_mode-0.22.0.tar.gz", hash = "sha256:502f04f845d6996e8add321186b3b9236c3702de7cb0ab14952890af6523b9e5", size = 18385, upload-time = "2025-04-03T13:25:53.658Z" }
 wheels = [
     { url = "https://files.pythonhosted.org/packages/f3/dc/4b75fbaecba12cbd682131cf047076a0dc43d61f2456c08f5bf2d3ce0a8c/django_maintenance_mode-0.22.0-py3-none-any.whl", hash = "sha256:a9cf2ba79c9945bd67f98755a6cfd281869d39b3745bbb5d1f571d058657aa85", size = 16659, upload-time = "2025-04-03T13:25:52.109Z" },
+]
+
+[[package]]
+name = "django-ses"
+version = "4.7.2"
+source = { registry = "https://pypi.org/simple" }
+dependencies = [
+    { name = "boto3" },
+    { name = "django" },
+]
+sdist = { url = "https://files.pythonhosted.org/packages/7f/25/25838da8e213c9f125b26a25360f0bb8ac57f07c24977451f3e7a0d63ddd/django_ses-4.7.2.tar.gz", hash = "sha256:a36f2af0e4ce060bf36053ed4c94feac1703ea3351e677c6f6421abd01433a35", size = 71828, upload-time = "2026-02-20T19:22:35.078Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/84/f2/15d4bd54bd01e68e8a116e0b66243c91cb62a3fa0d780a39d2af6654e8ae/django_ses-4.7.2-py3-none-any.whl", hash = "sha256:f3db567fb6f43c01d7d890f5c991e1ebbfa48220de0be24d497ba6332004abcb", size = 37796, upload-time = "2026-02-20T19:22:32.819Z" },
 ]
 
 [[package]]

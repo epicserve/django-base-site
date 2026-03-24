@@ -32,6 +32,8 @@ SECRET_KEY = env("SECRET_KEY")
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = env.bool("DEBUG", default=False)
 
+INSTANCE = env("INSTANCE", default="dev")
+
 ALLOWED_HOSTS: list[str] = env.list("ALLOWED_HOSTS", default=[])
 INTERNAL_IPS = env.list("INTERNAL_IPS", default=["127.0.0.1"])
 
@@ -157,11 +159,13 @@ STORAGES = {
     },
 }
 
+# AWS Credentials: Required when using MediaS3Storage or when using Django SES for email in non-prod instances
+AWS_ACCESS_KEY_ID = env("AWS_ACCESS_KEY_ID", default="")
+AWS_SECRET_ACCESS_KEY = env("AWS_SECRET_ACCESS_KEY", default="")
+
 
 if STORAGES["default"]["BACKEND"].endswith("MediaS3Storage") is True:
     STORAGES["staticfiles"]["BACKEND"] = env("STATICFILES_STORAGE")
-    AWS_ACCESS_KEY_ID = env("AWS_ACCESS_KEY_ID")
-    AWS_SECRET_ACCESS_KEY = env("AWS_SECRET_ACCESS_KEY")
     AWS_STORAGE_BUCKET_NAME = env("AWS_STORAGE_BUCKET_NAME")
     AWS_DEFAULT_ACL = "public-read"
     AWS_S3_REGION = env("AWS_S3_REGION", default="us-east-2")
@@ -233,17 +237,22 @@ ACCOUNT_ADAPTER = "apps.accounts.auth_adapter.AccountAdapter"
 ACCOUNT_SIGNUP_OPEN = False
 ACCOUNT_SHOW_POST_LOGIN_MESSAGE = False
 
-# See https://github.com/migonzalvar/dj-email-url for more examples on how to set the EMAIL_URL
-email = env.dj_email_url(
-    "EMAIL_URL",
-    default="smtp://mailpit:1025",
-)
-DEFAULT_FROM_EMAIL = email.get("DEFAULT_FROM_EMAIL", "webmaster@localhost")
-EMAIL_HOST = email["EMAIL_HOST"]
-EMAIL_PORT = email["EMAIL_PORT"]
-EMAIL_HOST_PASSWORD = email["EMAIL_HOST_PASSWORD"]
-EMAIL_HOST_USER = email["EMAIL_HOST_USER"]
-EMAIL_USE_TLS = email["EMAIL_USE_TLS"]
+if INSTANCE != "prod":
+    # See https://github.com/migonzalvar/dj-email-url for more examples on how to set the EMAIL_URL
+    email = env.dj_email_url(
+        "EMAIL_URL",
+        default="smtp://mailpit:1025",
+    )
+    DEFAULT_FROM_EMAIL = email.get("DEFAULT_FROM_EMAIL", "webmaster@localhost")
+    EMAIL_HOST = email["EMAIL_HOST"]
+    EMAIL_PORT = email["EMAIL_PORT"]
+    EMAIL_HOST_PASSWORD = email["EMAIL_HOST_PASSWORD"]
+    EMAIL_HOST_USER = email["EMAIL_HOST_USER"]
+    EMAIL_USE_TLS = email["EMAIL_USE_TLS"]
+else:
+    # Use Django SES as the email backend for the production instance
+    DEFAULT_FROM_EMAIL = env("DEFAULT_FROM_EMAIL", default="")
+    EMAIL_BACKEND = "django_ses.SESBackend"
 
 
 def log_format() -> str:

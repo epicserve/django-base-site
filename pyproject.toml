@@ -12,6 +12,7 @@ dependencies = [
     "django-allauth~=65.0",
     "django-crispy-forms~=2.2",
     "django-maintenance-mode~=0.19",
+    "django-ses~=4.3",
     "django-storages~=1.8",
     "epicenv[django]~=1.2",
     "hiredis~=3.0",  # needed for Django's native cache and sessions
@@ -157,11 +158,15 @@ WSGI_APPLICATION = { type = "str", default = "config.wsgi.application", help_tex
 DEFAULT_FILE_STORAGE = { type = "str", default = "django.core.files.storage.FileSystemStorage", help_text = "Default file storage backend" }
 STATICFILES_STORAGE = { type = "str", help_text = "Static files storage backend" }
 
-# AWS Settings (optional, for S3 storage)
+# AWS Settings (optional, for S3 storage and Django SES email backend)
 AWS_ACCESS_KEY_ID = { type = "str", help_text = "AWS access key ID" }
 AWS_SECRET_ACCESS_KEY = { type = "str", help_text = "AWS secret access key" }
 AWS_STORAGE_BUCKET_NAME = { type = "str", help_text = "S3 bucket name" }
 AWS_S3_REGION = { type = "str", default = "us-east-2", help_text = "AWS S3 region" }
 
 # Email Settings
+DEFAULT_FROM_EMAIL = { type = "str", default = "", help_text = "Default email address for sending emails, required when using Django SES for sending emails on the production instance." }
 EMAIL_URL = { type = "str", default="smtp://mailpit:1025", help_text = "Email server connection URL (Mailpit for local development)" }
+
+# Instance Settings
+INSTANCE = { type = "str", default = "dev", help_text = "Instance name (e.g., dev, staging, prod)" }
