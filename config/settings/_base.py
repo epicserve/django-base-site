@@ -309,7 +309,7 @@ LOGGING = {
 with contextlib.suppress(ModuleNotFoundError):
     import readable_log_formatter  # noqa: F401
 
-    LOGGING["formatters"]["default"]["class"] = "readable_log_formatter.ReadableFormatter"  # type: ignore
+    LOGGING["formatters"]["default"]["class"] = "readable_log_formatter.ReadableFormatter"
 
 # MAINTENANCE MODE SETTINGS
 MAINTENANCE_MODE_STATE_BACKEND = "maintenance_mode.backends.CacheBackend"

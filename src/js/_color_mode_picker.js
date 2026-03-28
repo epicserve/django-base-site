@@ -15,7 +15,6 @@
       return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
     },
 
-    // eslint-disable-next-line func-names
     setTheme = function (theme) {
       if (theme === 'auto' && window.matchMedia('(prefers-color-scheme: dark)').matches) {
         document.documentElement.setAttribute('data-bs-theme', 'dark');
