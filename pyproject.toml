@@ -170,3 +170,6 @@ EMAIL_URL = { type = "str", default="smtp://mailpit:1025", help_text = "Email se
 
 # Instance Settings
 INSTANCE = { type = "str", default = "dev", help_text = "Instance name (e.g., dev, staging, prod)" }
+
+[tool.uv]
+exclude-newer = "P7D"
