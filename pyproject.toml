@@ -9,7 +9,7 @@ dependencies = [
     "celery~=5.5",
     "crispy-bootstrap5~=2026.3",
     "django-alive~=2.0",
-    "django-allauth~=65.0",
+    "django-allauth~=65.15",
     "django-crispy-forms~=2.2",
     "django-maintenance-mode~=0.19",
     "django-ses~=4.3",
@@ -19,7 +19,7 @@ dependencies = [
     "psycopg2-binary~=2.9",
     "pytest-cov~=7.0",
     "pytest-django~=4.5",
-    "python-json-logger~=4.0",
+    "python-json-logger~=4.1",
     "redis~=7.1",  # needed for celery
     "uwsgi~=2.0",
 ]
