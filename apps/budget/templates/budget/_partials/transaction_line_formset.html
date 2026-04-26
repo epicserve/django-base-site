@@ -1,0 +1,37 @@
+{% load crispy_forms_tags %}
+
+{{ line_formset.management_form }}
+<div id="line-formset-container">
+  {% for form in line_formset %}
+    <div class="line-form card mb-2">
+      <div class="card-body">
+        {% if line_formset.can_delete %}
+          <div class="form-check mb-2">
+            {{ form.DELETE }}
+            <label class="form-check-label text-danger" for="{{ form.DELETE.id_for_label }}">Remove this line</label>
+          </div>
+        {% endif %}
+        <div class="row g-2">
+          <div class="col-md-4">
+            <label class="form-label" for="{{ form.category.id_for_label }}">Category</label>
+            {{ form.category }}
+            {% if form.category.errors %}<div class="text-danger small">{{ form.category.errors }}</div>{% endif %}
+          </div>
+          <div class="col-md-3">
+            <label class="form-label" for="{{ form.amount.id_for_label }}">Amount ($)</label>
+            {{ form.amount }}
+            {% if form.amount.errors %}<div class="text-danger small">{{ form.amount.errors }}</div>{% endif %}
+          </div>
+          <div class="col-md-5">
+            <label class="form-label" for="{{ form.description.id_for_label }}">Note (optional)</label>
+            {{ form.description }}
+          </div>
+        </div>
+        {% if form.non_field_errors %}<div class="text-danger small mt-1">{{ form.non_field_errors }}</div>{% endif %}
+      </div>
+    </div>
+  {% endfor %}
+</div>
+{% if line_formset.non_form_errors %}
+  <div class="alert alert-danger">{{ line_formset.non_form_errors }}</div>
+{% endif %}

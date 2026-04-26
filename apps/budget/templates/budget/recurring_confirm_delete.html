@@ -1,0 +1,27 @@
+{% extends "layouts/base.html" %}
+
+{% block title %}Deactivate {{ recurring.name }}{% endblock %}
+
+{% block content %}
+  <div class="row justify-content-center">
+    <div class="col-md-6">
+      <div class="card border-warning">
+        <div class="card-header bg-warning">Deactivate Recurring Transaction</div>
+        <div class="card-body">
+          <p>Deactivate <strong>{{ recurring.name }}</strong>? No new instances will be generated. Past paid instances are preserved.</p>
+          <form method="post">
+            {% csrf_token %}
+            <div class="form-check mb-3">
+              <input class="form-check-input" type="checkbox" name="delete_future_unpaid" id="delete_future_unpaid">
+              <label class="form-check-label" for="delete_future_unpaid">
+                Also delete future unpaid instances
+              </label>
+            </div>
+            <button type="submit" class="btn btn-warning">Deactivate</button>
+            <a href="{% url 'budget:recurring-detail' budget_pk=budget.pk pk=recurring.pk %}" class="btn btn-secondary ms-2">Cancel</a>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+{% endblock %}

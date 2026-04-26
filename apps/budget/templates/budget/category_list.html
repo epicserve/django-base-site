@@ -1,0 +1,260 @@
+{% extends "layouts/base.html" %}
+
+{% block title %}Categories{% endblock %}
+
+{% block content %}
+  <div class="d-flex justify-content-between align-items-center mb-4">
+    <h1 class="h3">Categories</h1>
+    <a href="{% url 'budget:detail' budget_pk=budget.pk %}" class="btn btn-outline-secondary btn-sm">Back</a>
+  </div>
+
+  <div class="row g-4">
+    {% for section_type, section_label, section_class, categories in sections %}
+      <div class="col-md-6">
+        <div class="card h-100">
+          <div class="card-header bg-{{ section_class }} bg-opacity-10 text-{{ section_class }}">{{ section_label }} Categories</div>
+          <ul class="list-group list-group-flush" id="list-{{ section_type }}">
+            {% for cat in categories %}
+              <li class="list-group-item d-flex justify-content-between align-items-center" data-cat-id="{{ cat.pk }}">
+                <span class="cat-name flex-grow-1 me-2" style="cursor:text" title="Click to edit">{{ cat.name }}</span>
+                <button class="btn btn-sm btn-close btn-delete-cat" style="filter:invert(20%) sepia(100%) saturate(7000%) hue-rotate(0deg)" data-cat-id="{{ cat.pk }}" title="Delete"></button>
+              </li>
+            {% endfor %}
+            <li class="list-group-item p-2" id="add-row-{{ section_type }}">
+              <button class="btn btn-sm btn-outline-{{ section_class }} w-100 btn-add-cat" data-type="{{ section_type }}">
+                + Add {{ section_label }} Category
+              </button>
+            </li>
+          </ul>
+        </div>
+      </div>
+    {% endfor %}
+  </div>
+{% endblock %}
+
+{% block bottom_script %}
+  {{ block.super }}
+  <script>
+    (function () {
+      const BUDGET_PK = {{ budget.pk }};
+      const API_BASE = `/api/budgets/${BUDGET_PK}`;
+
+      function getCsrf() {
+        const m = document.cookie.match(/csrftoken=([^;]+)/);
+        return m ? m[1] : '';
+      }
+
+      async function apiRequest(url, method, body) {
+        const res = await fetch(url, {
+          method,
+          headers: { 'Content-Type': 'application/json', 'X-CSRFToken': getCsrf() },
+          body: body ? JSON.stringify(body) : undefined,
+        });
+        if (!res.ok) throw await res.json();
+        return res.status === 204 ? null : res.json();
+      }
+
+      // ── Inline edit existing category name ──────────────────────────────
+      document.querySelectorAll('.cat-name').forEach(function (span) {
+        span.addEventListener('click', function () {
+          if (span.querySelector('input')) return; // already editing
+          const li = span.closest('li');
+          const catId = li.dataset.catId;
+          const original = span.textContent.trim();
+
+          const input = document.createElement('input');
+          input.type = 'text';
+          input.value = original;
+          input.className = 'form-control form-control-sm';
+          span.textContent = '';
+          span.appendChild(input);
+          input.focus();
+          input.select();
+
+          async function save() {
+            const val = input.value.trim();
+            if (!val || val === original) { span.textContent = original; return; }
+            try {
+              await apiRequest(`${API_BASE}/categories/${catId}/`, 'PATCH', { name: val });
+              span.textContent = val;
+            } catch {
+              span.textContent = original;
+            }
+          }
+
+          input.addEventListener('blur', save);
+          input.addEventListener('keydown', function (e) {
+            if (e.key === 'Enter') { e.preventDefault(); input.blur(); }
+            if (e.key === 'Escape') { input.removeEventListener('blur', save); span.textContent = original; }
+          });
+        });
+      });
+
+      // ── Delete category ──────────────────────────────────────────────────
+      document.querySelectorAll('.btn-delete-cat').forEach(function (btn) {
+        btn.addEventListener('click', deleteHandler);
+      });
+
+      // ── Inline create new category ───────────────────────────────────────
+      document.querySelectorAll('.btn-add-cat').forEach(function (btn) {
+        btn.addEventListener('click', function () {
+          const type = btn.dataset.type;
+          const addRow = btn.closest('li');
+          const list = addRow.closest('ul');
+
+          // Don't add a second input if one already exists
+          if (list.querySelector('.new-cat-input')) return;
+
+          btn.classList.add('d-none');
+
+          const li = document.createElement('li');
+          li.className = 'list-group-item p-2 new-cat-input';
+          li.innerHTML = `
+            <div class="input-group input-group-sm">
+              <input type="text" class="form-control" placeholder="Category name" autofocus>
+              <button class="btn btn-outline-secondary btn-cancel-new">Cancel</button>
+            </div>
+            <div class="text-danger small mt-1 d-none error-msg"></div>`;
+          list.insertBefore(li, addRow);
+
+          const input = li.querySelector('input');
+          input.focus();
+
+          li.querySelector('.btn-cancel-new').addEventListener('click', function () {
+            li.remove();
+            btn.classList.remove('d-none');
+          });
+
+          async function create() {
+            const val = input.value.trim();
+            if (!val) { li.remove(); btn.classList.remove('d-none'); return; }
+            try {
+              const cat = await apiRequest(`${API_BASE}/categories/`, 'POST', { name: val, category_type: type });
+              // Insert new category row before the add row
+              const newLi = document.createElement('li');
+              newLi.className = 'list-group-item d-flex justify-content-between align-items-center';
+              newLi.dataset.catId = cat.id;
+              newLi.innerHTML = `
+                <span class="cat-name flex-grow-1 me-2" style="cursor:text" title="Click to edit">${cat.name}</span>
+                <button class="btn btn-sm btn-close btn-delete-cat" style="filter:invert(20%) sepia(100%) saturate(7000%) hue-rotate(0deg)" data-cat-id="${cat.id}" title="Delete"></button>`;
+              list.insertBefore(newLi, li);
+              li.remove();
+              btn.classList.remove('d-none');
+
+              // Wire up the new row's events
+              newLi.querySelector('.cat-name').addEventListener('click', function () {
+                newLi.querySelector('.cat-name').dispatchEvent(new MouseEvent('click'));
+              });
+              wireInlineEdit(newLi.querySelector('.cat-name'), cat.id);
+              newLi.querySelector('.btn-delete-cat').addEventListener('click', deleteHandler);
+            } catch (err) {
+              const msg = li.querySelector('.error-msg');
+              msg.textContent = (err && err.name) ? err.name.join(' ') : 'Error saving category.';
+              msg.classList.remove('d-none');
+              input.focus();
+            }
+          }
+
+          input.addEventListener('blur', create);
+          input.addEventListener('keydown', function (e) {
+            if (e.key === 'Enter') { e.preventDefault(); input.removeEventListener('blur', create); void create(); }
+            if (e.key === 'Escape') { input.removeEventListener('blur', create); li.remove(); btn.classList.remove('d-none'); }
+          });
+        });
+      });
+
+      function wireInlineEdit(span, catId) {
+        span.addEventListener('click', function () {
+          if (span.querySelector('input')) return;
+          const original = span.textContent.trim();
+          const input = document.createElement('input');
+          input.type = 'text';
+          input.value = original;
+          input.className = 'form-control form-control-sm';
+          span.textContent = '';
+          span.appendChild(input);
+          input.focus();
+          input.select();
+          async function save() {
+            const val = input.value.trim();
+            if (!val || val === original) { span.textContent = original; return; }
+            try {
+              await apiRequest(`${API_BASE}/categories/${catId}/`, 'PATCH', { name: val });
+              span.textContent = val;
+            } catch { span.textContent = original; }
+          }
+          input.addEventListener('blur', save);
+          input.addEventListener('keydown', function (e) {
+            if (e.key === 'Enter') { e.preventDefault(); input.blur(); }
+            if (e.key === 'Escape') { input.removeEventListener('blur', save); span.textContent = original; }
+          });
+        });
+      }
+
+      function resetDelete(li) {
+        const confirmBtn = li.querySelector('.btn-confirm-delete');
+        const xBtn = li.querySelector('.btn-delete-cat');
+        if (!confirmBtn) return;
+        confirmBtn.style.maxWidth = '0';
+        confirmBtn.style.opacity = '0';
+        confirmBtn.style.paddingLeft = '0';
+        confirmBtn.style.paddingRight = '0';
+        confirmBtn.style.marginLeft = '0';
+        xBtn.style.opacity = '1';
+        setTimeout(() => confirmBtn.remove(), 250);
+      }
+
+      function deleteHandler(e) {
+        const xBtn = e.currentTarget;
+        const catId = xBtn.dataset.catId;
+        const li = xBtn.closest('li');
+
+        // Already in confirm state — clicking x again resets
+        if (li.querySelector('.btn-confirm-delete')) { resetDelete(li); return; }
+
+        const confirmBtn = document.createElement('button');
+        confirmBtn.className = 'btn btn-sm btn-danger btn-confirm-delete ms-2';
+        confirmBtn.textContent = 'Delete';
+        confirmBtn.style.cssText = 'max-width:0;opacity:0;padding-left:0;padding-right:0;overflow:hidden;transition:max-width 0.2s ease,opacity 0.2s ease,padding 0.2s ease;white-space:nowrap';
+        li.appendChild(confirmBtn);
+
+        // Trigger animation
+        requestAnimationFrame(() => requestAnimationFrame(() => {
+          confirmBtn.style.maxWidth = '80px';
+          confirmBtn.style.opacity = '1';
+          confirmBtn.style.paddingLeft = '';
+          confirmBtn.style.paddingRight = '';
+          xBtn.style.transition = 'opacity 0.15s';
+          xBtn.style.opacity = '0';
+        }));
+
+        // Click outside → reset
+        function onOutside(ev) {
+          if (!li.contains(ev.target)) {
+            resetDelete(li);
+            document.removeEventListener('click', onOutside);
+          }
+        }
+        setTimeout(() => document.addEventListener('click', onOutside), 0);
+
+        confirmBtn.addEventListener('click', async function (ev) {
+          ev.stopPropagation();
+          document.removeEventListener('click', onOutside);
+          try {
+            await apiRequest(`${API_BASE}/categories/${catId}/`, 'DELETE');
+            li.style.transition = 'opacity 0.15s';
+            li.style.opacity = '0';
+            setTimeout(() => li.remove(), 150);
+          } catch {
+            resetDelete(li);
+            const errSpan = document.createElement('span');
+            errSpan.className = 'text-danger small ms-2';
+            errSpan.textContent = 'Has transactions — cannot delete.';
+            li.appendChild(errSpan);
+            setTimeout(() => errSpan.remove(), 3000);
+          }
+        });
+      }
+    })();
+  </script>
+{% endblock %}

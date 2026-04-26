@@ -62,10 +62,10 @@ class TestChangePasswordView(BaseAccountViewTest):
             user = User.objects.get(pk=user.id)
             assert user.password != old_password_hash
 
-        # attempt logging in with new password
+        # attempt logging in with new password — site_index redirects to budget
         with self.login(user, password="new-password"):  # noqa: S106
             self.get("site_index")
-            self.assert_http_200_ok()
+            self.assert_http_302_found()
 
 
 class TestChangeEmailView(BaseAccountViewTest):

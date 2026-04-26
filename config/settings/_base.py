@@ -51,6 +51,8 @@ INSTALLED_APPS = [
     "django.contrib.staticfiles",
     "apps.base",
     "apps.accounts",
+    "apps.budget",
+    "rest_framework",
     "maintenance_mode",
     "allauth",
     "allauth.account",
@@ -208,7 +210,7 @@ CRISPY_TEMPLATE_PACK = "bootstrap5"
 SESSION_ENGINE = "django.contrib.sessions.backends.cache"
 
 SITE_ID = 1
-SITE_NAME = "Django Base Site"
+SITE_NAME = "Budgeteer"
 
 # DJANGO DEBUG TOOLBAR SETTINGS
 if DEBUG is True:
@@ -306,3 +308,15 @@ MAINTENANCE_MODE_STATE_BACKEND = "maintenance_mode.backends.CacheBackend"
 MAINTENANCE_MODE_STATE_BACKEND_FALLBACK_VALUE = True
 
 VITE_DEV_MODE = env.bool("VITE_DEV_MODE", default=DEBUG)
+
+REST_FRAMEWORK = {
+    "DEFAULT_AUTHENTICATION_CLASSES": [
+        "rest_framework.authentication.SessionAuthentication",
+    ],
+    "DEFAULT_PERMISSION_CLASSES": [
+        "rest_framework.permissions.IsAuthenticated",
+    ],
+    "DEFAULT_RENDERER_CLASSES": [
+        "rest_framework.renderers.JSONRenderer",
+    ],
+}

@@ -1,0 +1,21 @@
+{% extends "layouts/base.html" %}
+
+{% block title %}Remove Member{% endblock %}
+
+{% block content %}
+  <div class="row justify-content-center">
+    <div class="col-md-6">
+      <div class="card border-danger">
+        <div class="card-header bg-danger text-white">Remove Member</div>
+        <div class="card-body">
+          <p>Remove <strong>{{ membership.user.get_full_name|default:membership.user.email }}</strong> from <strong>Budget</strong>?</p>
+          <form method="post">
+            {% csrf_token %}
+            <button type="submit" class="btn btn-danger">Remove</button>
+            <a href="{% url 'budget:member-list' budget_pk=budget.pk %}" class="btn btn-secondary ms-2">Cancel</a>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+{% endblock %}

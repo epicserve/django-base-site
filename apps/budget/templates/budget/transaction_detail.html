@@ -1,0 +1,95 @@
+{% extends "layouts/base.html" %}
+
+{% block title %}{{ transaction.description }}{% endblock %}
+
+{% block content %}
+  <div class="d-flex justify-content-between align-items-start mb-4">
+    <div>
+      <h1 class="h3 mb-0">{{ transaction.description }}</h1>
+      <p class="text-muted small mb-0">Due {{ transaction.due_date }}</p>
+    </div>
+    <div class="d-flex gap-2">
+      <form method="post" action="{% url 'budget:transaction-mark-paid' budget_pk=budget.pk pk=transaction.pk %}">
+        {% csrf_token %}
+        <input type="hidden" name="next" value="{{ request.get_full_path }}">
+        <button type="submit" class="btn btn-sm {% if transaction.is_paid %}btn-outline-secondary{% else %}btn-success{% endif %}">
+          {% if transaction.is_paid %}Mark Unpaid{% else %}Mark Paid{% endif %}
+        </button>
+      </form>
+      <a href="{% url 'budget:transaction-edit' budget_pk=budget.pk pk=transaction.pk %}" class="btn btn-sm btn-outline-secondary">Edit</a>
+      <a href="{% url 'budget:transaction-delete' budget_pk=budget.pk pk=transaction.pk %}" class="btn btn-sm btn-outline-danger">Delete</a>
+    </div>
+  </div>
+
+  <div class="row g-4">
+    <div class="col-md-4">
+      <div class="card">
+        <div class="card-body">
+          <dl class="mb-0">
+            <dt>Status</dt>
+            <dd>
+              {% if transaction.is_paid %}
+                <span class="badge bg-success">Paid</span>
+                {% if transaction.paid_date %}<span class="text-muted small ms-1">on {{ transaction.paid_date }}</span>{% endif %}
+              {% else %}
+                <span class="badge bg-warning text-dark">Unpaid</span>
+              {% endif %}
+            </dd>
+            <dt>Total Amount</dt>
+            <dd class="{% if transaction.transaction_type == 'income' %}text-success{% else %}text-danger{% endif %} h5">
+              ${{ transaction.total_amount }}
+            </dd>
+            <dt>Type</dt>
+            <dd>
+              {% with transaction.transaction_type as tt %}
+                {% if tt == "income" %}<span class="badge bg-success">Income</span>
+                {% elif tt == "expense" %}<span class="badge bg-danger">Expense</span>
+                {% endif %}
+              {% endwith %}
+            </dd>
+            {% if transaction.recurring %}
+              <dt>Recurring</dt>
+              <dd><a href="{% url 'budget:recurring-detail' budget_pk=budget.pk pk=transaction.recurring.pk %}">{{ transaction.recurring.name }}</a></dd>
+            {% endif %}
+            {% if transaction.notes %}
+              <dt>Notes</dt>
+              <dd>{{ transaction.notes }}</dd>
+            {% endif %}
+          </dl>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-md-8">
+      <div class="card">
+        <div class="card-header">Line Items</div>
+        <table class="table table-sm mb-0">
+          <thead>
+            <tr>
+              <th>Category</th>
+              <th>Note</th>
+              <th class="text-end">Amount</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for line in lines %}
+              <tr>
+                <td>{{ line.category.name }}</td>
+                <td>{{ line.description }}</td>
+                <td class="text-end">${{ line.amount }}</td>
+              </tr>
+            {% endfor %}
+          </tbody>
+          <tfoot>
+            <tr class="fw-bold">
+              <td colspan="2">Total</td>
+              <td class="text-end">${{ transaction.total_amount }}</td>
+            </tr>
+          </tfoot>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <a href="{% url 'budget:transaction-list' budget_pk=budget.pk %}" class="btn btn-link mt-3">Back to Transactions</a>
+{% endblock %}

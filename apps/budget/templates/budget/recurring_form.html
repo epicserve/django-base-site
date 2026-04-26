@@ -1,0 +1,38 @@
+{% extends "layouts/base.html" %}
+{% load crispy_forms_tags %}
+
+{% block title %}{% if object %}Edit {{ object.name }}{% else %}New Recurring Transaction{% endif %}{% endblock %}
+
+{% block script %}
+  <script>
+    document.addEventListener('DOMContentLoaded', function () {
+      const freqSelect = document.getElementById('id_frequency');
+      const intervalRow = document.getElementById('id_interval').closest('.mb-3');
+
+      function toggleInterval() {
+        intervalRow.style.display = freqSelect.value === 'every_n_months' ? '' : 'none';
+      }
+
+      freqSelect.addEventListener('change', toggleInterval);
+      toggleInterval();
+    });
+  </script>
+{% endblock %}
+
+{% block content %}
+  <div class="row justify-content-center">
+    <div class="col-md-7">
+      <h1 class="h3 mb-4">{% if object %}Edit Recurring Transaction{% else %}New Recurring Transaction{% endif %}</h1>
+      {% if object %}
+        <div class="form-check mb-3">
+          <input class="form-check-input" type="checkbox" name="delete_future_unpaid" id="delete_future_unpaid">
+          <label class="form-check-label" for="delete_future_unpaid">
+            Also delete and regenerate future unpaid instances with new settings
+          </label>
+        </div>
+      {% endif %}
+      {% crispy form %}
+      <a href="{% url 'budget:recurring-list' budget_pk=budget.pk %}" class="btn btn-link mt-2">Cancel</a>
+    </div>
+  </div>
+{% endblock %}

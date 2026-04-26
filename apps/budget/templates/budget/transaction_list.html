@@ -1,0 +1,94 @@
+{% extends "layouts/base.html" %}
+
+{% block title %}Transactions{% endblock %}
+
+{% block content %}
+  <div class="d-flex justify-content-between align-items-center mb-4">
+    <h1 class="h3">Transactions</h1>
+    <a href="{% url 'budget:detail' budget_pk=budget.pk %}" class="btn btn-outline-secondary btn-sm">Back</a>
+  </div>
+
+  <form method="get" class="row g-2 mb-4">
+    <div class="col-auto">
+      <input type="month" name="month" class="form-control form-control-sm" value="{{ request.GET.month }}">
+    </div>
+    <div class="col-auto">
+      <select name="type" class="form-select form-select-sm">
+        <option value="">All types</option>
+        <option value="income" {% if request.GET.type == "income" %}selected{% endif %}>Income</option>
+        <option value="expense" {% if request.GET.type == "expense" %}selected{% endif %}>Expense</option>
+      </select>
+    </div>
+    <div class="col-auto">
+      <button type="submit" class="btn btn-sm btn-outline-secondary">Filter</button>
+      <a href="{% url 'budget:transaction-list' budget_pk=budget.pk %}" class="btn btn-sm btn-link">Clear</a>
+    </div>
+  </form>
+
+  {% if transactions %}
+    <div class="card">
+      <div class="table-responsive">
+        <table class="table table-hover mb-0" id="transaction-table">
+          <thead>
+            <tr>
+              <th>Description</th>
+              <th>Due Date</th>
+              <th>Type</th>
+              <th class="text-end">Amount</th>
+              <th>Status</th>
+              <th></th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for t in transactions %}
+              <tr class="{% if t.is_paid %}text-muted{% endif %}" data-transaction-id="{{ t.pk }}">
+                <td>
+                  <a href="{% url 'budget:transaction-detail' budget_pk=budget.pk pk=t.pk %}">{{ t.description }}</a>
+                  {% if t.recurring %}<span class="badge bg-secondary ms-1">recurring</span>{% endif %}
+                </td>
+                <td>{{ t.due_date }}</td>
+                <td>
+                  {% with t.transaction_type as tt %}
+                    {% if tt == "income" %}<span class="badge bg-success">Income</span>
+                    {% elif tt == "expense" %}<span class="badge bg-danger">Expense</span>
+                    {% endif %}
+                  {% endwith %}
+                </td>
+                <td class="text-end {% if t.transaction_type == 'income' %}text-success{% else %}text-danger{% endif %}">
+                  ${{ t.total_amount }}
+                </td>
+                <td>
+                  {% if t.is_paid %}<span class="badge bg-success">Paid</span>
+                  {% else %}<span class="badge bg-warning text-dark">Unpaid</span>{% endif %}
+                </td>
+                <td class="text-end">
+                  <a href="{% url 'budget:transaction-edit' budget_pk=budget.pk pk=t.pk %}" class="btn btn-sm btn-outline-secondary me-1">Edit</a>
+                  <button class="btn btn-sm btn-close btn-x-delete" style="filter:invert(20%) sepia(100%) saturate(7000%) hue-rotate(0deg)" title="Delete"></button>
+                </td>
+              </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  {% else %}
+    <div class="text-center py-5 text-muted">No transactions found.</div>
+  {% endif %}
+{% endblock %}
+
+{% block bottom_script %}
+  {{ block.super }}
+  <script>
+    (function () {
+      const BUDGET_PK = {{ budget.pk }};
+      const API_BASE = `/api/budgets/${BUDGET_PK}`;
+
+      {% include "blocks/inline_crud.js" %}
+
+      document.querySelectorAll('#transaction-table .btn-x-delete').forEach(function (xBtn) {
+        const transactionId = xBtn.closest('tr').dataset.transactionId;
+        wireDeleteBtn(xBtn, () => apiRequest(`${API_BASE}/transactions/${transactionId}/`, 'DELETE'));
+      });
+    })();
+  </script>
+{% endblock %}

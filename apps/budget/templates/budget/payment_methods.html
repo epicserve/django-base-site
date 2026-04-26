@@ -1,0 +1,151 @@
+{% extends "layouts/base.html" %}
+
+{% block title %}Payment Methods{% endblock %}
+
+{% block content %}
+  <div class="d-flex justify-content-between align-items-center mb-4">
+    <h1 class="mb-0">Payment Methods</h1>
+    <button class="btn btn-primary" onclick="openAddModal()">+ Add</button>
+  </div>
+
+  <div id="methods-list">
+    {% if payment_methods %}
+      <ul class="list-group">
+        {% for m in payment_methods %}
+          <li class="list-group-item d-flex justify-content-between align-items-center" id="method-{{ m.pk }}">
+            <div>
+              <strong>{{ m.name }}</strong>{% if m.last_four %} <span class="text-muted">···{{ m.last_four }}</span>{% endif %}
+              <span class="badge bg-secondary ms-2">{{ m.get_payment_type_display }}</span>
+              {% if not m.is_active %}<span class="badge bg-secondary ms-1">Inactive</span>{% endif %}
+            </div>
+            <div class="d-flex gap-2">
+              <button class="btn btn-sm btn-outline-secondary" onclick="openEditModal({{ m.pk }}, '{{ m.name|escapejs }}', '{{ m.payment_type }}', '{{ m.last_four|escapejs }}', {{ m.is_active|yesno:'true,false' }})">Edit</button>
+              <button class="btn btn-sm btn-outline-danger" onclick="deleteMethod({{ m.pk }}, this)">Delete</button>
+            </div>
+          </li>
+        {% endfor %}
+      </ul>
+    {% else %}
+      <p class="text-muted" id="empty-msg">No payment methods yet.</p>
+    {% endif %}
+  </div>
+
+  <!-- Add/Edit Modal -->
+  <div class="modal fade" id="methodModal" tabindex="-1">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="modalTitle">Add Payment Method</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+        </div>
+        <div class="modal-body">
+          <div id="modal-error" class="alert alert-danger d-none"></div>
+          <input type="hidden" id="edit-pk" value="">
+          <div class="mb-3">
+            <label class="form-label">Name</label>
+            <input type="text" id="f-name" class="form-control" placeholder="e.g. Chase Sapphire" required>
+          </div>
+          <div class="mb-3">
+            <label class="form-label">Type</label>
+            <select id="f-type" class="form-select">
+              {% for value, label in type_choices %}
+                <option value="{{ value }}">{{ label }}</option>
+              {% endfor %}
+            </select>
+          </div>
+          <div class="mb-3">
+            <label class="form-label">Last 4 digits <span class="text-muted">(optional)</span></label>
+            <input type="text" id="f-last-four" class="form-control" maxlength="4" placeholder="1234">
+          </div>
+          <div class="form-check">
+            <input type="checkbox" id="f-active" class="form-check-input" checked>
+            <label class="form-check-label" for="f-active">Active</label>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+          <button type="button" class="btn btn-primary" id="modal-save-btn" onclick="saveMethod()">Save</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    function getCsrf() {
+      const m = document.cookie.match(/csrftoken=([^;]+)/);
+      return m ? m[1] : '';
+    }
+
+    function openAddModal() {
+      document.getElementById('edit-pk').value = '';
+      document.getElementById('modalTitle').textContent = 'Add Payment Method';
+      document.getElementById('f-name').value = '';
+      document.getElementById('f-type').value = 'other';
+      document.getElementById('f-last-four').value = '';
+      document.getElementById('f-active').checked = true;
+      document.getElementById('modal-error').classList.add('d-none');
+      new bootstrap.Modal(document.getElementById('methodModal')).show();
+    }
+
+    function openEditModal(pk, name, type, lastFour, isActive) {
+      document.getElementById('edit-pk').value = pk;
+      document.getElementById('modalTitle').textContent = 'Edit Payment Method';
+      document.getElementById('f-name').value = name;
+      document.getElementById('f-type').value = type;
+      document.getElementById('f-last-four').value = lastFour;
+      document.getElementById('f-active').checked = isActive;
+      document.getElementById('modal-error').classList.add('d-none');
+      new bootstrap.Modal(document.getElementById('methodModal')).show();
+    }
+
+    async function saveMethod() {
+      const pk = document.getElementById('edit-pk').value;
+      const data = {
+        name: document.getElementById('f-name').value.trim(),
+        payment_type: document.getElementById('f-type').value,
+        last_four: document.getElementById('f-last-four').value.trim(),
+        is_active: document.getElementById('f-active').checked,
+      };
+      const url = pk ? `/api/payment-methods/${pk}/` : '/api/payment-methods/';
+      const method = pk ? 'PATCH' : 'POST';
+      try {
+        const res = await fetch(url, {
+          method,
+          headers: { 'Content-Type': 'application/json', 'X-CSRFToken': getCsrf() },
+          body: JSON.stringify(data),
+        });
+        if (!res.ok) {
+          const err = await res.json();
+          const msg = Object.values(err).flat().join(' ');
+          const el = document.getElementById('modal-error');
+          el.textContent = msg;
+          el.classList.remove('d-none');
+          return;
+        }
+        location.reload();
+      } catch {
+        const el = document.getElementById('modal-error');
+        el.textContent = 'Something went wrong.';
+        el.classList.remove('d-none');
+      }
+    }
+
+    async function deleteMethod(pk, btn) {
+      if (!confirm('Delete this payment method?')) return;
+      btn.disabled = true;
+      await fetch(`/api/payment-methods/${pk}/`, {
+        method: 'DELETE',
+        headers: { 'X-CSRFToken': getCsrf() },
+      });
+      document.getElementById(`method-${pk}`).remove();
+      const list = document.querySelector('#methods-list .list-group');
+      if (list && !list.children.length) {
+        list.remove();
+        const p = document.createElement('p');
+        p.className = 'text-muted';
+        p.textContent = 'No payment methods yet.';
+        document.getElementById('methods-list').appendChild(p);
+      }
+    }
+  </script>
+{% endblock %}

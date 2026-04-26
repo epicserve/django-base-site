@@ -1,0 +1,42 @@
+{% extends "layouts/base.html" %}
+
+{% block title %}My Budgets{% endblock %}
+
+{% block content %}
+  <div class="d-flex justify-content-between align-items-center mb-4">
+    <h1 class="h3">My Budgets</h1>
+    <form method="post" action="{% url 'budget:create' %}">
+      {% csrf_token %}
+      <button type="submit" class="btn btn-primary">New Budget</button>
+    </form>
+  </div>
+
+  {% if budgets %}
+    <div class="row g-3">
+      {% for budget in budgets %}
+        <div class="col-md-6 col-lg-4">
+          <div class="card h-100">
+            <div class="card-body">
+              <h5 class="card-title">Budget #{{ budget.pk }}</h5>
+              <p class="card-text small text-muted">
+                {{ budget.members.count }} member{{ budget.members.count|pluralize }}
+                &middot; Created {{ budget.created_at|date:"M j, Y" }}
+              </p>
+            </div>
+            <div class="card-footer">
+              <a href="{% url 'budget:detail' budget_pk=budget.pk %}" class="btn btn-sm btn-primary">View Dashboard</a>
+            </div>
+          </div>
+        </div>
+      {% endfor %}
+    </div>
+  {% else %}
+    <div class="text-center py-5">
+      <p class="text-muted">You don't have any budgets yet.</p>
+      <form method="post" action="{% url 'budget:create' %}">
+        {% csrf_token %}
+        <button type="submit" class="btn btn-primary">Create your first budget</button>
+      </form>
+    </div>
+  {% endif %}
+{% endblock %}

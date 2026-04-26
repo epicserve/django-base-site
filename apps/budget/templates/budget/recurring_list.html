@@ -1,0 +1,465 @@
+{% extends "layouts/base.html" %}
+
+{% block title %}Recurring{% endblock %}
+
+{% block content %}
+  <div class="d-flex justify-content-between align-items-center mb-4">
+    <h1 class="h3">Recurring Transactions</h1>
+    <a href="{% url 'budget:detail' budget_pk=budget.pk %}" class="btn btn-outline-secondary btn-sm">Back</a>
+  </div>
+
+  <div class="card mb-3">
+    <div class="table-responsive">
+      <table class="table table-hover mb-0 align-middle" id="recurring-table">
+        <colgroup>
+          <col style="width:22%">
+          <col style="width:16%">
+          <col style="width:18%">
+          <col style="width:10%">
+          <col style="width:12%">
+          <col style="width:10%">
+          <col style="width:12%">
+        </colgroup>
+        <thead>
+          <tr>
+            <th>Name</th>
+            <th>Category</th>
+            <th>Frequency</th>
+            <th class="text-end">Amount</th>
+            <th>Start Date</th>
+            <th>Status</th>
+            <th></th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for rt in recurring_transactions %}
+            <tr data-rt-id="{{ rt.pk }}"
+                data-category-id="{{ rt.category.pk }}"
+                data-frequency="{{ rt.frequency }}"
+                data-interval="{{ rt.interval }}"
+                data-start-date="{{ rt.start_date|date:'Y-m-d' }}"
+                data-is-active="{{ rt.is_active|yesno:'true,false' }}"
+                class="{% if not rt.is_active %}text-muted{% endif %}">
+              <td>
+                <span class="rt-field rt-name" style="cursor:text">{{ rt.name }}</span>
+                <a href="{% url 'budget:recurring-detail' budget_pk=budget.pk pk=rt.pk %}" class="ms-1 small text-muted" title="View instances">↗</a>
+              </td>
+              <td><span class="rt-field rt-category" style="cursor:pointer">{{ rt.category.name }}</span></td>
+              <td>
+                <span class="rt-field rt-frequency" style="cursor:pointer">{{ rt.get_frequency_display }}{% if rt.frequency == "every_n_months" %} ({{ rt.interval }}mo){% endif %}</span>
+              </td>
+              <td class="text-end">
+                <span class="rt-field rt-amount {% if rt.category.category_type == 'income' %}text-success{% else %}text-danger{% endif %}" style="cursor:text">${{ rt.amount }}</span>
+              </td>
+              <td><span class="rt-field rt-start-date" style="cursor:pointer">{{ rt.start_date|date:"M j, Y" }}</span></td>
+              <td>
+                {% if rt.is_active %}<span class="badge bg-success status-badge">Active</span>
+                {% else %}<span class="badge bg-secondary status-badge">Inactive</span>{% endif %}
+              </td>
+              <td class="text-end" style="white-space:nowrap">
+                {% if rt.is_active %}
+                  <button class="btn btn-sm btn-close btn-x-delete" style="filter:invert(20%) sepia(100%) saturate(7000%) hue-rotate(0deg)" title="Deactivate"></button>
+                {% else %}
+                  <button class="btn btn-sm btn-outline-success btn-reactivate py-0 px-2" title="Reactivate" style="font-size:0.75rem">↺ Reactivate</button>
+                {% endif %}
+              </td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+
+    {# Inline create form #}
+    <div class="card-footer p-2">
+      <button class="btn btn-sm btn-outline-primary w-100" id="btn-show-create">+ Add Recurring Transaction</button>
+      <div class="d-none" id="create-form">
+        <div class="row g-2 align-items-end">
+          <div class="col-md-3">
+            <label class="form-label small mb-1">Name</label>
+            <input type="text" class="form-control form-control-sm" id="new-rt-name" placeholder="e.g. Rent">
+          </div>
+          <div class="col-md-2">
+            <label class="form-label small mb-1">Category</label>
+            <select class="form-select form-select-sm" id="new-rt-category">
+              <option value="">-- Select --</option>
+              <optgroup label="Income">
+                {% for cat in categories %}{% if cat.category_type == "income" %}
+                  <option value="{{ cat.pk }}">{{ cat.name }}</option>
+                {% endif %}{% endfor %}
+              </optgroup>
+              <optgroup label="Expense">
+                {% for cat in categories %}{% if cat.category_type == "expense" %}
+                  <option value="{{ cat.pk }}">{{ cat.name }}</option>
+                {% endif %}{% endfor %}
+              </optgroup>
+            </select>
+          </div>
+          <div class="col-md-1">
+            <label class="form-label small mb-1">Amount</label>
+            <input type="number" step="0.01" min="0.01" class="form-control form-control-sm" id="new-rt-amount" placeholder="0.00">
+          </div>
+          <div class="col-md-2">
+            <label class="form-label small mb-1">Frequency</label>
+            <select class="form-select form-select-sm" id="new-rt-frequency">
+              <option value="monthly">Monthly</option>
+              <option value="every_n_months">Every N Months</option>
+              <option value="annually">Annually</option>
+            </select>
+          </div>
+          <div class="col-md-1 d-none" id="interval-col">
+            <label class="form-label small mb-1">Every</label>
+            <input type="number" min="2" class="form-control form-control-sm" id="new-rt-interval" value="2">
+          </div>
+          <div class="col-md-2">
+            <label class="form-label small mb-1">Start Date</label>
+            <input type="date" class="form-control form-control-sm" id="new-rt-start-date">
+          </div>
+          <div class="col-auto">
+            <button class="btn btn-sm btn-primary" id="btn-create-submit">Save</button>
+            <button class="btn btn-sm btn-outline-secondary ms-1" id="btn-create-cancel">Cancel</button>
+          </div>
+        </div>
+        <div class="text-danger small mt-1 d-none" id="create-error"></div>
+      </div>
+    </div>
+  </div>
+{% endblock %}
+
+{% block bottom_script %}
+  {{ block.super }}
+  <script>
+    (function () {
+      const BUDGET_PK = {{ budget.pk }};
+      const API_BASE = `/api/budgets/${BUDGET_PK}`;
+      const FREQ_LABELS = { monthly: 'Monthly', every_n_months: 'Every N Months', annually: 'Annually' };
+
+      // Serialise categories for use in inline selects
+      const CATEGORIES = [
+        {% for cat in categories %}
+        { id: {{ cat.pk }}, name: '{{ cat.name|escapejs }}', type: '{{ cat.category_type }}' },
+        {% endfor %}
+      ];
+
+      {% include "blocks/inline_crud.js" %}
+
+      // ── Build a category <select> ────────────────────────────────────────
+      function buildCategorySelect(currentId) {
+        const sel = document.createElement('select');
+        sel.className = 'form-select form-select-sm';
+        sel.style.maxWidth = '160px';
+        const blank = new Option('-- Select --', '');
+        sel.appendChild(blank);
+        ['income', 'expense'].forEach(function (type) {
+          const grp = document.createElement('optgroup');
+          grp.label = type.charAt(0).toUpperCase() + type.slice(1);
+          CATEGORIES.filter(c => c.type === type).forEach(function (c) {
+            const opt = new Option(c.name, c.id);
+            if (c.id == currentId) opt.selected = true;
+            grp.appendChild(opt);
+          });
+          sel.appendChild(grp);
+        });
+        return sel;
+      }
+
+      // ── Build a frequency <select> ───────────────────────────────────────
+      function buildFreqSelect(currentFreq) {
+        const sel = document.createElement('select');
+        sel.className = 'form-select form-select-sm';
+        sel.style.maxWidth = '160px';
+        Object.entries(FREQ_LABELS).forEach(function ([val, label]) {
+          const opt = new Option(label, val);
+          if (val === currentFreq) opt.selected = true;
+          sel.appendChild(opt);
+        });
+        return sel;
+      }
+
+      // ── Wire all inline editing for a row ────────────────────────────────
+      function wireInlineEdit(tr) {
+        const rtId = tr.dataset.rtId;
+
+        // Text fields: name, amount, start date
+        function wireText(span, field, parse, format) {
+          span.addEventListener('click', function () {
+            if (span.querySelector('input')) return;
+            const original = span.dataset.raw || span.textContent.replace('$', '').trim();
+            const input = document.createElement('input');
+            input.type = field === 'amount' ? 'number' : (field === 'start_date' ? 'date' : 'text');
+            if (field === 'amount') { input.step = '0.01'; input.min = '0.01'; input.style.maxWidth = '100px'; }
+            input.value = original;
+            input.className = 'form-control form-control-sm' + (field === 'amount' ? ' text-end' : '');
+            span.textContent = ''; span.appendChild(input); input.focus(); input.select();
+            async function save() {
+              const raw = input.value.trim();
+              if (!raw || raw === original) { span.textContent = format(original); return; }
+              const val = parse(raw);
+              try {
+                await apiRequest(`${API_BASE}/recurring/${rtId}/`, 'PATCH', { [field]: val });
+                span.dataset.raw = raw;
+                span.textContent = format(raw);
+              } catch { span.textContent = format(original); }
+            }
+            input.addEventListener('blur', save);
+            input.addEventListener('keydown', function (e) {
+              if (e.key === 'Enter') { e.preventDefault(); input.blur(); }
+              if (e.key === 'Escape') { input.removeEventListener('blur', save); span.textContent = format(original); }
+            });
+          });
+        }
+
+        const nameSpan = tr.querySelector('.rt-name');
+        if (nameSpan) wireText(nameSpan, 'name', v => v, v => v);
+
+        const amountSpan = tr.querySelector('.rt-amount');
+        if (amountSpan) wireText(amountSpan, 'amount', v => parseFloat(v).toFixed(2), v => '$' + parseFloat(v).toFixed(2));
+
+        const startSpan = tr.querySelector('.rt-start-date');
+        if (startSpan) {
+          startSpan.dataset.raw = tr.dataset.startDate;
+          wireText(startSpan, 'start_date', v => v, function (v) {
+            const d = new Date(v + 'T00:00:00');
+            return d.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+          });
+        }
+
+        // Category select
+        const catSpan = tr.querySelector('.rt-category');
+        if (catSpan) {
+          catSpan.addEventListener('click', function () {
+            if (catSpan.querySelector('select')) return;
+            const originalId = tr.dataset.categoryId;
+            const originalText = catSpan.textContent.trim();
+            const sel = buildCategorySelect(originalId);
+            catSpan.textContent = ''; catSpan.appendChild(sel); sel.focus();
+            async function save() {
+              const val = sel.value;
+              if (!val || val == originalId) { catSpan.textContent = originalText; return; }
+              try {
+                await apiRequest(`${API_BASE}/recurring/${rtId}/`, 'PATCH', { category: parseInt(val) });
+                tr.dataset.categoryId = val;
+                catSpan.textContent = sel.options[sel.selectedIndex].text;
+              } catch { catSpan.textContent = originalText; }
+            }
+            sel.addEventListener('blur', save);
+            sel.addEventListener('change', function () { sel.blur(); });
+            sel.addEventListener('keydown', function (e) {
+              if (e.key === 'Escape') { sel.removeEventListener('blur', save); catSpan.textContent = originalText; }
+            });
+          });
+        }
+
+        // Frequency select
+        const freqSpan = tr.querySelector('.rt-frequency');
+        if (freqSpan) {
+          freqSpan.addEventListener('click', function () {
+            if (freqSpan.querySelector('select')) return;
+            const originalFreq = tr.dataset.frequency;
+            const originalText = freqSpan.textContent.trim();
+            const sel = buildFreqSelect(originalFreq);
+
+            // Interval input shown inline
+            const intervalInput = document.createElement('input');
+            intervalInput.type = 'number'; intervalInput.min = '2'; intervalInput.value = tr.dataset.interval || 2;
+            intervalInput.className = 'form-control form-control-sm ms-1';
+            intervalInput.style.cssText = 'max-width:60px;display:inline-block';
+            intervalInput.style.display = originalFreq === 'every_n_months' ? 'inline-block' : 'none';
+
+            freqSpan.textContent = '';
+            freqSpan.appendChild(sel);
+            freqSpan.appendChild(intervalInput);
+            sel.focus();
+
+            sel.addEventListener('change', function () {
+              intervalInput.style.display = sel.value === 'every_n_months' ? 'inline-block' : 'none';
+            });
+
+            async function save() {
+              const freq = sel.value;
+              const interval = parseInt(intervalInput.value) || 1;
+              if (freq === originalFreq && (freq !== 'every_n_months' || interval == tr.dataset.interval)) {
+                freqSpan.textContent = originalText; return;
+              }
+              try {
+                const patch = { frequency: freq };
+                if (freq === 'every_n_months') patch.interval = interval;
+                await apiRequest(`${API_BASE}/recurring/${rtId}/`, 'PATCH', patch);
+                tr.dataset.frequency = freq;
+                tr.dataset.interval = interval;
+                const label = FREQ_LABELS[freq] + (freq === 'every_n_months' ? ` (${interval}mo)` : '');
+                freqSpan.textContent = label;
+              } catch { freqSpan.textContent = originalText; }
+            }
+
+            sel.addEventListener('blur', function () { setTimeout(save, 150); });
+            sel.addEventListener('keydown', function (e) {
+              if (e.key === 'Escape') { sel.removeEventListener('blur', save); freqSpan.textContent = originalText; }
+            });
+          });
+        }
+      }
+
+      // ── Deactivate (X → confirm) ─────────────────────────────────────────
+      function wireDeactivate(xBtn, rtId, tr) {
+        xBtn.addEventListener('click', function () {
+          if (tr.querySelector('.btn-confirm-delete')) { resetDeleteBtn(tr); return; }
+          const confirmBtn = document.createElement('button');
+          confirmBtn.className = 'btn btn-sm btn-danger btn-confirm-delete ms-2';
+          confirmBtn.textContent = 'Deactivate';
+          confirmBtn.style.cssText = 'max-width:0;opacity:0;padding-left:0;padding-right:0;overflow:hidden;transition:max-width 0.2s ease,opacity 0.2s ease,padding 0.2s ease;white-space:nowrap';
+          xBtn.insertAdjacentElement('afterend', confirmBtn);
+          requestAnimationFrame(() => requestAnimationFrame(() => {
+            confirmBtn.style.maxWidth = '100px'; confirmBtn.style.opacity = '1';
+            confirmBtn.style.paddingLeft = ''; confirmBtn.style.paddingRight = '';
+            xBtn.style.transition = 'opacity 0.15s'; xBtn.style.opacity = '0';
+          }));
+          function onOutside(ev) {
+            if (!tr.contains(ev.target)) { resetDeleteBtn(tr); document.removeEventListener('click', onOutside); }
+          }
+          setTimeout(() => document.addEventListener('click', onOutside), 0);
+          confirmBtn.addEventListener('click', async function (ev) {
+            ev.stopPropagation(); document.removeEventListener('click', onOutside);
+            try {
+              await apiRequest(`${API_BASE}/recurring/${rtId}/`, 'DELETE');
+              tr.querySelector('.status-badge').className = 'badge bg-secondary status-badge';
+              tr.querySelector('.status-badge').textContent = 'Inactive';
+              tr.classList.add('text-muted');
+              confirmBtn.remove(); xBtn.remove();
+              // Replace with reactivate button
+              const actionTd = tr.querySelector('td:last-child');
+              const reactBtn = document.createElement('button');
+              reactBtn.className = 'btn btn-sm btn-outline-success btn-reactivate py-0 px-2';
+              reactBtn.title = 'Reactivate';
+              reactBtn.style.fontSize = '0.75rem';
+              reactBtn.textContent = '↺ Reactivate';
+              actionTd.appendChild(reactBtn);
+              wireReactivate(reactBtn, rtId, tr);
+            } catch { resetDeleteBtn(tr); }
+          });
+        });
+      }
+
+      // ── Reactivate ───────────────────────────────────────────────────────
+      function wireReactivate(btn, rtId, tr) {
+        btn.addEventListener('click', async function () {
+          btn.disabled = true;
+          try {
+            await apiRequest(`${API_BASE}/recurring/${rtId}/`, 'PATCH', { is_active: true, end_date: null });
+            tr.querySelector('.status-badge').className = 'badge bg-success status-badge';
+            tr.querySelector('.status-badge').textContent = 'Active';
+            tr.classList.remove('text-muted');
+            btn.remove();
+            // Replace with deactivate X button
+            const actionTd = tr.querySelector('td:last-child');
+            const xBtn = document.createElement('button');
+            xBtn.className = 'btn btn-sm btn-close btn-x-delete';
+            xBtn.style.cssText = 'filter:invert(20%) sepia(100%) saturate(7000%) hue-rotate(0deg)';
+            xBtn.title = 'Deactivate';
+            actionTd.appendChild(xBtn);
+            wireDeactivate(xBtn, rtId, tr);
+          } catch { btn.disabled = false; }
+        });
+      }
+
+      // Wire existing rows
+      document.querySelectorAll('#recurring-table tbody tr[data-rt-id]').forEach(function (tr) {
+        wireInlineEdit(tr);
+        const xBtn = tr.querySelector('.btn-x-delete');
+        if (xBtn) wireDeactivate(xBtn, tr.dataset.rtId, tr);
+        const reactBtn = tr.querySelector('.btn-reactivate');
+        if (reactBtn) wireReactivate(reactBtn, tr.dataset.rtId, tr);
+      });
+
+      // ── Inline create ────────────────────────────────────────────────────
+      const showCreateBtn = document.getElementById('btn-show-create');
+      const createForm = document.getElementById('create-form');
+      const createError = document.getElementById('create-error');
+      const freqSelect = document.getElementById('new-rt-frequency');
+      const intervalCol = document.getElementById('interval-col');
+
+      document.getElementById('new-rt-start-date').value = new Date().toISOString().split('T')[0];
+
+      showCreateBtn.addEventListener('click', function () {
+        showCreateBtn.classList.add('d-none');
+        createForm.classList.remove('d-none');
+        document.getElementById('new-rt-name').focus();
+      });
+
+      document.getElementById('btn-create-cancel').addEventListener('click', function () {
+        createForm.classList.add('d-none');
+        showCreateBtn.classList.remove('d-none');
+        createError.classList.add('d-none');
+      });
+
+      freqSelect.addEventListener('change', function () {
+        intervalCol.classList.toggle('d-none', freqSelect.value !== 'every_n_months');
+      });
+
+      async function submitCreate() {
+        createError.classList.add('d-none');
+        const name = document.getElementById('new-rt-name').value.trim();
+        const category = document.getElementById('new-rt-category').value;
+        const amount = document.getElementById('new-rt-amount').value;
+        const frequency = freqSelect.value;
+        const interval = document.getElementById('new-rt-interval').value;
+        const start_date = document.getElementById('new-rt-start-date').value;
+
+        if (!name || !category || !amount || !start_date) {
+          createError.textContent = 'Please fill in all required fields.';
+          createError.classList.remove('d-none');
+          return;
+        }
+
+        const payload = { name, category: parseInt(category), amount, frequency, start_date };
+        if (frequency === 'every_n_months') payload.interval = parseInt(interval);
+
+        const submitBtn = document.getElementById('btn-create-submit');
+        submitBtn.disabled = true;
+        try {
+          const rt = await apiRequest(`${API_BASE}/recurring/`, 'POST', payload);
+          const tbody = document.querySelector('#recurring-table tbody');
+          const tr = document.createElement('tr');
+          tr.dataset.rtId = rt.id;
+          tr.dataset.categoryId = rt.category;
+          tr.dataset.frequency = rt.frequency;
+          tr.dataset.interval = rt.interval || 1;
+          tr.dataset.startDate = rt.start_date;
+          const freqLabel = FREQ_LABELS[rt.frequency] + (rt.frequency === 'every_n_months' ? ` (${rt.interval}mo)` : '');
+          const startFormatted = new Date(rt.start_date + 'T00:00:00').toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+          tr.innerHTML = `
+            <td>
+              <span class="rt-field rt-name" style="cursor:text">${rt.name}</span>
+              <a href="/budgets/${BUDGET_PK}/recurring/${rt.id}/" class="ms-1 small text-muted" title="View instances">↗</a>
+            </td>
+            <td><span class="rt-field rt-category" style="cursor:pointer">${rt.category_name || ''}</span></td>
+            <td><span class="rt-field rt-frequency" style="cursor:pointer">${freqLabel}</span></td>
+            <td class="text-end"><span class="rt-field rt-amount ${rt.category_type === 'income' ? 'text-success' : 'text-danger'}" style="cursor:text">$${parseFloat(rt.amount).toFixed(2)}</span></td>
+            <td><span class="rt-field rt-start-date" style="cursor:pointer" data-raw="${rt.start_date}">${startFormatted}</span></td>
+            <td><span class="badge bg-success status-badge">Active</span></td>
+            <td class="text-end" style="white-space:nowrap">
+              <button class="btn btn-sm btn-close btn-x-delete" style="filter:invert(20%) sepia(100%) saturate(7000%) hue-rotate(0deg)" title="Deactivate"></button>
+            </td>`;
+          tbody.appendChild(tr);
+          wireInlineEdit(tr);
+          wireDeactivate(tr.querySelector('.btn-x-delete'), rt.id, tr);
+
+          document.getElementById('new-rt-name').value = '';
+          document.getElementById('new-rt-amount').value = '';
+          createForm.classList.add('d-none');
+          showCreateBtn.classList.remove('d-none');
+        } catch (err) {
+          const msg = Object.values(err || {}).flat().join(' ') || 'Error saving.';
+          createError.textContent = msg;
+          createError.classList.remove('d-none');
+        }
+        submitBtn.disabled = false;
+      }
+
+      document.getElementById('btn-create-submit').addEventListener('click', function () { void submitCreate(); });
+      document.getElementById('new-rt-name').addEventListener('keydown', function (e) {
+        if (e.key === 'Enter') { e.preventDefault(); void submitCreate(); }
+        if (e.key === 'Escape') { document.getElementById('btn-create-cancel').click(); }
+      });
+    })();
+  </script>
+{% endblock %}

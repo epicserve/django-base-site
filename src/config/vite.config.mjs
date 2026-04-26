@@ -1,8 +1,9 @@
 import { defineConfig } from 'vite';
 import { resolve } from 'path';
+import react from '@vitejs/plugin-react';
 
 export default defineConfig({
-  plugins: [],
+  plugins: [react()],
   root: resolve(__dirname, '..'),
   base: '/public/static/',
   server: {
@@ -15,7 +16,7 @@ export default defineConfig({
     },
   },
   resolve: {
-    extensions: ['.js', '.json'],
+    extensions: ['.js', '.jsx', '.ts', '.tsx', '.json'],
     alias: {
       '~bootstrap': resolve(__dirname, '../../node_modules/bootstrap'),
     },
@@ -29,6 +30,7 @@ export default defineConfig({
     rollupOptions: {
       input: {
         main: resolve(__dirname, '../js/main.js'),
+        budget: resolve(__dirname, '../tsx/main.tsx'),
       },
       output: {
         chunkFileNames: undefined,

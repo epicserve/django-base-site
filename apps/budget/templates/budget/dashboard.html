@@ -1,0 +1,18 @@
+{% extends "layouts/base.html" %}
+{% load vite %}
+
+{% block title %}Budget{% endblock %}
+{% block base_header %}{% endblock %}
+
+{% block content %}
+  <div
+    id="budget-app"
+    data-budget-pk="{{ budget.pk }}"
+    data-month="{{ request.GET.month|default:'' }}"
+  ></div>
+{% endblock %}
+
+{% block bottom_script %}
+  {{ block.super }}
+  {% vite_asset 'tsx/main.tsx' %}
+{% endblock %}

@@ -1,0 +1,21 @@
+{% extends "layouts/base.html" %}
+
+{% block title %}Delete Budget{% endblock %}
+
+{% block content %}
+  <div class="row justify-content-center">
+    <div class="col-md-6">
+      <div class="card border-danger">
+        <div class="card-header bg-danger text-white">Delete Budget</div>
+        <div class="card-body">
+          <p>Are you sure you want to delete <strong>Budget</strong>? This will permanently delete all transactions, categories, and recurring schedules associated with this budget.</p>
+          <form method="post">
+            {% csrf_token %}
+            <button type="submit" class="btn btn-danger">Yes, delete</button>
+            <a href="{% url 'budget:detail' budget_pk=budget.pk %}" class="btn btn-secondary ms-2">Cancel</a>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+{% endblock %}

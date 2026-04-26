@@ -1,0 +1,21 @@
+{% extends "layouts/base.html" %}
+
+{% block title %}Delete Category{% endblock %}
+
+{% block content %}
+  <div class="row justify-content-center">
+    <div class="col-md-6">
+      <div class="card border-danger">
+        <div class="card-header bg-danger text-white">Delete Category</div>
+        <div class="card-body">
+          <p>Delete category <strong>{{ category.name }}</strong>? This cannot be undone. Categories that have transactions cannot be deleted.</p>
+          <form method="post">
+            {% csrf_token %}
+            <button type="submit" class="btn btn-danger">Delete</button>
+            <a href="{% url 'budget:category-list' budget_pk=budget.pk %}" class="btn btn-secondary ms-2">Cancel</a>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+{% endblock %}

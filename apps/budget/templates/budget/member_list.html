@@ -1,0 +1,132 @@
+{% extends "layouts/base.html" %}
+
+{% block title %}Members{% endblock %}
+
+{% block content %}
+  <div class="d-flex justify-content-between align-items-center mb-4">
+    <h1 class="h3">Members</h1>
+    <a href="{% url 'budget:detail' budget_pk=budget.pk %}" class="btn btn-outline-secondary btn-sm">Back</a>
+  </div>
+
+  <div class="card">
+    <table class="table table-hover mb-0" id="members-table">
+      <thead>
+        <tr>
+          <th>Name</th>
+          <th>Email</th>
+          <th>Role</th>
+          <th>Joined</th>
+          <th></th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for membership in memberships %}
+          <tr data-membership-id="{{ membership.pk }}">
+            <td>{{ membership.user.get_full_name|default:membership.user.email }}</td>
+            <td>{{ membership.user.email }}</td>
+            <td><span class="badge {% if membership.role == 'owner' %}bg-primary{% else %}bg-secondary{% endif %}">{{ membership.get_role_display }}</span></td>
+            <td>{{ membership.joined_at|date:"M j, Y" }}</td>
+            <td class="text-end">
+              {% if membership.user != request.user %}
+                <button class="btn btn-sm btn-close btn-x-delete" style="filter:invert(20%) sepia(100%) saturate(7000%) hue-rotate(0deg)" title="Remove"></button>
+              {% endif %}
+            </td>
+          </tr>
+        {% endfor %}
+        <tr id="invite-row">
+          <td colspan="5">
+            <button class="btn btn-sm btn-outline-primary w-100" id="btn-show-invite">+ Invite Member</button>
+            <div class="d-none" id="invite-form">
+              <div class="input-group input-group-sm">
+                <input type="email" class="form-control" id="invite-email" placeholder="Email address">
+                <select class="form-select" id="invite-role" style="max-width:120px">
+                  <option value="member">Member</option>
+                  <option value="owner">Owner</option>
+                </select>
+                <button class="btn btn-primary" id="btn-invite-submit">Invite</button>
+                <button class="btn btn-outline-secondary" id="btn-invite-cancel">Cancel</button>
+              </div>
+              <div class="text-danger small mt-1 d-none" id="invite-error"></div>
+            </div>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+{% endblock %}
+
+{% block bottom_script %}
+  {{ block.super }}
+  <script>
+    (function () {
+      const BUDGET_PK = {{ budget.pk }};
+      const API_BASE = `/api/budgets/${BUDGET_PK}`;
+
+      {% include "blocks/inline_crud.js" %}
+
+      document.querySelectorAll('#members-table .btn-x-delete').forEach(function (xBtn) {
+        const membershipId = xBtn.closest('tr').dataset.membershipId;
+        wireDeleteBtn(xBtn, () => apiRequest(`${API_BASE}/members/${membershipId}/`, 'DELETE'));
+      });
+
+      const showBtn = document.getElementById('btn-show-invite');
+      const inviteForm = document.getElementById('invite-form');
+      const emailInput = document.getElementById('invite-email');
+      const roleSelect = document.getElementById('invite-role');
+      const submitBtn = document.getElementById('btn-invite-submit');
+      const cancelBtn = document.getElementById('btn-invite-cancel');
+      const errorEl = document.getElementById('invite-error');
+
+      showBtn.addEventListener('click', function () {
+        showBtn.classList.add('d-none');
+        inviteForm.classList.remove('d-none');
+        emailInput.focus();
+      });
+
+      cancelBtn.addEventListener('click', function () {
+        inviteForm.classList.add('d-none');
+        showBtn.classList.remove('d-none');
+        emailInput.value = '';
+        errorEl.classList.add('d-none');
+      });
+
+      async function submitInvite() {
+        const email = emailInput.value.trim();
+        if (!email) return;
+        errorEl.classList.add('d-none');
+        submitBtn.disabled = true;
+        try {
+          const membership = await apiRequest(`${API_BASE}/members/`, 'POST', { email, role: roleSelect.value });
+          const tbody = document.querySelector('#members-table tbody');
+          const inviteRow = document.getElementById('invite-row');
+          const tr = document.createElement('tr');
+          tr.dataset.membershipId = membership.id;
+          tr.innerHTML = `
+            <td>${membership.name}</td>
+            <td>${membership.email}</td>
+            <td><span class="badge bg-secondary">${membership.role}</span></td>
+            <td>Just now</td>
+            <td class="text-end">
+              <button class="btn btn-sm btn-close btn-x-delete" style="filter:invert(20%) sepia(100%) saturate(7000%) hue-rotate(0deg)" title="Remove"></button>
+            </td>`;
+          tbody.insertBefore(tr, inviteRow);
+          wireDeleteBtn(tr.querySelector('.btn-x-delete'), () => apiRequest(`${API_BASE}/members/${membership.id}/`, 'DELETE'));
+          emailInput.value = '';
+          inviteForm.classList.add('d-none');
+          showBtn.classList.remove('d-none');
+        } catch (err) {
+          const msg = (err && err.email) ? err.email.join(' ') : ((err && err.detail) || 'Could not invite member.');
+          errorEl.textContent = msg;
+          errorEl.classList.remove('d-none');
+        }
+        submitBtn.disabled = false;
+      }
+
+      submitBtn.addEventListener('click', function () { void submitInvite(); });
+      emailInput.addEventListener('keydown', function (e) {
+        if (e.key === 'Enter') { e.preventDefault(); void submitInvite(); }
+        if (e.key === 'Escape') { cancelBtn.click(); }
+      });
+    })();
+  </script>
+{% endblock %}

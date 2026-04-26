@@ -1,0 +1,388 @@
+{% extends "layouts/base.html" %}
+
+{% block title %}{{ recurring.name }}{% endblock %}
+
+{% block content %}
+  <div class="d-flex justify-content-between align-items-start mb-4">
+    <div>
+      <h1 class="h3 mb-0" id="rt-title">{{ recurring.name }}</h1>
+      <p class="text-muted small mb-0" id="rt-subtitle">{{ recurring.get_frequency_display }}{% if recurring.frequency == "every_n_months" %} (every {{ recurring.interval }} months){% endif %} — ${{ recurring.amount }}</p>
+    </div>
+    <a href="{% url 'budget:recurring-list' budget_pk=budget.pk %}" class="btn btn-sm btn-outline-secondary">Back</a>
+  </div>
+
+  <div class="row g-4 mb-4">
+    <div class="col-md-4">
+      <div class="card">
+        <div class="card-header d-flex justify-content-between align-items-center py-2">
+          <span class="small fw-semibold text-muted">Details</span>
+          <span class="small text-muted fst-italic">Click any value to edit</span>
+        </div>
+        <div class="card-body">
+          <dl class="mb-0" id="rt-detail-dl"
+              data-rt-id="{{ recurring.pk }}"
+              data-category-id="{{ recurring.category.pk }}"
+              data-frequency="{{ recurring.frequency }}"
+              data-interval="{{ recurring.interval }}">
+            <dt>Name</dt>
+            <dd><span class="rt-edit-field" data-field="name" style="cursor:text">{{ recurring.name }}</span></dd>
+            <dt>Category</dt>
+            <dd><span class="rt-edit-field" data-field="category" style="cursor:pointer">{{ recurring.category.name }}</span></dd>
+            <dt>Amount</dt>
+            <dd><span class="rt-edit-field" data-field="amount" data-raw="{{ recurring.amount }}" style="cursor:text">${{ recurring.amount }}</span></dd>
+            <dt>Frequency</dt>
+            <dd><span class="rt-edit-field" data-field="frequency" style="cursor:pointer">{{ recurring.get_frequency_display }}{% if recurring.frequency == "every_n_months" %} ({{ recurring.interval }}mo){% endif %}</span></dd>
+            <dt>Start Date</dt>
+            <dd><span class="rt-edit-field" data-field="start_date" data-raw="{{ recurring.start_date|date:'Y-m-d' }}" style="cursor:pointer">{{ recurring.start_date|date:"M j, Y" }}</span></dd>
+            <dt>End Date</dt>
+            <dd><span class="rt-edit-field" data-field="end_date" data-raw="{{ recurring.end_date|date:'Y-m-d'|default:'' }}" style="cursor:pointer">{{ recurring.end_date|date:"M j, Y"|default:"No end date" }}</span></dd>
+            <dt>Description</dt>
+            <dd><span class="rt-edit-field" data-field="description" style="cursor:text">{{ recurring.description|default:"—" }}</span></dd>
+          </dl>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-md-8">
+      <div class="card">
+        <div class="card-header d-flex justify-content-between align-items-center py-2">
+          <span>Generated Instances</span>
+          <button class="btn btn-sm btn-outline-primary py-0" id="btn-add-instance" data-bs-toggle="modal" data-bs-target="#addInstanceModal">+ Add Instance</button>
+        </div>
+        {% if instances %}
+          <div class="table-responsive">
+            <table class="table table-sm mb-0 align-middle" id="instances-table">
+              <thead>
+                <tr>
+                  <th>Due Date</th>
+                  <th>Status</th>
+                  <th></th>
+                </tr>
+              </thead>
+              <tbody>
+                {% for t in instances %}
+                  <tr data-txn-id="{{ t.pk }}" class="{% if t.is_paid %}text-muted{% endif %}">
+                    <td>{{ t.due_date|date:"M j, Y" }}</td>
+                    <td>
+                      {% if t.is_paid %}
+                        <span class="badge bg-success status-badge">Paid</span>
+                      {% else %}
+                        <span class="badge bg-warning text-dark status-badge">Unpaid</span>
+                      {% endif %}
+                    </td>
+                    <td class="text-end" style="white-space:nowrap">
+                      <button class="btn btn-sm btn-outline-secondary btn-mark-paid py-0 px-2" style="font-size:0.75rem" title="{% if t.is_paid %}Mark Unpaid{% else %}Mark Paid{% endif %}">
+                        {% if t.is_paid %}↩{% else %}✓{% endif %}
+                      </button>
+                      <button class="btn btn-sm btn-close btn-x-delete ms-1" style="filter:invert(20%) sepia(100%) saturate(7000%) hue-rotate(0deg)" title="Delete"></button>
+                    </td>
+                  </tr>
+                {% endfor %}
+              </tbody>
+            </table>
+          </div>
+        {% else %}
+          <div class="card-body text-muted">No instances generated yet.</div>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+
+  {# ── Add Instance Modal ──────────────────────────────────────────────── #}
+  <div class="modal fade" id="addInstanceModal" tabindex="-1" aria-labelledby="addInstanceModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="addInstanceModalLabel">Add Instance</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+        </div>
+        <div class="modal-body">
+          <label class="form-label">Due Date</label>
+          <input type="date" class="form-control" id="add-due-date">
+          <div class="text-danger small mt-2 d-none" id="add-error"></div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+          <button type="button" class="btn btn-primary" id="add-save">Add</button>
+        </div>
+      </div>
+    </div>
+  </div>
+{% endblock %}
+
+{% block bottom_script %}
+  {{ block.super }}
+  <script>
+    (function () {
+      const BUDGET_PK = {{ budget.pk }};
+      const API_BASE = `/api/budgets/${BUDGET_PK}`;
+
+      const CATEGORIES = [
+        {% for cat in categories %}
+        { id: {{ cat.pk }}, name: '{{ cat.name|escapejs }}', type: '{{ cat.category_type }}' },
+        {% endfor %}
+      ];
+
+      {% include "blocks/inline_crud.js" %}
+
+      // ── Add Instance modal ───────────────────────────────────────────────
+      const RT_PK = {{ recurring.pk }};
+
+      // Reset form each time the modal opens (data-bs-toggle handles the actual show)
+      document.getElementById('btn-add-instance').addEventListener('click', function () {
+        document.getElementById('add-error').classList.add('d-none');
+        const d = new Date();
+        d.setMonth(d.getMonth() + 1);
+        d.setDate(1);
+        document.getElementById('add-due-date').value = d.toISOString().split('T')[0];
+        setTimeout(function () { document.getElementById('add-due-date').focus(); }, 350);
+      });
+
+      document.getElementById('add-save').addEventListener('click', async function () {
+        const errEl = document.getElementById('add-error');
+        errEl.classList.add('d-none');
+        const due_date = document.getElementById('add-due-date').value;
+        if (!due_date) {
+          errEl.textContent = 'Due date is required.';
+          errEl.classList.remove('d-none');
+          return;
+        }
+        const saveBtn = this;
+        saveBtn.disabled = true;
+        try {
+          const txn = await apiRequest(`${API_BASE}/recurring/${RT_PK}/`, 'POST', { due_date });
+          // Build the new row
+          const fmtDate = (iso) => new Date(iso + 'T00:00:00').toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+          const tr = document.createElement('tr');
+          tr.dataset.txnId = txn.id;
+          tr.innerHTML = `
+            <td>${fmtDate(txn.due_date)}</td>
+            <td><span class="badge bg-warning text-dark status-badge">Unpaid</span></td>
+            <td class="text-end" style="white-space:nowrap">
+              <button class="btn btn-sm btn-outline-secondary btn-mark-paid py-0 px-2" style="font-size:0.75rem" title="Mark Paid">✓</button>
+              <button class="btn btn-sm btn-close btn-x-delete ms-1" style="filter:invert(20%) sepia(100%) saturate(7000%) hue-rotate(0deg)" title="Delete"></button>
+            </td>`;
+          wireInstanceRow(tr);
+          // Append to existing table or build one from scratch
+          let tbody = document.querySelector('#instances-table tbody');
+          if (!tbody) {
+            const card = document.querySelector('.col-md-8 .card');
+            card.querySelector('.card-body')?.remove();
+            const wrapper = document.createElement('div');
+            wrapper.className = 'table-responsive';
+            wrapper.innerHTML = `<table class="table table-sm mb-0 align-middle" id="instances-table">
+              <thead><tr><th>Due Date</th><th>Status</th><th></th></tr></thead>
+              <tbody></tbody></table>`;
+            card.appendChild(wrapper);
+            tbody = wrapper.querySelector('tbody');
+          }
+          tbody.appendChild(tr);
+          document.querySelector('#addInstanceModal [data-bs-dismiss="modal"]').click();
+        } catch (err) {
+          const msg = Object.values(err || {}).flat().join(' ') || 'Error creating instance.';
+          errEl.textContent = msg;
+          errEl.classList.remove('d-none');
+        }
+        saveBtn.disabled = false;
+      });
+
+      // ── Wire a single instance row ────────────────────────────────────────
+      function wireInstanceRow(tr) {
+        const txnId = tr.dataset.txnId;
+
+        tr.querySelector('.btn-mark-paid').addEventListener('click', async function () {
+          const btn = this;
+          btn.disabled = true;
+          try {
+            const updated = await apiRequest(`${API_BASE}/transactions/${txnId}/mark-paid/`, 'POST');
+            const badge = tr.querySelector('.status-badge');
+            if (updated.is_paid) {
+              badge.className = 'badge bg-success status-badge';
+              badge.textContent = 'Paid';
+              tr.classList.add('text-muted');
+              btn.title = 'Mark Unpaid'; btn.textContent = '↩';
+            } else {
+              badge.className = 'badge bg-warning text-dark status-badge';
+              badge.textContent = 'Unpaid';
+              tr.classList.remove('text-muted');
+              btn.title = 'Mark Paid'; btn.textContent = '✓';
+            }
+          } finally { btn.disabled = false; }
+        });
+
+        wireDeleteBtn(tr.querySelector('.btn-x-delete'), async function () {
+          await apiRequest(`${API_BASE}/transactions/${txnId}/`, 'DELETE');
+        });
+      }
+
+      document.querySelectorAll('#instances-table tbody tr').forEach(wireInstanceRow);
+
+      // ── Inline editing for the detail card ──────────────────────────────
+      const dl = document.getElementById('rt-detail-dl');
+      const RT_ID = dl.dataset.rtId;
+      const FREQ_LABELS = { monthly: 'Monthly', every_n_months: 'Every N Months', annually: 'Annually' };
+
+      function updateSubtitle() {
+        const freq = dl.dataset.frequency;
+        const interval = dl.dataset.interval;
+        const amtSpan = dl.querySelector('[data-field="amount"]');
+        const nameSpan = dl.querySelector('[data-field="name"]');
+        const freqLabel = FREQ_LABELS[freq] + (freq === 'every_n_months' ? ` (every ${interval} months)` : '');
+        document.getElementById('rt-title').textContent = nameSpan.textContent;
+        document.getElementById('rt-subtitle').textContent = freqLabel + ' — $' + (amtSpan.dataset.raw || '');
+      }
+
+      function wireTextField(span, field, opts) {
+        opts = opts || {};
+        span.addEventListener('click', function () {
+          if (span.querySelector('input, textarea')) return;
+          const raw = span.dataset.raw !== undefined ? span.dataset.raw : span.textContent.replace(/^[$—]/, '').trim();
+          const input = opts.textarea ? document.createElement('textarea') : document.createElement('input');
+          if (!opts.textarea) {
+            input.type = opts.type || 'text';
+            if (opts.type === 'number') { input.step = '0.01'; input.min = '0.01'; }
+          } else {
+            input.rows = 2;
+          }
+          input.value = raw === '—' ? '' : raw;
+          input.className = 'form-control form-control-sm';
+          span.textContent = ''; span.appendChild(input);
+          input.focus(); if (input.select) input.select();
+          async function save() {
+            const val = input.value.trim();
+            const sendVal = opts.type === 'number' ? parseFloat(val).toFixed(2) : val;
+            const displayVal = opts.format ? opts.format(val) : (val || '—');
+            if (val === raw || (!val && raw === '—')) { span.textContent = displayVal; return; }
+            try {
+              await apiRequest(`${API_BASE}/recurring/${RT_ID}/`, 'PATCH', { [field]: val || null });
+              span.dataset.raw = val;
+              span.textContent = displayVal;
+              if (opts.afterSave) opts.afterSave(val);
+            } catch { span.textContent = opts.format ? opts.format(raw) : (raw || '—'); }
+          }
+          input.addEventListener('blur', save);
+          input.addEventListener('keydown', function (e) {
+            if (e.key === 'Enter' && !opts.textarea) { e.preventDefault(); input.blur(); }
+            if (e.key === 'Escape') { input.removeEventListener('blur', save); span.textContent = opts.format ? opts.format(raw) : (raw || '—'); }
+          });
+        });
+      }
+
+      // Name
+      wireTextField(dl.querySelector('[data-field="name"]'), 'name', {
+        afterSave: function () { updateSubtitle(); },
+      });
+
+      // Amount
+      wireTextField(dl.querySelector('[data-field="amount"]'), 'amount', {
+        type: 'number',
+        format: function (v) { return v ? '$' + parseFloat(v).toFixed(2) : '—'; },
+        afterSave: function (v) { updateSubtitle(); },
+      });
+
+      // Start date
+      wireTextField(dl.querySelector('[data-field="start_date"]'), 'start_date', {
+        type: 'date',
+        format: function (v) {
+          if (!v) return '—';
+          return new Date(v + 'T00:00:00').toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+        },
+      });
+
+      // End date (nullable)
+      wireTextField(dl.querySelector('[data-field="end_date"]'), 'end_date', {
+        type: 'date',
+        format: function (v) {
+          if (!v) return 'No end date';
+          return new Date(v + 'T00:00:00').toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+        },
+      });
+
+      // Description
+      wireTextField(dl.querySelector('[data-field="description"]'), 'description', { textarea: true });
+
+      // Category select
+      (function () {
+        const span = dl.querySelector('[data-field="category"]');
+        span.addEventListener('click', function () {
+          if (span.querySelector('select')) return;
+          const originalId = dl.dataset.categoryId;
+          const originalText = span.textContent.trim();
+          const sel = document.createElement('select');
+          sel.className = 'form-select form-select-sm';
+          ['income', 'expense'].forEach(function (type) {
+            const grp = document.createElement('optgroup');
+            grp.label = type.charAt(0).toUpperCase() + type.slice(1);
+            CATEGORIES.filter(c => c.type === type).forEach(function (c) {
+              const opt = new Option(c.name, c.id);
+              if (c.id == originalId) opt.selected = true;
+              grp.appendChild(opt);
+            });
+            sel.appendChild(grp);
+          });
+          span.textContent = ''; span.appendChild(sel); sel.focus();
+          async function save() {
+            const val = sel.value;
+            if (!val || val == originalId) { span.textContent = originalText; return; }
+            try {
+              await apiRequest(`${API_BASE}/recurring/${RT_ID}/`, 'PATCH', { category: parseInt(val) });
+              dl.dataset.categoryId = val;
+              span.textContent = sel.options[sel.selectedIndex].text;
+            } catch { span.textContent = originalText; }
+          }
+          sel.addEventListener('blur', save);
+          sel.addEventListener('change', function () { sel.blur(); });
+          sel.addEventListener('keydown', function (e) {
+            if (e.key === 'Escape') { sel.removeEventListener('blur', save); span.textContent = originalText; }
+          });
+        });
+      }());
+
+      // Frequency select + interval
+      (function () {
+        const span = dl.querySelector('[data-field="frequency"]');
+        span.addEventListener('click', function () {
+          if (span.querySelector('select')) return;
+          const originalFreq = dl.dataset.frequency;
+          const originalText = span.textContent.trim();
+          const sel = document.createElement('select');
+          sel.className = 'form-select form-select-sm d-inline-block';
+          sel.style.maxWidth = '160px';
+          Object.entries(FREQ_LABELS).forEach(function ([val, label]) {
+            const opt = new Option(label, val);
+            if (val === originalFreq) opt.selected = true;
+            sel.appendChild(opt);
+          });
+          const intervalInput = document.createElement('input');
+          intervalInput.type = 'number'; intervalInput.min = '2';
+          intervalInput.value = dl.dataset.interval || 2;
+          intervalInput.className = 'form-control form-control-sm d-inline-block ms-1';
+          intervalInput.style.cssText = 'max-width:60px;display:' + (originalFreq === 'every_n_months' ? 'inline-block' : 'none') + '!important';
+          span.textContent = ''; span.appendChild(sel); span.appendChild(intervalInput); sel.focus();
+          sel.addEventListener('change', function () {
+            intervalInput.style.display = sel.value === 'every_n_months' ? 'inline-block' : 'none';
+          });
+          async function save() {
+            const freq = sel.value;
+            const interval = parseInt(intervalInput.value) || 1;
+            if (freq === originalFreq && (freq !== 'every_n_months' || interval == dl.dataset.interval)) {
+              span.textContent = originalText; return;
+            }
+            try {
+              const patch = { frequency: freq };
+              if (freq === 'every_n_months') patch.interval = interval;
+              await apiRequest(`${API_BASE}/recurring/${RT_ID}/`, 'PATCH', patch);
+              dl.dataset.frequency = freq; dl.dataset.interval = interval;
+              span.textContent = FREQ_LABELS[freq] + (freq === 'every_n_months' ? ` (${interval}mo)` : '');
+              updateSubtitle();
+            } catch { span.textContent = originalText; }
+          }
+          sel.addEventListener('blur', function () { setTimeout(save, 150); });
+          sel.addEventListener('keydown', function (e) {
+            if (e.key === 'Escape') { sel.removeEventListener('blur', save); span.textContent = originalText; }
+          });
+        });
+      }());
+    })();
+  </script>
+{% endblock %}

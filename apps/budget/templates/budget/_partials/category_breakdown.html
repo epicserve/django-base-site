@@ -1,0 +1,60 @@
+<div class="row g-4">
+  <div class="col-md-6">
+    <div class="card h-100">
+      <div class="card-header bg-success bg-opacity-10">
+        <h6 class="mb-0 text-success">Income by Category</h6>
+      </div>
+      <div class="card-body p-0">
+        {% if income_by_category %}
+          <table class="table table-sm mb-0">
+            <tbody>
+              {% for row in income_by_category %}
+                <tr>
+                  <td>{{ row.category__name }}</td>
+                  <td class="text-end text-success">${{ row.total }}</td>
+                </tr>
+              {% endfor %}
+            </tbody>
+            <tfoot class="table-success">
+              <tr>
+                <th>Total</th>
+                <th class="text-end">${{ income_total }}</th>
+              </tr>
+            </tfoot>
+          </table>
+        {% else %}
+          <p class="text-muted p-3 mb-0">No income recorded this month.</p>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+  <div class="col-md-6">
+    <div class="card h-100">
+      <div class="card-header bg-danger bg-opacity-10">
+        <h6 class="mb-0 text-danger">Expenses by Category</h6>
+      </div>
+      <div class="card-body p-0">
+        {% if expense_by_category %}
+          <table class="table table-sm mb-0">
+            <tbody>
+              {% for row in expense_by_category %}
+                <tr>
+                  <td>{{ row.category__name }}</td>
+                  <td class="text-end text-danger">${{ row.total }}</td>
+                </tr>
+              {% endfor %}
+            </tbody>
+            <tfoot class="table-danger">
+              <tr>
+                <th>Total</th>
+                <th class="text-end">${{ expense_total }}</th>
+              </tr>
+            </tfoot>
+          </table>
+        {% else %}
+          <p class="text-muted p-3 mb-0">No expenses recorded this month.</p>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,15 @@
+{% extends "layouts/base.html" %}
+{% load crispy_forms_tags %}
+
+{% block title %}Invite Member{% endblock %}
+
+{% block content %}
+  <div class="row justify-content-center">
+    <div class="col-md-6">
+      <h1 class="h3 mb-4">Invite Member</h1>
+      <p class="text-muted">The user must already have an account. Enter their email address below.</p>
+      {% crispy form %}
+      <a href="{% url 'budget:member-list' budget_pk=budget.pk %}" class="btn btn-link mt-2">Cancel</a>
+    </div>
+  </div>
+{% endblock %}

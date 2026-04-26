@@ -1,0 +1,21 @@
+{% extends "layouts/base.html" %}
+
+{% block title %}Delete Transaction{% endblock %}
+
+{% block content %}
+  <div class="row justify-content-center">
+    <div class="col-md-6">
+      <div class="card border-danger">
+        <div class="card-header bg-danger text-white">Delete Transaction</div>
+        <div class="card-body">
+          <p>Delete <strong>{{ transaction.description }}</strong> (due {{ transaction.due_date }})?</p>
+          <form method="post">
+            {% csrf_token %}
+            <button type="submit" class="btn btn-danger">Delete</button>
+            <a href="{% url 'budget:transaction-detail' budget_pk=budget.pk pk=transaction.pk %}" class="btn btn-secondary ms-2">Cancel</a>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+{% endblock %}

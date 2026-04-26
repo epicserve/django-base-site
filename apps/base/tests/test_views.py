@@ -7,8 +7,8 @@ class TestIndexView(BaseTest):
         self.get("site_index")
         self.assert_http_302_found()
 
-        # test logged in
+        # test logged in — redirects to budget dashboard
         user = self.make_user()
         with self.login(user):
             self.get("site_index")
-            self.assert_http_200_ok()
+            self.assert_http_302_found()
