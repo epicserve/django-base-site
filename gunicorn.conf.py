@@ -4,6 +4,11 @@ bind = "0.0.0.0:8080"
 # reach gunicorn is Traefik (inside the Docker network). Without this, gunicorn
 # defaults to 127.0.0.1 and drops Traefik's forwarded headers, so Django sees
 # http://<internal>:8080 and rejects POSTs on CSRF origin checks.
+#
+# DO NOT copy this to a deployment where gunicorn is reachable from the public
+# internet without a trusted reverse proxy in front of it -- "*" lets any
+# client spoof X-Forwarded-For/Proto and bypass IP- or scheme-based access
+# controls. Restrict to the proxy's address(es) in that case.
 forwarded_allow_ips = "*"
 
 # Concurrency: mirrors the previous uwsgi setup (4 workers × 2 threads).
