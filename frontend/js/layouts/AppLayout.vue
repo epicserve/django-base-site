@@ -215,7 +215,7 @@ onUnmounted(() => {
                 <ArrowRightOnRectangleIcon class="h-4 w-4 text-gray-400 dark:text-gray-500" />
                 Sign Out
               </RouterLink>
-              <template v-if="appStore.user && (appStore.user.is_staff || appStore.user.is_hijacked)">
+              <template v-if="appStore.user && (appStore.user.is_staff || appStore.user.is_hijacked || appStore.user.is_superuser)">
                 <div class="my-1 border-t border-gray-100 dark:border-gray-700" />
                 <a
                   v-if="appStore.user.is_staff"
@@ -235,7 +235,7 @@ onUnmounted(() => {
                   Stop Impersonating
                 </button>
                 <RouterLink
-                  v-if="appStore.user.is_staff && !appStore.user.is_hijacked"
+                  v-if="appStore.user.is_superuser && !appStore.user.is_hijacked"
                   class="cursor-pointer flex items-center gap-2 px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-700"
                   :to="{ name: 'impersonate' }"
                   @click="closeAllDropdowns"

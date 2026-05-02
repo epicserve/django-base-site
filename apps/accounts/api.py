@@ -60,8 +60,8 @@ def list_users(request, q: str | None = Query(None)):
 @users_router.get("/impersonate-search/", response=list[ImpersonateUserOut])
 def impersonate_search(request, q: str = Query("")):
     require_authenticated(request)
-    if not request.user.is_staff:
-        raise HttpError(403, "Admin permission required.")
+    if not request.user.is_superuser:
+        raise HttpError(403, "Superuser permission required.")
     User = get_user_model()
     qs = User.objects.filter(is_active=True).exclude(pk=request.user.pk)
     q = q.strip()

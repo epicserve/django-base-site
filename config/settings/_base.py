@@ -69,7 +69,7 @@ INSTALLED_APPS = [
 ]
 
 # DJANGO HIJACK SETTINGS
-HIJACK_PERMISSION_CHECK = "apps.base.hijack_permissions.staff_only"
+HIJACK_PERMISSION_CHECK = "apps.base.hijack_permissions.superuser_only"
 HIJACK_LOGIN_REDIRECT_URL = "/"
 HIJACK_LOGOUT_REDIRECT_URL = "/"
 
