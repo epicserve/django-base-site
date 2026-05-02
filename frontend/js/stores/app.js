@@ -22,22 +22,31 @@ export function initAppStore() {
   store.isOrg = computed(() => !!(store.org && store.org.id));
   store.isOwner = computed(() => !!(store.org && store.org.is_owner));
 
-  store.fetchContext = async () => {
-    const data = await get('/api/app-context/');
-    store.user = data.user;
-    store.org = data.org;
-    store.organizations = data.organizations;
-    store.orgMemberCount = data.orgMemberCount;
-    store.orgOwnerCount = data.orgOwnerCount;
-    store.siteName = data.siteName;
-    store.instance = data.instance;
-    store.signupOpen = data.signupOpen;
-    if (store.version === null) {
-      store.version = data.version;
-    } else if (data.version && data.version !== store.version) {
-      store.updateAvailable = true;
-    }
-    store.loading = false;
+  let inFlightContext = null;
+  store.fetchContext = () => {
+    if (inFlightContext) return inFlightContext;
+    inFlightContext = (async () => {
+      try {
+        const data = await get('/api/app-context/');
+        store.user = data.user;
+        store.org = data.org;
+        store.organizations = data.organizations;
+        store.orgMemberCount = data.orgMemberCount;
+        store.orgOwnerCount = data.orgOwnerCount;
+        store.siteName = data.siteName;
+        store.instance = data.instance;
+        store.signupOpen = data.signupOpen;
+        if (store.version === null) {
+          store.version = data.version;
+        } else if (data.version && data.version !== store.version) {
+          store.updateAvailable = true;
+        }
+        store.loading = false;
+      } finally {
+        inFlightContext = null;
+      }
+    })();
+    return inFlightContext;
   };
 
   store.setUser = (user) => {
