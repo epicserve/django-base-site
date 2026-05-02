@@ -95,3 +95,36 @@ jobs:
           DATABASE_URL: postgres://postgres:postgres@172.17.0.1:5432/postgres
           READ_DOT_ENV_FILE: False
           DB_SSL_REQUIRED: False
+  e2e:
+    name: E2E tests
+    services:
+      postgres:
+        image: postgres:latest
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: postgres
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+    runs-on: ubuntu-latest
+    env:
+      SECRET_KEY: secret-key-for-testing-only
+      READ_DOT_ENV_FILE: False
+      DB_SSL_REQUIRED: False
+      DATABASE_URL: postgres://postgres:postgres@172.17.0.1:5432/postgres
+      DOCKER_COMPOSE_PREFIX: docker compose run -u root -e DATABASE_URL -e READ_DOT_ENV_FILE -e SECRET_KEY -e DB_SSL_REQUIRED --rm --no-deps web
+    steps:
+      - uses: actions/checkout@v6
+      - name: Use Just for running commands
+        run: curl --proto '=https' --tlsv1.2 -sSf https://just.systems/install.sh | bash -s -- --to /usr/local/bin
+      - name: Build dev docker image (includes Playwright browsers)
+        run: docker compose build web frontend
+      - name: Build frontend assets
+        run: just build_frontend
+      - name: Run Playwright e2e tests
+        run: ${{ env.DOCKER_COMPOSE_PREFIX }} pytest e2e/ --ds=config.settings.e2e
