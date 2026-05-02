@@ -3,7 +3,7 @@ from django.contrib import admin
 from django.http import HttpResponseNotFound
 from django.urls import URLPattern, URLResolver, include, path, re_path
 
-from apps.base.views import SPAView, http_404, http_500
+from apps.base.views import SPAView, http_404, http_500, qr_svg
 from config.api import api as ninja_api
 
 
@@ -24,6 +24,7 @@ urlpatterns: list[URLResolver | URLPattern] = [
     path("hijack/", include("hijack.urls")),
     path("500/", http_500),
     path("404/", http_404),
+    path("qr/", qr_svg, name="qr-svg"),
     # Keep the URL name so OrganizationInvite.accept_invite_url's reverse() and
     # email links still resolve, but render the SPA shell so the Vue route at
     # /organizations/invite/:key/accept/ handles the flow.

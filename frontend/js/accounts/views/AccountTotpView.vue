@@ -163,10 +163,10 @@ onMounted(load);
       </p>
       <div
         v-if="totpUrl"
-        class="rounded-md border border-gray-200 dark:border-gray-700 p-4 inline-block"
+        class="rounded-md border border-gray-200 bg-white dark:border-gray-700 p-4 inline-block"
       >
         <img
-          :src="`https://api.qrserver.com/v1/create-qr-code/?size=180x180&data=${encodeURIComponent(totpUrl)}`"
+          :src="`/qr/?data=${encodeURIComponent(totpUrl)}`"
           alt="TOTP QR code"
           class="block"
           width="180"
