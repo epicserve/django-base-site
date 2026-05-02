@@ -1,11 +1,12 @@
 <script setup>
 import { ref, inject, onMounted } from 'vue';
-import { useRouter, RouterLink } from 'vue-router';
+import { useRoute, useRouter, RouterLink } from 'vue-router';
 import AuthLayout from '@/layouts/AuthLayout.vue';
 import FormField from '../components/FormField.vue';
 import FormErrors from '../components/FormErrors.vue';
 import { authApi, parseAllauthErrors } from '../api';
 
+const route = useRoute();
 const router = useRouter();
 const appStore = inject('appStore');
 
@@ -32,7 +33,14 @@ async function onSubmit() {
       password: password1.value,
       timezone: timezone.value,
     });
-    router.push({ name: 'verification-sent' });
+    // If allauth signed the user in (verification not mandatory), honor ?next.
+    await appStore.fetchContext();
+    if (appStore.isAuthenticated) {
+      const next = route.query.next;
+      router.push(next && !next.startsWith('/accounts/') ? next : '/');
+    } else {
+      router.push({ name: 'verification-sent' });
+    }
   } catch (err) {
     if (err.data) {
       errors.value = parseAllauthErrors(err.data);

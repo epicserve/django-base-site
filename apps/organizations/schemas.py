@@ -120,6 +120,16 @@ class InviteIn(Schema):
     is_owner: bool = False
 
 
+class PublicInviteOut(Schema):
+    """Invite payload for unauthenticated lookup at /api/invite-by-key/{key}/."""
+
+    organization_name: str
+    sender_name: str
+    invitee_email: str = ""
+    is_expired: bool
+    is_already_member: bool
+
+
 class SettingsOut(Schema):
     billing_email: str = ""
 

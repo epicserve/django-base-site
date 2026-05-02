@@ -14,6 +14,11 @@ export function createRouter(appStore) {
 
       // Organizations
       {
+        path: '/organizations/invite/:key/accept/',
+        name: 'accept-invite',
+        component: () => import('./views/AcceptInviteView.vue'),
+      },
+      {
         path: '/organizations/switch/',
         name: 'org-switch',
         component: () => import('./views/OrgSwitchView.vue'),

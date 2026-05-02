@@ -23,17 +23,19 @@ from apps.organizations.schemas import (
     OrganizationCreateIn,
     OrganizationCreateOut,
     OrgSelectOut,
+    PublicInviteOut,
     SetPrimaryOut,
     SettingsOut,
     SettingsPatchIn,
     SuccessOut,
     SwitchListItemOut,
 )
-from apps.organizations.session import remove_org, save_org_data
+from apps.organizations.session import remove_org, save_counts, save_org_data
 
 orgs_router = Router(tags=["organizations"])
 members_router = Router(tags=["organization-members"])
 invites_router = Router(tags=["organization-invites"])
+public_invites_router = Router(tags=["public-invites"])
 settings_router = Router(tags=["organization-settings"])
 
 
@@ -274,3 +276,51 @@ def update_settings(request, payload: SettingsPatchIn):
         setattr(org, field, value)
     org.save()
     return {"billing_email": org.billing_email or ""}
+
+
+# ---------------------------------------------------------------------------
+# Public invite lookup (unauthenticated; the email link lands here before sign-in)
+# ---------------------------------------------------------------------------
+
+
+@public_invites_router.get("/{key}/", response=PublicInviteOut, auth=None)
+def get_invite_by_key(request, key: str):
+    invite = get_object_or_404(
+        OrganizationInvite.objects.select_related("organization", "sender"), key=key
+    )
+    is_already_member = bool(
+        request.user.is_authenticated and invite.organization.is_member(request.user)
+    )
+    return {
+        "organization_name": invite.organization.name,
+        "sender_name": invite.sender.get_full_name() or invite.sender.email,
+        "invitee_email": invite.invitee_email or "",
+        "is_expired": invite.is_expired,
+        "is_already_member": is_already_member,
+    }
+
+
+@public_invites_router.post("/{key}/accept/", response=SuccessOut)
+def accept_invite_by_key(request, key: str):
+    require_authenticated(request)
+    invite = get_object_or_404(
+        OrganizationInvite.objects.select_related("organization"), key=key
+    )
+    if invite.is_expired:
+        raise HttpError(410, "This invite has expired.")
+    if invite.organization.is_member(request.user):
+        raise HttpError(409, "You're already a member of this organization.")
+    OrganizationMember.objects.get_or_create(
+        organization=invite.organization, user=request.user, is_owner=invite.is_owner
+    )
+    save_counts(request)
+    save_org_data(request, invite.organization)
+    invite.delete()
+    return {"success": True}
+
+
+@public_invites_router.post("/{key}/decline/", response=SuccessOut)
+def decline_invite_by_key(request, key: str):
+    invite = get_object_or_404(OrganizationInvite.objects, key=key)
+    invite.delete()
+    return {"success": True}

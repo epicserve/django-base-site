@@ -16,6 +16,7 @@ from apps.organizations.api import (
 )
 from apps.organizations.api import (
     orgs_router,
+    public_invites_router,
 )
 from apps.organizations.api import (
     settings_router as org_settings_router,
@@ -35,6 +36,7 @@ register_error_handlers(api)
 api.add_router("/", base_router)
 api.add_router("/avatar/", avatar_router)
 api.add_router("/organization-invites/", org_invites_router)
+api.add_router("/invite-by-key/", public_invites_router)
 api.add_router("/organization-members/", org_members_router)
 api.add_router("/organization-settings/", org_settings_router)
 api.add_router("/organizations/", orgs_router)
