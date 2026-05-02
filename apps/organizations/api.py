@@ -313,8 +313,11 @@ def accept_invite_by_key(request, key: str):
     return {"success": True}
 
 
-@public_invites_router.post("/{key}/decline/", response=SuccessOut, auth=None)
+@public_invites_router.post("/{key}/decline/", response=SuccessOut)
 def decline_invite_by_key(request, key: str):
+    require_authenticated(request)
     invite = get_object_or_404(OrganizationInvite.objects, key=key)
+    if invite.invitee_email and invite.invitee_email.lower() != request.user.email.lower():
+        raise HttpError(403, "This invitation was sent to a different email address.")
     invite.delete()
     return {"success": True}
