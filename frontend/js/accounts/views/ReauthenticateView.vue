@@ -5,6 +5,7 @@ import AuthLayout from '@/layouts/AuthLayout.vue';
 import FormField from '../components/FormField.vue';
 import FormErrors from '../components/FormErrors.vue';
 import { authApi, parseAllauthErrors } from '../api';
+import { safeNextUrl } from '../../utils/redirect';
 
 const route = useRoute();
 const router = useRouter();
@@ -18,9 +19,7 @@ async function onSubmit() {
   errors.value = {};
   try {
     await authApi.reauthenticate(password.value);
-    const next = route.query.next || '/accounts/security/';
-
-    router.push(next);
+    router.push(safeNextUrl(route.query.next, '/accounts/security/', { allowAccounts: true }));
   } catch (err) {
     errors.value = err.data ? parseAllauthErrors(err.data) : {
       non_field_errors: ['Could not verify password.'],

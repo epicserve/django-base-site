@@ -5,6 +5,7 @@ import AuthLayout from '@/layouts/AuthLayout.vue';
 import FormField from '../components/FormField.vue';
 import FormErrors from '../components/FormErrors.vue';
 import { authApi, parseAllauthErrors } from '../api';
+import { safeNextUrl } from '../../utils/redirect';
 
 const route = useRoute();
 const router = useRouter();
@@ -15,10 +16,7 @@ const errors = ref({});
 const loading = ref(false);
 
 function getRedirectUrl() {
-  const next = route.query.next || '/';
-
-  if (next.startsWith('/accounts/')) return '/';
-  return next;
+  return safeNextUrl(route.query.next);
 }
 
 async function onSubmit() {

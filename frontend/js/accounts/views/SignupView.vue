@@ -5,6 +5,7 @@ import AuthLayout from '@/layouts/AuthLayout.vue';
 import FormField from '../components/FormField.vue';
 import FormErrors from '../components/FormErrors.vue';
 import { authApi, parseAllauthErrors } from '../api';
+import { safeNextUrl } from '../../utils/redirect';
 
 const route = useRoute();
 const router = useRouter();
@@ -36,8 +37,7 @@ async function onSubmit() {
     // If allauth signed the user in (verification not mandatory), honor ?next.
     await appStore.fetchContext();
     if (appStore.isAuthenticated) {
-      const next = route.query.next;
-      router.push(next && !next.startsWith('/accounts/') ? next : '/');
+      router.push(safeNextUrl(route.query.next));
     } else {
       router.push({ name: 'verification-sent' });
     }

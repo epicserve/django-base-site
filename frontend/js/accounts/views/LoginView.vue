@@ -6,6 +6,7 @@ import FormField from '../components/FormField.vue';
 import FormErrors from '../components/FormErrors.vue';
 import { authApi, parseAllauthErrors } from '../api';
 import { getPasskeyAssertion, isWebAuthnSupported } from '../../utils/webauthn';
+import { safeNextUrl } from '../../utils/redirect';
 
 const route = useRoute();
 const router = useRouter();
@@ -21,10 +22,7 @@ const passkeySupported = ref(false);
 onMounted(() => { passkeySupported.value = isWebAuthnSupported(); });
 
 function getRedirectUrl() {
-  const next = route.query.next || '/';
-
-  if (next.startsWith('/accounts/')) return '/';
-  return next;
+  return safeNextUrl(route.query.next);
 }
 
 function handleFlows(err) {
@@ -38,7 +36,7 @@ function handleFlows(err) {
     return true;
   }
   if (mfaRequired) {
-    router.push({ name: 'two-factor', query: { next: route.query.next || '/' } });
+    router.push({ name: 'two-factor', query: { next: safeNextUrl(route.query.next) } });
     return true;
   }
   return false;
