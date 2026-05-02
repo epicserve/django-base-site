@@ -9,6 +9,7 @@ https://docs.djangoproject.com/en/4.2/ref/settings/
 """
 
 import contextlib
+import re
 import socket
 from pathlib import Path
 
@@ -35,6 +36,12 @@ DEBUG = env.bool("DEBUG", default=False)
 INSTANCE = env("INSTANCE", default="dev")
 
 ALLOWED_HOSTS: list[str] = env.list("ALLOWED_HOSTS", default=[])
+CSRF_TRUSTED_ORIGINS = env.list("CSRF_TRUSTED_ORIGINS", default=[])
+# Only honor X-Forwarded-Proto when explicitly opted in. Setting this when the
+# app isn't behind a proxy that strips the header lets a client spoof HTTPS
+# detection and bypass `secure`-flag cookies / SECURE_SSL_REDIRECT.
+if env.bool("SECURE_PROXY_SSL_HEADER", default=False):
+    SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")
 INTERNAL_IPS = env.list("INTERNAL_IPS", default=["127.0.0.1"])
 
 # Get the IP to use for Django Debug Toolbar when developing with docker
@@ -54,18 +61,27 @@ INSTALLED_APPS = [
     "django.contrib.staticfiles",
     "apps.base",
     "apps.accounts",
+    "apps.organizations",
+    "apps.teams",
     "maintenance_mode",
     "allauth",
     "allauth.account",
-    "crispy_forms",
-    "crispy_bootstrap5",
+    "allauth.headless",
+    "allauth.mfa",
     "storages",
+    "hijack",
 ]
+
+# DJANGO HIJACK SETTINGS
+HIJACK_PERMISSION_CHECK = "apps.base.hijack_permissions.superuser_only"
+HIJACK_LOGIN_REDIRECT_URL = "/"
+HIJACK_LOGOUT_REDIRECT_URL = "/"
 
 MIDDLEWARE = [
     "allauth.account.middleware.AccountMiddleware",
     "django_alive.middleware.healthcheck_bypass_host_check",
     "django.middleware.security.SecurityMiddleware",
+    "whitenoise.middleware.WhiteNoiseMiddleware",
     "django.contrib.sessions.middleware.SessionMiddleware",
     "django.middleware.common.CommonMiddleware",
     "django.middleware.csrf.CsrfViewMiddleware",
@@ -73,6 +89,9 @@ MIDDLEWARE = [
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
     "maintenance_mode.middleware.MaintenanceModeMiddleware",
+    "hijack.middleware.HijackUserMiddleware",
+    "apps.organizations.middleware.OrganizationMiddleware",
+    "apps.accounts.middleware.TimezoneMiddleware",
 ]
 
 ROOT_URLCONF = "config.urls"
@@ -90,6 +109,7 @@ TEMPLATES = [
                 "django.contrib.messages.context_processors.messages",
                 "maintenance_mode.context_processors.maintenance_mode",
                 "apps.base.context_processors.site_name",
+                "apps.organizations.context_processors.organization",
             ],
         },
     },
@@ -150,16 +170,42 @@ STATICFILES_FINDERS = (
     "django.contrib.staticfiles.finders.AppDirectoriesFinder",
 )
 
+DEFAULT_FILE_STORAGE_BACKEND = env("DEFAULT_FILE_STORAGE", default="django.core.files.storage.FileSystemStorage")
+
 STORAGES = {
     "default": {
-        "BACKEND": env("DEFAULT_FILE_STORAGE", default="django.core.files.storage.FileSystemStorage"),
+        "BACKEND": DEFAULT_FILE_STORAGE_BACKEND,
     },
     "staticfiles": {
         "BACKEND": "django.contrib.staticfiles.storage.StaticFilesStorage",
     },
 }
 
-# AWS Credentials: Required when using MediaS3Storage or when using Django SES for email in non-prod instances
+# Media S3 storage settings (used for both MinIO local dev and real S3 in prod).
+# These are read by `apps.base.storage.S3MediaStorage` when DEFAULT_FILE_STORAGE is set
+# to an s3boto3-based backend.
+MEDIA_S3_ACCESS_KEY = env("MEDIA_S3_ACCESS_KEY", default="")
+MEDIA_S3_SECRET_KEY = env("MEDIA_S3_SECRET_KEY", default="")
+MEDIA_S3_ENDPOINT_URL = env("MEDIA_S3_ENDPOINT_URL", default="")
+MEDIA_S3_URL_ENDPOINT_URL = env("MEDIA_S3_URL_ENDPOINT_URL", default="")
+MEDIA_S3_BUCKET_NAME = env("MEDIA_S3_BUCKET_NAME", default="")
+
+if "s3boto3" in DEFAULT_FILE_STORAGE_BACKEND.lower():
+    STORAGES["default"]["OPTIONS"] = {
+        "access_key": MEDIA_S3_ACCESS_KEY,
+        "secret_key": MEDIA_S3_SECRET_KEY,
+        "bucket_name": MEDIA_S3_BUCKET_NAME,
+        "default_acl": "private",
+        "querystring_auth": True,
+        "file_overwrite": False,
+    }
+    if MEDIA_S3_ENDPOINT_URL:
+        STORAGES["default"]["OPTIONS"]["endpoint_url"] = MEDIA_S3_ENDPOINT_URL
+    if MEDIA_S3_URL_ENDPOINT_URL:
+        STORAGES["default"]["BACKEND"] = "apps.base.storage.S3MediaStorage"
+        STORAGES["default"]["OPTIONS"]["url_endpoint_url"] = MEDIA_S3_URL_ENDPOINT_URL
+
+# AWS Credentials: Required when using the legacy MediaS3Storage AWS path or Django SES email in non-prod instances
 AWS_ACCESS_KEY_ID = env("AWS_ACCESS_KEY_ID", default="")
 AWS_SECRET_ACCESS_KEY = env("AWS_SECRET_ACCESS_KEY", default="")
 
@@ -185,6 +231,17 @@ else:
     MEDIA_URL = "/public/media/"
     STATIC_URL = "/public/static/"
 
+# Tell WhiteNoise that Vite-hashed assets (e.g. app-B7-ckr9u.js, avatar_upload-Cjp3Hco7.css)
+# are safe to serve with a long immutable cache, since the hash changes whenever content does.
+_VITE_HASHED_ASSET_RE = re.compile(r"-[A-Za-z0-9_-]{8,}\.\w+$")
+
+
+def _whitenoise_immutable_file_test(path: str, url: str) -> bool:
+    return bool(_VITE_HASHED_ASSET_RE.search(url))
+
+
+WHITENOISE_IMMUTABLE_FILE_TEST = _whitenoise_immutable_file_test
+
 # Default primary key field type
 # https://docs.djangoproject.com/en/4.2/ref/settings/#default-auto-field
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
@@ -206,14 +263,17 @@ CACHES = {
 CELERY_BROKER_URL = REDIS_URL
 CELERY_BROKER_TRANSPORT_OPTIONS = {"global_keyprefix": REDIS_PREFIX}
 
-# CRISPY-FORMS
-CRISPY_ALLOWED_TEMPLATE_PACKS = "bootstrap5"
-CRISPY_TEMPLATE_PACK = "bootstrap5"
-
 SESSION_ENGINE = "django.contrib.sessions.backends.cache"
 
 SITE_ID = 1
 SITE_NAME = "Django Base Site"
+
+SITE_DOMAIN = env("SITE_DOMAIN", default="localhost:8000")
+SITE_SCHEME = env("SITE_SCHEME", default="http")
+SITE_URL = f"{SITE_SCHEME}://{SITE_DOMAIN}"
+
+# Default page size used by the ninja LegacyPagination paginator.
+DEFAULT_PAGE_SIZE = 50
 
 # DJANGO DEBUG TOOLBAR SETTINGS
 if DEBUG is True:
@@ -231,11 +291,48 @@ ACCOUNT_SIGNUP_FIELDS = ["email*", "password1*"]
 # Set to "optional" so users can verify their email. Mailpit captures emails locally during development.
 # For production, consider changing to "mandatory".
 ACCOUNT_EMAIL_VERIFICATION = "optional"
+ACCOUNT_EMAIL_SUBJECT_PREFIX = ""
 
 # CUSTOM Django Base Site ALLAUTH settings used in the custom adapter (apps.accounts.auth_adapter)
 ACCOUNT_ADAPTER = "apps.accounts.auth_adapter.AccountAdapter"
-ACCOUNT_SIGNUP_OPEN = False
+ACCOUNT_SIGNUP_OPEN = env.bool("ACCOUNT_SIGNUP_OPEN", default=False)
 ACCOUNT_SHOW_POST_LOGIN_MESSAGE = False
+
+# ALLAUTH HEADLESS SETTINGS — with HEADLESS_ONLY=True allauth returns JSON
+# instead of rendering templates, and email/redirect links are mapped through
+# HEADLESS_FRONTEND_URLS to SPA routes.
+HEADLESS_ONLY = True
+HEADLESS_FRONTEND_URLS = {
+    "account_confirm_email": "/accounts/confirm-email/{key}",
+    "account_reset_password_from_key": "/accounts/password/reset/key/{key}",
+    "account_signup": "/accounts/signup/",
+    "account_login": "/accounts/login/",
+    "account_reauthenticate": "/accounts/reauthenticate/",
+}
+
+# ALLAUTH MFA SETTINGS
+MFA_SUPPORTED_TYPES = ["totp", "recovery_codes", "webauthn"]
+MFA_PASSKEY_LOGIN_ENABLED = True
+MFA_PASSKEY_SIGNUP_ENABLED = False
+MFA_TOTP_ISSUER = SITE_NAME
+MFA_RECOVERY_CODE_COUNT = 10
+
+# SPA route paths that legacy Django templates need to link to. These map to
+# Vue Router routes defined in frontend/js/router.js; keep them in sync with
+# that file. Referenced from templates via the `spa_url` template tag.
+SPA_URLS = {
+    "account-general": "/accounts/general/",
+    "account-email": "/accounts/email/",
+    "account-password-change": "/accounts/password/change/",
+    "account-security": "/accounts/security/",
+    "logout": "/accounts/logout/",
+    "org-create": "/organizations/create/",
+    "org-switch": "/organizations/switch/",
+    "org-settings-general": "/organizations/{slug}/settings/general/",
+    "org-settings-members": "/organizations/{slug}/settings/members/",
+    "org-settings-teams": "/organizations/{slug}/settings/teams/",
+    "impersonate": "/impersonate/",
+}
 
 if INSTANCE != "prod":
     # See https://github.com/migonzalvar/dj-email-url for more examples on how to set the EMAIL_URL

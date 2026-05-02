@@ -1,0 +1,7 @@
+{% extends "account/email/base_notification.html" %}
+
+{% load i18n %}
+
+{% block notification_message %}
+  {% blocktrans %}Email address {{ deleted_email }} has been removed from your account.{% endblocktrans %}
+{% endblock notification_message %}

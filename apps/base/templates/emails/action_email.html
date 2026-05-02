@@ -1,0 +1,36 @@
+{% extends "emails/base_email.html" %}
+
+{% block extra_content %}
+  <tr>
+    <td style="padding: 16px 0 24px;" align="center">
+      <a href="{{ action_url }}"
+         style="display: inline-block;
+                background-color: #2563eb;
+                color: #ffffff;
+                font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+                font-size: 15px;
+                font-weight: 600;
+                text-decoration: none;
+                text-align: center;
+                padding: 12px 32px;
+                border-radius: 6px;
+                line-height: 1;
+                mso-padding-alt: 0;
+                border: 16px solid #2563eb">
+        {% block action_button_text %}
+        {% endblock action_button_text %}
+
+      </a>
+    </td>
+  </tr>
+{% endblock extra_content %}
+
+{% block footer %}
+  <p style="margin: 0 0 8px; font-size: 13px; color: #a8aaaf;">
+    Button not working? Copy and paste this link into your browser:
+  </p>
+  <p style="margin: 0;
+            font-size: 13px;
+            color: #a8aaaf;
+            word-break: break-all">{{ action_url }}</p>
+{% endblock footer %}

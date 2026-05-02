@@ -1,14 +1,17 @@
-from apps.base.tests import BaseTest
+from django.test import TestCase
 
 
-class TestIndexView(BaseTest):
-    def test_index(self):
-        # test not logged in
-        self.get("site_index")
-        self.assert_http_302_found()
+class TestSPAShell(TestCase):
+    def test_root_returns_spa_shell(self):
+        resp = self.client.get("/")
+        self.assertEqual(resp.status_code, 200)
+        self.assertTemplateUsed(resp, "layouts/spa_shell.html")
 
-        # test logged in
-        user = self.make_user()
-        with self.login(user):
-            self.get("site_index")
-            self.assert_http_200_ok()
+    def test_unknown_path_returns_spa_shell(self):
+        resp = self.client.get("/some/random/path/")
+        self.assertEqual(resp.status_code, 200)
+        self.assertTemplateUsed(resp, "layouts/spa_shell.html")
+
+    def test_public_static_404_does_not_return_spa_shell(self):
+        resp = self.client.get("/public/static/dist/js/missing-chunk.js")
+        self.assertEqual(resp.status_code, 404)

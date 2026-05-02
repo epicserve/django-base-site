@@ -1,0 +1,6 @@
+{% extends "emails/base_email.html" %}
+
+{% block content %}
+  <p>Hi {{ user.first_name }},</p>
+  <p>You’ve been removed from the {{ organization }} organization.</p>
+{% endblock content %}

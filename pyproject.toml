@@ -5,23 +5,24 @@ version = "0.1.0"
 requires-python = ">=3.12"
 dependencies = [
     "Django~=5.0",
+    "Pillow~=11.2",
     "boto3~=1.34",
     "celery~=5.5",
-    "crispy-bootstrap5~=2026.3",
     "django-alive~=2.0",
-    "django-allauth~=65.16",
-    "django-crispy-forms~=2.2",
+    "django-allauth[mfa]~=65.16",
+    "django-hijack~=3.7",
     "django-maintenance-mode~=0.19",
+    "django-ninja~=1.4",
     "django-ses~=4.3",
     "django-storages~=1.8",
     "epicenv[django]~=1.2",
+    "fido2~=1.1",
+    "gunicorn~=25.0",
     "hiredis~=3.0",  # needed for Django's native cache and sessions
     "psycopg2-binary~=2.9",
-    "pytest-cov~=7.0",
-    "pytest-django~=4.5",
     "python-json-logger~=4.1",
     "redis~=7.1",  # needed for celery
-    "uwsgi~=2.0",
+    "whitenoise~=6.7",
 ]
 
 [dependency-groups]
@@ -38,6 +39,11 @@ dev = [
     "mkdocs-material",
     "mkdocstrings[python]",
     "model-bakery",
+    "pyotp",
+    "pytest~=9.0",
+    "pytest-cov~=7.0",
+    "pytest-django~=4.5",
+    "pytest-playwright",
     "ty",
     "readable-log-formatter",
     "ruff",
@@ -48,11 +54,27 @@ dev = [
 # Ty type checker configuration: https://docs.astral.sh/ty/
 # Ty is a fast, modern type checker for Python
 
+[tool.ty.rules]
+# These rules fire frequently on Django code because django-stubs cannot model
+# dynamic attributes (reverse managers, custom queryset/manager methods, the
+# swappable user model, ninja's Query/Path/Body sentinels, etc.). Until ty's
+# Django integration matures, downgrade them so pre-commit type checking stays
+# focused on application bugs rather than framework-level false positives.
+unresolved-attribute = "ignore"
+call-non-callable = "ignore"
+invalid-argument-type = "ignore"
+no-matching-overload = "ignore"
+invalid-method-override = "ignore"
+invalid-assignment = "ignore"
+unresolved-import = "ignore"
+not-iterable = "ignore"
+unsupported-operator = "ignore"
+
 [tool.django-stubs]
 django_settings_module = "config.settings.test_runner"
 
 [tool.pytest.ini_options]
-addopts = "--nomigrations --ds config.settings.test_runner --cov-config=config/coverage.ini"
+addopts = "--nomigrations --ds config.settings.test_runner --cov-config=config/coverage.ini --ignore=e2e"
 
 # Python warnings documentation: https://docs.python.org/3/library/warnings.html
 filterwarnings = [
@@ -83,7 +105,7 @@ blank_line_after_tag="endblock,extends,load"
 format_css=true
 format_js=true
 use_gitignore=true
-ignore="H030,H031,H017"
+ignore="H030,H031,H017,H005,H021,H023"
 exclude="base-email.html"
 
 [tool.djlint.js]
@@ -110,6 +132,11 @@ ignore = ["D100", "D101", "D102", "D103", "D104", "D106", "D107", "D203", "D212"
 
 [tool.ruff.lint.per-file-ignores]
 "**/{tests}/*" = ["S101"]
+"e2e/*" = ["S101"]
+
+[tool.ruff.lint.flake8-bugbear]
+# django-ninja uses these as default values in function signatures
+extend-immutable-calls = ["ninja.Query", "ninja.File", "ninja.Form", "ninja.Body", "ninja.Path"]
 
 [tool.ruff.lint.isort.sections]
 "django" = ["django"]
@@ -126,7 +153,7 @@ env_file = ".env"
 # Django Core Settings
 DEBUG = { type = "bool", default = false, initial = "on", help_text = "Enable Django debug mode" }
 SECRET_KEY = { type = "str", required = true, initial_func = "epicenv.initializers.url_safe_password", args = [50], help_text = "Django secret key for cryptographic signing" }
-ALLOWED_HOSTS = { type = "list", default = [], help_text = "List of allowed host/domain names" }
+ALLOWED_HOSTS = { type = "list", default = [], initial = "localhost,127.0.0.1", help_text = "List of allowed host/domain names" }
 INTERNAL_IPS = { type = "list", default = ["127.0.0.1"], initial = "127.0.0.1,0.0.0.0", help_text = "IPs that can see debug toolbar" }
 
 # Database Settings
@@ -155,7 +182,7 @@ READ_DOT_ENV_FILE = { type = "bool", default = true, help_text = "Read .env file
 WSGI_APPLICATION = { type = "str", default = "config.wsgi.application", help_text = "WSGI application path" }
 
 # Storage Settings
-DEFAULT_FILE_STORAGE = { type = "str", default = "django.core.files.storage.FileSystemStorage", help_text = "Default file storage backend" }
+DEFAULT_FILE_STORAGE = { type = "str", default = "django.core.files.storage.FileSystemStorage", initial = "storages.backends.s3boto3.S3Boto3Storage", help_text = "Default file storage backend (defaults to S3/MinIO; switch back to FileSystemStorage to bypass S3)" }
 STATICFILES_STORAGE = { type = "str", help_text = "Static files storage backend" }
 
 # AWS Settings (optional, for S3 storage and Django SES email backend)
@@ -163,6 +190,28 @@ AWS_ACCESS_KEY_ID = { type = "str", help_text = "AWS access key ID" }
 AWS_SECRET_ACCESS_KEY = { type = "str", help_text = "AWS secret access key" }
 AWS_STORAGE_BUCKET_NAME = { type = "str", help_text = "S3 bucket name" }
 AWS_S3_REGION = { type = "str", default = "us-east-2", help_text = "AWS S3 region" }
+
+# Media S3 Storage (used by MinIO locally and by real S3 in prod via apps.base.storage.S3MediaStorage)
+MEDIA_S3_ACCESS_KEY = { type = "str", default = "", initial = "minioadmin", help_text = "S3 access key for media storage (MinIO username locally)" }
+MEDIA_S3_SECRET_KEY = { type = "str", default = "", initial = "minioadmin", help_text = "S3 secret key for media storage (MinIO password locally)" }
+MEDIA_S3_ENDPOINT_URL = { type = "str", default = "", initial = "http://minio:9000", help_text = "Internal S3 endpoint URL (Docker-internal hostname for MinIO)" }
+MEDIA_S3_URL_ENDPOINT_URL = { type = "str", default = "", initial = "http://localhost:9000", help_text = "Browser-facing S3 endpoint URL (used in generated URLs)" }
+MEDIA_S3_BUCKET_NAME = { type = "str", default = "", initial = "media", help_text = "S3 bucket name for media uploads" }
+MINIO_ROOT_USER = { type = "str", default = "minioadmin", help_text = "MinIO root username (local dev only)" }
+MINIO_ROOT_PASSWORD = { type = "str", default = "minioadmin", help_text = "MinIO root password (local dev only)" }
+
+# Host UID/GID for Docker bind-mount file ownership (defaults to 1000)
+HOST_UID = { type = "str", initial = "1000", help_text = "Host user UID for Docker bind-mount file ownership" }
+HOST_GID = { type = "str", initial = "1000", help_text = "Host user GID for Docker bind-mount file ownership" }
+
+# Site / proxy
+SITE_DOMAIN = { type = "str", default = "localhost:8000", help_text = "Public site domain (host:port). Use 'localhost' rather than '127.0.0.1' so WebAuthn / passkeys work in local dev (the spec rejects bare IPs as RP IDs)." }
+SITE_SCHEME = { type = "str", default = "http", help_text = "Site scheme (http or https)" }
+CSRF_TRUSTED_ORIGINS = { type = "list", default = [], help_text = "Comma-separated CSRF trusted origins (full scheme://host)" }
+SECURE_PROXY_SSL_HEADER = { type = "bool", default = false, help_text = "Trust X-Forwarded-Proto from the reverse proxy. Only enable when the app is behind a proxy that strips this header from client requests." }
+
+# Allauth
+ACCOUNT_SIGNUP_OPEN = { type = "bool", default = false, help_text = "Allow new account signups" }
 
 # Email Settings
 DEFAULT_FROM_EMAIL = { type = "str", default = "", help_text = "Default email address for sending emails, required when using Django SES for sending emails on the production instance." }

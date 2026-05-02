@@ -1,0 +1,4 @@
+{% extends 'emails/base_email.txt' %}{% block content %}
+{{ block.super }}
+{% block action_button_text %}{% endblock action_button_text %}: {{ action_url }}
+{% endblock content %}

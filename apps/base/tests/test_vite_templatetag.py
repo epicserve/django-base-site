@@ -29,13 +29,16 @@ class TestViteAssetNoManifestFile(BaseViteTest):
 class TestViteAssetDevModeOn(BaseViteTest):
     def test_js_asset(self):
         result = vite_asset("js/main.js")
-        assert result == '<script type="module" src="http://localhost:3000/public/static/js/main.js"></script>'
+        assert result == '<script type="module" src="http://localhost:3000/public/static/dist/js/js/main.js"></script>'
 
         with override_settings(
-            VITE_SERVER_HOST=VITE_SERVER_HOST, VITE_SERVER_PORT=VITE_SERVER_PORT, STATIC_URL=STATIC_URL
+            VITE_SERVER_HOST=VITE_SERVER_HOST,
+            VITE_SERVER_PORT=VITE_SERVER_PORT,
+            STATIC_URL=STATIC_URL,
+            VITE_OUTPUT_DIR=VITE_OUTPUT_DIR,
         ):
             result = vite_asset("js/main.js")
-            assert result == '<script type="module" src="http://example.com:9999/static/js/main.js"></script>'
+            assert result == '<script type="module" src="http://example.com:9999/static/dist/js/main.js"></script>'
 
     def test_css_asset(self):
         result = vite_asset("js/main.css")
@@ -95,13 +98,18 @@ class TestViteHMRClientTagOn(BaseViteTest):
     @override_settings(VITE_DEV_MODE=True)
     def test_vite_hmr_client_dev_mode_on(self):
         result = vite_hmr_client()
-        assert result == '<script type="module" src="http://localhost:3000/public/static/@vite/client"></script>'
+        assert (
+            result == '<script type="module" src="http://localhost:3000/public/static/dist/js/@vite/client"></script>'
+        )
 
         with override_settings(
-            VITE_SERVER_HOST=VITE_SERVER_HOST, VITE_SERVER_PORT=VITE_SERVER_PORT, STATIC_URL=STATIC_URL
+            VITE_SERVER_HOST=VITE_SERVER_HOST,
+            VITE_SERVER_PORT=VITE_SERVER_PORT,
+            STATIC_URL=STATIC_URL,
+            VITE_OUTPUT_DIR=VITE_OUTPUT_DIR,
         ):
             result = vite_hmr_client()
-            assert result == '<script type="module" src="http://example.com:9999/static/@vite/client"></script>'
+            assert result == '<script type="module" src="http://example.com:9999/static/dist/@vite/client"></script>'
 
     @override_settings(VITE_DEV_MODE=False)
     def test_vite_hmr_client_dev_mode_off(self):

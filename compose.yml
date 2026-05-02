@@ -9,7 +9,7 @@ services:
     volumes:
       - postgres_data:/var/lib/postgresql/data/
     ports:
-      - "5432:5432"
+      - "127.0.0.1:5432:5432"
     env_file:
       - .env
     healthcheck:
@@ -38,14 +38,34 @@ services:
     image: axllent/mailpit
     init: true
     ports:
-      - "8025:8025"
-      - "1025:1025"
+      - "127.0.0.1:8025:8025"
+      - "127.0.0.1:1025:1025"
     healthcheck:
       test: ["CMD", "wget", "--spider", "-q", "http://localhost:8025/livez"]
       interval: 10s
       timeout: 5s
       retries: 3
       start_period: 10s
+
+  minio:
+    container_name: minio
+    image: minio/minio:latest
+    init: true
+    command: server /data --console-address ":9001"
+    environment:
+      MINIO_ROOT_USER: ${MINIO_ROOT_USER:-minioadmin}
+      MINIO_ROOT_PASSWORD: ${MINIO_ROOT_PASSWORD:-minioadmin}
+    volumes:
+      - minio_data:/data
+    ports:
+      - "127.0.0.1:9000:9000"
+      - "127.0.0.1:9001:9001"
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:9000/minio/health/live"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
 
   web:
     container_name: web
@@ -56,9 +76,12 @@ services:
       dockerfile: config/docker/Dockerfile.web
       target: dev
 
+    user: "${HOST_UID:-1000}:${HOST_GID:-1000}"
+
     command: >
       sh -c "
         ./manage.py migrate --noinput &&
+        ./manage.py ensure_s3_bucket &&
         if [ \"$$USE_DEBUGPY\" = \"true\" ]; then
           echo '=========================================' &&
           echo 'Starting Django with debugger enabled' &&
@@ -75,17 +98,17 @@ services:
       - .:/srv/app:cached
 
     ports:
-      - "8000:8000"
-      - "5678:5678"  # debugpy port for VS Code/LazyVim debugging
+      - "127.0.0.1:8000:8000"
+      - "127.0.0.1:5678:5678"  # debugpy port for VS Code/LazyVim debugging
 
     depends_on:
-      node:
-        condition: service_healthy
       db:
         condition: service_healthy
       redis:
         condition: service_healthy
       mailpit:
+        condition: service_healthy
+      minio:
         condition: service_healthy
 
     environment:
@@ -113,26 +136,25 @@ services:
     environment:
       DJANGO_SETTINGS_MODULE: config.settings
 
-  node:
-    container_name: node
-    image: epicserve/django-base-site:node
+  frontend:
+    container_name: frontend
+    image: epicserve/django-base-site:bun
     build:
       context: .
-      dockerfile: config/docker/Dockerfile.node
+      dockerfile: config/docker/Dockerfile.bun
     init: true
     working_dir: /srv/app
 
-    command: sh -c "npm run dev"
+    user: "${HOST_UID:-1000}:${HOST_GID:-1000}"
+
+    command: sh -c "bun run dev --host 0.0.0.0"
 
     volumes:
       - .:/srv/app
       - node_modules:/srv/app/node_modules
 
     ports:
-      - "3000:3000"
-
-    environment:
-      NODE_ENV: development
+      - "127.0.0.1:3000:3000"
 
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:3000"]
@@ -152,7 +174,7 @@ services:
       - .:/srv/app:cached
 
     ports:
-      - "4000:4000"
+      - "127.0.0.1:4000:4000"
 
     environment:
       LIVE_RELOAD_SUPPORT: 'true'
@@ -169,4 +191,5 @@ services:
 volumes:
   postgres_data:
   redis_data:
+  minio_data:
   node_modules:

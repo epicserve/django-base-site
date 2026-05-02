@@ -1,0 +1,3 @@
+{% extends 'emails/base_email.txt' %}{% block content %}Hi {{ user.first_name }},
+
+You’ve been removed from the {{ organization }} organization.{% endblock content %}

@@ -1,0 +1,27 @@
+{% extends "emails/action_email.html" %}
+
+{% load i18n %}
+
+{% block action_button_text %}
+  {% trans "Reset Password" %}
+{% endblock action_button_text %}
+
+{% block extra_content %}
+  {% with action_url=password_reset_url %}{{ block.super }}{% endwith %}
+{% endblock extra_content %}
+
+{% block footer %}
+  {% with action_url=password_reset_url %}{{ block.super }}{% endwith %}
+{% endblock footer %}
+
+{% block content %}
+  {% autoescape off %}
+    {% blocktrans %}You are receiving this email because you or someone else tried to signup for an account using email address:{% endblocktrans %}
+    <br>
+    <br>
+    {{ email }}
+    <br>
+    <br>
+    {% blocktrans %}However, an account using that email address already exists. In case you have forgotten about this, please use the button below to recover your account.{% endblocktrans %}
+  {% endautoescape %}
+{% endblock content %}

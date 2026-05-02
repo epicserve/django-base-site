@@ -1,0 +1,22 @@
+{% extends "emails/action_email.html" %}
+
+{% load account %}
+{% load i18n %}
+
+{% block action_button_text %}
+  Confirm Email
+{% endblock action_button_text %}
+
+{% block extra_content %}
+  {% with action_url=activate_url %}{{ block.super }}{% endwith %}
+{% endblock extra_content %}
+
+{% block footer %}
+  {% with action_url=activate_url %}{{ block.super }}{% endwith %}
+{% endblock footer %}
+
+{% block content %}
+  {% autoescape off %}
+    {% user_display user as user_display %}{% blocktrans with site_name=current_site.name site_domain=current_site.domain %}You're receiving this e-mail because user {{ user_display }} has given your e-mail address to register an account.{% endblocktrans %}
+  {% endautoescape %}
+{% endblock content %}

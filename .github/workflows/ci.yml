@@ -7,6 +7,13 @@ on:
   pull_request:
   workflow_dispatch:
 
+concurrency:
+  group: ci-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
 jobs:
   lint:
     name: Lint
@@ -15,14 +22,14 @@ jobs:
       - uses: actions/checkout@v6
       - name: Use Just for running commands
         run: curl --proto '=https' --tlsv1.2 -sSf https://just.systems/install.sh | bash -s -- --to /usr/local/bin
-      - name: Setup Node
-        uses: actions/setup-node@v6
-      - name: Setup Python 3.12
+      - name: Setup Bun
+        uses: oven-sh/setup-bun@v2
+      - name: Setup Python 3.14
         uses: actions/setup-python@v6
         with:
-          python-version: "3.12"
-      - name: Install Node requirements
-        run: npm ci
+          python-version: "3.14"
+      - name: Install frontend requirements
+        run: bun install --frozen-lockfile
       - name: Install Python requirements
         run: |
           pip install --upgrade uv
@@ -35,7 +42,7 @@ jobs:
           DEBUG: on
           PYTHON_CMD_PREFIX_WITH_DEPS: ""
           PYTHON_CMD_PREFIX: ""
-          NODE_CMD_PREFIX: ""
+          BUN_CMD_PREFIX: ""
   test:
     services:
       postgres:
@@ -63,6 +70,12 @@ jobs:
       - uses: actions/checkout@v6
       - name: Use Just for running commands
         run: curl --proto '=https' --tlsv1.2 -sSf https://just.systems/install.sh | bash -s -- --to /usr/local/bin
+      - name: Match docker user to runner UID/GID
+        # The bun container bind-mounts the workspace and writes to it, so it
+        # needs the same UID/GID as the runner user that owns the files.
+        run: |
+          echo "HOST_UID=$(id -u)" >> $GITHUB_ENV
+          echo "HOST_GID=$(id -g)" >> $GITHUB_ENV
       - name: Install uv
         uses: astral-sh/setup-uv@v7
       - name: Test install script
@@ -84,7 +97,7 @@ jobs:
           echo "All verification checks passed!"
       - name: Build docker images
         working-directory: ${{ env.BUILD_DIR }}
-        run: docker compose build web node
+        run: docker compose build web frontend
       - name: Build assets
         working-directory: ${{ env.BUILD_DIR }}
         run: just build_frontend
@@ -95,3 +108,48 @@ jobs:
           DATABASE_URL: postgres://postgres:postgres@172.17.0.1:5432/postgres
           READ_DOT_ENV_FILE: False
           DB_SSL_REQUIRED: False
+  e2e:
+    name: E2E tests
+    services:
+      postgres:
+        image: postgres:latest
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: postgres
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+    runs-on: ubuntu-latest
+    env:
+      SECRET_KEY: secret-key-for-testing-only
+      READ_DOT_ENV_FILE: False
+      DB_SSL_REQUIRED: False
+      DATABASE_URL: postgres://postgres:postgres@172.17.0.1:5432/postgres
+      # Override the default `docker compose exec web` so just recipes work
+      # against an ephemeral container instead of expecting a running service,
+      # and forward the env vars Django needs to bootstrap settings.
+      PYTHON_CMD_PREFIX: docker compose run -u root -e DATABASE_URL -e READ_DOT_ENV_FILE -e SECRET_KEY -e DB_SSL_REQUIRED --rm --no-deps web
+      DOCKER_COMPOSE_PREFIX: docker compose run -u root -e DATABASE_URL -e READ_DOT_ENV_FILE -e SECRET_KEY -e DB_SSL_REQUIRED --rm --no-deps web
+    steps:
+      - uses: actions/checkout@v6
+      - name: Use Just for running commands
+        run: curl --proto '=https' --tlsv1.2 -sSf https://just.systems/install.sh | bash -s -- --to /usr/local/bin
+      - name: Match docker user to runner UID/GID
+        # The bun container bind-mounts the workspace and writes to it, so it
+        # needs the same UID/GID as the runner user that owns the files.
+        run: |
+          echo "HOST_UID=$(id -u)" >> $GITHUB_ENV
+          echo "HOST_GID=$(id -g)" >> $GITHUB_ENV
+      - name: Create empty .env (docker compose env_file requires the file to exist)
+        run: touch .env
+      - name: Build dev docker image (includes Playwright browsers)
+        run: docker compose build web frontend
+      - name: Build frontend assets
+        run: just build_frontend
+      - name: Run Playwright e2e tests
+        run: ${{ env.DOCKER_COMPOSE_PREFIX }} pytest e2e/ --ds=config.settings.e2e

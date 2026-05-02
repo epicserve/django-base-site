@@ -1,6 +1,43 @@
 # CHANGELOG
 
 
+## 2026-05-02
+
+### Added
+
+* Vue 3 SPA frontend (replaces the Bootstrap 5 + plain JS stack). Mounted as the catch-all front door; Django serves the SPA shell HTML for every non-API path.
+* django-allauth headless mode + MFA (TOTP, recovery codes, WebAuthn passkeys via `fido2`).
+* `apps/organizations/` and `apps/teams/` apps as generic multi-tenant SaaS scaffolding (Organization, OrganizationMember with `is_owner` / `is_primary`, OrganizationInvite + accept-invite flow, OrganizationMiddleware, server-rendered accept-invite page; SPA org settings tabs for General/Members/Teams; org switcher in the user menu).
+* Per-user `timezone` field on `User` with browser-detection modal and middleware that activates `request.user.timezone` per request.
+* Profile photo upload with cropping (`vue-advanced-cropper`, Pillow thumbnail generation, MinIO storage).
+* `django-hijack` for staff impersonation (staff-only permission check, SPA impersonate-search view).
+* `django-ninja` API at `/api/` (app-context, version, send-test-email, users + avatar, organizations, teams).
+* MinIO service for local media storage; `apps/base/storage.py:S3MediaStorage` handles the Docker-internal vs browser endpoint URL split.
+* Playwright e2e tests for the auth flow (`pytest-playwright`, `config/settings/e2e.py`).
+* Tailwind CSS v4 (replaces Bootstrap 5 + Sass) with theme-applied-before-CSS in the SPA shell.
+* Toast notifications, theme toggle (light/dark/auto), version watcher with deploy-update banner, send-test-emails view (superuser only).
+* WhiteNoise serving with immutable cache headers for hashed Vite assets in production.
+* Self-hosted TOTP enrollment QR code (login-required `qr_svg` view backed by the `qrcode` package), replacing the previous third-party QR image service.
+* `django-widget-tweaks` for the accept-invite template.
+
+### Changed
+
+* `npm` -> `bun` for the JS toolchain (`oven/bun:1` Docker image, `bun.lock`).
+* `uwsgi` -> `gunicorn` (4 workers x 2 threads, `gunicorn.conf.py` at the repo root).
+* `src/` -> `frontend/` (matches the eventual frontend/backend split).
+* PostgreSQL 17 + Redis 7 + Mailpit + MinIO with healthchecks on every compose service.
+* `SITE_DOMAIN` / `ALLOWED_HOSTS` now default to `localhost` (not `127.0.0.1`) — WebAuthn rejects bare IPs as Relying Party IDs.
+* `vite_asset` template tag: dev-mode URLs no longer prepend `VITE_OUTPUT_DIR` (Vite serves from source paths in dev); `vite_asset` returns `""` for `.css` requests in dev (CSS is injected via JS HMR); production no longer emits a redundant `<link>` tag alongside the JS module (the script-module import pulls CSS automatically).
+* `[tool.ty.rules]` configured to ignore the django-stubs noise rules (`unresolved-attribute`, `call-non-callable`, etc.) since ty's Django integration cannot model dynamic patterns like reverse managers, custom queryset methods, the swappable user model, or ninja's `Query`/`Path`/`Body` sentinels.
+* `public/media/*` added to `.gitignore` (runtime uploads), keeping `public/media/.keep`.
+* djLint ignore list extended to `H005,H021,H023` so email templates can keep their inline styles, `<html>` without `lang`, and entity references.
+
+### Removed
+
+* Bootstrap 5 + `crispy-forms` + `crispy-bootstrap5` (replaced by Tailwind + Vue components).
+* Custom `SignInView`, `NameChange`, `SignInForm`, `NameForm`, and the legacy template-based allauth UI (replaced by the SPA + headless allauth + the user PATCH ninja endpoint).
+
+
 ## 2026-03-05
 
 ### Added

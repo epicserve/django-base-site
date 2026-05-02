@@ -1,0 +1,3 @@
+{% load site %}{% block content %}{% endblock content %}
+
+-- {% get_site_name %}

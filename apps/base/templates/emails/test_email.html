@@ -1,0 +1,18 @@
+{% extends "emails/base_email.html" %}
+
+{% block subject %}
+  {{ subject }}
+{% endblock subject %}
+
+{% block content %}
+  <p>This is a test email sent on {{ date_time }}.</p>
+  <h4>Debug Settings</h4>
+  <table>
+    {% for key, value in debug_settings %}
+      <tr>
+        <td>{{ key }}</td>
+        <td>{{ value }}</td>
+      </tr>
+    {% endfor %}
+  </table>
+{% endblock content %}
