@@ -18,7 +18,7 @@ async function loadInvite() {
   try {
     invite.value = await get(`/api/invite-by-key/${route.params.key}/`);
   } catch (e) {
-    error.value = e.status === 404
+    error.value = e.response?.status === 404
       ? 'This invitation link is invalid.'
       : 'Could not load this invitation.';
   } finally {
