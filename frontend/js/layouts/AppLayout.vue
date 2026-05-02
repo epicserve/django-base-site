@@ -54,6 +54,7 @@ function releaseHijack() {
 function closeAllDropdowns() {
   orgDropdownOpen.value = false;
   userDropdownOpen.value = false;
+  mobileMenuOpen.value = false;
 }
 
 function toggleOrgDropdown() {
@@ -64,6 +65,12 @@ function toggleOrgDropdown() {
 function toggleUserDropdown() {
   orgDropdownOpen.value = false;
   userDropdownOpen.value = !userDropdownOpen.value;
+}
+
+function toggleMobileMenu() {
+  orgDropdownOpen.value = false;
+  userDropdownOpen.value = false;
+  mobileMenuOpen.value = !mobileMenuOpen.value;
 }
 
 function handleClickOutside(e) {
@@ -95,207 +102,233 @@ onUnmounted(() => {
           </RouterLink>
         </div>
         <div class="flex items-center gap-1">
-          <!-- Org dropdown -->
-          <template v-if="appStore.isOrg">
+          <!-- Desktop controls -->
+          <div class="hidden lg:flex items-center gap-1">
+            <!-- Org dropdown -->
+            <template v-if="appStore.isOrg">
+              <div
+                class="relative"
+                data-dropdown="nav"
+              >
+                <button
+                  class="cursor-pointer flex items-center gap-1.5 rounded-md border border-gray-200 bg-gray-50 px-3 py-1.5 text-sm font-medium text-gray-700 hover:bg-gray-100 dark:border-gray-600 dark:bg-gray-800 dark:text-gray-300 dark:hover:bg-gray-700"
+                  @click.stop="toggleOrgDropdown"
+                >
+                  {{ appStore.org.name }}
+                  <svg
+                    class="h-4 w-4 text-gray-400"
+                    xmlns="http://www.w3.org/2000/svg"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    stroke-width="1.5"
+                    stroke="currentColor"
+                  >
+                    <path
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                      d="m19.5 8.25-7.5 7.5-7.5-7.5"
+                    />
+                  </svg>
+                </button>
+                <div
+                  v-show="orgDropdownOpen"
+                  class="absolute right-0 top-full z-50 mt-1 w-56 rounded-md border border-gray-200 bg-white py-1 shadow-lg dark:bg-gray-800 dark:border-gray-700"
+                >
+                  <RouterLink
+                    v-if="appStore.isOwner"
+                    class="cursor-pointer flex items-center gap-2 px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-700"
+                    :to="{ name: 'org-settings-general', params: { slug: appStore.org.slug } }"
+                    @click="closeAllDropdowns"
+                  >
+                    <Cog6ToothIcon class="h-4 w-4 text-gray-400 dark:text-gray-500" />
+                    Settings
+                  </RouterLink>
+                  <div
+                    v-if="appStore.isOwner"
+                    class="my-1 border-t border-gray-100 dark:border-gray-700"
+                  />
+                  <RouterLink
+                    v-if="appStore.orgMemberCount > 0"
+                    class="cursor-pointer flex items-center gap-2 px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-700"
+                    :to="{ name: 'org-switch' }"
+                    @click="closeAllDropdowns"
+                  >
+                    <ArrowsRightLeftIcon class="h-4 w-4 text-gray-400 dark:text-gray-500" />
+                    Switch Company
+                  </RouterLink>
+                  <RouterLink
+                    class="cursor-pointer flex items-center gap-2 px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-700"
+                    :to="{ name: 'org-create' }"
+                    @click="closeAllDropdowns"
+                  >
+                    <PlusCircleIcon class="h-4 w-4 text-gray-400 dark:text-gray-500" />
+                    Create Organization
+                  </RouterLink>
+                </div>
+              </div>
+            </template>
+            <template v-else-if="appStore.orgMemberCount > 0">
+              <RouterLink
+                class="cursor-pointer flex items-center gap-1.5 rounded-md border border-dashed border-gray-300 px-3 py-1.5 text-sm text-gray-500 hover:border-gray-400 hover:bg-gray-50 hover:text-gray-700 dark:border-gray-600 dark:text-gray-400 dark:hover:border-gray-500 dark:hover:bg-gray-800 dark:hover:text-gray-300"
+                :to="{ name: 'org-switch' }"
+              >
+                <ArrowsRightLeftIcon class="h-4 w-4" />
+                Switch Organization
+              </RouterLink>
+            </template>
+            <template v-else>
+              <RouterLink
+                class="cursor-pointer flex items-center gap-1.5 rounded-md border border-dashed border-gray-300 px-3 py-1.5 text-sm text-gray-500 hover:border-gray-400 hover:bg-gray-50 hover:text-gray-700 dark:border-gray-600 dark:text-gray-400 dark:hover:border-gray-500 dark:hover:bg-gray-800 dark:hover:text-gray-300"
+                :to="{ name: 'org-create' }"
+              >
+                <PlusCircleIcon class="h-4 w-4" />
+                Create Organization
+              </RouterLink>
+            </template>
+
+            <!-- User dropdown -->
             <div
               class="relative"
               data-dropdown="nav"
             >
               <button
-                class="cursor-pointer flex items-center gap-1.5 rounded-md border border-gray-200 bg-gray-50 px-3 py-1.5 text-sm font-medium text-gray-700 hover:bg-gray-100 dark:border-gray-600 dark:bg-gray-800 dark:text-gray-300 dark:hover:bg-gray-700"
-                @click.stop="toggleOrgDropdown"
+                class="flex cursor-pointer items-center p-1.5"
+                @click.stop="toggleUserDropdown"
               >
-                {{ appStore.org.name }}
-                <svg
-                  class="h-4 w-4 text-gray-400"
-                  xmlns="http://www.w3.org/2000/svg"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                  stroke-width="1.5"
-                  stroke="currentColor"
-                >
-                  <path
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
-                    d="m19.5 8.25-7.5 7.5-7.5-7.5"
-                  />
-                </svg>
+                <UserAvatar
+                  v-if="appStore.user"
+                  :src="appStore.user.avatar_url || ''"
+                  :name="`${appStore.user.first_name || ''} ${appStore.user.last_name || ''}`.trim() || appStore.user.email || ''"
+                  class="!h-8 !w-8 !text-xs transition hover:opacity-80 hover:ring-2 hover:ring-gray-300 dark:hover:ring-gray-600"
+                />
               </button>
               <div
-                v-show="orgDropdownOpen"
+                v-show="userDropdownOpen"
                 class="absolute right-0 top-full z-50 mt-1 w-56 rounded-md border border-gray-200 bg-white py-1 shadow-lg dark:bg-gray-800 dark:border-gray-700"
               >
                 <RouterLink
-                  v-if="appStore.isOwner"
                   class="cursor-pointer flex items-center gap-2 px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-700"
-                  :to="{ name: 'org-settings-general', params: { slug: appStore.org.slug } }"
+                  :to="{ name: 'account-general' }"
                   @click="closeAllDropdowns"
                 >
-                  <Cog6ToothIcon class="h-4 w-4 text-gray-400 dark:text-gray-500" />
-                  Settings
+                  <UserCircleIcon class="h-4 w-4 text-gray-400 dark:text-gray-500" />
+                  Account Settings
                 </RouterLink>
-                <div
-                  v-if="appStore.isOwner"
-                  class="my-1 border-t border-gray-100 dark:border-gray-700"
-                />
-                <RouterLink
-                  v-if="appStore.orgMemberCount > 0"
-                  class="cursor-pointer flex items-center gap-2 px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-700"
-                  :to="{ name: 'org-switch' }"
-                  @click="closeAllDropdowns"
-                >
-                  <ArrowsRightLeftIcon class="h-4 w-4 text-gray-400 dark:text-gray-500" />
-                  Switch Company
-                </RouterLink>
-                <RouterLink
-                  class="cursor-pointer flex items-center gap-2 px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-700"
-                  :to="{ name: 'org-create' }"
-                  @click="closeAllDropdowns"
-                >
-                  <PlusCircleIcon class="h-4 w-4 text-gray-400 dark:text-gray-500" />
-                  Create Organization
-                </RouterLink>
-              </div>
-            </div>
-          </template>
-          <template v-else-if="appStore.orgMemberCount > 0">
-            <RouterLink
-              class="cursor-pointer flex items-center gap-1.5 rounded-md border border-dashed border-gray-300 px-3 py-1.5 text-sm text-gray-500 hover:border-gray-400 hover:bg-gray-50 hover:text-gray-700 dark:border-gray-600 dark:text-gray-400 dark:hover:border-gray-500 dark:hover:bg-gray-800 dark:hover:text-gray-300"
-              :to="{ name: 'org-switch' }"
-            >
-              <ArrowsRightLeftIcon class="h-4 w-4" />
-              Switch Organization
-            </RouterLink>
-          </template>
-          <template v-else>
-            <RouterLink
-              class="cursor-pointer flex items-center gap-1.5 rounded-md border border-dashed border-gray-300 px-3 py-1.5 text-sm text-gray-500 hover:border-gray-400 hover:bg-gray-50 hover:text-gray-700 dark:border-gray-600 dark:text-gray-400 dark:hover:border-gray-500 dark:hover:bg-gray-800 dark:hover:text-gray-300"
-              :to="{ name: 'org-create' }"
-            >
-              <PlusCircleIcon class="h-4 w-4" />
-              Create Organization
-            </RouterLink>
-          </template>
-
-          <!-- User dropdown -->
-          <div
-            class="relative"
-            data-dropdown="nav"
-          >
-            <button
-              class="flex cursor-pointer items-center p-1.5"
-              @click.stop="toggleUserDropdown"
-            >
-              <UserAvatar
-                v-if="appStore.user"
-                :src="appStore.user.avatar_url || ''"
-                :name="`${appStore.user.first_name || ''} ${appStore.user.last_name || ''}`.trim() || appStore.user.email || ''"
-                class="!h-8 !w-8 !text-xs transition hover:opacity-80 hover:ring-2 hover:ring-gray-300 dark:hover:ring-gray-600"
-              />
-            </button>
-            <div
-              v-show="userDropdownOpen"
-              class="absolute right-0 top-full z-50 mt-1 w-56 rounded-md border border-gray-200 bg-white py-1 shadow-lg dark:bg-gray-800 dark:border-gray-700"
-            >
-              <RouterLink
-                class="cursor-pointer flex items-center gap-2 px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-700"
-                :to="{ name: 'account-general' }"
-                @click="closeAllDropdowns"
-              >
-                <UserCircleIcon class="h-4 w-4 text-gray-400 dark:text-gray-500" />
-                Account Settings
-              </RouterLink>
-              <ThemeToggle />
-              <div class="my-1 border-t border-gray-100 dark:border-gray-700" />
-              <RouterLink
-                class="cursor-pointer flex items-center gap-2 px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-700"
-                :to="{ name: 'logout' }"
-                @click="closeAllDropdowns"
-              >
-                <ArrowRightOnRectangleIcon class="h-4 w-4 text-gray-400 dark:text-gray-500" />
-                Sign Out
-              </RouterLink>
-              <template v-if="appStore.user && (appStore.user.is_staff || appStore.user.is_hijacked || appStore.user.is_superuser)">
+                <ThemeToggle />
                 <div class="my-1 border-t border-gray-100 dark:border-gray-700" />
-                <a
-                  v-if="appStore.user.is_staff"
-                  class="cursor-pointer flex items-center gap-2 px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-700"
-                  href="/admin/"
-                >
-                  <WrenchScrewdriverIcon class="h-4 w-4 text-gray-400 dark:text-gray-500" />
-                  Django Admin
-                </a>
-                <button
-                  v-if="appStore.user.is_hijacked"
-                  type="button"
-                  class="w-full text-left cursor-pointer flex items-center gap-2 px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-700"
-                  @click="releaseHijack"
-                >
-                  <XCircleIcon class="h-4 w-4 text-gray-400 dark:text-gray-500" />
-                  Stop Impersonating
-                </button>
                 <RouterLink
-                  v-if="appStore.user.is_superuser && !appStore.user.is_hijacked"
                   class="cursor-pointer flex items-center gap-2 px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-700"
-                  :to="{ name: 'impersonate' }"
+                  :to="{ name: 'logout' }"
                   @click="closeAllDropdowns"
                 >
-                  <UserGroupIcon class="h-4 w-4 text-gray-400 dark:text-gray-500" />
-                  Impersonate User
+                  <ArrowRightOnRectangleIcon class="h-4 w-4 text-gray-400 dark:text-gray-500" />
+                  Sign Out
                 </RouterLink>
-                <RouterLink
-                  v-if="appStore.user.is_superuser && !appStore.user.is_hijacked"
-                  class="cursor-pointer flex items-center gap-2 px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-700"
-                  :to="{ name: 'send-test-emails' }"
-                  @click="closeAllDropdowns"
-                >
-                  <EnvelopeIcon class="h-4 w-4 text-gray-400 dark:text-gray-500" />
-                  Send Test Email
-                </RouterLink>
-                <template v-if="appStore.user.is_superuser && appStore.instance !== 'prod'">
+                <template v-if="appStore.user && (appStore.user.is_staff || appStore.user.is_hijacked || appStore.user.is_superuser)">
+                  <div class="my-1 border-t border-gray-100 dark:border-gray-700" />
                   <a
+                    v-if="appStore.user.is_staff"
                     class="cursor-pointer flex items-center gap-2 px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-700"
-                    :href="mailpitUrl"
-                    target="_blank"
-                    rel="noopener"
+                    href="/admin/"
                   >
-                    <InboxIcon class="h-4 w-4 text-gray-400 dark:text-gray-500" />
-                    Mailpit
+                    <WrenchScrewdriverIcon class="h-4 w-4 text-gray-400 dark:text-gray-500" />
+                    Django Admin
                   </a>
-                  <a
+                  <button
+                    v-if="appStore.user.is_hijacked"
+                    type="button"
+                    class="w-full text-left cursor-pointer flex items-center gap-2 px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-700"
+                    @click="releaseHijack"
+                  >
+                    <XCircleIcon class="h-4 w-4 text-gray-400 dark:text-gray-500" />
+                    Stop Impersonating
+                  </button>
+                  <RouterLink
+                    v-if="appStore.user.is_superuser && !appStore.user.is_hijacked"
                     class="cursor-pointer flex items-center gap-2 px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-700"
-                    :href="minioUrl"
-                    target="_blank"
-                    rel="noopener"
+                    :to="{ name: 'impersonate' }"
+                    @click="closeAllDropdowns"
                   >
-                    <CircleStackIcon class="h-4 w-4 text-gray-400 dark:text-gray-500" />
-                    MinIO Admin
-                  </a>
+                    <UserGroupIcon class="h-4 w-4 text-gray-400 dark:text-gray-500" />
+                    Impersonate User
+                  </RouterLink>
+                  <RouterLink
+                    v-if="appStore.user.is_superuser && !appStore.user.is_hijacked"
+                    class="cursor-pointer flex items-center gap-2 px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-700"
+                    :to="{ name: 'send-test-emails' }"
+                    @click="closeAllDropdowns"
+                  >
+                    <EnvelopeIcon class="h-4 w-4 text-gray-400 dark:text-gray-500" />
+                    Send Test Email
+                  </RouterLink>
+                  <template v-if="appStore.user.is_superuser && appStore.instance !== 'prod'">
+                    <a
+                      class="cursor-pointer flex items-center gap-2 px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-700"
+                      :href="mailpitUrl"
+                      target="_blank"
+                      rel="noopener"
+                    >
+                      <InboxIcon class="h-4 w-4 text-gray-400 dark:text-gray-500" />
+                      Mailpit
+                    </a>
+                    <a
+                      class="cursor-pointer flex items-center gap-2 px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-700"
+                      :href="minioUrl"
+                      target="_blank"
+                      rel="noopener"
+                    >
+                      <CircleStackIcon class="h-4 w-4 text-gray-400 dark:text-gray-500" />
+                      MinIO Admin
+                    </a>
+                  </template>
                 </template>
-              </template>
+              </div>
             </div>
           </div>
 
           <!-- Mobile hamburger -->
-          <button
-            class="lg:hidden cursor-pointer rounded-md p-1.5 text-gray-500 hover:bg-gray-100 dark:text-gray-400 dark:hover:bg-gray-800"
-            @click="mobileMenuOpen = !mobileMenuOpen"
+          <div
+            class="lg:hidden"
+            data-dropdown="nav"
           >
-            <svg
-              class="h-6 w-6"
-              xmlns="http://www.w3.org/2000/svg"
-              fill="none"
-              viewBox="0 0 24 24"
-              stroke-width="1.5"
-              stroke="currentColor"
+            <button
+              class="cursor-pointer rounded-md p-1.5 text-gray-500 hover:bg-gray-100 dark:text-gray-400 dark:hover:bg-gray-800"
+              :aria-label="mobileMenuOpen ? 'Close menu' : 'Open menu'"
+              :aria-expanded="mobileMenuOpen"
+              @click.stop="toggleMobileMenu"
             >
-              <path
-                stroke-linecap="round"
-                stroke-linejoin="round"
-                d="M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25h16.5"
-              />
-            </svg>
-          </button>
+              <svg
+                v-if="!mobileMenuOpen"
+                class="h-6 w-6"
+                xmlns="http://www.w3.org/2000/svg"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke-width="1.5"
+                stroke="currentColor"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  d="M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25h16.5"
+                />
+              </svg>
+              <svg
+                v-else
+                class="h-6 w-6"
+                xmlns="http://www.w3.org/2000/svg"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke-width="1.5"
+                stroke="currentColor"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  d="M6 18 18 6M6 6l12 12"
+                />
+              </svg>
+            </button>
+          </div>
         </div>
       </div>
 
@@ -303,27 +336,165 @@ onUnmounted(() => {
       <div
         v-if="mobileMenuOpen"
         class="lg:hidden border-t border-gray-200 py-2 dark:border-gray-700"
+        data-dropdown="nav"
       >
+        <!-- Identity -->
+        <div
+          v-if="appStore.user"
+          class="flex items-center gap-3 px-4 py-3"
+        >
+          <UserAvatar
+            :src="appStore.user.avatar_url || ''"
+            :name="`${appStore.user.first_name || ''} ${appStore.user.last_name || ''}`.trim() || appStore.user.email || ''"
+            class="!h-9 !w-9 !text-sm"
+          />
+          <div class="min-w-0 flex-1">
+            <div class="truncate text-sm font-medium text-gray-900 dark:text-white">
+              {{ `${appStore.user.first_name || ''} ${appStore.user.last_name || ''}`.trim() || appStore.user.email }}
+            </div>
+            <div
+              v-if="(appStore.user.first_name || appStore.user.last_name) && appStore.user.email"
+              class="truncate text-xs text-gray-500 dark:text-gray-400"
+            >
+              {{ appStore.user.email }}
+            </div>
+          </div>
+        </div>
+
+        <div class="my-1 border-t border-gray-100 dark:border-gray-700" />
+
+        <!-- Org section -->
         <template v-if="appStore.isOrg">
-          <div class="px-2 py-2 text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wide">
+          <div class="px-4 pt-2 pb-1 text-xs font-semibold uppercase tracking-wide text-gray-500 dark:text-gray-400">
             {{ appStore.org.name }}
           </div>
           <RouterLink
             v-if="appStore.isOwner"
-            class="block px-2 py-2 text-sm text-gray-700 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-700 rounded cursor-pointer"
+            class="cursor-pointer flex items-center gap-2 rounded px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-700"
             :to="{ name: 'org-settings-general', params: { slug: appStore.org.slug } }"
-            @click="mobileMenuOpen = false"
+            @click="closeAllDropdowns"
           >
+            <Cog6ToothIcon class="h-4 w-4 text-gray-400 dark:text-gray-500" />
             Settings
           </RouterLink>
           <RouterLink
-            class="block px-2 py-2 text-sm text-gray-700 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-700 rounded cursor-pointer"
-            :to="{ name: 'org-create' }"
-            @click="mobileMenuOpen = false"
+            v-if="appStore.orgMemberCount > 0"
+            class="cursor-pointer flex items-center gap-2 rounded px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-700"
+            :to="{ name: 'org-switch' }"
+            @click="closeAllDropdowns"
           >
+            <ArrowsRightLeftIcon class="h-4 w-4 text-gray-400 dark:text-gray-500" />
+            Switch Company
+          </RouterLink>
+          <RouterLink
+            class="cursor-pointer flex items-center gap-2 rounded px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-700"
+            :to="{ name: 'org-create' }"
+            @click="closeAllDropdowns"
+          >
+            <PlusCircleIcon class="h-4 w-4 text-gray-400 dark:text-gray-500" />
             Create Organization
           </RouterLink>
-          <div class="my-1 border-t border-gray-200 dark:border-gray-700" />
+        </template>
+        <template v-else-if="appStore.orgMemberCount > 0">
+          <RouterLink
+            class="cursor-pointer flex items-center gap-2 rounded px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-700"
+            :to="{ name: 'org-switch' }"
+            @click="closeAllDropdowns"
+          >
+            <ArrowsRightLeftIcon class="h-4 w-4 text-gray-400 dark:text-gray-500" />
+            Switch Organization
+          </RouterLink>
+        </template>
+        <template v-else>
+          <RouterLink
+            class="cursor-pointer flex items-center gap-2 rounded px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-700"
+            :to="{ name: 'org-create' }"
+            @click="closeAllDropdowns"
+          >
+            <PlusCircleIcon class="h-4 w-4 text-gray-400 dark:text-gray-500" />
+            Create Organization
+          </RouterLink>
+        </template>
+
+        <div class="my-1 border-t border-gray-100 dark:border-gray-700" />
+
+        <!-- Account section -->
+        <RouterLink
+          class="cursor-pointer flex items-center gap-2 rounded px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-700"
+          :to="{ name: 'account-general' }"
+          @click="closeAllDropdowns"
+        >
+          <UserCircleIcon class="h-4 w-4 text-gray-400 dark:text-gray-500" />
+          Account Settings
+        </RouterLink>
+        <ThemeToggle />
+        <RouterLink
+          class="cursor-pointer flex items-center gap-2 rounded px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-700"
+          :to="{ name: 'logout' }"
+          @click="closeAllDropdowns"
+        >
+          <ArrowRightOnRectangleIcon class="h-4 w-4 text-gray-400 dark:text-gray-500" />
+          Sign Out
+        </RouterLink>
+
+        <!-- Admin section -->
+        <template v-if="appStore.user && (appStore.user.is_staff || appStore.user.is_hijacked || appStore.user.is_superuser)">
+          <div class="my-1 border-t border-gray-100 dark:border-gray-700" />
+          <a
+            v-if="appStore.user.is_staff"
+            class="cursor-pointer flex items-center gap-2 rounded px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-700"
+            href="/admin/"
+          >
+            <WrenchScrewdriverIcon class="h-4 w-4 text-gray-400 dark:text-gray-500" />
+            Django Admin
+          </a>
+          <button
+            v-if="appStore.user.is_hijacked"
+            type="button"
+            class="w-full text-left cursor-pointer flex items-center gap-2 rounded px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-700"
+            @click="releaseHijack"
+          >
+            <XCircleIcon class="h-4 w-4 text-gray-400 dark:text-gray-500" />
+            Stop Impersonating
+          </button>
+          <RouterLink
+            v-if="appStore.user.is_superuser && !appStore.user.is_hijacked"
+            class="cursor-pointer flex items-center gap-2 rounded px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-700"
+            :to="{ name: 'impersonate' }"
+            @click="closeAllDropdowns"
+          >
+            <UserGroupIcon class="h-4 w-4 text-gray-400 dark:text-gray-500" />
+            Impersonate User
+          </RouterLink>
+          <RouterLink
+            v-if="appStore.user.is_superuser && !appStore.user.is_hijacked"
+            class="cursor-pointer flex items-center gap-2 rounded px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-700"
+            :to="{ name: 'send-test-emails' }"
+            @click="closeAllDropdowns"
+          >
+            <EnvelopeIcon class="h-4 w-4 text-gray-400 dark:text-gray-500" />
+            Send Test Email
+          </RouterLink>
+          <template v-if="appStore.user.is_superuser && appStore.instance !== 'prod'">
+            <a
+              class="cursor-pointer flex items-center gap-2 rounded px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-700"
+              :href="mailpitUrl"
+              target="_blank"
+              rel="noopener"
+            >
+              <InboxIcon class="h-4 w-4 text-gray-400 dark:text-gray-500" />
+              Mailpit
+            </a>
+            <a
+              class="cursor-pointer flex items-center gap-2 rounded px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-700"
+              :href="minioUrl"
+              target="_blank"
+              rel="noopener"
+            >
+              <CircleStackIcon class="h-4 w-4 text-gray-400 dark:text-gray-500" />
+              MinIO Admin
+            </a>
+          </template>
         </template>
       </div>
     </div>
