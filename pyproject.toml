@@ -5,7 +5,7 @@ version = "0.1.0"
 requires-python = ">=3.12"
 dependencies = [
     "Django~=5.0",
-    "Pillow~=11.2",
+    "Pillow~=12.2",
     "boto3~=1.34",
     "celery~=5.5",
     "django-alive~=2.0",
@@ -16,7 +16,7 @@ dependencies = [
     "django-ses~=4.3",
     "django-storages~=1.8",
     "epicenv[django]~=1.2",
-    "fido2~=1.1",
+    "fido2~=2.2",
     "gunicorn~=25.0",
     "hiredis~=3.0",  # needed for Django's native cache and sessions
     "psycopg2-binary~=2.9",
