@@ -157,6 +157,22 @@ export function createRouter(appStore) {
         meta: { requiresAuth: true },
       },
 
+      // Impersonation (staff only)
+      {
+        path: '/impersonate/',
+        name: 'impersonate',
+        component: () => import('./views/ImpersonateSearchView.vue'),
+        meta: { requiresAuth: true, staffOnly: true },
+      },
+
+      // Send test email (superuser only)
+      {
+        path: '/send-test-emails/',
+        name: 'send-test-emails',
+        component: () => import('./views/SendTestEmailView.vue'),
+        meta: { requiresAuth: true, superuserOnly: true },
+      },
+
       // 404 catch-all
       {
         path: '/:pathMatch(.*)*',

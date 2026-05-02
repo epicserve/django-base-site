@@ -14,7 +14,7 @@ from ninja.files import UploadedFile
 from ninja.pagination import paginate
 from PIL import Image
 
-from apps.accounts.schemas import AvatarOut, UserOut, UserPatchIn
+from apps.accounts.schemas import AvatarOut, ImpersonateUserOut, UserOut, UserPatchIn
 from apps.base.ninja_pagination import make_pagination
 from apps.base.permissions import require_authenticated
 
@@ -55,6 +55,33 @@ def list_users(request, q: str | None = Query(None)):
     if q:
         qs = qs.filter(Q(first_name__icontains=q) | Q(last_name__icontains=q))
     return qs
+
+
+@users_router.get("/impersonate-search/", response=list[ImpersonateUserOut])
+def impersonate_search(request, q: str = Query("")):
+    require_authenticated(request)
+    if not request.user.is_staff:
+        raise HttpError(403, "Admin permission required.")
+    User = get_user_model()
+    qs = User.objects.filter(is_active=True).exclude(pk=request.user.pk)
+    q = q.strip()
+    if q:
+        qs = qs.filter(
+            Q(first_name__icontains=q) | Q(last_name__icontains=q) | Q(username__icontains=q) | Q(email__icontains=q)
+        )
+    qs = qs.order_by("first_name", "last_name")[:20]
+    return [
+        {
+            "id": u.pk,
+            "username": u.username,
+            "email": u.email,
+            "first_name": u.first_name,
+            "last_name": u.last_name,
+            "full_name": u.get_full_name(),
+            "avatar_url": u.avatar_url,
+        }
+        for u in qs
+    ]
 
 
 @users_router.get("/{user_id}/", response=UserOut)
