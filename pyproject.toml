@@ -136,7 +136,7 @@ env_file = ".env"
 # Django Core Settings
 DEBUG = { type = "bool", default = false, initial = "on", help_text = "Enable Django debug mode" }
 SECRET_KEY = { type = "str", required = true, initial_func = "epicenv.initializers.url_safe_password", args = [50], help_text = "Django secret key for cryptographic signing" }
-ALLOWED_HOSTS = { type = "list", default = [], help_text = "List of allowed host/domain names" }
+ALLOWED_HOSTS = { type = "list", default = [], initial = "localhost,127.0.0.1", help_text = "List of allowed host/domain names" }
 INTERNAL_IPS = { type = "list", default = ["127.0.0.1"], initial = "127.0.0.1,0.0.0.0", help_text = "IPs that can see debug toolbar" }
 
 # Database Settings
@@ -188,7 +188,7 @@ HOST_UID = { type = "str", initial = "1000", help_text = "Host user UID for Dock
 HOST_GID = { type = "str", initial = "1000", help_text = "Host user GID for Docker bind-mount file ownership" }
 
 # Site / proxy
-SITE_DOMAIN = { type = "str", default = "127.0.0.1:8000", help_text = "Public site domain (host:port)" }
+SITE_DOMAIN = { type = "str", default = "localhost:8000", help_text = "Public site domain (host:port). Use 'localhost' rather than '127.0.0.1' so WebAuthn / passkeys work in local dev (the spec rejects bare IPs as RP IDs)." }
 SITE_SCHEME = { type = "str", default = "http", help_text = "Site scheme (http or https)" }
 CSRF_TRUSTED_ORIGINS = { type = "list", default = [], help_text = "Comma-separated CSRF trusted origins (full scheme://host)" }
 

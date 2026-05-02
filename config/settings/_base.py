@@ -264,7 +264,7 @@ SESSION_ENGINE = "django.contrib.sessions.backends.cache"
 SITE_ID = 1
 SITE_NAME = "Django Base Site"
 
-SITE_DOMAIN = env("SITE_DOMAIN", default="127.0.0.1:8000")
+SITE_DOMAIN = env("SITE_DOMAIN", default="localhost:8000")
 SITE_SCHEME = env("SITE_SCHEME", default="http")
 SITE_URL = f"{SITE_SCHEME}://{SITE_DOMAIN}"
 
