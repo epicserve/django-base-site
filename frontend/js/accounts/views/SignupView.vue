@@ -1,5 +1,5 @@
 <script setup>
-import { ref, inject, onMounted } from 'vue';
+import { ref, inject } from 'vue';
 import { useRoute, useRouter, RouterLink } from 'vue-router';
 import AuthLayout from '@/layouts/AuthLayout.vue';
 import FormField from '../components/FormField.vue';
@@ -13,17 +13,8 @@ const appStore = inject('appStore');
 
 const email = ref('');
 const password1 = ref('');
-const timezone = ref('');
 const errors = ref({});
 const loading = ref(false);
-
-onMounted(() => {
-  try {
-    timezone.value = Intl.DateTimeFormat().resolvedOptions().timeZone;
-  } catch {
-    // noop
-  }
-});
 
 async function onSubmit() {
   loading.value = true;
@@ -32,7 +23,6 @@ async function onSubmit() {
     await authApi.signup({
       email: email.value,
       password: password1.value,
-      timezone: timezone.value,
     });
     // If allauth signed the user in (verification not mandatory), honor ?next.
     await appStore.fetchContext();

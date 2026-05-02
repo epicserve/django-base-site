@@ -37,7 +37,11 @@ INSTANCE = env("INSTANCE", default="dev")
 
 ALLOWED_HOSTS: list[str] = env.list("ALLOWED_HOSTS", default=[])
 CSRF_TRUSTED_ORIGINS = env.list("CSRF_TRUSTED_ORIGINS", default=[])
-SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")
+# Only honor X-Forwarded-Proto when explicitly opted in. Setting this when the
+# app isn't behind a proxy that strips the header lets a client spoof HTTPS
+# detection and bypass `secure`-flag cookies / SECURE_SSL_REDIRECT.
+if env.bool("SECURE_PROXY_SSL_HEADER", default=False):
+    SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")
 INTERNAL_IPS = env.list("INTERNAL_IPS", default=["127.0.0.1"])
 
 # Get the IP to use for Django Debug Toolbar when developing with docker
@@ -283,8 +287,7 @@ LOGIN_REDIRECT_URL = "/"
 ACCOUNT_LOGOUT_ON_GET = True
 ACCOUNT_LOGIN_METHODS = {"email"}
 ACCOUNT_CONFIRM_EMAIL_ON_GET = True
-ACCOUNT_SIGNUP_FIELDS = ["email*", "password1*", "timezone"]
-ACCOUNT_FORMS = {"signup": "apps.accounts.forms.SignUpForm"}
+ACCOUNT_SIGNUP_FIELDS = ["email*", "password1*"]
 # Set to "optional" so users can verify their email. Mailpit captures emails locally during development.
 # For production, consider changing to "mandatory".
 ACCOUNT_EMAIL_VERIFICATION = "optional"

@@ -208,6 +208,7 @@ HOST_GID = { type = "str", initial = "1000", help_text = "Host user GID for Dock
 SITE_DOMAIN = { type = "str", default = "localhost:8000", help_text = "Public site domain (host:port). Use 'localhost' rather than '127.0.0.1' so WebAuthn / passkeys work in local dev (the spec rejects bare IPs as RP IDs)." }
 SITE_SCHEME = { type = "str", default = "http", help_text = "Site scheme (http or https)" }
 CSRF_TRUSTED_ORIGINS = { type = "list", default = [], help_text = "Comma-separated CSRF trusted origins (full scheme://host)" }
+SECURE_PROXY_SSL_HEADER = { type = "bool", default = false, help_text = "Trust X-Forwarded-Proto from the reverse proxy. Only enable when the app is behind a proxy that strips this header from client requests." }
 
 # Allauth
 ACCOUNT_SIGNUP_OPEN = { type = "bool", default = false, help_text = "Allow new account signups" }
