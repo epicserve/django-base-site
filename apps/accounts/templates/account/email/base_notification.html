@@ -1,0 +1,22 @@
+{% extends "account/email/base_message.html" %}
+
+{% load i18n %}
+
+{% block message_content %}
+  {% blocktrans %}You are receiving this mail because the following change was made to your account:{% endblocktrans %}
+  <br>
+  <br>
+  {% block notification_message %}
+  {% endblock notification_message %}
+
+  <br>
+  <br>
+  {% blocktrans %}If you do not recognize this change then please take proper security precautions immediately. The change to your account originates from:{% endblocktrans %}
+  <br>
+  <br>
+  <ul>
+    <li>IP address: {{ ip }}</li>
+    <li>Browser: {{ user_agent }}</li>
+    <li>Date: {{ timestamp }}</li>
+  </ul>
+{% endblock message_content %}

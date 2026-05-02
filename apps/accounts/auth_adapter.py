@@ -11,8 +11,6 @@ class AccountAdapter(DefaultAccountAdapter):
         return getattr(settings, "ACCOUNT_SIGNUP_OPEN", True)
 
     def post_login(self, request, user, *, email_verification, signal_kwargs, email, signup, redirect_url):
-        # Copied form https://github.com/pennersr/django-allauth/blob/master/allauth/account/adapter.py#L441 in order
-        # to remove the "logged in" message. See this issue for more information: https://github.com/pennersr/django-allauth/issues/3205
         from allauth.account.utils import get_login_redirect_url
 
         response = HttpResponseRedirect(get_login_redirect_url(request, redirect_url, signup=signup))
