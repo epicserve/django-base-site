@@ -84,7 +84,7 @@ jobs:
           echo "All verification checks passed!"
       - name: Build docker images
         working-directory: ${{ env.BUILD_DIR }}
-        run: docker compose build web node
+        run: docker compose build web frontend
       - name: Build assets
         working-directory: ${{ env.BUILD_DIR }}
         run: just build_frontend
