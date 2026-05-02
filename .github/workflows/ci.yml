@@ -15,14 +15,14 @@ jobs:
       - uses: actions/checkout@v6
       - name: Use Just for running commands
         run: curl --proto '=https' --tlsv1.2 -sSf https://just.systems/install.sh | bash -s -- --to /usr/local/bin
-      - name: Setup Node
-        uses: actions/setup-node@v6
+      - name: Setup Bun
+        uses: oven-sh/setup-bun@v2
       - name: Setup Python 3.12
         uses: actions/setup-python@v6
         with:
           python-version: "3.12"
-      - name: Install Node requirements
-        run: npm ci
+      - name: Install frontend requirements
+        run: bun install --frozen-lockfile
       - name: Install Python requirements
         run: |
           pip install --upgrade uv
@@ -35,7 +35,7 @@ jobs:
           DEBUG: on
           PYTHON_CMD_PREFIX_WITH_DEPS: ""
           PYTHON_CMD_PREFIX: ""
-          NODE_CMD_PREFIX: ""
+          BUN_CMD_PREFIX: ""
   test:
     services:
       postgres:
