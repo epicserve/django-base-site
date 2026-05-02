@@ -41,7 +41,7 @@ const BASE = '/_allauth/browser/v1',
     addEmail: (email) => post(`${BASE}/account/email`, { email }),
 
     setPrimaryEmail: (email) => request(`${BASE}/account/email`, {
-      method: 'PUT',
+      method: 'PATCH',
       body: JSON.stringify({ email, primary: true }),
     }),
 
