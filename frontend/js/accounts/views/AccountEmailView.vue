@@ -57,7 +57,11 @@ async function resendVerification() {
     await authApi.resendVerification(selectedEmail.value);
     showToast('Verification email sent.');
   } catch (err) {
-    toastError(err);
+    if (err?.response?.status === 403) {
+      showToast('A verification email was sent recently. Please wait a few minutes before trying again.', 'error');
+    } else {
+      toastError(err);
+    }
   } finally {
     loading.value = false;
   }
