@@ -2,7 +2,7 @@ import re
 
 from django.apps import apps
 from django.conf import settings
-from django.db import models
+from django.db import models, transaction
 from django.db.models import Q
 from django.shortcuts import get_object_or_404
 
@@ -47,8 +47,9 @@ settings_router = Router(tags=["organization-settings"])
 @orgs_router.post("/", response={201: OrganizationCreateOut})
 def create_organization(request, payload: OrganizationCreateIn):
     require_authenticated(request)
-    org = Organization.objects.create(name=payload.name, slug=payload.slug)
-    OrganizationMember.objects.create(organization=org, user=request.user, is_owner=True, is_primary=True)
+    with transaction.atomic():
+        org = Organization.objects.create(name=payload.name, slug=payload.slug)
+        OrganizationMember.objects.create(organization=org, user=request.user, is_owner=True, is_primary=True)
     save_org_data(request, org)
     return Status(201, {"id": org.pk, "name": org.name, "slug": org.slug})
 
@@ -98,16 +99,21 @@ def select_org(request, slug: str):
 def set_primary(request, slug: str):
     require_authenticated(request)
     org = get_object_or_404(Organization, slug=slug)
-    membership = OrganizationMember.objects.filter(user=request.user, organization=org).first()
-    if membership is None:
-        raise HttpError(403, "Not a member.")
-    if membership.is_primary:
-        membership.is_primary = False
+    with transaction.atomic():
+        membership = (
+            OrganizationMember.objects.select_for_update()
+            .filter(user=request.user, organization=org)
+            .first()
+        )
+        if membership is None:
+            raise HttpError(403, "Not a member.")
+        if membership.is_primary:
+            membership.is_primary = False
+            membership.save(update_fields=["is_primary"])
+            return {"success": True, "is_primary": False}
+        OrganizationMember.objects.filter(user=request.user, is_primary=True).update(is_primary=False)
+        membership.is_primary = True
         membership.save(update_fields=["is_primary"])
-        return {"success": True, "is_primary": False}
-    OrganizationMember.objects.filter(user=request.user, is_primary=True).update(is_primary=False)
-    membership.is_primary = True
-    membership.save(update_fields=["is_primary"])
     return {"success": True, "is_primary": True}
 
 
@@ -231,14 +237,15 @@ def list_invites(request):
 @invites_router.post("/", response={201: InviteOut})
 def create_invite(request, payload: InviteIn):
     org = require_org_owner(request)
-    invite = OrganizationInvite.objects.create(
-        organization=org,
-        sender=request.user,
-        invitee_email=payload.invitee_email,
-        invitee_id=payload.invitee,
-        is_owner=payload.is_owner,
-    )
-    invite.send_invite()
+    with transaction.atomic():
+        invite = OrganizationInvite.objects.create(
+            organization=org,
+            sender=request.user,
+            invitee_email=payload.invitee_email,
+            invitee_id=payload.invitee,
+            is_owner=payload.is_owner,
+        )
+        transaction.on_commit(invite.send_invite)
     return Status(201, invite)
 
 
@@ -252,8 +259,9 @@ def get_invite(request, invite_id: int):
 def delete_invite(request, invite_id: int):
     require_org_owner(request)
     invite = get_object_or_404(_invites_qs(request), pk=invite_id)
-    invite.send_cancellation()
-    invite.delete()
+    with transaction.atomic():
+        transaction.on_commit(invite.send_cancellation)
+        invite.delete()
     return Status(204, None)
 
 
@@ -307,12 +315,13 @@ def accept_invite_by_key(request, key: str):
     if invite.organization.is_member(request.user):
         raise HttpError(409, "You're already a member of this organization.")
     is_owner = invite.is_owner and invite.organization.is_owner(invite.sender)
-    OrganizationMember.objects.get_or_create(
-        organization=invite.organization, user=request.user, is_owner=is_owner
-    )
+    with transaction.atomic():
+        OrganizationMember.objects.get_or_create(
+            organization=invite.organization, user=request.user, is_owner=is_owner
+        )
+        invite.delete()
     save_counts(request)
     save_org_data(request, invite.organization)
-    invite.delete()
     return {"success": True}
 
 
