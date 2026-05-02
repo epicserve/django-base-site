@@ -17,7 +17,7 @@ export function readUrlParams(defaults = {}) {
 export function pushUrlParams(params) {
   const search = new URLSearchParams();
   Object.entries(params).forEach(([key, value]) => {
-    if (value && value !== '' && value !== 0) {
+    if (value !== null && value !== undefined && value !== '') {
       search.set(key, value);
     }
   });
