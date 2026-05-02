@@ -6,7 +6,7 @@
 
 python_cmd_prefix := env_var_or_default('PYTHON_CMD_PREFIX', 'docker compose exec web')
 python_cmd_prefix_with_deps := env_var_or_default('PYTHON_CMD_PREFIX_WITH_DEPS', 'docker compose exec web')
-node_cmd_prefix := env_var_or_default('NODE_CMD_PREFIX', 'docker compose run --no-deps --rm -e NODE_ENV=production node')
+bun_cmd_prefix := env_var_or_default('BUN_CMD_PREFIX', 'docker compose run --no-deps --rm -e NODE_ENV=production frontend')
 
 set dotenv-load := true
 
@@ -24,13 +24,13 @@ reset := `tput -Txterm sgr0`
 # Build Docker images
 @build:
     just _start_msg "Building docker project"
-    docker volume rm {{ project_slug }}_node_modules
+    docker volume rm {{ project_slug }}_node_modules || true
     docker compose build
     just collectstatic
 
 # Build frontend assets
 @build_frontend:
-    {{ node_cmd_prefix }} npm run build
+    {{ bun_cmd_prefix }} bun run build
     just collectstatic
 
 # Remove build files, python cache files and test coverage data
@@ -105,7 +105,7 @@ db_restore dump_file="":
     docker compose exec -T db pg_restore -d ${DATABASE_URL} --no-owner --no-privileges < "${DUMP_FILE}"
 
 # Format all code
-@format: format_py format_js format_just format_sass format_html
+@format: format_py format_js format_just format_html
 
 # Format HTML
 @format_html:
@@ -115,7 +115,7 @@ db_restore dump_file="":
 # Format Javascript code
 @format_js:
     just _start_msg "Formatting Javascript code using eslint"
-    {{ node_cmd_prefix }} npm run format-js
+    {{ bun_cmd_prefix }} bun run format-js
 
 # Format the justfile
 @format_just:
@@ -128,13 +128,8 @@ db_restore dump_file="":
     {{ python_cmd_prefix }} ruff format
     {{ python_cmd_prefix }} ruff check --fix
 
-# Format SASS/CSS code
-@format_sass:
-    just _start_msg "Formatting SASS code using stylelint"
-    {{ node_cmd_prefix }} npm run format-sass
-
 # Lint everything
-lint: lint_js lint_sass lint_html lint_py lint_migrations lint_types
+lint: lint_js lint_html lint_py lint_migrations lint_types
 
 # Lint docs with mkdocs-linkcheck
 @lint_docs:
@@ -149,7 +144,7 @@ lint: lint_js lint_sass lint_html lint_py lint_migrations lint_types
 # Lint Javascript code with eslint
 @lint_js:
     just _start_msg "Checking Javascript code using eslint"
-    {{ node_cmd_prefix }} npm run lint-js
+    {{ bun_cmd_prefix }} bun run lint-js
 
 # Check for missing Django migrations
 @lint_migrations:
@@ -161,11 +156,6 @@ lint: lint_js lint_sass lint_html lint_py lint_migrations lint_types
     just _start_msg "Checking code using Ruff"
     {{ python_cmd_prefix }} ruff check
     {{ python_cmd_prefix }} ruff format --check
-
-# Lint SASS code with stylelint
-@lint_sass:
-    just _start_msg "Checking SASS code using stylelint"
-    {{ node_cmd_prefix }} npm run lint-sass
 
 # Lint Python types
 @lint_types:
@@ -200,10 +190,16 @@ pre_commit: format lint test
     {{ python_cmd_prefix }} pytest --cov --ds=config.settings.test_runner
     {{ python_cmd_prefix }} coverage html && open htmlcov/index.html
 
-# Upgrade node requirements based on `package.json` file
+# Run Playwright e2e tests against pre-built frontend assets.
+@test_e2e *args:
+    just _start_msg "Running Playwright e2e tests"
+    just build_frontend
+    {{ python_cmd_prefix }} pytest e2e/ --ds=config.settings.e2e {{ args }}
+
+# Upgrade frontend (bun) requirements based on `package.json` file
 @upgrade_node_packages:
-    just _start_msg "Upgrading node requirements"
-    {{ node_cmd_prefix }} npm upgrade
+    just _start_msg "Upgrading frontend requirements"
+    {{ bun_cmd_prefix }} bun update
 
 # Upgrade python requirements
 upgrade_python_packages +packages="":

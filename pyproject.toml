@@ -57,7 +57,7 @@ dev = [
 django_settings_module = "config.settings.test_runner"
 
 [tool.pytest.ini_options]
-addopts = "--nomigrations --ds config.settings.test_runner --cov-config=config/coverage.ini"
+addopts = "--nomigrations --ds config.settings.test_runner --cov-config=config/coverage.ini --ignore=e2e"
 
 # Python warnings documentation: https://docs.python.org/3/library/warnings.html
 filterwarnings = [
@@ -115,6 +115,7 @@ ignore = ["D100", "D101", "D102", "D103", "D104", "D106", "D107", "D203", "D212"
 
 [tool.ruff.lint.per-file-ignores]
 "**/{tests}/*" = ["S101"]
+"e2e/*" = ["S101"]
 
 [tool.ruff.lint.flake8-bugbear]
 # django-ninja uses these as default values in function signatures
