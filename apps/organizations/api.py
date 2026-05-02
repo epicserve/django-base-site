@@ -299,13 +299,16 @@ def get_invite_by_key(request, key: str):
 @public_invites_router.post("/{key}/accept/", response=SuccessOut)
 def accept_invite_by_key(request, key: str):
     require_authenticated(request)
-    invite = get_object_or_404(OrganizationInvite.objects.select_related("organization"), key=key)
+    invite = get_object_or_404(OrganizationInvite.objects.select_related("organization", "sender"), key=key)
     if invite.is_expired:
         raise HttpError(410, "This invite has expired.")
+    if invite.invitee_email and invite.invitee_email.lower() != request.user.email.lower():
+        raise HttpError(403, "This invitation was sent to a different email address.")
     if invite.organization.is_member(request.user):
         raise HttpError(409, "You're already a member of this organization.")
+    is_owner = invite.is_owner and invite.organization.is_owner(invite.sender)
     OrganizationMember.objects.get_or_create(
-        organization=invite.organization, user=request.user, is_owner=invite.is_owner
+        organization=invite.organization, user=request.user, is_owner=is_owner
     )
     save_counts(request)
     save_org_data(request, invite.organization)
