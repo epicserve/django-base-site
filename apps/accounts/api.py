@@ -2,8 +2,7 @@ import io
 import json
 import logging
 
-from django.apps import apps
-from django.conf import settings
+from django.contrib.auth import get_user_model
 from django.core.files.uploadedfile import InMemoryUploadedFile
 from django.db.models import Q
 from django.shortcuts import get_object_or_404
@@ -28,10 +27,6 @@ MAX_UPLOAD_SIZE = 10 * 1024 * 1024
 # plenty for an avatar source and bounds the worst-case decode cost.
 MAX_IMAGE_PIXELS = 32 * 1024 * 1024
 THUMBNAIL_SIZE = 256
-
-
-def get_user_model():
-    return apps.get_model(settings.AUTH_USER_MODEL)
 
 
 users_router = Router(tags=["users"])
