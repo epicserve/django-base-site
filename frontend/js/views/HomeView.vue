@@ -57,13 +57,7 @@ const minioUrl = `http://${devToolHost}:9001/`;
     <div class="mx-auto max-w-6xl pt-14 pb-24 sm:pt-20 lg:pt-24">
       <!-- masthead -->
       <header class="welcome__reveal">
-        <div class="flex items-baseline gap-4 font-mono text-[11px] uppercase tracking-[0.22em] text-gray-500 dark:text-gray-400">
-          <span class="text-blue-600 dark:text-blue-400">{{ appStore.siteName }}</span>
-          <span class="h-px flex-1 bg-gray-300 dark:bg-gray-700" />
-          <span>v{{ appStore.version || 'dev' }}</span>
-        </div>
-
-        <h1 class="welcome__title mt-8 font-display text-5xl text-gray-900 sm:text-6xl lg:text-7xl dark:text-white">
+        <h1 class="welcome__title font-display text-5xl text-gray-900 sm:text-6xl lg:text-7xl dark:text-white">
           {{ greeting }}
         </h1>
 
