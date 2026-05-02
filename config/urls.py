@@ -1,10 +1,12 @@
 from django.conf import settings
 from django.contrib import admin
 from django.contrib.auth.decorators import login_required
-from django.urls import URLPattern, URLResolver, include, path
+from django.urls import URLPattern, URLResolver, include, path, re_path
 
 from apps.accounts.views import NameChange, SignInView
 from apps.base.views import IndexView, http_404, http_500
+from apps.organizations.views import AcceptInviteView
+from config.api import api as ninja_api
 
 # Includes
 urlpatterns: list[URLResolver | URLPattern] = [path(r"admin/", admin.site.urls)]
@@ -15,6 +17,14 @@ urlpatterns += [
     path("-/", include("django_alive.urls")),
     path("500/", http_500),
     path("404/", http_404),
+    path("api/", ninja_api.urls),
+    path("_allauth/", include("allauth.headless.urls")),
+    path("hijack/", include("hijack.urls")),
+    re_path(
+        r"^organizations/invite/(?P<key>[0-9a-z]+)/accept/$",
+        AcceptInviteView.as_view(),
+        name="accept_invite",
+    ),
     path("accounts/name/", NameChange.as_view(), name="account_change_name"),
     path("accounts/login/", SignInView.as_view(), name="account_login"),
     path("accounts/", include("allauth.urls")),
