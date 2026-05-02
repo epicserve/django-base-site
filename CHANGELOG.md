@@ -17,6 +17,8 @@
 * Tailwind CSS v4 (replaces Bootstrap 5 + Sass) with theme-applied-before-CSS in the SPA shell.
 * Toast notifications, theme toggle (light/dark/auto), version watcher with deploy-update banner, send-test-emails view (superuser only).
 * WhiteNoise serving with immutable cache headers for hashed Vite assets in production.
+* Self-hosted TOTP enrollment QR code (login-required `qr_svg` view backed by the `qrcode` package), replacing the previous third-party QR image service.
+* `django-widget-tweaks` for the accept-invite template.
 
 ### Changed
 
@@ -24,6 +26,11 @@
 * `uwsgi` -> `gunicorn` (4 workers x 2 threads, `gunicorn.conf.py` at the repo root).
 * `src/` -> `frontend/` (matches the eventual frontend/backend split).
 * PostgreSQL 17 + Redis 7 + Mailpit + MinIO with healthchecks on every compose service.
+* `SITE_DOMAIN` / `ALLOWED_HOSTS` now default to `localhost` (not `127.0.0.1`) — WebAuthn rejects bare IPs as Relying Party IDs.
+* `vite_asset` template tag: dev-mode URLs no longer prepend `VITE_OUTPUT_DIR` (Vite serves from source paths in dev); `vite_asset` returns `""` for `.css` requests in dev (CSS is injected via JS HMR); production no longer emits a redundant `<link>` tag alongside the JS module (the script-module import pulls CSS automatically).
+* `[tool.ty.rules]` configured to ignore the django-stubs noise rules (`unresolved-attribute`, `call-non-callable`, etc.) since ty's Django integration cannot model dynamic patterns like reverse managers, custom queryset methods, the swappable user model, or ninja's `Query`/`Path`/`Body` sentinels.
+* `public/media/*` added to `.gitignore` (runtime uploads), keeping `public/media/.keep`.
+* djLint ignore list extended to `H005,H021,H023` so email templates can keep their inline styles, `<html>` without `lang`, and entity references.
 
 ### Removed
 
