@@ -15,7 +15,6 @@ import {
 } from '../utils/api';
 import { showToast } from '../composables/useToast';
 import { userFullName } from '../utils/format';
-import AppToast from '../components/AppToast.vue';
 import AppModal from '../components/AppModal.vue';
 import ConfirmModal from '../components/ConfirmModal.vue';
 import UserAvatar from '../components/UserAvatar.vue';
@@ -382,6 +381,5 @@ onMounted(loadData);
     </AppModal>
 
     <ConfirmModal ref="confirmRef" />
-    <AppToast />
   </div>
 </template>

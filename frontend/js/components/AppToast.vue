@@ -6,6 +6,7 @@ import {
   ToastTitle,
   ToastViewport,
 } from 'reka-ui';
+import { setToastRef } from '../composables/useToast';
 
 const toasts = ref([]);
 let nextId = 0;
@@ -31,15 +32,8 @@ function removeToast(id) {
   toasts.value = toasts.value.filter((t) => t.id !== id);
 }
 
-onMounted(() => {
-  window.__addToast = addToast;
-});
-
-onUnmounted(() => {
-  delete window.__addToast;
-});
-
-defineExpose({ addToast });
+onMounted(() => setToastRef({ addToast }));
+onUnmounted(() => setToastRef(null));
 </script>
 
 <template>
