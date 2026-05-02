@@ -1,0 +1,25 @@
+FROM oven/bun:1
+
+# curl is used by the compose healthcheck
+RUN --mount=type=cache,target=/var/cache/apt,id=django-base-site-bun-apt \
+    --mount=type=cache,target=/var/lib/apt,id=django-base-site-bun-apt \
+    apt-get update \
+    && apt-get install -yqq --no-install-recommends curl \
+    && rm -rf /var/lib/apt/lists/*
+
+WORKDIR /srv/app
+
+# The compose `user:` override runs as host UID/GID (1000 by default) so the
+# node_modules volume must be populated with matching ownership; otherwise
+# Vite fails to write its temp files.
+RUN chown -R bun:bun /srv/app
+USER bun
+
+# bun.lock is generated on first build; use `bun install` (not --frozen-lockfile)
+# until the lockfile is committed. Once `bun install` produces bun.lock locally,
+# commit it and switch this back to `bun install --frozen-lockfile`.
+COPY --chown=bun:bun package.json bun.lock* ./
+
+# Install JS packages
+RUN --mount=type=cache,target=/home/bun/.bun/install/cache,id=django-base-site-bun,uid=1000,gid=1000 \
+    bun install

@@ -64,8 +64,6 @@ INSTALLED_APPS = [
     "allauth.account",
     "allauth.headless",
     "allauth.mfa",
-    "crispy_forms",
-    "crispy_bootstrap5",
     "storages",
     "hijack",
 ]
@@ -260,10 +258,6 @@ CACHES = {
 # Celery configuration docs: https://docs.celeryq.dev/en/stable/getting-started/backends-and-brokers/redis.html#configuration
 CELERY_BROKER_URL = REDIS_URL
 CELERY_BROKER_TRANSPORT_OPTIONS = {"global_keyprefix": REDIS_PREFIX}
-
-# CRISPY-FORMS
-CRISPY_ALLOWED_TEMPLATE_PACKS = "bootstrap5"
-CRISPY_TEMPLATE_PACK = "bootstrap5"
 
 SESSION_ENGINE = "django.contrib.sessions.backends.cache"
 

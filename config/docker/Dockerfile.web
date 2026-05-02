@@ -31,23 +31,21 @@ RUN --mount=type=cache,target=/root/.cache/uv,id=django-base-site-uv \
 
 
 # ------------------------------------------------------------
-# STAGE 2: Dev layer
+# STAGE 2: Base runtime (shared by dev and prod). libjpeg-dev + zlib1g-dev
+# are needed for Pillow (avatar uploads). mime-support gives gunicorn the
+# correct mime types when serving static files.
 # ------------------------------------------------------------
-FROM python:3.14-slim-bookworm AS dev
+FROM python:3.14-slim-bookworm AS base
 
-# Set the locale
-# libxml2-dev is needed for uwsgi in the production stage
-# mime-support install (/etc/mime.types) which is needded uWSGI to server static files with the correct mime types
 RUN --mount=type=cache,target=/var/cache/apt,id=django-base-site-apt \
     --mount=type=cache,target=/var/lib/apt,id=django-base-site-apt \
     apt update \
-    && apt install -yqq --no-install-recommends locales libxml2-dev mime-support \
+    && apt install -yqq --no-install-recommends locales mime-support libjpeg-dev zlib1g-dev \
     && echo "LC_ALL=en_US.UTF-8" >> /etc/environment \
     && echo "en_US.UTF-8 UTF-8" >> /etc/locale.gen \
     && echo "LANG=en_US.UTF-8" > /etc/locale.conf \
     && locale-gen en_US.UTF-8 \
     && rm -rf /var/lib/apt/lists/* \
-    && echo "\nsource /srv/app/config/bash/bashrc" >> /root/.bashrc \
     && echo "\nsource /opt/venv/bin/activate" >> /root/.bashrc
 
 ENV VIRTUAL_ENV=/opt/venv
@@ -63,25 +61,40 @@ WORKDIR /srv/app
 
 COPY --from=python-requirements --chown=app:app $VIRTUAL_ENV $VIRTUAL_ENV
 
+
+# ------------------------------------------------------------
+# STAGE 2b: Dev layer (adds Playwright for e2e tests)
+# ------------------------------------------------------------
+FROM base AS dev
+
+RUN playwright install chromium --with-deps
+
+# The compose `user:` override runs as the host UID (default 1000), so /root
+# needs to be world-traversable for the playwright browser cache underneath.
+RUN chmod 755 /root
+
 EXPOSE 8000/tcp 8001/tcp
 
 CMD ["python", "manage.py", "runserver", "0.0.0.0:8000"]
 
 
 # ------------------------------------------------------------
-# STAGE 3: Javascript assets layer
+# STAGE 3: Javascript assets layer (built with bun, not npm)
 # ------------------------------------------------------------
-FROM node:25.9 AS js_assets
+FROM oven/bun:1 AS js_assets
 
 WORKDIR /srv/app
 
-COPY package.json package-lock.json ./
+# bun.lock is generated on first build; commit it once it exists and switch to
+# `bun install --frozen-lockfile` here for reproducible prod builds.
+COPY package.json bun.lock* ./
 COPY src src
+COPY apps apps
 
-# Install Node packages
-RUN --mount=type=cache,target=/root/.npm,id=django-base-site-npm \
-    npm ci \
-    && npm run build \
+# Install JS packages and build the Vite bundle
+RUN --mount=type=cache,target=/root/.bun/install/cache,id=django-base-site-bun \
+    bun install \
+    && bun run build \
     && ls -la public/static/dist/
 
 
@@ -89,22 +102,22 @@ RUN --mount=type=cache,target=/root/.npm,id=django-base-site-npm \
 # STAGE 4: Prod
 # ------------------------------------------------------------
 
-FROM dev AS prod
+FROM base AS prod
 
 WORKDIR /srv/app
 
 RUN set -ex \
     && groupadd -r app --gid=1000 && useradd --uid=1000 --create-home --home-dir=/home/app --no-log-init -r -g app app \
-    && echo "\nsource ./config/bash/bashrc" >> /home/app/.bashrc \
     && echo "\nsource /opt/venv/bin/activate" >> /home/app/.bashrc
 
 COPY --chown=app:app . .
 
-USER app
-
-# The app user doesn't have permissions to create collected_static on some systems, so we create it here
 RUN mkdir -p /srv/app/collected_static && chown -R app:app /srv/app/collected_static
 
-COPY --from=js_assets --chown=app:app /srv/app/public/static/ ./collected_static
+USER app
 
-CMD ["uwsgi", "--ini", "config/uwsgi.ini", "--http", "0.0.0.0:8080"]
+COPY --from=js_assets --chown=app:app /srv/app/public/static/ ./public/static
+
+RUN DJANGO_SETTINGS_MODULE=config.settings SECRET_KEY=build-only python manage.py collectstatic --noinput --no-default-ignore
+
+CMD ["gunicorn", "--config=gunicorn.conf.py", "config.wsgi:application"]

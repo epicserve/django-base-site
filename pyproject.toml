@@ -8,10 +8,8 @@ dependencies = [
     "Pillow~=11.2",
     "boto3~=1.34",
     "celery~=5.5",
-    "crispy-bootstrap5~=2026.3",
     "django-alive~=2.0",
     "django-allauth[mfa]~=65.16",
-    "django-crispy-forms~=2.2",
     "django-hijack~=3.7",
     "django-maintenance-mode~=0.19",
     "django-ninja~=1.4",
@@ -174,6 +172,27 @@ AWS_ACCESS_KEY_ID = { type = "str", help_text = "AWS access key ID" }
 AWS_SECRET_ACCESS_KEY = { type = "str", help_text = "AWS secret access key" }
 AWS_STORAGE_BUCKET_NAME = { type = "str", help_text = "S3 bucket name" }
 AWS_S3_REGION = { type = "str", default = "us-east-2", help_text = "AWS S3 region" }
+
+# Media S3 Storage (used by MinIO locally and by real S3 in prod via apps.base.storage.S3MediaStorage)
+MEDIA_S3_ACCESS_KEY = { type = "str", default = "", initial = "minioadmin", help_text = "S3 access key for media storage (MinIO username locally)" }
+MEDIA_S3_SECRET_KEY = { type = "str", default = "", initial = "minioadmin", help_text = "S3 secret key for media storage (MinIO password locally)" }
+MEDIA_S3_ENDPOINT_URL = { type = "str", default = "", initial = "http://minio:9000", help_text = "Internal S3 endpoint URL (Docker-internal hostname for MinIO)" }
+MEDIA_S3_URL_ENDPOINT_URL = { type = "str", default = "", initial = "http://localhost:9000", help_text = "Browser-facing S3 endpoint URL (used in generated URLs)" }
+MEDIA_S3_BUCKET_NAME = { type = "str", default = "", initial = "media", help_text = "S3 bucket name for media uploads" }
+MINIO_ROOT_USER = { type = "str", default = "minioadmin", help_text = "MinIO root username (local dev only)" }
+MINIO_ROOT_PASSWORD = { type = "str", default = "minioadmin", help_text = "MinIO root password (local dev only)" }
+
+# Host UID/GID for Docker bind-mount file ownership (defaults to 1000)
+HOST_UID = { type = "str", initial = "1000", help_text = "Host user UID for Docker bind-mount file ownership" }
+HOST_GID = { type = "str", initial = "1000", help_text = "Host user GID for Docker bind-mount file ownership" }
+
+# Site / proxy
+SITE_DOMAIN = { type = "str", default = "127.0.0.1:8000", help_text = "Public site domain (host:port)" }
+SITE_SCHEME = { type = "str", default = "http", help_text = "Site scheme (http or https)" }
+CSRF_TRUSTED_ORIGINS = { type = "list", default = [], help_text = "Comma-separated CSRF trusted origins (full scheme://host)" }
+
+# Allauth
+ACCOUNT_SIGNUP_OPEN = { type = "bool", default = false, help_text = "Allow new account signups" }
 
 # Email Settings
 DEFAULT_FROM_EMAIL = { type = "str", default = "", help_text = "Default email address for sending emails, required when using Django SES for sending emails on the production instance." }
