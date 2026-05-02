@@ -68,137 +68,131 @@ onMounted(loadInvite);
 
 <template>
   <AuthLayout>
-    <div class="w-full max-w-sm">
-      <div
-        class="rounded-xl border border-gray-200 bg-white px-8 py-10 shadow-sm dark:border-gray-700 dark:bg-gray-800"
+    <div
+      v-if="loading"
+      class="text-center text-sm text-gray-400"
+    >
+      Loading invitation...
+    </div>
+
+    <div
+      v-else-if="error"
+      class="text-center"
+    >
+      <h1 class="text-xl font-semibold text-gray-900 dark:text-white">
+        Invitation unavailable
+      </h1>
+      <p class="mt-2 text-sm text-gray-500 dark:text-gray-400">
+        {{ error }}
+      </p>
+    </div>
+
+    <div
+      v-else-if="result === 'accepted'"
+      class="text-center"
+    >
+      <h1 class="text-xl font-semibold text-gray-900 dark:text-white">
+        You've joined {{ invite.organization_name }}!
+      </h1>
+      <RouterLink
+        class="mt-4 inline-block rounded-md bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700"
+        :to="{ name: 'home' }"
       >
-        <div
-          v-if="loading"
-          class="text-center text-sm text-gray-400"
+        Continue
+      </RouterLink>
+    </div>
+
+    <div
+      v-else-if="result === 'declined'"
+      class="text-center"
+    >
+      <h1 class="text-xl font-semibold text-gray-900 dark:text-white">
+        Invitation declined
+      </h1>
+      <p class="mt-2 text-sm text-gray-500 dark:text-gray-400">
+        You can close this page.
+      </p>
+    </div>
+
+    <div
+      v-else-if="invite.is_expired"
+      class="text-center"
+    >
+      <h1 class="text-xl font-semibold text-gray-900 dark:text-white">
+        Invitation expired
+      </h1>
+      <p class="mt-2 text-sm text-gray-500 dark:text-gray-400">
+        Ask {{ invite.sender_name }} to send you a new invitation.
+      </p>
+    </div>
+
+    <div
+      v-else-if="invite.is_already_member"
+      class="text-center"
+    >
+      <h1 class="text-xl font-semibold text-gray-900 dark:text-white">
+        Already a member
+      </h1>
+      <p class="mt-2 text-sm text-gray-500 dark:text-gray-400">
+        You're already a member of {{ invite.organization_name }}.
+      </p>
+      <RouterLink
+        class="mt-4 inline-block rounded-md bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700"
+        :to="{ name: 'home' }"
+      >
+        Continue
+      </RouterLink>
+    </div>
+
+    <div v-else>
+      <h1 class="text-center text-2xl font-semibold tracking-tight text-gray-900 dark:text-white">
+        You're invited!
+      </h1>
+      <p class="mt-2 text-center text-sm text-gray-500 dark:text-gray-400">
+        <strong>{{ invite.sender_name }}</strong> invited you to join
+        <strong>{{ invite.organization_name }}</strong>.
+      </p>
+
+      <div
+        v-if="appStore.isAuthenticated"
+        class="mt-6 space-y-2"
+      >
+        <button
+          type="button"
+          class="w-full cursor-pointer rounded-md bg-blue-600 px-4 py-2.5 text-sm font-medium text-white hover:bg-blue-700 disabled:opacity-50"
+          :disabled="submitting"
+          @click="accept"
         >
-          Loading invitation...
-        </div>
-
-        <div
-          v-else-if="error"
-          class="text-center"
+          Accept invitation
+        </button>
+        <button
+          type="button"
+          class="w-full cursor-pointer rounded-md border border-gray-300 px-4 py-2.5 text-sm font-medium text-gray-700 hover:bg-gray-50 dark:border-gray-600 dark:text-gray-300 dark:hover:bg-gray-700 disabled:opacity-50"
+          :disabled="submitting"
+          @click="decline"
         >
-          <h1 class="text-xl font-semibold text-gray-900 dark:text-white">
-            Invitation unavailable
-          </h1>
-          <p class="mt-2 text-sm text-gray-500 dark:text-gray-400">
-            {{ error }}
-          </p>
-        </div>
+          Decline
+        </button>
+      </div>
 
-        <div
-          v-else-if="result === 'accepted'"
-          class="text-center"
+      <div
+        v-else
+        class="mt-6 space-y-2"
+      >
+        <button
+          type="button"
+          class="w-full cursor-pointer rounded-md bg-blue-600 px-4 py-2.5 text-sm font-medium text-white hover:bg-blue-700"
+          @click="goToSignup"
         >
-          <h1 class="text-xl font-semibold text-gray-900 dark:text-white">
-            You've joined {{ invite.organization_name }}!
-          </h1>
-          <RouterLink
-            class="mt-4 inline-block rounded-md bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700"
-            :to="{ name: 'home' }"
-          >
-            Continue
-          </RouterLink>
-        </div>
-
-        <div
-          v-else-if="result === 'declined'"
-          class="text-center"
+          Create an account to join
+        </button>
+        <button
+          type="button"
+          class="w-full cursor-pointer rounded-md border border-gray-300 px-4 py-2.5 text-sm font-medium text-gray-700 hover:bg-gray-50 dark:border-gray-600 dark:text-gray-300 dark:hover:bg-gray-700"
+          @click="goToLogin"
         >
-          <h1 class="text-xl font-semibold text-gray-900 dark:text-white">
-            Invitation declined
-          </h1>
-          <p class="mt-2 text-sm text-gray-500 dark:text-gray-400">
-            You can close this page.
-          </p>
-        </div>
-
-        <div
-          v-else-if="invite.is_expired"
-          class="text-center"
-        >
-          <h1 class="text-xl font-semibold text-gray-900 dark:text-white">
-            Invitation expired
-          </h1>
-          <p class="mt-2 text-sm text-gray-500 dark:text-gray-400">
-            Ask {{ invite.sender_name }} to send you a new invitation.
-          </p>
-        </div>
-
-        <div
-          v-else-if="invite.is_already_member"
-          class="text-center"
-        >
-          <h1 class="text-xl font-semibold text-gray-900 dark:text-white">
-            Already a member
-          </h1>
-          <p class="mt-2 text-sm text-gray-500 dark:text-gray-400">
-            You're already a member of {{ invite.organization_name }}.
-          </p>
-          <RouterLink
-            class="mt-4 inline-block rounded-md bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700"
-            :to="{ name: 'home' }"
-          >
-            Continue
-          </RouterLink>
-        </div>
-
-        <div v-else>
-          <h1 class="text-center text-2xl font-semibold tracking-tight text-gray-900 dark:text-white">
-            You're invited!
-          </h1>
-          <p class="mt-2 text-center text-sm text-gray-500 dark:text-gray-400">
-            <strong>{{ invite.sender_name }}</strong> invited you to join
-            <strong>{{ invite.organization_name }}</strong>.
-          </p>
-
-          <div
-            v-if="appStore.isAuthenticated"
-            class="mt-6 space-y-2"
-          >
-            <button
-              type="button"
-              class="w-full cursor-pointer rounded-md bg-blue-600 px-4 py-2.5 text-sm font-medium text-white hover:bg-blue-700 disabled:opacity-50"
-              :disabled="submitting"
-              @click="accept"
-            >
-              Accept invitation
-            </button>
-            <button
-              type="button"
-              class="w-full cursor-pointer rounded-md border border-gray-300 px-4 py-2.5 text-sm font-medium text-gray-700 hover:bg-gray-50 dark:border-gray-600 dark:text-gray-300 dark:hover:bg-gray-700 disabled:opacity-50"
-              :disabled="submitting"
-              @click="decline"
-            >
-              Decline
-            </button>
-          </div>
-
-          <div
-            v-else
-            class="mt-6 space-y-2"
-          >
-            <button
-              type="button"
-              class="w-full cursor-pointer rounded-md bg-blue-600 px-4 py-2.5 text-sm font-medium text-white hover:bg-blue-700"
-              @click="goToSignup"
-            >
-              Create an account to join
-            </button>
-            <button
-              type="button"
-              class="w-full cursor-pointer rounded-md border border-gray-300 px-4 py-2.5 text-sm font-medium text-gray-700 hover:bg-gray-50 dark:border-gray-600 dark:text-gray-300 dark:hover:bg-gray-700"
-              @click="goToLogin"
-            >
-              I already have an account
-            </button>
-          </div>
-        </div>
+          I already have an account
+        </button>
       </div>
     </div>
   </AuthLayout>
