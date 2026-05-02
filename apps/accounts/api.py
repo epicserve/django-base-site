@@ -21,7 +21,12 @@ from apps.base.permissions import require_authenticated
 logger = logging.getLogger(__name__)
 
 ALLOWED_IMAGE_TYPES = {"image/jpeg", "image/png", "image/webp"}
+ALLOWED_PIL_FORMATS = {"JPEG", "PNG", "WEBP"}
 MAX_UPLOAD_SIZE = 10 * 1024 * 1024
+# Pillow defaults to ~89M pixels; that's still enough headroom for a
+# decompression-bomb DoS on a small avatar worker. 32M (≈ 5660x5660) is
+# plenty for an avatar source and bounds the worst-case decode cost.
+MAX_IMAGE_PIXELS = 32 * 1024 * 1024
 THUMBNAIL_SIZE = 256
 
 
@@ -139,7 +144,22 @@ def upload_avatar(
 
     image.seek(0)
     try:
-        img = Image.open(image).convert("RGB")
+        probe = Image.open(image)
+        probe_format = probe.format
+        probe.verify()
+    except Exception as exc:
+        raise HttpError(400, "Could not decode the uploaded image.") from exc
+    if probe_format not in ALLOWED_PIL_FORMATS:
+        raise HttpError(400, "Unsupported image format. Use JPEG, PNG, or WebP.")
+
+    image.seek(0)
+    try:
+        img = Image.open(image)
+        if (img.width * img.height) > MAX_IMAGE_PIXELS:
+            raise HttpError(400, "Image dimensions are too large.")
+        img = img.convert("RGB")
+    except HttpError:
+        raise
     except Exception as exc:
         raise HttpError(400, "Could not decode the uploaded image.") from exc
     if crop_box is not None:
