@@ -34,34 +34,45 @@ features.
 ### 🧑‍💻 Best Practices
 
 * [Epicenv](https://github.com/epicserve/epicenv) - A delightful environment variable manager with schema validation, type coercion, and CLI tools for generating `.env` files. See the [epicenv documentation](https://github.com/epicserve/epicenv#readme) for more details.
-* [Docker](https://www.docker.com/) - Docker Compose for development and a multi-stage Dockerfile for production ready
-  Docker image
-* [Mailpit](https://mailpit.axllent.org/) - Email testing tool for local development with a web UI at http://localhost:8025
-* [UV](https://github.com/astral-sh/uv) - Used to maintain python requirements
+* [Docker](https://www.docker.com/) - Docker Compose for development with healthchecks on every service, plus a multi-stage Dockerfile for a production-ready image.
+* [Mailpit](https://mailpit.axllent.org/) - Local SMTP capture with a web UI at http://localhost:8025
+* [MinIO](https://min.io/) - S3-compatible object storage for local media uploads (avatars, etc.) with a console at http://localhost:9001
+* [UV](https://github.com/astral-sh/uv) - Used to maintain Python requirements
 * [Just](https://github.com/casey/just) - Popular tool for running common commands (make equivalent)
-* [python-json-logger](https://github.com/madzak/python-json-logger) and [readable-log-formatter](https://github.com/ipmb/readable-log-formatter) - Use JSON logging for better log parsing
+* [python-json-logger](https://github.com/madzak/python-json-logger) and [readable-log-formatter](https://github.com/ipmb/readable-log-formatter) - JSON logging for better log parsing
 
 ### 📦️ Django Packages
 
 * [Django 5](https://www.djangoproject.com/) - Latest version of Django
-* [Celery](http://docs.celeryproject.org/) - Most popular task runner for running asynchronous tasks in the background
-* [Custom User Model][custom_user_model] - Custom user model so that the user model can be easily extended
-* [Django Allauth](http://www.intenct.nl/projects/django-allauth/) - The most popular package for adding authentication
-  workflows to a Django project
-* [Django Crispy Forms](https://github.com/django-crispy-forms/django-crispy-forms) - The most popular helper for working with Django forms
-* [Django Alive](https://github.com/lincolnloop/django-alive/) - A simple health check package for Django
-* [Django Maintenance Mode](https://github.com/fabiocaccamo/django-maintenance-mode) - A simple maintenance mode package for Django
-* [Django SES](https://github.com/django-ses/django-ses) - A Django email backend for Amazon Simple Email Service (SES)
+* [Custom User Model][custom_user_model] - Extends `AbstractUser` with per-user `timezone` (auto-detected from the browser via middleware) and avatar fields (uploaded to MinIO/S3 with crop data).
+* [Django Allauth](http://www.intenct.nl/projects/django-allauth/) (headless) - JSON auth API with full MFA support: TOTP, recovery codes, and WebAuthn passkeys (via [`fido2`](https://github.com/Yubico/python-fido2)).
+* [Django Ninja](https://django-ninja.dev/) - Fast type-safe API framework powering `/api/app-context/`, the user/avatar endpoints, organizations, teams, and the public invite flow.
+* [Django Hijack](https://github.com/django-hijack/django-hijack) - Staff impersonation with a SPA-driven user search, gated by a `staff_only` permission check.
+* [Celery](http://docs.celeryproject.org/) - Most popular task runner for running asynchronous tasks in the background.
+* [Gunicorn](https://gunicorn.org/) - Production WSGI server (4 workers × 2 threads), configured at `gunicorn.conf.py`.
+* [WhiteNoise](https://whitenoise.readthedocs.io/) - Serves Vite-hashed assets in production with `Cache-Control: max-age=31536000, immutable`.
+* [Django Storages](https://django-storages.readthedocs.io/) + boto3 - S3-compatible media storage with a custom backend (`apps.base.storage.S3MediaStorage`) that handles the Docker-internal vs. browser endpoint URL split for MinIO.
+* [Django Alive](https://github.com/lincolnloop/django-alive/) - Health-check endpoints
+* [Django Maintenance Mode](https://github.com/fabiocaccamo/django-maintenance-mode) - Drop the site into a maintenance window.
+* [Django SES](https://github.com/django-ses/django-ses) - Production email backend.
 
 [custom_user_model]: https://docs.djangoproject.com/en/stable/topics/auth/customizing/#substituting-a-custom-user-model
+
+### 🏢 Multi-Tenant Scaffolding
+
+* `apps/organizations/` - `Organization`, `OrganizationMember` (with `is_owner` / `is_primary` flags), and `OrganizationInvite` models. `OrganizationMiddleware` lazy-loads `request.org` from the session; an org switcher lives in the user-menu navbar.
+* `apps/teams/` - generic `Team` model (organization FK + M2M users) with full CRUD ninja API.
+* Server-rendered accept-invite flow lives in the SPA at `/organizations/invite/:key/accept/` (works for anonymous visitors with sign-in / sign-up roundtrip via `?next=`).
 
 ### 🔧 Python Testing Tools
 
 * [Pytest](https://docs.pytest.org/) - The most popular Python test runner in the Python community
-* [Pytest Django](https://pytest-django.readthedocs.io/en/latest/index.html) - A Django plugin for Pytest
-* [Pytest-cov](https://pytest-cov.readthedocs.io) - Adds code coverage to tests
-* [Model Bakery](https://github.com/model-bakers/model_bakery) - A faster way to create model instances for tests
+* [Pytest Django](https://pytest-django.readthedocs.io/en/latest/index.html) - Django plugin for Pytest
+* [Pytest-cov](https://pytest-cov.readthedocs.io) - Code coverage
+* [Pytest Playwright](https://playwright.dev/python/docs/test-runners) - End-to-end tests live under `e2e/` and run against a dedicated `config.settings.e2e` settings module with pre-built Vite assets.
+* [Model Bakery](https://github.com/model-bakers/model_bakery) - Faster fixture creation
 * [Django Test Plus](https://github.com/revsys/django-test-plus/) - Helper functions to write tests faster
+* [pyotp](https://github.com/pyauth/pyotp) - Used in the MFA / TOTP test suite
 
 ### 🐛 Debugging Support
 
@@ -73,18 +84,20 @@ features.
 
 ### 🩺 Code Quality, Formatting, and Linting Tools
 
-* [Ruff](https://github.com/charliermarsh/ruff) - Python formatting and linting. Lighting fast because it's written in Rust! Replaces Black and other tools.
-* [Ty](https://github.com/astral-sh/ty) - Python Type checking
+* [Ruff](https://github.com/charliermarsh/ruff) - Python formatting and linting (replaces Black and friends, written in Rust).
+* [Ty](https://github.com/astral-sh/ty) - Python type checking
 * [dj Lint](https://djlint.com/) - Automatic Django HTML template formatting and linting
-* [Django Debug Toolbar](https://github.com/jazzband/django-debug-toolbar) - A toolbar for debugging and
-  optimizing Django queries
-* [Stylelint](https://stylelint.io/) - Automatic Sass formatting and linting
-* [Eslint](https://eslint.org/) - Automatic Javascript formatting and linting
+* [Django Debug Toolbar](https://github.com/jazzband/django-debug-toolbar) - Inspect query counts, settings, and templates in DEBUG.
+* [Eslint](https://eslint.org/) (flat config) with [`eslint-plugin-vue`](https://eslint.vuejs.org/) - JS/Vue linting
 
-### 💄Frontend
+### 💄 Frontend
 
-* [Bootstrap 5](https://getbootstrap.com/) - A popular UI framework
-* [Vite](https://vitejs.dev/) - A fast frontend build tool
+* [Vue 3](https://vuejs.org/) SPA - Lazy-loaded routes via [Vue Router 5](https://router.vuejs.org/), reactive app store, theme-applied-before-CSS to prevent flash, version watcher with deploy-update banner.
+* [Tailwind CSS v4](https://tailwindcss.com/) - Utility-first styling with the @tailwindcss/vite plugin and a custom `dark` variant driven by `data-theme`.
+* [Vite 8](https://vitejs.dev/) - Frontend build tool. Hashed-asset cache + manifest support so WhiteNoise can serve them with immutable headers.
+* [bun](https://bun.sh/) - Fast JS toolchain (replaces npm). The `frontend` Docker service is built from `oven/bun:1`.
+* [@heroicons/vue](https://github.com/tailwindlabs/heroicons), [vue-advanced-cropper](https://norserium.github.io/vue-advanced-cropper/), [reka-ui](https://reka-ui.com/) - UI primitives.
+* Account settings (General, Email, Password change, Security with TOTP / recovery codes / passkeys), org settings (General, Members + Invites, Teams), Send-Test-Email and Impersonate views (superuser/staff).
 
 ### 📝 Documentation
 
@@ -140,36 +153,52 @@ Example output:
     $ curl -LOk https://github.com/epicserve/django-base-site/archive/main.zip && unzip main
     $ mv django-base-site-main example
     $ cd example
-    $ export SECRET_KEY=$(python -c "import random; print(''.join(random.SystemRandom().choice('abcdefghijklmnopqrstuvwxyz0123456789%^&*(-_=+)') for i in range(50)))")
-    $ cat > .env <<EOF
-    DEBUG=on
-    SECRET_KEY='$SECRET_KEY'
-    DATABASE_URL=postgres://postgres:@db:5432/postgres
-    INTERNAL_IPS=127.0.0.1,0.0.0.0
-    EOF
-    $ just remove_extra_files
+    $ uvx epicenv create        # Generates .env from the schema in pyproject.toml
+    $ just clean_extra_files
     $ find ./public -name ".keep" | xargs rm -rf
     $ just start
 
+`epicenv create` reads the `[tool.epicenv.variables]` block in `pyproject.toml` and produces a `.env` with sensible defaults — `SECRET_KEY` and `POSTGRES_PASSWORD` are auto-generated, `SITE_DOMAIN=localhost:8000` (so passkeys work), and the MinIO + Mailpit credentials are pre-wired.
+
 ## Usage
 
-The Django Base Site comes with Just recipes for all the most common commands and tasks that an engineer will use during
-development. To see the full list of commands run `just` in the root of the project directory. The following is an
-abbreviated list of the most common commands.
+### Dev URLs
+
+Once `just start` is up, the following are available:
+
+| URL                                | What                                                  |
+|------------------------------------|-------------------------------------------------------|
+| http://localhost:8000/             | Vue SPA (Django serves the shell, SPA owns routing)   |
+| http://localhost:8000/admin/       | Django admin                                          |
+| http://localhost:8000/api/docs     | Live OpenAPI spec for the ninja API (DEBUG only)      |
+| http://localhost:3000/             | Vite dev server (HMR; usually proxied transparently)  |
+| http://localhost:8025/             | Mailpit — inspect outgoing emails                     |
+| http://localhost:9001/             | MinIO console — browse the media bucket               |
+
+> **Note**: Use `http://localhost:8000/` rather than `http://127.0.0.1:8000/` so passkey enrollment works — WebAuthn rejects bare IP addresses as Relying Party IDs.
+
+### Just commands
+
+The Django Base Site comes with Just recipes for all the most common commands and tasks. To see the full list run `just` in the root of the project. Common ones:
 
 ```
-build_assets                 # Build frontend assets
-clean                        # Remove build files, python cache files and test coverage data
-collectstatic                # Run Django's collectstatic management command
-format                       # Format all code
-lint                         # Lint everything
-upgrade_python_requirements  # Run pip-compile make the requirement files
-open_coverage                # Run the django test runner with coverage
-start                        # Start docker-compose
-start_with_debugpy           # Start docker-compose with debugpy for remote debugging
-start_with_docs              # Start docker-compose with docs
-stop                         # Stop all docker-compose services
-test                         # Run the Django test runner without coverage
+start                        # docker compose up
+start_with_debugpy           # Start with debugpy listening on :5678
+stop                         # Stop all services
+build                        # Rebuild Docker images + collectstatic
+build_frontend               # bun run build + collectstatic
+clean                        # Remove build files, caches, coverage data
+collectstatic                # Run Django's collectstatic
+format                       # Format Python (ruff), JS (eslint), HTML (djlint), justfile
+lint                         # Run all linters + ty type check + check for missing migrations
+test                         # pytest (Django + ninja API tests)
+test_with_coverage           # pytest --cov, then open the HTML report
+test_e2e [args]              # Build the frontend, then run the Playwright e2e suite
+db_dump                      # pg_dump to ~/Downloads
+db_restore [dump_file]       # Restore from the latest dump (or a specific file)
+upgrade_python_packages      # uv sync --all-packages --all-extras
+upgrade_node_packages        # bun update
+create_env                   # Generate .env from the schema in pyproject.toml
 ```
 
 ## Deploying to Production
