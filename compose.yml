@@ -102,8 +102,6 @@ services:
       - "5678:5678"  # debugpy port for VS Code/LazyVim debugging
 
     depends_on:
-      frontend:
-        condition: service_healthy
       db:
         condition: service_healthy
       redis:
