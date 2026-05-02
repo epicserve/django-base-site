@@ -8,11 +8,7 @@ const greeting = computed(() => {
   return name ? `Welcome, ${name}.` : 'Welcome.';
 });
 
-const orgLine = computed(() => {
-  if (appStore.org?.name) return `You're working in ${appStore.org.name}.`;
-  if (appStore.organizations?.length) return 'Pick an organization or create another to get started.';
-  return 'Spin up your first organization to start building.';
-});
+const tagline = "You're using the Django Base Site. Get started building the next great thing!";
 
 const stack = [
   { label: 'Authentication',     value: 'django-allauth · headless · MFA + passkeys' },
@@ -44,7 +40,7 @@ const stack = [
         </h1>
 
         <p class="mt-5 max-w-2xl text-lg text-gray-600 dark:text-gray-300">
-          {{ orgLine }}
+          {{ tagline }}
         </p>
       </header>
 
