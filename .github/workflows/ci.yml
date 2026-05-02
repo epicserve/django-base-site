@@ -7,6 +7,10 @@ on:
   pull_request:
   workflow_dispatch:
 
+concurrency:
+  group: ci-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
   lint:
     name: Lint
@@ -63,6 +67,14 @@ jobs:
       - uses: actions/checkout@v6
       - name: Use Just for running commands
         run: curl --proto '=https' --tlsv1.2 -sSf https://just.systems/install.sh | bash -s -- --to /usr/local/bin
+      - name: Match docker user to runner UID/GID
+        # The bun container bind-mounts the workspace and writes to it, so it
+        # needs the same UID/GID as the runner user that owns the files.
+        run: |
+          echo "HOST_UID=$(id -u)" >> $GITHUB_ENV
+          echo "HOST_GID=$(id -g)" >> $GITHUB_ENV
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
       - name: Install uv
         uses: astral-sh/setup-uv@v7
       - name: Test install script
@@ -122,6 +134,14 @@ jobs:
       - uses: actions/checkout@v6
       - name: Use Just for running commands
         run: curl --proto '=https' --tlsv1.2 -sSf https://just.systems/install.sh | bash -s -- --to /usr/local/bin
+      - name: Match docker user to runner UID/GID
+        # The bun container bind-mounts the workspace and writes to it, so it
+        # needs the same UID/GID as the runner user that owns the files.
+        run: |
+          echo "HOST_UID=$(id -u)" >> $GITHUB_ENV
+          echo "HOST_GID=$(id -g)" >> $GITHUB_ENV
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
       - name: Build dev docker image (includes Playwright browsers)
         run: docker compose build web frontend
       - name: Build frontend assets
