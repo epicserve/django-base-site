@@ -73,8 +73,6 @@ jobs:
         run: |
           echo "HOST_UID=$(id -u)" >> $GITHUB_ENV
           echo "HOST_GID=$(id -g)" >> $GITHUB_ENV
-      - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v3
       - name: Install uv
         uses: astral-sh/setup-uv@v7
       - name: Test install script
@@ -140,8 +138,8 @@ jobs:
         run: |
           echo "HOST_UID=$(id -u)" >> $GITHUB_ENV
           echo "HOST_GID=$(id -g)" >> $GITHUB_ENV
-      - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v3
+      - name: Create empty .env (docker compose env_file requires the file to exist)
+        run: touch .env
       - name: Build dev docker image (includes Playwright browsers)
         run: docker compose build web frontend
       - name: Build frontend assets
