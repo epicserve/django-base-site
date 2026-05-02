@@ -88,7 +88,7 @@ WORKDIR /srv/app
 # bun.lock is generated on first build; commit it once it exists and switch to
 # `bun install --frozen-lockfile` here for reproducible prod builds.
 COPY package.json bun.lock* ./
-COPY src src
+COPY frontend frontend
 COPY apps apps
 
 # Install JS packages and build the Vite bundle

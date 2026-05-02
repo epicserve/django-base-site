@@ -2,26 +2,27 @@
   "name": "django-base-site",
   "description": "Django Base Site",
   "scripts": {
-    "dev": "vite --config src/config/vite.config.mjs",
-    "build": "vite build --config src/config/vite.config.mjs",
-    "preview": "vite preview --config src/config/vite.config.mjs",
-    "lint-sass": "stylelint --config src/config/stylelint.config.js ./src/scss/",
-    "format-sass": "stylelint --config src/config/stylelint.config.js --fix 'src/**/*.{css,scss}'",
-    "lint-js": "eslint --config src/config/eslint.config.js ./src/",
-    "format-js": "eslint --config src/config/eslint.config.js --fix ./src/"
+    "dev": "vite --config frontend/config/vite.config.mjs",
+    "build": "vite build --config frontend/config/vite.config.mjs",
+    "preview": "vite preview --config frontend/config/vite.config.mjs",
+    "lint-js": "eslint --config eslint.config.mjs ./frontend/",
+    "format-js": "eslint --config eslint.config.mjs --fix ./frontend/"
   },
   "devDependencies": {
-    "@popperjs/core": "^2.11.8",
-    "bootstrap": "^5.3.8",
-    "@eslint/js": "^10.0.0",
-    "eslint": "^10.3.0",
-    "globals": "^17.6.0",
-    "sass": "~1.99",
-    "stylelint": "^17.9.1",
-    "stylelint-config-recess-order": "^7.7.0",
-    "stylelint-config-standard-scss": "^17.0.0",
-    "stylelint-scss": "^7.0.0",
+    "@eslint/js": "^10.0.1",
+    "eslint": "^10.2.1",
+    "eslint-plugin-vue": "^10.9.0",
+    "globals": "^17.5.0",
     "vite": "^8.0.10"
+  },
+  "dependencies": {
+    "@heroicons/vue": "^2.2.0",
+    "@tailwindcss/vite": "^4.2.4",
+    "@vitejs/plugin-vue": "^6.0.6",
+    "tailwindcss": "^4.2.1",
+    "vue": "^3.5.33",
+    "vue-advanced-cropper": "^2.8.9",
+    "vue-router": "^5.0.6"
   },
   "repository": {
     "type": "git",
@@ -32,8 +33,5 @@
   "bugs": {
     "url": "https://github.com/epicserve/django-base-site/issues"
   },
-  "homepage": "https://github.com/epicserve/django-base-site#readme",
-  "overrides": {
-    "stylelint-order": "^7.0.1"
-  }
+  "homepage": "https://github.com/epicserve/django-base-site#readme"
 }

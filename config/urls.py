@@ -3,7 +3,7 @@ from django.contrib import admin
 from django.contrib.auth.decorators import login_required
 from django.urls import URLPattern, URLResolver, include, path, re_path
 
-from apps.base.views import IndexView, http_404, http_500
+from apps.base.views import IndexView, SPAView, http_404, http_500
 from apps.organizations.views import AcceptInviteView
 from config.api import api as ninja_api
 
@@ -17,6 +17,10 @@ urlpatterns += [
     path("500/", http_500),
     path("404/", http_404),
     path("api/", ninja_api.urls),
+    # Temporary SPA preview mount - Phase 4 replaces /accounts/ + this with the
+    # catch-all SPA route that takes over /.
+    path("spa-preview/", SPAView.as_view(), name="spa-preview"),
+    re_path(r"^spa-preview/.*$", SPAView.as_view()),
     path("_allauth/", include("allauth.headless.urls")),
     path("hijack/", include("hijack.urls")),
     re_path(

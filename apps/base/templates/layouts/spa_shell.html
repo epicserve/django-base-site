@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-{% load vite %}
+{% load vite site %}
 
 <html lang="en" class="h-full" data-theme="light">
   <head>
@@ -17,7 +17,7 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <link rel="icon" href="data:,">
-    <title>Time Logs</title>
+    <title>{% get_site_name %}</title>
   </head>
   <body class="bg-white dark:bg-gray-900 text-gray-900 dark:text-white">
     <div id="app" class="flex flex-col min-h-screen"></div>

@@ -1,13 +1,16 @@
 import { defineConfig } from 'vite';
 import { resolve } from 'path';
+import vue from '@vitejs/plugin-vue';
+import tailwindcss from '@tailwindcss/vite';
 
 export default defineConfig({
-  plugins: [],
+  plugins: [vue(), tailwindcss()],
   root: resolve(__dirname, '..'),
-  base: '/public/static/',
+  base: '/public/static/dist/js/',
   server: {
     host: '0.0.0.0',
     port: 3000,
+    origin: 'http://localhost:3000',
     open: false,
     watch: {
       usePolling: true,
@@ -15,9 +18,9 @@ export default defineConfig({
     },
   },
   resolve: {
-    extensions: ['.js', '.json'],
+    extensions: ['.js', '.vue', '.json'],
     alias: {
-      '~bootstrap': resolve(__dirname, '../../node_modules/bootstrap'),
+      '@': resolve(__dirname, '../js'),
     },
   },
   build: {
@@ -28,20 +31,10 @@ export default defineConfig({
     target: 'es2015',
     rollupOptions: {
       input: {
-        main: resolve(__dirname, '../js/main.js'),
+        app: resolve(__dirname, '../js/app.js'),
       },
       output: {
         chunkFileNames: undefined,
-      },
-    },
-  },
-  css: {
-    preprocessorOptions: {
-      scss: {
-        api: 'modern-compiler',
-        // TODO: Remove silenceDeprecations once Bootstrap fixes Sass compatibility.
-        // Track progress: https://github.com/twbs/bootstrap/issues/40849
-        silenceDeprecations: ['color-functions', 'import', 'global-builtin', 'if-function'],
       },
     },
   },
