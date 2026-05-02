@@ -67,11 +67,16 @@ COPY --from=python-requirements --chown=app:app $VIRTUAL_ENV $VIRTUAL_ENV
 # ------------------------------------------------------------
 FROM base AS dev
 
-RUN playwright install chromium --with-deps
+ENV PLAYWRIGHT_BROWSERS_PATH=/ms-playwright
 
-# The compose `user:` override runs as the host UID (default 1000), so /root
-# needs to be world-traversable for the playwright browser cache underneath.
-RUN chmod 755 /root
+RUN playwright install chromium --with-deps \
+    && chmod -R a+rX /ms-playwright
+
+# Pre-compile site-packages to .pyc so imports don't recompile at runtime —
+# `PYTHONDONTWRITEBYTECODE=1` blocks runtime caching, which means SyntaxWarnings
+# (e.g. pluggy 1.5.0 on Python 3.14) re-fire on every import. `compileall -q`
+# bakes the .pyc cache in once so those warnings stay quiet.
+RUN python -W ignore -m compileall -q /opt/venv/lib
 
 EXPOSE 8000/tcp 8001/tcp
 

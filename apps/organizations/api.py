@@ -313,7 +313,7 @@ def accept_invite_by_key(request, key: str):
     return {"success": True}
 
 
-@public_invites_router.post("/{key}/decline/", response=SuccessOut)
+@public_invites_router.post("/{key}/decline/", response=SuccessOut, auth=None)
 def decline_invite_by_key(request, key: str):
     invite = get_object_or_404(OrganizationInvite.objects, key=key)
     invite.delete()

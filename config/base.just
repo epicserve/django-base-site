@@ -163,7 +163,7 @@ lint: lint_js lint_html lint_py lint_migrations lint_types
     {{ python_cmd_prefix }} ty check .
 
 # Run pre-commit checks
-pre_commit: format lint test
+pre_commit: format lint test test_e2e
 
 # Start docker compose
 @start:
