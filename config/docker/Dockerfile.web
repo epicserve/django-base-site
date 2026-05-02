@@ -90,15 +90,14 @@ FROM oven/bun:1 AS js_assets
 
 WORKDIR /srv/app
 
-# bun.lock is generated on first build; commit it once it exists and switch to
-# `bun install --frozen-lockfile` here for reproducible prod builds.
-COPY package.json bun.lock* ./
+COPY package.json bun.lock ./
 COPY frontend frontend
 COPY apps apps
 
-# Install JS packages and build the Vite bundle
+# Install JS packages and build the Vite bundle. --frozen-lockfile guarantees
+# CI/prod builds resolve to exactly what's committed in bun.lock.
 RUN --mount=type=cache,target=/root/.bun/install/cache,id=django-base-site-bun \
-    bun install \
+    bun install --frozen-lockfile \
     && bun run build \
     && ls -la public/static/dist/
 

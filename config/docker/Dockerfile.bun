@@ -15,11 +15,9 @@ WORKDIR /srv/app
 RUN chown -R bun:bun /srv/app
 USER bun
 
-# bun.lock is generated on first build; use `bun install` (not --frozen-lockfile)
-# until the lockfile is committed. Once `bun install` produces bun.lock locally,
-# commit it and switch this back to `bun install --frozen-lockfile`.
-COPY --chown=bun:bun package.json bun.lock* ./
+COPY --chown=bun:bun package.json bun.lock ./
 
-# Install JS packages
+# Install JS packages — --frozen-lockfile so the dev image resolves to exactly
+# what's committed in bun.lock and matches the prod build.
 RUN --mount=type=cache,target=/home/bun/.bun/install/cache,id=django-base-site-bun,uid=1000,gid=1000 \
-    bun install
+    bun install --frozen-lockfile
