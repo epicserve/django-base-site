@@ -23,11 +23,7 @@ const iconSizes = {
 
 const imgFailed = ref(false);
 watch(() => props.src, () => { imgFailed.value = false; });
-const isGravatarFallback = computed(() => {
-  const s = props.src || '';
-  return s.includes('gravatar.com/avatar/');
-});
-const showImg = computed(() => !!props.src && !imgFailed.value && !isGravatarFallback.value);
+const showImg = computed(() => !!props.src && !imgFailed.value);
 
 const initials = computed(() => {
   const parts = (props.name || '').trim().split(/\s+/).filter(Boolean);

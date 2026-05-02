@@ -3,10 +3,12 @@ import { ref, computed, inject } from 'vue';
 import { Cropper } from 'vue-advanced-cropper';
 import 'vue-advanced-cropper/dist/style.css';
 import AppModal from './AppModal.vue';
+import UserAvatar from './UserAvatar.vue';
 import { postFormData, deleteRequest } from '../utils/api.js';
 
 const props = defineProps({
-  currentAvatarUrl: { type: String, required: true },
+  currentAvatarUrl: { type: String, default: '' },
+  userName: { type: String, default: '' },
   uploadUrl: { type: String, required: true },
 });
 
@@ -20,9 +22,7 @@ const cropperRef = ref(null);
 const loading = ref(false);
 const error = ref('');
 
-const hasAvatar = computed(() =>
-  avatarUrl.value && !avatarUrl.value.includes('gravatar.com'),
-);
+const hasAvatar = computed(() => Boolean(avatarUrl.value));
 
 function onFileSelect(event) {
   const file = event.target.files[0];
@@ -100,10 +100,13 @@ async function removeAvatar() {
 
   try {
     await deleteRequest(props.uploadUrl);
-    // Reload the page so the gravatar fallback URL renders server-side
-    window.location.reload();
+    avatarUrl.value = '';
+    if (appStore?.user) {
+      appStore.setUser({ ...appStore.user, avatar_url: null });
+    }
   } catch {
     error.value = 'Failed to remove avatar.';
+  } finally {
     loading.value = false;
   }
 }
@@ -112,10 +115,17 @@ async function removeAvatar() {
 <template>
   <div class="flex items-center gap-4">
     <img
+      v-if="hasAvatar"
       :src="avatarUrl"
       alt="Profile photo"
       class="h-16 w-16 rounded-full object-cover"
     >
+    <UserAvatar
+      v-else
+      :name="userName"
+      size="rail"
+      class="!h-16 !w-16 !text-base"
+    />
     <div class="flex gap-2">
       <button
         type="button"

@@ -1,6 +1,7 @@
 <script setup>
 import { nextTick, ref, watch } from 'vue';
 import { get } from '@/utils/api';
+import UserAvatar from '@/components/UserAvatar.vue';
 
 const query = ref('');
 const results = ref([]);
@@ -163,11 +164,11 @@ function impersonate(userId) {
             >
               <td class="px-6 py-3">
                 <span class="inline-flex items-center gap-2 font-medium text-blue-600 dark:text-blue-400">
-                  <img
-                    :src="user.avatar_url"
-                    alt=""
-                    class="h-6 w-6 rounded-full object-cover"
-                  >
+                  <UserAvatar
+                    :src="user.avatar_url || ''"
+                    :name="user.full_name || user.username || ''"
+                    size="md"
+                  />
                   {{ user.full_name || user.username }}
                 </span>
               </td>

@@ -181,7 +181,7 @@ READ_DOT_ENV_FILE = { type = "bool", default = true, help_text = "Read .env file
 WSGI_APPLICATION = { type = "str", default = "config.wsgi.application", help_text = "WSGI application path" }
 
 # Storage Settings
-DEFAULT_FILE_STORAGE = { type = "str", default = "django.core.files.storage.FileSystemStorage", help_text = "Default file storage backend" }
+DEFAULT_FILE_STORAGE = { type = "str", default = "django.core.files.storage.FileSystemStorage", initial = "storages.backends.s3boto3.S3Boto3Storage", help_text = "Default file storage backend (defaults to S3/MinIO; switch back to FileSystemStorage to bypass S3)" }
 STATICFILES_STORAGE = { type = "str", help_text = "Static files storage backend" }
 
 # AWS Settings (optional, for S3 storage and Django SES email backend)

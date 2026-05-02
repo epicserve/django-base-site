@@ -1,5 +1,5 @@
 <script setup>
-import { ref, inject } from 'vue';
+import { ref, computed, inject } from 'vue';
 import AccountLayout from '@/layouts/AccountLayout.vue';
 import FormField from '../components/FormField.vue';
 import FormErrors from '../components/FormErrors.vue';
@@ -9,6 +9,11 @@ import { patch, parseErrors } from '../../utils/api';
 import { showToast } from '../../composables/useToast';
 
 const appStore = inject('appStore');
+
+const userDisplayName = computed(() => {
+  const fullName = `${appStore.user?.first_name || ''} ${appStore.user?.last_name || ''}`.trim();
+  return fullName || appStore.user?.email || '';
+});
 
 const firstName = ref(appStore.user?.first_name || '');
 const lastName = ref(appStore.user?.last_name || '');
@@ -46,6 +51,7 @@ async function onSubmit() {
       <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Profile Photo</label>
       <AvatarCropper
         :current-avatar-url="appStore.user?.avatar_url || ''"
+        :user-name="userDisplayName"
         upload-url="/api/avatar/"
       />
     </div>

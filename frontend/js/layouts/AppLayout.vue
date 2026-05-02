@@ -4,6 +4,7 @@ import { RouterLink } from 'vue-router';
 import ThemeToggle from '@/components/ThemeToggle.vue';
 import AppToast from '@/components/AppToast.vue';
 import TimezoneDetectModal from '@/components/TimezoneDetectModal.vue';
+import UserAvatar from '@/components/UserAvatar.vue';
 import {
   Cog6ToothIcon,
   ArrowsRightLeftIcon,
@@ -185,13 +186,12 @@ onUnmounted(() => {
               class="flex cursor-pointer items-center p-1.5"
               @click.stop="toggleUserDropdown"
             >
-              <img
+              <UserAvatar
                 v-if="appStore.user"
-                style="width: 32px; height: 32px"
-                :src="appStore.user.avatar_url"
-                alt="Profile photo"
-                class="rounded-full object-cover transition hover:opacity-80 hover:ring-2 hover:ring-gray-300 dark:hover:ring-gray-600"
-              >
+                :src="appStore.user.avatar_url || ''"
+                :name="`${appStore.user.first_name || ''} ${appStore.user.last_name || ''}`.trim() || appStore.user.email || ''"
+                class="!h-8 !w-8 !text-xs transition hover:opacity-80 hover:ring-2 hover:ring-gray-300 dark:hover:ring-gray-600"
+              />
             </button>
             <div
               v-show="userDropdownOpen"
