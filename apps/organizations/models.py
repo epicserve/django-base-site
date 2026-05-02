@@ -1,5 +1,6 @@
 import binascii
 import os
+from datetime import timedelta
 
 from django.apps import apps
 from django.conf import settings
@@ -125,8 +126,7 @@ class OrganizationInvite(OrganizationRoleMixin, TimeStampModelMixin):
 
     @property
     def is_expired(self):
-        # TODO: Look into a bug where changes to the created date aren't showing until restarting the runserver
-        return (timezone.now() - self.created).days > self.expired_in_days
+        return (timezone.now() - self.created) > timedelta(days=self.expired_in_days)
 
     @property
     def invitee_fist_name(self):
