@@ -295,11 +295,10 @@ ACCOUNT_ADAPTER = "apps.accounts.auth_adapter.AccountAdapter"
 ACCOUNT_SIGNUP_OPEN = env.bool("ACCOUNT_SIGNUP_OPEN", default=False)
 ACCOUNT_SHOW_POST_LOGIN_MESSAGE = False
 
-# ALLAUTH HEADLESS SETTINGS — these activate when `_allauth/` URLs are mounted
-# in config/urls.py. HEADLESS_ONLY stays False through Phase 3 so the legacy
-# template-based `accounts/login/` keeps working alongside the headless API;
-# Phase 4 flips this to True when the Vue SPA becomes the catch-all front door.
-HEADLESS_ONLY = False
+# ALLAUTH HEADLESS SETTINGS — with HEADLESS_ONLY=True allauth returns JSON
+# instead of rendering templates, and email/redirect links are mapped through
+# HEADLESS_FRONTEND_URLS to SPA routes.
+HEADLESS_ONLY = True
 HEADLESS_FRONTEND_URLS = {
     "account_confirm_email": "/accounts/confirm-email/{key}",
     "account_reset_password_from_key": "/accounts/password/reset/key/{key}",

@@ -3,10 +3,6 @@ from django.views import generic
 from django.views.decorators.csrf import ensure_csrf_cookie
 
 
-class IndexView(generic.TemplateView):
-    template_name = "index.html"
-
-
 class SPAView(generic.TemplateView):
     template_name = "layouts/spa_shell.html"
 
