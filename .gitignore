@@ -19,3 +19,4 @@ public/media/*
 # Claude Code settings
 .claude/
 CLAUDE.local.md
+.playwright-mcp/
