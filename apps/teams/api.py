@@ -67,17 +67,6 @@ def patch_team(request, team_id: int, payload: TeamPatchIn):
     return team
 
 
-@router.put("/{team_id}/", response=TeamOut)
-def put_team(request, team_id: int, payload: TeamIn):
-    org = require_org_owner(request)
-    team = get_object_or_404(_team_qs(request), pk=team_id)
-    member_ids = _validate_members(payload.members, org)
-    team.name = payload.name
-    team.save(update_fields=["name", "modified"])
-    team.members.set(member_ids)
-    return team
-
-
 @router.delete("/{team_id}/", response={204: None})
 def delete_team(request, team_id: int):
     require_org_owner(request)
