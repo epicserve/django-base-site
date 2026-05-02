@@ -115,13 +115,20 @@ class TestInviteFlow:
         assert not OrganizationInvite.objects.filter(pk=invite.pk).exists()
         assert OrganizationMember.objects.filter(organization=invite.organization, user=invitee).exists()
 
-    def test_decline_consumes_invite(self, page: Page, live_server, invite):
+    def test_decline_consumes_invite(self, page: Page, live_server, invite, invitee):
+        # Sign in as the invitee so the Decline button is visible.
+        page.goto(f"{live_server.url}/accounts/login/")
+        page.get_by_placeholder("Email").fill("jim.halpert@dundermifflin.com")
+        page.get_by_placeholder("Password").fill("dundermifflin")
+        page.get_by_role("button", name="Sign In", exact=True).click()
+        page.wait_for_url(f"{live_server.url}/", timeout=10000)
+
         page.goto(f"{live_server.url}/organizations/invite/{invite.key}/accept/")
-        # Sign in first so the Decline button is visible (auth gate).
-        # The decline endpoint itself doesn't require auth; for this test we
-        # exercise the unauthenticated path: hit the API directly.
-        resp = page.request.post(f"{live_server.url}/api/invite-by-key/{invite.key}/decline/")
-        assert resp.status == 200
+        expect(page.get_by_text("You're invited!")).to_be_visible()
+
+        page.get_by_role("button", name="Decline").click()
+
+        expect(page.get_by_text("Invitation declined")).to_be_visible(timeout=10000)
 
         from apps.organizations.models import OrganizationInvite
 

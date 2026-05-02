@@ -88,6 +88,8 @@ def test_verify_endpoint_accepts_decoded_key(mailoutbox, client, unverified_user
 @pytest.mark.django_db
 def test_set_primary_email_uses_patch(client):
     """
+    Mark-as-primary uses PATCH so allauth's headless API doesn't resend a verification email.
+
     AccountEmailView.vue calls setPrimaryEmail() to swap which verified email
     is primary. allauth's headless ManageEmailView maps PATCH → mark-as-primary
     and PUT → resend-verification, so the SPA must use PATCH or the click
@@ -98,7 +100,10 @@ def test_set_primary_email_uses_patch(client):
     user.save()
     EmailAddress.objects.create(user=user, email=user.email, verified=True, primary=True)
     secondary = EmailAddress.objects.create(
-        user=user, email="secondary@example.com", verified=True, primary=False,
+        user=user,
+        email="secondary@example.com",
+        verified=True,
+        primary=False,
     )
 
     client.force_login(user)
