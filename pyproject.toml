@@ -5,23 +5,28 @@ version = "0.1.0"
 requires-python = ">=3.12"
 dependencies = [
     "Django~=5.0",
+    "Pillow~=11.2",
     "boto3~=1.34",
     "celery~=5.5",
     "crispy-bootstrap5~=2026.3",
     "django-alive~=2.0",
-    "django-allauth~=65.16",
+    "django-allauth[mfa]~=65.16",
     "django-crispy-forms~=2.2",
+    "django-hijack~=3.7",
     "django-maintenance-mode~=0.19",
+    "django-ninja~=1.4",
     "django-ses~=4.3",
     "django-storages~=1.8",
     "epicenv[django]~=1.2",
+    "fido2~=1.1",
+    "gunicorn~=25.0",
     "hiredis~=3.0",  # needed for Django's native cache and sessions
     "psycopg2-binary~=2.9",
     "pytest-cov~=7.0",
     "pytest-django~=4.5",
     "python-json-logger~=4.1",
     "redis~=7.1",  # needed for celery
-    "uwsgi~=2.0",
+    "whitenoise~=6.7",
 ]
 
 [dependency-groups]
@@ -38,6 +43,8 @@ dev = [
     "mkdocs-material",
     "mkdocstrings[python]",
     "model-bakery",
+    "pyotp",
+    "pytest-playwright",
     "ty",
     "readable-log-formatter",
     "ruff",
@@ -110,6 +117,10 @@ ignore = ["D100", "D101", "D102", "D103", "D104", "D106", "D107", "D203", "D212"
 
 [tool.ruff.lint.per-file-ignores]
 "**/{tests}/*" = ["S101"]
+
+[tool.ruff.lint.flake8-bugbear]
+# django-ninja uses these as default values in function signatures
+extend-immutable-calls = ["ninja.Query", "ninja.File", "ninja.Form", "ninja.Body", "ninja.Path"]
 
 [tool.ruff.lint.isort.sections]
 "django" = ["django"]
