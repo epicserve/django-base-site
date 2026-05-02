@@ -1,6 +1,6 @@
 from django.apps import apps
 from django.conf import settings
-from django.db.models import QuerySet
+from django.db.models import Count, Q, QuerySet
 
 
 class FilterByOrganizationMixin(QuerySet):
@@ -10,21 +10,14 @@ class FilterByOrganizationMixin(QuerySet):
 
 class OrganizationQuerySet(QuerySet):
     def get_user_org_count(self, user):
-        member_count = 0
-        owner_count = 0
         org_member_model = apps.get_model("organizations.OrganizationMember")
-        for org_member in org_member_model.objects.filter(
-            pk__in=self.prefetch_related("organizationmember")
-            .filter(organizationmember__user=user)
-            .values_list("organizationmember__pk", flat=True)
-        ):
-            member_count += 1
-            if org_member.is_owner is True:
-                owner_count += 1
-
+        counts = org_member_model.objects.filter(user=user).aggregate(
+            member_count=Count("pk"),
+            owner_count=Count("pk", filter=Q(is_owner=True)),
+        )
         return {
-            "member_count": member_count,
-            "owner_count": owner_count,
+            "member_count": counts["member_count"] or 0,
+            "owner_count": counts["owner_count"] or 0,
         }
 
     def non_members(self, org):
