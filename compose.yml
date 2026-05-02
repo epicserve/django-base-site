@@ -9,7 +9,7 @@ services:
     volumes:
       - postgres_data:/var/lib/postgresql/data/
     ports:
-      - "5432:5432"
+      - "127.0.0.1:5432:5432"
     env_file:
       - .env
     healthcheck:
@@ -38,8 +38,8 @@ services:
     image: axllent/mailpit
     init: true
     ports:
-      - "8025:8025"
-      - "1025:1025"
+      - "127.0.0.1:8025:8025"
+      - "127.0.0.1:1025:1025"
     healthcheck:
       test: ["CMD", "wget", "--spider", "-q", "http://localhost:8025/livez"]
       interval: 10s
@@ -58,8 +58,8 @@ services:
     volumes:
       - minio_data:/data
     ports:
-      - "9000:9000"
-      - "9001:9001"
+      - "127.0.0.1:9000:9000"
+      - "127.0.0.1:9001:9001"
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:9000/minio/health/live"]
       interval: 10s
@@ -98,8 +98,8 @@ services:
       - .:/srv/app:cached
 
     ports:
-      - "8000:8000"
-      - "5678:5678"  # debugpy port for VS Code/LazyVim debugging
+      - "127.0.0.1:8000:8000"
+      - "127.0.0.1:5678:5678"  # debugpy port for VS Code/LazyVim debugging
 
     depends_on:
       db:
@@ -154,7 +154,7 @@ services:
       - node_modules:/srv/app/node_modules
 
     ports:
-      - "3000:3000"
+      - "127.0.0.1:3000:3000"
 
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:3000"]
@@ -174,7 +174,7 @@ services:
       - .:/srv/app:cached
 
     ports:
-      - "4000:4000"
+      - "127.0.0.1:4000:4000"
 
     environment:
       LIVE_RELOAD_SUPPORT: 'true'
