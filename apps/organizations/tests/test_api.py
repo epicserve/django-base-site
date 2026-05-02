@@ -175,11 +175,12 @@ class TestOrganizationInviteViewSet(OrganizationAPITestBase):
     def test_create_invite(self):
         self._login()
         mail.outbox = []
-        resp = self.client.post(
-            "/api/organization-invites/",
-            data=json.dumps({"invitee_email": "guest@example.com", "is_owner": False}),
-            content_type="application/json",
-        )
+        with self.captureOnCommitCallbacks(execute=True):
+            resp = self.client.post(
+                "/api/organization-invites/",
+                data=json.dumps({"invitee_email": "guest@example.com", "is_owner": False}),
+                content_type="application/json",
+            )
         self.assertEqual(resp.status_code, 201)
         self.assertEqual(OrganizationInvite.objects.filter(organization=self.org).count(), 1)
         self.assertEqual(len(mail.outbox), 1)
