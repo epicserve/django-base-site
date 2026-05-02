@@ -66,6 +66,7 @@ INSTALLED_APPS = [
     "allauth.mfa",
     "storages",
     "hijack",
+    "widget_tweaks",
 ]
 
 # DJANGO HIJACK SETTINGS

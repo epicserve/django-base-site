@@ -15,6 +15,7 @@ dependencies = [
     "django-ninja~=1.4",
     "django-ses~=4.3",
     "django-storages~=1.8",
+    "django-widget-tweaks~=1.5",
     "epicenv[django]~=1.2",
     "fido2~=1.1",
     "gunicorn~=25.0",

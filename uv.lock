@@ -3,7 +3,7 @@ revision = 3
 requires-python = ">=3.12"
 
 [options]
-exclude-newer = "2026-04-25T15:58:26.854188627Z"
+exclude-newer = "2026-04-25T16:25:31.350612559Z"
 exclude-newer-span = "P7D"
 
 [[package]]
@@ -635,6 +635,7 @@ dependencies = [
     { name = "django-ninja" },
     { name = "django-ses" },
     { name = "django-storages" },
+    { name = "django-widget-tweaks" },
     { name = "epicenv", extra = ["django"] },
     { name = "fido2" },
     { name = "gunicorn" },
@@ -681,6 +682,7 @@ requires-dist = [
     { name = "django-ninja", specifier = "~=1.4" },
     { name = "django-ses", specifier = "~=4.3" },
     { name = "django-storages", specifier = "~=1.8" },
+    { name = "django-widget-tweaks", specifier = "~=1.5" },
     { name = "epicenv", extras = ["django"], specifier = "~=1.2" },
     { name = "fido2", specifier = "~=1.1" },
     { name = "gunicorn", specifier = "~=25.0" },
@@ -837,6 +839,18 @@ dependencies = [
 sdist = { url = "https://files.pythonhosted.org/packages/7d/ee/78030380389311ab967281d98ac2a7dd96d4005592149d7049f624b52275/django_test_plus-2.4.1.tar.gz", hash = "sha256:5bc0e2248c25020f7056056c4173250213f93464b4ceb6a53ab79804a1968d0d", size = 18333, upload-time = "2025-12-19T18:34:26.263Z" }
 wheels = [
     { url = "https://files.pythonhosted.org/packages/fe/25/e7615f147c441738d3b0f39bf4547f79d52f32c46fa8ad1b64ba764438f4/django_test_plus-2.4.1-py3-none-any.whl", hash = "sha256:f2f14e4ece824dde29c6c52ce915ca38d8a6d1f6800e7076d708a47f02e02283", size = 17432, upload-time = "2025-12-19T18:34:25.426Z" },
+]
+
+[[package]]
+name = "django-widget-tweaks"
+version = "1.5.1"
+source = { registry = "https://pypi.org/simple" }
+dependencies = [
+    { name = "django" },
+]
+sdist = { url = "https://files.pythonhosted.org/packages/01/6d/d1b5a3ae3bccfee96e10315373298cea51e5e0d6853d022181b7b0861a4d/django_widget_tweaks-1.5.1.tar.gz", hash = "sha256:084acc9eeb5a3208f2670522de6284287973e54d54488ce6d402f4b99bc5f452", size = 16233, upload-time = "2026-01-02T12:46:28.907Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/64/6a/ad176284371005426b9a1c424e6cd77a9018ab1b17dc23948bfbeb2f6a21/django_widget_tweaks-1.5.1-py3-none-any.whl", hash = "sha256:3f5080f8365740fc1c14607498c975cbfed896dd0c40e1b563095716ee31e3b5", size = 9634, upload-time = "2026-01-02T12:46:02.18Z" },
 ]
 
 [[package]]
