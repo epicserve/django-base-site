@@ -129,7 +129,7 @@ class OrganizationInvite(OrganizationRoleMixin, TimeStampModelMixin):
         return (timezone.now() - self.created) > timedelta(days=self.expired_in_days)
 
     @property
-    def invitee_fist_name(self):
+    def invitee_first_name(self):
         if self.invitee is not None:
             return self.invitee.first_name
         else:

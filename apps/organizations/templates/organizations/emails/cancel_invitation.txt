@@ -1,3 +1,3 @@
-{% extends 'emails/base_email.html' %}{% block content %}Hi {{ invite.invitee_fist_name }},
+{% extends 'emails/base_email.html' %}{% block content %}Hi {{ invite.invitee_first_name }},
 
 Your invitation to the {{ invite.organization }} organization has been canceled. Links to the invitation in previous emails will no longer work.{% endblock content %}
