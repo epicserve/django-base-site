@@ -3,7 +3,7 @@ revision = 3
 requires-python = ">=3.12"
 
 [options]
-exclude-newer = "2026-04-25T16:31:45.669354874Z"
+exclude-newer = "0001-01-01T00:00:00Z" # This has no effect and is included for backwards compatibility when using relative exclude-newer values.
 exclude-newer-span = "P7D"
 
 [[package]]
@@ -641,8 +641,6 @@ dependencies = [
     { name = "hiredis" },
     { name = "pillow" },
     { name = "psycopg2-binary" },
-    { name = "pytest-cov" },
-    { name = "pytest-django" },
     { name = "python-json-logger" },
     { name = "redis" },
     { name = "whitenoise" },
@@ -662,6 +660,9 @@ dev = [
     { name = "mkdocstrings", extra = ["python"] },
     { name = "model-bakery" },
     { name = "pyotp" },
+    { name = "pytest" },
+    { name = "pytest-cov" },
+    { name = "pytest-django" },
     { name = "pytest-playwright" },
     { name = "readable-log-formatter" },
     { name = "ruff" },
@@ -687,8 +688,6 @@ requires-dist = [
     { name = "hiredis", specifier = "~=3.0" },
     { name = "pillow", specifier = "~=11.2" },
     { name = "psycopg2-binary", specifier = "~=2.9" },
-    { name = "pytest-cov", specifier = "~=7.0" },
-    { name = "pytest-django", specifier = "~=4.5" },
     { name = "python-json-logger", specifier = "~=4.1" },
     { name = "redis", specifier = "~=7.1" },
     { name = "whitenoise", specifier = "~=6.7" },
@@ -708,6 +707,9 @@ dev = [
     { name = "mkdocstrings", extras = ["python"] },
     { name = "model-bakery" },
     { name = "pyotp" },
+    { name = "pytest", specifier = "~=9.0" },
+    { name = "pytest-cov", specifier = "~=7.0" },
+    { name = "pytest-django", specifier = "~=4.5" },
     { name = "pytest-playwright" },
     { name = "readable-log-formatter" },
     { name = "ruff" },

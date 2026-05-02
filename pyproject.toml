@@ -20,8 +20,6 @@ dependencies = [
     "gunicorn~=25.0",
     "hiredis~=3.0",  # needed for Django's native cache and sessions
     "psycopg2-binary~=2.9",
-    "pytest-cov~=7.0",
-    "pytest-django~=4.5",
     "python-json-logger~=4.1",
     "redis~=7.1",  # needed for celery
     "whitenoise~=6.7",
@@ -42,6 +40,9 @@ dev = [
     "mkdocstrings[python]",
     "model-bakery",
     "pyotp",
+    "pytest~=9.0",
+    "pytest-cov~=7.0",
+    "pytest-django~=4.5",
     "pytest-playwright",
     "ty",
     "readable-log-formatter",
