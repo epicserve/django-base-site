@@ -43,17 +43,20 @@ class ViteSettings:
 vite_settings = ViteSettings()
 
 
+def _get_asset_base_url() -> str:
+    """Return asset base URL matching Vite's `base` config, so dynamic imports in built bundles resolve correctly."""
+    path = f"{settings.STATIC_URL}{vite_settings.VITE_OUTPUT_DIR}"
+    if vite_settings.VITE_DEV_MODE is False:
+        return path
+    return f"http://{vite_settings.VITE_SERVER_HOST}:{vite_settings.VITE_SERVER_PORT}{path}"
+
+
 def _get_css_link(filename: str) -> str:
-    base_url = f"{settings.STATIC_URL}{vite_settings.VITE_OUTPUT_DIR}"
-    return mark_safe(f'<link rel="stylesheet" href="{base_url}{filename}">')  # noqa: S308
+    return mark_safe(f'<link rel="stylesheet" href="{_get_asset_base_url()}{filename}">')  # noqa: S308
 
 
 def _get_script_tag(filename: str) -> str:
-    if vite_settings.VITE_DEV_MODE is False:
-        base_url = f"{settings.STATIC_URL}{vite_settings.VITE_OUTPUT_DIR}"
-    else:
-        base_url = f"http://{vite_settings.VITE_SERVER_HOST}:{vite_settings.VITE_SERVER_PORT}{settings.STATIC_URL}"
-    return mark_safe(f'<script type="module" src="{base_url}{filename}"></script>')  # noqa: S308
+    return mark_safe(f'<script type="module" src="{_get_asset_base_url()}{filename}"></script>')  # noqa: S308
 
 
 @lru_cache
@@ -77,7 +80,11 @@ def _get_file_data(filename: str) -> dict[str, str | list[str | None] | bool]:
 
 def _get_css_asset(filename: str):
     if vite_settings.VITE_DEV_MODE is True:
-        return ""
+        # In dev mode, link directly to the CSS source file on the Vite dev server
+        # to avoid a flash of unstyled content. The compiled output lives in js/ but
+        # the source lives in css/, so we remap the path accordingly.
+        source_path = filename.replace("js/", "css/", 1) if filename.startswith("js/") else filename
+        return mark_safe(f'<link rel="stylesheet" href="{_get_asset_base_url()}{source_path}">')  # noqa: S308
     file_data = _get_file_data(filename)
     hashed_filename = file_data.get("css", [None])[0]  # type: ignore
     return _get_css_link(hashed_filename)  # type: ignore
@@ -88,7 +95,10 @@ def _get_js_asset(filename: str):
         return _get_script_tag(filename)
     file_data = _get_file_data(filename)
     hashed_filename = file_data.get("file")
-    return _get_script_tag(hashed_filename)  # type: ignore
+    tags = _get_script_tag(hashed_filename)  # type: ignore
+    for css_file in file_data.get("css", []):
+        tags = _get_css_link(css_file) + tags
+    return tags
 
 
 @register.simple_tag

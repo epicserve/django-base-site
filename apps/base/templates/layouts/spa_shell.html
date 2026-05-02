@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+{% load vite %}
+
+<html lang="en" class="h-full" data-theme="light">
+  <head>
+    <!-- Apply saved theme before CSS loads to prevent flash -->
+    <script>
+      (function() {
+        var stored = localStorage.getItem('theme') || 'auto';
+        var theme = stored === 'auto' ?
+          (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light') :
+          stored;
+        document.documentElement.setAttribute('data-theme', theme);
+      })();
+    </script>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="icon" href="data:,">
+    <title>Time Logs</title>
+  </head>
+  <body class="bg-white dark:bg-gray-900 text-gray-900 dark:text-white">
+    <div id="app" class="flex flex-col min-h-screen"></div>
+    {% vite_hmr_client %}
+    {% vite_asset 'js/app.js' %}
+  </body>
+</html>

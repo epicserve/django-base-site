@@ -1,0 +1,8 @@
+{% extends 'emails/base_email.txt' %}
+
+{% block content %}
+This is a test email sent on {{ date_time }}.
+
+## Debug Settings{% for key, value in debug_settings %}
+{{ key }}: {{ value }}{% endfor %}
+{% endblock %}
