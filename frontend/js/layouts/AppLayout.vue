@@ -223,7 +223,7 @@ onUnmounted(() => {
                   href="/admin/"
                 >
                   <WrenchScrewdriverIcon class="h-4 w-4 text-gray-400 dark:text-gray-500" />
-                  Administration
+                  Django Admin
                 </a>
                 <button
                   v-if="appStore.user.is_hijacked"
