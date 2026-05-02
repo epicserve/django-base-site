@@ -4,15 +4,14 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('accounts', '0005_user_avatar_crop_data_user_avatar_original_and_more'),
+        ("accounts", "0005_user_avatar_crop_data_user_avatar_original_and_more"),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name='user',
-            name='timezone',
-            field=models.CharField(default='America/Chicago', max_length=63),
+            model_name="user",
+            name="timezone",
+            field=models.CharField(default="America/Chicago", max_length=63),
         ),
     ]

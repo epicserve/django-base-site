@@ -100,11 +100,7 @@ def set_primary(request, slug: str):
     require_authenticated(request)
     org = get_object_or_404(Organization, slug=slug)
     with transaction.atomic():
-        membership = (
-            OrganizationMember.objects.select_for_update()
-            .filter(user=request.user, organization=org)
-            .first()
-        )
+        membership = OrganizationMember.objects.select_for_update().filter(user=request.user, organization=org).first()
         if membership is None:
             raise HttpError(403, "Not a member.")
         if membership.is_primary:
@@ -316,9 +312,7 @@ def accept_invite_by_key(request, key: str):
         raise HttpError(409, "You're already a member of this organization.")
     is_owner = invite.is_owner and invite.organization.is_owner(invite.sender)
     with transaction.atomic():
-        OrganizationMember.objects.get_or_create(
-            organization=invite.organization, user=request.user, is_owner=is_owner
-        )
+        OrganizationMember.objects.get_or_create(organization=invite.organization, user=request.user, is_owner=is_owner)
         invite.delete()
     save_counts(request)
     save_org_data(request, invite.organization)
