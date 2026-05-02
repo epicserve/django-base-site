@@ -21,6 +21,7 @@ const imageSrc = ref(null);
 const cropperRef = ref(null);
 const loading = ref(false);
 const error = ref('');
+let activeReader = null;
 
 const hasAvatar = computed(() => Boolean(avatarUrl.value));
 
@@ -40,10 +41,18 @@ function onFileSelect(event) {
 
   error.value = '';
   imageFile.value = file;
+  // Cancel an earlier read in case the user picked a file in rapid succession;
+  // otherwise the older onload could fire after the newer one and clobber
+  // imageSrc with the previous selection.
+  if (activeReader) activeReader.abort();
   const reader = new FileReader();
+  activeReader = reader;
 
   reader.onload = (e) => {
-    imageSrc.value = e.target.result;
+    if (activeReader === reader) {
+      imageSrc.value = e.target.result;
+      activeReader = null;
+    }
   };
   reader.readAsDataURL(file);
 }
