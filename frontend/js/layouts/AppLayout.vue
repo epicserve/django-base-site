@@ -147,13 +147,12 @@ onUnmounted(() => {
                   Switch Company
                 </RouterLink>
                 <RouterLink
-                  v-if="appStore.instance !== 'prod' && (appStore.orgOwnerCount === 0 || (appStore.user && appStore.user.is_staff))"
                   class="cursor-pointer flex items-center gap-2 px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-700"
                   :to="{ name: 'org-create' }"
                   @click="closeAllDropdowns"
                 >
                   <PlusCircleIcon class="h-4 w-4 text-gray-400 dark:text-gray-500" />
-                  Add Company
+                  Create Organization
                 </RouterLink>
               </div>
             </div>
@@ -163,21 +162,17 @@ onUnmounted(() => {
               class="cursor-pointer flex items-center gap-1.5 rounded-md border border-dashed border-gray-300 px-3 py-1.5 text-sm text-gray-500 hover:border-gray-400 hover:bg-gray-50 hover:text-gray-700 dark:border-gray-600 dark:text-gray-400 dark:hover:border-gray-500 dark:hover:bg-gray-800 dark:hover:text-gray-300"
               :to="{ name: 'org-switch' }"
             >
-              <svg
-                class="h-4 w-4"
-                xmlns="http://www.w3.org/2000/svg"
-                fill="none"
-                viewBox="0 0 24 24"
-                stroke-width="1.5"
-                stroke="currentColor"
-              >
-                <path
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                  d="m2.25 12 8.954-8.955c.44-.439 1.152-.439 1.591 0L21.75 12M4.5 9.75v10.125c0 .621.504 1.125 1.125 1.125H9.75v-4.875c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125V21h4.125c.621 0 1.125-.504 1.125-1.125V9.75M8.25 21h8.25"
-                />
-              </svg>
-              Personal Space
+              <ArrowsRightLeftIcon class="h-4 w-4" />
+              Switch Organization
+            </RouterLink>
+          </template>
+          <template v-else>
+            <RouterLink
+              class="cursor-pointer flex items-center gap-1.5 rounded-md border border-dashed border-gray-300 px-3 py-1.5 text-sm text-gray-500 hover:border-gray-400 hover:bg-gray-50 hover:text-gray-700 dark:border-gray-600 dark:text-gray-400 dark:hover:border-gray-500 dark:hover:bg-gray-800 dark:hover:text-gray-300"
+              :to="{ name: 'org-create' }"
+            >
+              <PlusCircleIcon class="h-4 w-4" />
+              Create Organization
             </RouterLink>
           </template>
 
@@ -322,12 +317,11 @@ onUnmounted(() => {
             Settings
           </RouterLink>
           <RouterLink
-            v-if="appStore.instance !== 'prod'"
             class="block px-2 py-2 text-sm text-gray-700 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-700 rounded cursor-pointer"
             :to="{ name: 'org-create' }"
             @click="mobileMenuOpen = false"
           >
-            Add Company
+            Create Organization
           </RouterLink>
           <div class="my-1 border-t border-gray-200 dark:border-gray-700" />
         </template>
