@@ -1,0 +1,35 @@
+{% extends 'layouts/base.html' %}
+
+{% block title %}Accept Invite{% endblock %}
+
+{% block content %}
+  <div class="flex min-h-[60vh] items-center justify-center px-4">
+    <div class="w-full max-w-sm">
+      <div class="rounded-xl border border-gray-200 bg-white px-8 py-10 shadow-sm dark:border-gray-700 dark:bg-gray-800">
+        {% if already_member_message %}
+          <h1 class="text-center text-2xl font-semibold tracking-tight text-gray-900 dark:text-white">Already a Member</h1>
+          <p class="mt-4 text-center text-sm text-gray-500 dark:text-gray-400">{{ already_member_message }}</p>
+        {% else %}
+          <h1 class="text-center text-2xl font-semibold tracking-tight text-gray-900 dark:text-white">You're Invited!</h1>
+          <p class="mt-2 text-center text-sm text-gray-500 dark:text-gray-400">
+            Join the <strong>{{ invite.organization }}</strong> organization
+          </p>
+          <p class="mt-1 text-center text-xs text-gray-400 dark:text-gray-500">Invited by {{ invite.sender.get_full_name }}</p>
+          <form action="." method="post" class="mt-6 space-y-3">
+            {% csrf_token %}
+            <button type="submit"
+                    class="w-full cursor-pointer rounded-lg bg-blue-600 px-4 py-2.5 text-sm font-semibold text-white shadow-sm transition hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 dark:focus:ring-offset-gray-800">
+              Join
+            </button>
+            <button type="submit"
+                    name="decline"
+                    value="1"
+                    class="w-full cursor-pointer rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-sm font-semibold text-gray-700 shadow-sm transition hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-300 dark:hover:bg-gray-600 dark:focus:ring-offset-gray-800">
+              Decline
+            </button>
+          </form>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+{% endblock %}

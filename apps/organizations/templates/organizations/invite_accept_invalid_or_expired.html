@@ -1,0 +1,30 @@
+{% extends 'layouts/base.html' %}
+
+{% block title %}Invalid Invite{% endblock %}
+
+{% block content %}
+  <div class="flex min-h-[60vh] items-center justify-center px-4">
+    <div class="w-full max-w-sm">
+      <div class="rounded-xl border border-gray-200 bg-white px-8 py-10 shadow-sm dark:border-gray-700 dark:bg-gray-800">
+        <h1 class="text-center text-2xl font-semibold tracking-tight text-gray-900 dark:text-white">
+          {% if not invite %}
+            Invite Not Found
+          {% else %}
+            Invite Expired
+          {% endif %}
+        </h1>
+        <p class="mt-4 text-center text-sm text-gray-500 dark:text-gray-400">
+          {% if not invite %}
+            The organization invite link you used was not found. Try copying the link in the email instead of clicking on the button.
+          {% elif invite.is_expired %}
+            The organization invite link you used has expired. Please ask whoever sent you the invite to send you a new one.
+          {% endif %}
+        </p>
+      </div>
+      <p class="mt-6 text-center text-sm text-gray-500 dark:text-gray-400">
+        <a href="/accounts/login/"
+           class="cursor-pointer font-medium text-blue-600 hover:text-blue-500 dark:text-blue-400">Back to Sign In</a>
+      </p>
+    </div>
+  </div>
+{% endblock %}

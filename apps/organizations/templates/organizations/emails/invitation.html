@@ -1,0 +1,18 @@
+{% extends 'emails/action_email.html' %}
+
+{% load site %}
+
+{% block title %}
+  {{ subject }}
+{% endblock title %}
+
+{% block action_url %}{{ site_url }}{{ invite.accept_invite_url }}{% endblock %}
+
+{% block action_button_text %}Join {{ invite.organization }}{% endblock %}
+
+{% block content %}
+  <p>
+    {{ invite.sender.get_full_name }} has invited you to join the {{ invite.organization }} organization on {% get_site_name %}.
+  </p>
+  <p>This invitation will expire in {{ num_days }} days.</p>
+{% endblock content %}

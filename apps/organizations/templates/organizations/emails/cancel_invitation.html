@@ -1,0 +1,9 @@
+{% extends 'emails/base_email.html' %}
+
+{% block content %}
+  <p>Hi {{ invite.invitee_fist_name }},</p>
+  <p>
+    Your invitation to the {{ invite.organization }} organization has been canceled. Links to the invitation in previous
+    emails will no longer work.
+  </p>
+{% endblock content %}
