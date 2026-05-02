@@ -45,9 +45,10 @@ vite_settings = ViteSettings()
 
 def _get_asset_base_url() -> str:
     """Return asset base URL matching Vite's `base` config, so dynamic imports in built bundles resolve correctly."""
+    path = f"{settings.STATIC_URL}{vite_settings.VITE_OUTPUT_DIR}"
     if vite_settings.VITE_DEV_MODE is False:
-        return f"{settings.STATIC_URL}{vite_settings.VITE_OUTPUT_DIR}"
-    return f"http://{vite_settings.VITE_SERVER_HOST}:{vite_settings.VITE_SERVER_PORT}{settings.STATIC_URL}"
+        return path
+    return f"http://{vite_settings.VITE_SERVER_HOST}:{vite_settings.VITE_SERVER_PORT}{path}"
 
 
 def _get_css_link(filename: str) -> str:
