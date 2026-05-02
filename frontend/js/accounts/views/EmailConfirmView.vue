@@ -1,34 +1,65 @@
 <script setup>
-import { ref, onMounted } from 'vue';
+import { ref, onMounted, inject } from 'vue';
 import { useRoute, RouterLink } from 'vue-router';
 import AuthLayout from '@/layouts/AuthLayout.vue';
 import { authApi } from '../api';
 
 const route = useRoute();
+const appStore = inject('appStore');
 
 const status = ref('loading');
 const errorMessage = ref('');
 
-onMounted(async () => {
+const VERIFIED_KEYS_STORAGE = 'verifiedEmailKeys';
+
+function loadVerifiedKeys() {
   try {
-    // The email link URL-encodes the key (allauth runs it through quote()),
-    // so decode before POSTing or allauth rejects it as "invalid or expired".
-    await authApi.verifyEmail(decodeURIComponent(route.params.key));
+    return new Set(JSON.parse(sessionStorage.getItem(VERIFIED_KEYS_STORAGE) || '[]'));
+  } catch {
+    return new Set();
+  }
+}
+
+function rememberVerifiedKey(key) {
+  const keys = loadVerifiedKeys();
+  keys.add(key);
+  try {
+    sessionStorage.setItem(VERIFIED_KEYS_STORAGE, JSON.stringify([...keys]));
+  } catch {
+    // sessionStorage may be unavailable (private mode); fall through silently.
+  }
+}
+
+onMounted(async () => {
+  // The email link URL-encodes the key (allauth runs it through quote()),
+  // so decode before POSTing or allauth rejects it as "invalid or expired".
+  const key = decodeURIComponent(route.params.key);
+
+  // If we've already verified this key in the current browser session, the
+  // server will reject a second POST as "invalid or expired" — refreshing the
+  // page after a successful confirmation should still look like success.
+  if (loadVerifiedKeys().has(key)) {
+    status.value = 'success';
+    return;
+  }
+
+  try {
+    await authApi.verifyEmail(key);
+    rememberVerifiedKey(key);
     status.value = 'success';
   } catch (err) {
     // A successful verification for an unauthenticated user still comes back
     // as 401 with an auth/flow response (no `errors`). Treat responses with
     // no explicit errors array as success.
     if (err.data && !err.data.errors) {
+      rememberVerifiedKey(key);
       status.value = 'success';
       return;
     }
     status.value = 'error';
-    if (err.data?.errors?.[0]?.message) {
-      errorMessage.value = err.data.errors[0].message;
-    } else {
-      errorMessage.value = 'This confirmation link is invalid or has expired.';
-    }
+    errorMessage.value = appStore.isAuthenticated
+      ? 'This link has already been used. Your email is confirmed.'
+      : 'This confirmation link has already been used or has expired.';
   }
 });
 </script>
@@ -61,9 +92,9 @@ onMounted(async () => {
     </template>
     <template v-else>
       <h1 class="text-center text-2xl font-semibold tracking-tight text-gray-900 dark:text-white">
-        Confirmation Failed
+        Link No Longer Valid
       </h1>
-      <p class="mt-4 text-center text-sm text-red-600 dark:text-red-400">
+      <p class="mt-4 text-center text-sm text-gray-600 dark:text-gray-300">
         {{ errorMessage }}
       </p>
       <div class="mt-6">
