@@ -36,6 +36,9 @@ async function add() {
   try {
     const optsResp = await authApi.beginAddPasskey(passwordless.value);
     const options = optsResp.data?.creation_options || optsResp.data;
+    const rpId = options?.publicKey?.rp?.id || options?.rp?.id;
+    // eslint-disable-next-line no-console
+    console.info('[passkey enroll] page origin:', window.location.origin, '/ rp.id:', rpId);
     const credential = await createPasskeyCredential(options);
 
     await authApi.addPasskey(newName.value || 'Passkey', credential);
