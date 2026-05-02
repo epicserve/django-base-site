@@ -128,8 +128,9 @@ jobs:
       DB_SSL_REQUIRED: False
       DATABASE_URL: postgres://postgres:postgres@172.17.0.1:5432/postgres
       # Override the default `docker compose exec web` so just recipes work
-      # against an ephemeral container instead of expecting a running service.
-      PYTHON_CMD_PREFIX: docker compose run -u root --rm --no-deps web
+      # against an ephemeral container instead of expecting a running service,
+      # and forward the env vars Django needs to bootstrap settings.
+      PYTHON_CMD_PREFIX: docker compose run -u root -e DATABASE_URL -e READ_DOT_ENV_FILE -e SECRET_KEY -e DB_SSL_REQUIRED --rm --no-deps web
       DOCKER_COMPOSE_PREFIX: docker compose run -u root -e DATABASE_URL -e READ_DOT_ENV_FILE -e SECRET_KEY -e DB_SSL_REQUIRED --rm --no-deps web
     steps:
       - uses: actions/checkout@v6
