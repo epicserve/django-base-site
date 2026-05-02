@@ -1,13 +1,14 @@
 import io
 
-import qrcode
-import qrcode.image.svg
 from django.contrib.auth.decorators import login_required
 from django.http import HttpResponse, HttpResponseBadRequest
 from django.shortcuts import render
 from django.views import generic
 from django.views.decorators.csrf import ensure_csrf_cookie
 from django.views.decorators.http import require_GET
+
+import qrcode
+import qrcode.image.svg
 
 
 class SPAView(generic.TemplateView):

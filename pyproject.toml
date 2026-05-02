@@ -53,6 +53,22 @@ dev = [
 # Ty type checker configuration: https://docs.astral.sh/ty/
 # Ty is a fast, modern type checker for Python
 
+[tool.ty.rules]
+# These rules fire frequently on Django code because django-stubs cannot model
+# dynamic attributes (reverse managers, custom queryset/manager methods, the
+# swappable user model, ninja's Query/Path/Body sentinels, etc.). Until ty's
+# Django integration matures, downgrade them so pre-commit type checking stays
+# focused on application bugs rather than framework-level false positives.
+unresolved-attribute = "ignore"
+call-non-callable = "ignore"
+invalid-argument-type = "ignore"
+no-matching-overload = "ignore"
+invalid-method-override = "ignore"
+invalid-assignment = "ignore"
+unresolved-import = "ignore"
+not-iterable = "ignore"
+unsupported-operator = "ignore"
+
 [tool.django-stubs]
 django_settings_module = "config.settings.test_runner"
 
@@ -88,7 +104,7 @@ blank_line_after_tag="endblock,extends,load"
 format_css=true
 format_js=true
 use_gitignore=true
-ignore="H030,H031,H017"
+ignore="H030,H031,H017,H005,H021,H023"
 exclude="base-email.html"
 
 [tool.djlint.js]

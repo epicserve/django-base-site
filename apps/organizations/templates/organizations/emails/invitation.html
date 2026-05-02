@@ -1,4 +1,4 @@
-{% extends 'emails/action_email.html' %}
+{% extends "emails/action_email.html" %}
 
 {% load site %}
 
@@ -6,9 +6,13 @@
   {{ subject }}
 {% endblock title %}
 
-{% block action_url %}{{ site_url }}{{ invite.accept_invite_url }}{% endblock %}
+{% block action_url %}
+  {{ site_url }}{{ invite.accept_invite_url }}
+{% endblock action_url %}
 
-{% block action_button_text %}Join {{ invite.organization }}{% endblock %}
+{% block action_button_text %}
+  Join {{ invite.organization }}
+{% endblock action_button_text %}
 
 {% block content %}
   <p>

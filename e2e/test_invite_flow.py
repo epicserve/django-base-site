@@ -1,4 +1,5 @@
-"""End-to-end tests for the organization invitation flow.
+"""
+End-to-end tests for the organization invitation flow.
 
 Covers the SPA-driven accept-invite page that the invitation email links to:
 
@@ -112,9 +113,7 @@ class TestInviteFlow:
         from apps.organizations.models import OrganizationInvite, OrganizationMember
 
         assert not OrganizationInvite.objects.filter(pk=invite.pk).exists()
-        assert OrganizationMember.objects.filter(
-            organization=invite.organization, user=invitee
-        ).exists()
+        assert OrganizationMember.objects.filter(organization=invite.organization, user=invitee).exists()
 
     def test_decline_consumes_invite(self, page: Page, live_server, invite):
         page.goto(f"{live_server.url}/organizations/invite/{invite.key}/accept/")
@@ -139,6 +138,4 @@ class TestInviteFlow:
         page.goto(f"{live_server.url}/organizations/invite/{invite.key}/accept/")
         page.get_by_role("button", name="I already have an account").click()
 
-        expect(page).to_have_url(
-            re.compile(rf"/accounts/login/.*next=.*{re.escape(invite.key)}")
-        )
+        expect(page).to_have_url(re.compile(rf"/accounts/login/.*next=.*{re.escape(invite.key)}"))

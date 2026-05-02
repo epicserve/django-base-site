@@ -35,6 +35,7 @@ def _extract_key_from_email(body: str) -> str:
 @pytest.mark.django_db
 def test_login_triggers_verification_email_with_usable_key(mailoutbox, client, unverified_user, settings):
     settings.AUTHENTICATION_BACKENDS = ["allauth.account.auth_backends.AuthenticationBackend"]
+    settings.ACCOUNT_EMAIL_VERIFICATION = "mandatory"
 
     login_response = client.post(
         "/_allauth/browser/v1/auth/login",
@@ -63,6 +64,7 @@ def test_verify_endpoint_accepts_decoded_key(mailoutbox, client, unverified_user
     /_allauth/browser/v1/auth/email/verify.
     """
     settings.AUTHENTICATION_BACKENDS = ["allauth.account.auth_backends.AuthenticationBackend"]
+    settings.ACCOUNT_EMAIL_VERIFICATION = "mandatory"
 
     client.post(
         "/_allauth/browser/v1/auth/login",

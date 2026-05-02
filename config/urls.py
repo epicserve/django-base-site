@@ -9,8 +9,9 @@ from config.api import api as ninja_api
 
 def _public_not_found(request, path=""):
     """
-    Catch missing /public/static/* (stale Vite chunks during a deploy) and
-    /public/media/* requests so the SPA catch-all doesn't answer 200 with
+    Return 404 for missing /public/static/* and /public/media/* requests.
+
+    Catches stale Vite chunks during a deploy so the SPA catch-all doesn't answer 200 with
     HTML for a missing asset (which would break dynamic-import chunk loads).
     """
     return HttpResponseNotFound()

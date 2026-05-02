@@ -285,12 +285,8 @@ def update_settings(request, payload: SettingsPatchIn):
 
 @public_invites_router.get("/{key}/", response=PublicInviteOut, auth=None)
 def get_invite_by_key(request, key: str):
-    invite = get_object_or_404(
-        OrganizationInvite.objects.select_related("organization", "sender"), key=key
-    )
-    is_already_member = bool(
-        request.user.is_authenticated and invite.organization.is_member(request.user)
-    )
+    invite = get_object_or_404(OrganizationInvite.objects.select_related("organization", "sender"), key=key)
+    is_already_member = bool(request.user.is_authenticated and invite.organization.is_member(request.user))
     return {
         "organization_name": invite.organization.name,
         "sender_name": invite.sender.get_full_name() or invite.sender.email,
@@ -303,9 +299,7 @@ def get_invite_by_key(request, key: str):
 @public_invites_router.post("/{key}/accept/", response=SuccessOut)
 def accept_invite_by_key(request, key: str):
     require_authenticated(request)
-    invite = get_object_or_404(
-        OrganizationInvite.objects.select_related("organization"), key=key
-    )
+    invite = get_object_or_404(OrganizationInvite.objects.select_related("organization"), key=key)
     if invite.is_expired:
         raise HttpError(410, "This invite has expired.")
     if invite.organization.is_member(request.user):

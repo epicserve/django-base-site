@@ -71,7 +71,6 @@ const stack = [
           </div>
         </dl>
       </section>
-
     </div>
   </div>
 </template>

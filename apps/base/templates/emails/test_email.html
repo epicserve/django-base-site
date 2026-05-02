@@ -1,6 +1,8 @@
-{% extends 'emails/base_email.html' %}
+{% extends "emails/base_email.html" %}
 
-{% block subject %}{{ subject }}{% endblock %}
+{% block subject %}
+  {{ subject }}
+{% endblock subject %}
 
 {% block content %}
   <p>This is a test email sent on {{ date_time }}.</p>
@@ -13,4 +15,4 @@
       </tr>
     {% endfor %}
   </table>
-{% endblock %}
+{% endblock content %}

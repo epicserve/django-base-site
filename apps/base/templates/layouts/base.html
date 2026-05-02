@@ -1,17 +1,28 @@
 {% load static %}
-<!doctype html>
+
+<!DOCTYPE html>
 <html lang="en">
-<head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  {% block title_tag %}<title>{% block title %}{{ SITE_NAME }}{% endblock %}</title>{% endblock %}
-</head>
-<body>
-{% if messages %}
-  <ul class="messages">
-    {% for message in messages %}<li>{{ message }}</li>{% endfor %}
-  </ul>
-{% endif %}
-{% block content %}{% endblock %}
-</body>
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    {% block title_tag %}
+      <title>
+        {% block title %}
+          {{ SITE_NAME }}
+        {% endblock title %}
+
+      </title>
+    {% endblock title_tag %}
+
+  </head>
+  <body>
+    {% if messages %}
+      <ul class="messages">
+        {% for message in messages %}<li>{{ message }}</li>{% endfor %}
+      </ul>
+    {% endif %}
+    {% block content %}
+    {% endblock content %}
+
+  </body>
 </html>

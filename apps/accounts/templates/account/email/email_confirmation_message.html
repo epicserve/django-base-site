@@ -19,4 +19,4 @@
   {% autoescape off %}
     {% user_display user as user_display %}{% blocktrans with site_name=current_site.name site_domain=current_site.domain %}You're receiving this e-mail because user {{ user_display }} has given your e-mail address to register an account.{% endblocktrans %}
   {% endautoescape %}
-{% endblock %}
+{% endblock content %}
