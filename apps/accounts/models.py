@@ -1,14 +1,12 @@
 import logging
 from uuid import uuid4
-from zoneinfo import ZoneInfo, ZoneInfoNotFoundError, available_timezones
+from zoneinfo import ZoneInfo, ZoneInfoNotFoundError
 
 from django.contrib.auth.models import AbstractUser
 from django.core.exceptions import ValidationError
 from django.db import models
 
 logger = logging.getLogger(__name__)
-
-TIMEZONE_CHOICES = sorted([(tz, tz) for tz in available_timezones()])
 
 
 def avatar_original_path(instance, filename):
@@ -21,7 +19,7 @@ def avatar_thumbnail_path(instance, filename):
 
 
 class User(AbstractUser):
-    timezone = models.CharField(max_length=63, default="America/Chicago", choices=TIMEZONE_CHOICES)
+    timezone = models.CharField(max_length=63, default="America/Chicago")
     avatar_original = models.ImageField(upload_to=avatar_original_path, blank=True)
     avatar_thumbnail = models.ImageField(upload_to=avatar_thumbnail_path, blank=True)
     avatar_crop_data = models.JSONField(blank=True, null=True)
