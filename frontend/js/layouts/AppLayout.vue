@@ -111,7 +111,7 @@ onUnmounted(() => {
                 data-dropdown="nav"
               >
                 <button
-                  class="cursor-pointer flex items-center gap-1.5 rounded-md border border-gray-200 bg-gray-50 px-3 py-1.5 text-sm font-medium text-gray-700 hover:bg-gray-100 dark:border-gray-600 dark:bg-gray-800 dark:text-gray-300 dark:hover:bg-gray-700"
+                  class="cursor-pointer flex items-center gap-1.5 px-2 py-1.5 text-sm font-medium text-gray-700 hover:text-gray-900 dark:text-gray-300 dark:hover:text-white"
                   @click.stop="toggleOrgDropdown"
                 >
                   {{ appStore.org.name }}
@@ -185,6 +185,11 @@ onUnmounted(() => {
                 Create Organization
               </RouterLink>
             </template>
+
+            <span
+              aria-hidden="true"
+              class="mx-2 h-6 w-px bg-gray-200 dark:bg-gray-700"
+            />
 
             <!-- User dropdown -->
             <div
