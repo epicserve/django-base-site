@@ -63,6 +63,7 @@ INSTALLED_APPS = [
     "apps.accounts",
     "apps.organizations",
     "apps.teams",
+    "apps.notifications",
     "maintenance_mode",
     "allauth",
     "allauth.account",
@@ -274,6 +275,10 @@ SITE_URL = f"{SITE_SCHEME}://{SITE_DOMAIN}"
 
 # Default page size used by the ninja LegacyPagination paginator.
 DEFAULT_PAGE_SIZE = 50
+
+# Models registered here get a post_delete receiver that cleans up Notification
+# rows whose GenericForeignKey targets them. Add producer-app models as needed.
+NOTIFICATIONS_TARGET_MODELS: list[str] = []
 
 # DJANGO DEBUG TOOLBAR SETTINGS
 if DEBUG is True:

@@ -3,8 +3,10 @@ import { ref, computed, inject, onMounted, onUnmounted } from 'vue';
 import { RouterLink } from 'vue-router';
 import ThemeToggle from '@/components/ThemeToggle.vue';
 import AppToast from '@/components/AppToast.vue';
+import AppNotificationBell from '@/components/AppNotificationBell.vue';
 import TimezoneDetectModal from '@/components/TimezoneDetectModal.vue';
 import UserAvatar from '@/components/UserAvatar.vue';
+import { useNotifications } from '@/composables/useNotifications';
 import {
   Cog6ToothIcon,
   ArrowsRightLeftIcon,
@@ -20,6 +22,7 @@ import {
 } from '@heroicons/vue/24/outline';
 
 const appStore = inject('appStore');
+const { startPolling, stopPolling } = useNotifications();
 const orgDropdownOpen = ref(false);
 const userDropdownOpen = ref(false);
 const mobileMenuOpen = ref(false);
@@ -81,10 +84,12 @@ function handleClickOutside(e) {
 
 onMounted(() => {
   document.addEventListener('click', handleClickOutside);
+  startPolling();
 });
 
 onUnmounted(() => {
   document.removeEventListener('click', handleClickOutside);
+  stopPolling();
 });
 </script>
 
@@ -102,6 +107,7 @@ onUnmounted(() => {
           </RouterLink>
         </div>
         <div class="flex items-center gap-1">
+          <AppNotificationBell />
           <!-- Desktop controls -->
           <div class="hidden lg:flex items-center gap-1">
             <!-- Org dropdown -->
