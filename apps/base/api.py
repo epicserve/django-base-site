@@ -1,15 +1,17 @@
 from django.conf import settings
-from django.contrib.auth import get_user_model
 from django.utils import dateformat
 from django.utils.timezone import now
 
 from ninja import Router, Schema
 from ninja.errors import HttpError
 
+from apps.accounts.models import User
 from apps.base.permissions import require_superuser
 from apps.base.templatetags.vite import _get_manifest, vite_settings
 from apps.base.utils.email import send_email
 from apps.base.utils.timezones import get_timezone_label
+from apps.notifications.models import Notification
+from apps.notifications.services import notify
 from apps.organizations.models import Organization
 from apps.organizations.session import get_member_count, get_owner_count
 
@@ -85,19 +87,18 @@ def app_context(request):
 @router.get("/send-test-email/staff-users/")
 def test_email_staff_users(request):
     require_superuser(request)
-    User = get_user_model()
     users = User.objects.filter(is_staff=True).order_by("first_name", "last_name", "email")
-    return [{"id": u.id, "full_name": u.get_full_name() or u.username, "email": u.email} for u in users]
+    return [{"id": u.pk, "full_name": u.get_full_name() or u.username, "email": u.email} for u in users]
 
 
 class SendTestEmailIn(Schema):
     user_id: int
+    include_notification: bool = True
 
 
 @router.post("/send-test-email/")
 def send_test_email(request, payload: SendTestEmailIn):
     require_superuser(request)
-    User = get_user_model()
     try:
         recipient = User.objects.get(pk=payload.user_id, is_staff=True)
     except User.DoesNotExist as exc:
@@ -124,4 +125,18 @@ def send_test_email(request, payload: SendTestEmailIn):
         base_template_name="emails/test_email",
         context=context,
     )
-    return {"message": f"Test email sent to {recipient.get_full_name() or recipient.username} ({recipient.email})"}
+
+    recipient_label = f"{recipient.get_full_name() or recipient.username} ({recipient.email})"
+    if payload.include_notification:
+        sender_org = request.org.instance if getattr(request.org, "id", None) else None
+        notify(
+            [recipient],
+            type=Notification.Type.EMAIL,
+            title=subject,
+            body="A test email was just sent to you.",
+            url="/",
+            actor=request.user,
+            organization=sender_org,
+        )
+        return {"message": f"Test email + inbox notification sent to {recipient_label}"}
+    return {"message": f"Test email sent to {recipient_label}"}

@@ -8,6 +8,7 @@ from ninja.security import django_auth
 from apps.accounts.api import avatar_router, users_router
 from apps.base.api import router as base_router
 from apps.base.errors import register_error_handlers
+from apps.notifications.api import router as notifications_router
 from apps.organizations.api import (
     invites_router as org_invites_router,
 )
@@ -37,6 +38,7 @@ api.add_router("/", base_router)
 api.add_router("/avatar/", avatar_router)
 api.add_router("/organization-invites/", org_invites_router)
 api.add_router("/invite-by-key/", public_invites_router)
+api.add_router("/notifications/", notifications_router)
 api.add_router("/organization-members/", org_members_router)
 api.add_router("/organization-settings/", org_settings_router)
 api.add_router("/organizations/", orgs_router)

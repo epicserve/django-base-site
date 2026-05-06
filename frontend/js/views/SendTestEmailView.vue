@@ -6,6 +6,7 @@ import SearchableSelect from '@/components/SearchableSelect.vue';
 
 const users = ref([]);
 const selectedUserId = ref('');
+const includeNotification = ref(true);
 const loading = ref(false);
 const sending = ref(false);
 
@@ -34,7 +35,10 @@ async function submit() {
   if (!selectedUserId.value) return;
   sending.value = true;
   try {
-    const data = await post('/api/send-test-email/', { user_id: Number(selectedUserId.value) });
+    const data = await post('/api/send-test-email/', {
+      user_id: Number(selectedUserId.value),
+      include_notification: includeNotification.value,
+    });
     showToast(data.message || 'Test email sent.', 'success');
   } catch (err) {
     showToast(err?.data?.detail || 'Failed to send test email.', 'error');
@@ -68,6 +72,15 @@ async function submit() {
           :placeholder="loading ? 'Loading…' : 'Select a staff user...'"
         />
       </div>
+
+      <label class="mt-4 flex items-center gap-2 text-sm text-gray-700 dark:text-gray-300">
+        <input
+          v-model="includeNotification"
+          type="checkbox"
+          class="h-4 w-4 cursor-pointer rounded border-gray-300 text-blue-600 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700"
+        >
+        Also create an inbox notification for the recipient
+      </label>
 
       <div class="mt-6 flex justify-end">
         <button
