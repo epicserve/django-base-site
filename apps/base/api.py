@@ -1,4 +1,5 @@
 from django.conf import settings
+from django.template.loader import render_to_string
 from django.utils import dateformat
 from django.utils.timezone import now
 
@@ -129,11 +130,12 @@ def send_test_email(request, payload: SendTestEmailIn):
     recipient_label = f"{recipient.get_full_name() or recipient.username} ({recipient.email})"
     if payload.include_notification:
         sender_org = request.org.instance if getattr(request.org, "id", None) else None
+        text_body = render_to_string("emails/test_email.txt", context=context).strip()
         notify(
             [recipient],
             type=Notification.Type.EMAIL,
             title=subject,
-            body="A test email was just sent to you.",
+            body=text_body,
             url="/",
             actor=request.user,
             organization=sender_org,

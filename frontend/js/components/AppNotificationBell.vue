@@ -5,6 +5,7 @@ import { BellIcon, TrashIcon, CheckIcon, XMarkIcon } from '@heroicons/vue/24/out
 import { BellAlertIcon } from '@heroicons/vue/24/solid';
 import { useNotifications } from '../composables/useNotifications';
 import { relativeTime, userFullName } from '../utils/format';
+import AppModal from './AppModal.vue';
 import UserAvatar from './UserAvatar.vue';
 
 const router = useRouter();
@@ -23,6 +24,7 @@ const {
 const isOpen = ref(false);
 const selectMode = ref(false);
 const selectedIds = ref(new Set());
+const detailNotification = ref(null);
 
 const filterTab = ref('unread');
 const hasUnread = computed(() => unreadCount.value > 0);
@@ -76,6 +78,11 @@ function toggleSelectAll() {
   }
 }
 
+function hasNavigableUrl(notification) {
+  const url = notification.url;
+  return Boolean(url) && url !== '/';
+}
+
 async function handleRowClick(notification) {
   if (selectMode.value) {
     toggleSelect(notification.id);
@@ -85,8 +92,10 @@ async function handleRowClick(notification) {
     markRead(notification.id).catch(() => {});
   }
   isOpen.value = false;
-  if (notification.url) {
+  if (hasNavigableUrl(notification)) {
     router.push(notification.url);
+  } else {
+    detailNotification.value = { ...notification, is_read: true };
   }
 }
 
@@ -341,5 +350,56 @@ watch(isOpen, (open) => {
         </ul>
       </div>
     </div>
+
+    <AppModal
+      :open="!!detailNotification"
+      :title="detailNotification?.title || ''"
+      size="lg"
+      @close="detailNotification = null"
+    >
+      <div
+        v-if="detailNotification"
+        class="space-y-4"
+      >
+        <div
+          v-if="detailNotification.actor"
+          class="flex items-center gap-3"
+        >
+          <UserAvatar
+            :src="detailNotification.actor.avatar_url || ''"
+            :name="userFullName(detailNotification.actor)"
+            size="md"
+          />
+          <div class="text-sm">
+            <p class="font-medium text-gray-900 dark:text-white">
+              {{ userFullName(detailNotification.actor) }}
+            </p>
+            <p class="text-xs text-gray-500 dark:text-gray-400">
+              {{ relativeTime(detailNotification.created) }}
+              · {{ new Date(detailNotification.created).toLocaleString() }}
+            </p>
+          </div>
+        </div>
+        <p
+          v-else
+          class="text-xs text-gray-500 dark:text-gray-400"
+        >
+          {{ relativeTime(detailNotification.created) }}
+          · {{ new Date(detailNotification.created).toLocaleString() }}
+        </p>
+        <div
+          v-if="detailNotification.body"
+          class="whitespace-pre-line text-sm text-gray-700 dark:text-gray-200"
+        >
+          {{ detailNotification.body }}
+        </div>
+        <p
+          v-else
+          class="text-sm italic text-gray-500 dark:text-gray-400"
+        >
+          No additional details.
+        </p>
+      </div>
+    </AppModal>
   </div>
 </template>
