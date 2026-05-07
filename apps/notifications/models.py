@@ -19,7 +19,7 @@ class Notification(TimeStampModelMixin):
     """
 
     class Type(models.TextChoices):
-        MENTION = "mention", "Mention"
+        IN_APP = "in_app", "In-app notification"
         EMAIL = "email", "Email"
 
     recipient = models.ForeignKey(
@@ -62,7 +62,7 @@ class Notification(TimeStampModelMixin):
 
     title = models.CharField(max_length=255)
     body = models.TextField(blank=True)
-    url = models.CharField(max_length=500)
+    url = models.CharField(max_length=500, null=True, blank=True)
     data = models.JSONField(default=dict, blank=True)
     read_at = models.DateTimeField(null=True, blank=True, db_index=True)
 

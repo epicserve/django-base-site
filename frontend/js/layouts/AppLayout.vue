@@ -266,11 +266,11 @@ onUnmounted(() => {
                   <RouterLink
                     v-if="appStore.user.is_superuser && !appStore.user.is_hijacked"
                     class="cursor-pointer flex items-center gap-2 px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-700"
-                    :to="{ name: 'send-test-emails' }"
+                    :to="{ name: 'test-notifications' }"
                     @click="closeAllDropdowns"
                   >
                     <EnvelopeIcon class="h-4 w-4 text-gray-400 dark:text-gray-500" />
-                    Send Test Email
+                    Test Notifications
                   </RouterLink>
                   <template v-if="appStore.user.is_superuser && appStore.instance !== 'prod'">
                     <a
@@ -480,11 +480,11 @@ onUnmounted(() => {
           <RouterLink
             v-if="appStore.user.is_superuser && !appStore.user.is_hijacked"
             class="cursor-pointer flex items-center gap-2 rounded px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-700"
-            :to="{ name: 'send-test-emails' }"
+            :to="{ name: 'test-notifications' }"
             @click="closeAllDropdowns"
           >
             <EnvelopeIcon class="h-4 w-4 text-gray-400 dark:text-gray-500" />
-            Send Test Email
+            Test Notifications
           </RouterLink>
           <template v-if="appStore.user.is_superuser && appStore.instance !== 'prod'">
             <a

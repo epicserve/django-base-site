@@ -14,7 +14,7 @@ def notify(
     *,
     type: Notification.Type | str,
     title: str,
-    url: str,
+    url: str | None = None,
     organization: Organization | None = None,
     actor: User | None = None,
     target: Model | None = None,

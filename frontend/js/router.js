@@ -170,11 +170,11 @@ export function createRouter(appStore) {
         meta: { requiresAuth: true, staffOnly: true },
       },
 
-      // Send test email (superuser only)
+      // Test notifications (superuser only)
       {
-        path: '/send-test-emails/',
-        name: 'send-test-emails',
-        component: () => import('./views/SendTestEmailView.vue'),
+        path: '/test-notifications/',
+        name: 'test-notifications',
+        component: () => import('./views/TestNotificationsView.vue'),
         meta: { requiresAuth: true, superuserOnly: true },
       },
 

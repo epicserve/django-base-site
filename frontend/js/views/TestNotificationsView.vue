@@ -6,7 +6,8 @@ import SearchableSelect from '@/components/SearchableSelect.vue';
 
 const users = ref([]);
 const selectedUserId = ref('');
-const includeNotification = ref(true);
+const sendEmail = ref(true);
+const sendInApp = ref(true);
 const loading = ref(false);
 const sending = ref(false);
 
@@ -17,10 +18,14 @@ const userOptions = computed(() =>
   })),
 );
 
+const canSubmit = computed(
+  () => Boolean(selectedUserId.value) && (sendEmail.value || sendInApp.value),
+);
+
 onMounted(async () => {
   loading.value = true;
   try {
-    users.value = await get('/api/send-test-email/staff-users/');
+    users.value = await get('/api/test-notifications/staff-users/');
     if (users.value.length) {
       selectedUserId.value = String(users.value[0].id);
     }
@@ -32,16 +37,17 @@ onMounted(async () => {
 });
 
 async function submit() {
-  if (!selectedUserId.value) return;
+  if (!canSubmit.value) return;
   sending.value = true;
   try {
-    const data = await post('/api/send-test-email/', {
+    const data = await post('/api/test-notifications/', {
       user_id: Number(selectedUserId.value),
-      include_notification: includeNotification.value,
+      send_email: sendEmail.value,
+      send_in_app: sendInApp.value,
     });
-    showToast(data.message || 'Test email sent.', 'success');
+    showToast(data.message || 'Test notification sent.', 'success');
   } catch (err) {
-    showToast(err?.data?.detail || 'Failed to send test email.', 'error');
+    showToast(err?.data?.detail || 'Failed to send test notification.', 'error');
   } finally {
     sending.value = false;
   }
@@ -52,10 +58,10 @@ async function submit() {
   <div class="mx-auto max-w-3xl">
     <div class="mb-6">
       <h1 class="text-2xl font-semibold text-gray-900 dark:text-white">
-        Send Test Email
+        Test Notifications
       </h1>
       <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">
-        Send a test email to a staff user to verify email configuration.
+        Send a test notification to a staff user to verify email and in-app notification delivery.
       </p>
     </div>
     <form
@@ -75,20 +81,29 @@ async function submit() {
 
       <label class="mt-4 flex items-center gap-2 text-sm text-gray-700 dark:text-gray-300">
         <input
-          v-model="includeNotification"
+          v-model="sendEmail"
           type="checkbox"
           class="h-4 w-4 cursor-pointer rounded border-gray-300 text-blue-600 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700"
         >
-        Also create an inbox notification for the recipient
+        Send email notification
+      </label>
+
+      <label class="mt-2 flex items-center gap-2 text-sm text-gray-700 dark:text-gray-300">
+        <input
+          v-model="sendInApp"
+          type="checkbox"
+          class="h-4 w-4 cursor-pointer rounded border-gray-300 text-blue-600 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700"
+        >
+        Send in app notification
       </label>
 
       <div class="mt-6 flex justify-end">
         <button
           type="submit"
-          :disabled="sending || loading || !selectedUserId"
+          :disabled="sending || loading || !canSubmit"
           class="cursor-pointer rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white shadow-sm transition hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
         >
-          {{ sending ? 'Sending…' : 'Send Test Email' }}
+          {{ sending ? 'Sending…' : 'Send' }}
         </button>
       </div>
     </form>

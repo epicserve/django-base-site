@@ -16,7 +16,7 @@ class NotificationOut(Schema):
     type: str
     title: str
     body: str
-    url: str
+    url: str | None = None
     is_read: bool
     created: datetime
     actor: NotificationActorOut | None = None

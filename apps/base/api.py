@@ -1,5 +1,4 @@
 from django.conf import settings
-from django.template.loader import render_to_string
 from django.utils import dateformat
 from django.utils.timezone import now
 
@@ -85,28 +84,31 @@ def app_context(request):
     }
 
 
-@router.get("/send-test-email/staff-users/")
-def test_email_staff_users(request):
+@router.get("/test-notifications/staff-users/")
+def test_notifications_staff_users(request):
     require_superuser(request)
     users = User.objects.filter(is_staff=True).order_by("first_name", "last_name", "email")
     return [{"id": u.pk, "full_name": u.get_full_name() or u.username, "email": u.email} for u in users]
 
 
-class SendTestEmailIn(Schema):
+class TestNotificationIn(Schema):
     user_id: int
-    include_notification: bool = True
+    send_email: bool = True
+    send_in_app: bool = True
 
 
-@router.post("/send-test-email/")
-def send_test_email(request, payload: SendTestEmailIn):
+@router.post("/test-notifications/")
+def send_test_notification(request, payload: TestNotificationIn):
     require_superuser(request)
+    if not payload.send_email and not payload.send_in_app:
+        raise HttpError(400, "Select at least one notification channel.")
     try:
         recipient = User.objects.get(pk=payload.user_id, is_staff=True)
     except User.DoesNotExist as exc:
         raise HttpError(400, "Invalid recipient.") from exc
 
     date_time = dateformat.format(now(), settings.SHORT_DATETIME_FORMAT)
-    subject = f"Django Test Email ({date_time})"
+    subject = f"Test Email ({date_time})"
     debug_settings = [
         (name, getattr(settings, name, None))
         for name in (
@@ -119,26 +121,30 @@ def send_test_email(request, payload: SendTestEmailIn):
         )
     ]
     context = {"subject": subject, "date_time": date_time, "debug_settings": debug_settings}
-    send_email(
-        recipient,
-        recipients=[recipient],
-        subject=subject,
-        base_template_name="emails/test_email",
-        context=context,
-    )
 
-    recipient_label = f"{recipient.get_full_name() or recipient.username} ({recipient.email})"
-    if payload.include_notification:
+    if payload.send_email:
+        send_email(
+            recipient,
+            recipients=[recipient],
+            subject=subject,
+            base_template_name="emails/test_email",
+            context=context,
+        )
+
+    if payload.send_in_app:
         sender_org = request.org.instance if getattr(request.org, "id", None) else None
-        text_body = render_to_string("emails/test_email.txt", context=context).strip()
         notify(
             [recipient],
-            type=Notification.Type.EMAIL,
-            title=subject,
-            body=text_body,
-            url="/",
+            type=Notification.Type.EMAIL if payload.send_email else Notification.Type.IN_APP,
+            title="Test Notification",
+            body="This is a test notification.",
             actor=request.user,
             organization=sender_org,
         )
-        return {"message": f"Test email + inbox notification sent to {recipient_label}"}
-    return {"message": f"Test email sent to {recipient_label}"}
+
+    recipient_label = f"{recipient.get_full_name() or recipient.username} ({recipient.email})"
+    if payload.send_email and payload.send_in_app:
+        return {"message": f"Email + in-app notification sent to {recipient_label}"}
+    if payload.send_email:
+        return {"message": f"Email sent to {recipient_label}"}
+    return {"message": f"In-app notification sent to {recipient_label}"}
