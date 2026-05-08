@@ -163,7 +163,7 @@ watch(isOpen, (open) => {
 
     <div
       v-show="isOpen"
-      class="absolute right-0 top-full z-50 mt-1 w-96 max-w-[calc(100vw-2rem)] rounded-md border border-gray-200 bg-white shadow-lg dark:border-gray-700 dark:bg-gray-800"
+      class="fixed inset-x-2 top-[3.75rem] z-50 flex max-h-[calc(100dvh-4.5rem)] flex-col overflow-hidden rounded-md border border-gray-200 bg-white shadow-lg sm:absolute sm:inset-x-auto sm:right-0 sm:top-full sm:mt-1 sm:max-h-none sm:w-96 dark:border-gray-700 dark:bg-gray-800"
       @click.stop
     >
       <!-- Header -->
@@ -266,7 +266,7 @@ watch(isOpen, (open) => {
       </div>
 
       <!-- List -->
-      <div class="max-h-[32rem] overflow-y-auto">
+      <div class="flex-1 overflow-y-auto sm:flex-none sm:max-h-[32rem]">
         <div
           v-if="loading && notifications.length === 0"
           class="px-4 py-8 text-center text-sm text-gray-500 dark:text-gray-400"
