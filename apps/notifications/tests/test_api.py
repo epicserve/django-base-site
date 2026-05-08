@@ -56,10 +56,10 @@ class TestNotificationAPI(TestCase):
 
     def test_list_scopes_to_user_and_org(self):
         baker.make(
-            Notification, recipient=self.user, organization=self.org, type="in_app", title="mine in org", _quantity=2
+            Notification, recipient=self.user, organization=self.org, title="mine in org", _quantity=2
         )
-        baker.make(Notification, recipient=self.user, organization=self.other_org, type="in_app", title="mine in other")
-        baker.make(Notification, recipient=self.other_user, organization=self.org, type="in_app", title="bob's")
+        baker.make(Notification, recipient=self.user, organization=self.other_org, title="mine in other")
+        baker.make(Notification, recipient=self.other_user, organization=self.org, title="bob's")
 
         self._login_in_org()
         resp = self.client.get(LIST_URL)
@@ -70,12 +70,11 @@ class TestNotificationAPI(TestCase):
             self.assertEqual(row["title"], "mine in org")
 
     def test_unread_count(self):
-        baker.make(Notification, recipient=self.user, organization=self.org, type="in_app", _quantity=3)
+        baker.make(Notification, recipient=self.user, organization=self.org, _quantity=3)
         baker.make(
             Notification,
             recipient=self.user,
             organization=self.org,
-            type="in_app",
             read_at="2026-01-01T00:00:00Z",
             _quantity=2,
         )
@@ -85,9 +84,9 @@ class TestNotificationAPI(TestCase):
         self.assertEqual(resp.json()["count"], 3)
 
     def test_filter_unread(self):
-        baker.make(Notification, recipient=self.user, organization=self.org, type="in_app", _quantity=2)
+        baker.make(Notification, recipient=self.user, organization=self.org, _quantity=2)
         baker.make(
-            Notification, recipient=self.user, organization=self.org, type="in_app", read_at="2026-01-01T00:00:00Z"
+            Notification, recipient=self.user, organization=self.org, read_at="2026-01-01T00:00:00Z"
         )
         self._login_in_org()
         resp = self.client.get(LIST_URL, {"is_read": "false"})
@@ -96,7 +95,7 @@ class TestNotificationAPI(TestCase):
         self.assertEqual(resp.json()["count"], 1)
 
     def test_mark_read_sets_read_at(self):
-        n = baker.make(Notification, recipient=self.user, organization=self.org, type="in_app")
+        n = baker.make(Notification, recipient=self.user, organization=self.org)
         self.assertIsNone(n.read_at)
         self._login_in_org()
         resp = self._patch_json(_detail_url(n.pk), {"is_read": True})
@@ -108,21 +107,21 @@ class TestNotificationAPI(TestCase):
         self.assertIsNone(n.read_at)
 
     def test_delete_one(self):
-        n = baker.make(Notification, recipient=self.user, organization=self.org, type="in_app")
+        n = baker.make(Notification, recipient=self.user, organization=self.org)
         self._login_in_org()
         resp = self.client.delete(_detail_url(n.pk))
         self.assertEqual(resp.status_code, 204)
         self.assertEqual(Notification.objects.count(), 0)
 
     def test_cannot_act_on_other_users_notification(self):
-        n = baker.make(Notification, recipient=self.other_user, organization=self.org, type="in_app")
+        n = baker.make(Notification, recipient=self.other_user, organization=self.org)
         self._login_in_org()
         resp = self.client.delete(_detail_url(n.pk))
         self.assertEqual(resp.status_code, 404)
         self.assertEqual(Notification.objects.count(), 1)
 
     def test_bulk_mark_read_by_ids(self):
-        unread = baker.make(Notification, recipient=self.user, organization=self.org, type="in_app", _quantity=3)
+        unread = baker.make(Notification, recipient=self.user, organization=self.org, _quantity=3)
         self._login_in_org()
         ids = [n.pk for n in unread[:2]]
         resp = self._post_json(BULK_URL, {"action": "mark_read", "ids": ids})
@@ -131,8 +130,8 @@ class TestNotificationAPI(TestCase):
         self.assertEqual(Notification.objects.filter(read_at__isnull=True).count(), 1)
 
     def test_bulk_mark_all_unread(self):
-        baker.make(Notification, recipient=self.user, organization=self.org, type="in_app", _quantity=3)
-        baker.make(Notification, recipient=self.other_user, organization=self.org, type="in_app", _quantity=2)
+        baker.make(Notification, recipient=self.user, organization=self.org, _quantity=3)
+        baker.make(Notification, recipient=self.other_user, organization=self.org, _quantity=2)
         self._login_in_org()
         resp = self._post_json(BULK_URL, {"action": "mark_read", "all_unread": True})
         self.assertEqual(resp.status_code, 200)
@@ -141,8 +140,8 @@ class TestNotificationAPI(TestCase):
         self.assertEqual(Notification.objects.filter(recipient=self.other_user, read_at__isnull=True).count(), 2)
 
     def test_bulk_delete(self):
-        mine = baker.make(Notification, recipient=self.user, organization=self.org, type="in_app", _quantity=3)
-        baker.make(Notification, recipient=self.other_user, organization=self.org, type="in_app")
+        mine = baker.make(Notification, recipient=self.user, organization=self.org, _quantity=3)
+        baker.make(Notification, recipient=self.other_user, organization=self.org)
         self._login_in_org()
         ids = [n.pk for n in mine]
         resp = self._post_json(BULK_URL, {"action": "delete", "ids": ids})
@@ -151,7 +150,7 @@ class TestNotificationAPI(TestCase):
         self.assertEqual(Notification.objects.count(), 1)
 
     def test_bulk_delete_cannot_touch_other_users(self):
-        theirs = baker.make(Notification, recipient=self.other_user, organization=self.org, type="in_app")
+        theirs = baker.make(Notification, recipient=self.other_user, organization=self.org)
         self._login_in_org()
         resp = self._post_json(BULK_URL, {"action": "delete", "ids": [theirs.pk]})
         self.assertEqual(resp.status_code, 200)

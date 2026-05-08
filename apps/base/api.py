@@ -10,7 +10,6 @@ from apps.base.permissions import require_superuser
 from apps.base.templatetags.vite import _get_manifest, vite_settings
 from apps.base.utils.email import send_email
 from apps.base.utils.timezones import get_timezone_label
-from apps.notifications.models import Notification
 from apps.notifications.services import notify
 from apps.organizations.models import Organization
 from apps.organizations.session import get_member_count, get_owner_count
@@ -135,7 +134,6 @@ def send_test_notification(request, payload: TestNotificationIn):
         sender_org = request.org.instance if getattr(request.org, "id", None) else None
         notify(
             [recipient],
-            type=Notification.Type.EMAIL if payload.send_email else Notification.Type.IN_APP,
             title="Test Notification",
             body="This is a test notification.",
             actor=request.user,
