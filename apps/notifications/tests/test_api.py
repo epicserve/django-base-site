@@ -55,9 +55,7 @@ class TestNotificationAPI(TestCase):
         self.assertIn(resp.status_code, (401, 403))
 
     def test_list_scopes_to_user_and_org(self):
-        baker.make(
-            Notification, recipient=self.user, organization=self.org, title="mine in org", _quantity=2
-        )
+        baker.make(Notification, recipient=self.user, organization=self.org, title="mine in org", _quantity=2)
         baker.make(Notification, recipient=self.user, organization=self.other_org, title="mine in other")
         baker.make(Notification, recipient=self.other_user, organization=self.org, title="bob's")
 
@@ -85,9 +83,7 @@ class TestNotificationAPI(TestCase):
 
     def test_filter_unread(self):
         baker.make(Notification, recipient=self.user, organization=self.org, _quantity=2)
-        baker.make(
-            Notification, recipient=self.user, organization=self.org, read_at="2026-01-01T00:00:00Z"
-        )
+        baker.make(Notification, recipient=self.user, organization=self.org, read_at="2026-01-01T00:00:00Z")
         self._login_in_org()
         resp = self.client.get(LIST_URL, {"is_read": "false"})
         self.assertEqual(resp.json()["count"], 2)

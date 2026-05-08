@@ -13,7 +13,6 @@ class NotificationActorOut(Schema):
 
 class NotificationOut(Schema):
     id: int
-    type: str
     title: str
     body: str
     url: str | None = None
