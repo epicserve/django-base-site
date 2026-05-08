@@ -50,8 +50,8 @@ async function onSubmit() {
         Invalid Reset Link
       </h1>
       <p class="mt-4 text-center text-sm text-gray-500 dark:text-gray-400">
-        The password reset link was invalid, possibly because it has already been used or has expired.
-        Please request a new password reset.
+        The password reset link was invalid, possibly because it has already been used or has expired. Please request a
+        new password reset.
       </p>
       <div class="mt-6">
         <RouterLink
@@ -63,16 +63,9 @@ async function onSubmit() {
       </div>
     </template>
     <template v-else>
-      <h1 class="text-center text-2xl font-semibold tracking-tight text-gray-900 dark:text-white">
-        Set New Password
-      </h1>
-      <p class="mt-2 text-center text-sm text-gray-500 dark:text-gray-400">
-        Enter your new password below.
-      </p>
-      <form
-        class="mt-6 space-y-4"
-        @submit.prevent="onSubmit"
-      >
+      <h1 class="text-center text-2xl font-semibold tracking-tight text-gray-900 dark:text-white">Set New Password</h1>
+      <p class="mt-2 text-center text-sm text-gray-500 dark:text-gray-400">Enter your new password below.</p>
+      <form class="mt-6 space-y-4" @submit.prevent="onSubmit">
         <FormErrors :errors="errors.non_field_errors || []" />
         <FormField
           v-model="password"
@@ -93,10 +86,7 @@ async function onSubmit() {
     </template>
     <template #footer>
       <p class="mt-6 text-center text-sm text-gray-500 dark:text-gray-400">
-        <RouterLink
-          :to="{ name: 'login' }"
-          class="font-medium text-blue-600 hover:text-blue-500 dark:text-blue-400"
-        >
+        <RouterLink :to="{ name: 'login' }" class="font-medium text-blue-600 hover:text-blue-500 dark:text-blue-400">
           Back to Sign In
         </RouterLink>
       </p>

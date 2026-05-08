@@ -1,18 +1,7 @@
 <script setup>
 import { ref, onMounted } from 'vue';
-import {
-  ArrowPathIcon,
-  UserMinusIcon,
-  EnvelopeIcon,
-  XMarkIcon,
-} from '@heroicons/vue/24/outline';
-import {
-  get,
-  post,
-  patch,
-  del,
-  parseErrors,
-} from '../utils/api';
+import { ArrowPathIcon, UserMinusIcon, EnvelopeIcon, XMarkIcon } from '@heroicons/vue/24/outline';
+import { get, post, patch, del, parseErrors } from '../utils/api';
 import { showToast } from '../composables/useToast';
 import { userFullName } from '../utils/format';
 import AppModal from '../components/AppModal.vue';
@@ -161,29 +150,16 @@ onMounted(loadData);
       <table class="w-full text-left">
         <thead>
           <tr class="border-b border-gray-200 dark:border-gray-700">
-            <th class="pb-2 text-sm font-medium text-gray-500 dark:text-gray-400">
-              Name
-            </th>
-            <th class="pb-2 text-sm font-medium text-gray-500 dark:text-gray-400">
-              Email
-            </th>
-            <th class="pb-2 text-sm font-medium text-gray-500 dark:text-gray-400">
-              Role
-            </th>
+            <th class="pb-2 text-sm font-medium text-gray-500 dark:text-gray-400">Name</th>
+            <th class="pb-2 text-sm font-medium text-gray-500 dark:text-gray-400">Email</th>
+            <th class="pb-2 text-sm font-medium text-gray-500 dark:text-gray-400">Role</th>
             <th class="pb-2" />
           </tr>
         </thead>
         <tbody>
-          <tr
-            v-for="member in members"
-            :key="member.pk"
-            class="border-b border-gray-100 dark:border-gray-700"
-          >
+          <tr v-for="member in members" :key="member.pk" class="border-b border-gray-100 dark:border-gray-700">
             <td class="py-2 text-gray-900 dark:text-white">
-              <UserBadge
-                :user="member.user || member"
-                fallback="icon"
-              />
+              <UserBadge :user="member.user || member" fallback="icon" />
             </td>
             <td class="py-2 text-gray-700 dark:text-gray-300">
               {{ (member.user || member).email || (member.user || member).username || '' }}
@@ -221,12 +197,7 @@ onMounted(loadData);
             </td>
           </tr>
           <tr v-if="members.length === 0">
-            <td
-              colspan="4"
-              class="py-4 text-center text-gray-500 dark:text-gray-400"
-            >
-              No members.
-            </td>
+            <td colspan="4" class="py-4 text-center text-gray-500 dark:text-gray-400">No members.</td>
           </tr>
         </tbody>
       </table>
@@ -234,9 +205,7 @@ onMounted(loadData);
 
     <!-- Invite -->
     <div class="mb-6">
-      <h4 class="text-lg font-semibold text-gray-900 dark:text-white mb-3">
-        Invite a Member
-      </h4>
+      <h4 class="text-lg font-semibold text-gray-900 dark:text-white mb-3">Invite a Member</h4>
       <div class="flex gap-2 mb-2 max-w-lg">
         <input
           v-model="searchQuery"
@@ -244,7 +213,7 @@ onMounted(loadData);
           placeholder="Search by name, email, or username..."
           class="flex-1 rounded-md border border-gray-300 px-3 py-2 text-sm shadow-sm focus:border-blue-500 focus:ring-blue-500 dark:bg-gray-800 dark:border-gray-600 dark:text-white"
           @input="onSearchInput"
-        >
+        />
         <button
           class="cursor-pointer inline-flex items-center gap-1.5 rounded-md bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700"
           @click="openInviteByEmailModal"
@@ -253,21 +222,14 @@ onMounted(loadData);
           Invite by Email
         </button>
       </div>
-      <div
-        v-if="searchResults.length > 0"
-        class="max-w-lg border border-gray-200 rounded-md dark:border-gray-700"
-      >
+      <div v-if="searchResults.length > 0" class="max-w-lg border border-gray-200 rounded-md dark:border-gray-700">
         <button
           v-for="result in searchResults"
           :key="result.pk"
           class="cursor-pointer flex items-center gap-2 w-full text-left px-3 py-2 text-sm hover:bg-gray-100 border-b border-gray-100 last:border-0 dark:hover:bg-gray-700 dark:text-gray-300 dark:border-gray-700"
           @click="inviteUser(result.pk)"
         >
-          <UserAvatar
-            :src="result.avatar_url || ''"
-            :name="userFullName(result)"
-            fallback="icon"
-          />
+          <UserAvatar :src="result.avatar_url || ''" :name="userFullName(result)" fallback="icon" />
           {{ result.first_name || '' }}
           {{ result.last_name || '' }}
           ({{ result.username || result.email || '' }})
@@ -282,46 +244,29 @@ onMounted(loadData);
     </div>
 
     <!-- Pending Invitations -->
-    <div
-      v-if="invites.length > 0"
-      class="mb-6"
-    >
-      <h4 class="text-lg font-semibold text-gray-900 dark:text-white mb-3">
-        Pending Invitations
-      </h4>
+    <div v-if="invites.length > 0" class="mb-6">
+      <h4 class="text-lg font-semibold text-gray-900 dark:text-white mb-3">Pending Invitations</h4>
       <table class="w-full text-left">
         <thead>
           <tr class="border-b border-gray-200 dark:border-gray-700">
-            <th class="pb-2 text-sm font-medium text-gray-500 dark:text-gray-400">
-              Name
-            </th>
-            <th class="pb-2 text-sm font-medium text-gray-500 dark:text-gray-400">
-              Email
-            </th>
-            <th class="pb-2 text-sm font-medium text-gray-500 dark:text-gray-400">
-              Status
-            </th>
+            <th class="pb-2 text-sm font-medium text-gray-500 dark:text-gray-400">Name</th>
+            <th class="pb-2 text-sm font-medium text-gray-500 dark:text-gray-400">Email</th>
+            <th class="pb-2 text-sm font-medium text-gray-500 dark:text-gray-400">Status</th>
             <th class="pb-2" />
           </tr>
         </thead>
         <tbody>
-          <tr
-            v-for="invite in invites"
-            :key="invite.pk"
-            class="border-b border-gray-100 dark:border-gray-700"
-          >
+          <tr v-for="invite in invites" :key="invite.pk" class="border-b border-gray-100 dark:border-gray-700">
             <td class="py-2 text-gray-900 dark:text-white">
-              <UserBadge
-                v-if="invite.invitee"
-                :user="invite.invitee"
-                fallback="icon"
-              />
+              <UserBadge v-if="invite.invitee" :user="invite.invitee" fallback="icon" />
             </td>
             <td class="py-2 text-gray-700 dark:text-gray-300">
               {{ invite.invitee_email || '' }}
             </td>
             <td class="py-2">
-              <span class="inline-flex items-center rounded-full bg-yellow-100 px-2.5 py-0.5 text-xs font-medium text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-300">
+              <span
+                class="inline-flex items-center rounded-full bg-yellow-100 px-2.5 py-0.5 text-xs font-medium text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-300"
+              >
                 Pending
               </span>
             </td>
@@ -340,27 +285,19 @@ onMounted(loadData);
     </div>
 
     <!-- Invite by Email Modal -->
-    <AppModal
-      :open="inviteEmailModalOpen"
-      title="Invite by Email"
-      @close="inviteEmailModalOpen = false"
-    >
+    <AppModal :open="inviteEmailModalOpen" title="Invite by Email" @close="inviteEmailModalOpen = false">
       <div class="mb-4">
-        <label
-          for="invite-email"
-          class="block text-sm font-medium text-gray-700 dark:text-gray-300"
-        >Email Address</label>
+        <label for="invite-email" class="block text-sm font-medium text-gray-700 dark:text-gray-300"
+          >Email Address</label
+        >
         <input
           id="invite-email"
           v-model="inviteEmail"
           type="email"
           class="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:border-blue-500 focus:ring-blue-500 dark:bg-gray-800 dark:border-gray-600 dark:text-white"
           @keyup.enter="sendEmailInvite"
-        >
-        <p
-          v-if="inviteEmailError"
-          class="mt-1 text-sm text-red-600"
-        >
+        />
+        <p v-if="inviteEmailError" class="mt-1 text-sm text-red-600">
           {{ inviteEmailError }}
         </p>
       </div>

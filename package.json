@@ -5,14 +5,12 @@
     "dev": "vite --config frontend/config/vite.config.mjs",
     "build": "vite build --config frontend/config/vite.config.mjs",
     "preview": "vite preview --config frontend/config/vite.config.mjs",
-    "lint-js": "eslint --config eslint.config.mjs ./frontend/",
-    "format-js": "eslint --config eslint.config.mjs --fix ./frontend/"
+    "lint-js": "oxlint ./frontend/",
+    "format-js": "oxfmt ./frontend/ && oxlint --fix ./frontend/"
   },
   "devDependencies": {
-    "@eslint/js": "^10.0.1",
-    "eslint": "^10.2.1",
-    "eslint-plugin-vue": "^10.9.0",
-    "globals": "^17.5.0",
+    "oxfmt": "0.48.0",
+    "oxlint": "1.63.0",
     "vite": "^8.0.10"
   },
   "dependencies": {

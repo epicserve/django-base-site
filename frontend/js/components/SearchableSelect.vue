@@ -1,13 +1,10 @@
 <script setup>
-import {
-  ref, computed, watch, onMounted,
-} from 'vue';
+import { ref, computed, watch, onMounted } from 'vue';
 import {
   ComboboxRoot,
   ComboboxAnchor,
   ComboboxInput,
   ComboboxTrigger,
-
   ComboboxContent,
   ComboboxViewport,
   ComboboxItem,
@@ -47,9 +44,7 @@ const viewportRef = ref(null);
 let debounceTimer = null;
 
 function mapResult(item) {
-  const label = typeof props.labelField === 'function'
-    ? props.labelField(item)
-    : item[props.labelField];
+  const label = typeof props.labelField === 'function' ? props.labelField(item) : item[props.labelField];
   return { value: String(item[props.valueField]), label: label || '' };
 }
 
@@ -62,8 +57,7 @@ const effectiveOptions = computed(() => {
 
 const selectedLabel = computed(() => {
   if (!props.modelValue) return '';
-  const match = effectiveOptions.value
-    .find((o) => String(o.value) === String(props.modelValue));
+  const match = effectiveOptions.value.find((o) => String(o.value) === String(props.modelValue));
   return match?.label || props.initialDisplayValue || '';
 });
 
@@ -91,9 +85,10 @@ async function createItem(name) {
     query.value = '';
     showToast(`${props.createLabel} created.`);
   } catch (err) {
-    const msg = err?.data?.name?.[0]
-      || err?.data?.non_field_errors?.[0]
-      || `Failed to create ${props.createLabel.toLowerCase()}.`;
+    const msg =
+      err?.data?.name?.[0] ||
+      err?.data?.non_field_errors?.[0] ||
+      `Failed to create ${props.createLabel.toLowerCase()}.`;
     showToast(msg, 'error');
   }
 }
@@ -197,7 +192,9 @@ onMounted(() => {
     ignore-filter
     @update:model-value="onSelect"
   >
-    <ComboboxAnchor class="inline-flex w-full items-center justify-between rounded-md border border-gray-300 bg-white px-2.5 text-sm leading-none shadow-sm hover:bg-gray-50 focus-within:border-blue-500 focus-within:ring-1 focus-within:ring-blue-500 dark:border-gray-600 dark:bg-gray-800 dark:hover:bg-gray-700">
+    <ComboboxAnchor
+      class="inline-flex w-full items-center justify-between rounded-md border border-gray-300 bg-white px-2.5 text-sm leading-none shadow-sm hover:bg-gray-50 focus-within:border-blue-500 focus-within:ring-1 focus-within:ring-blue-500 dark:border-gray-600 dark:bg-gray-800 dark:hover:bg-gray-700"
+    >
       <ComboboxInput
         v-model="query"
         :display-value="() => selectedLabel"
@@ -211,13 +208,10 @@ onMounted(() => {
         class="mr-1 cursor-pointer text-gray-400 hover:text-gray-600 dark:hover:text-gray-300"
         @click.stop="onClear"
       >
-        <svg
-          class="h-4 w-4"
-          viewBox="0 0 20 20"
-          fill="currentColor"
-        >
-          <!-- eslint-disable-next-line max-len -->
-          <path d="M6.28 5.22a.75.75 0 00-1.06 1.06L8.94 10l-3.72 3.72a.75.75 0 101.06 1.06L10 11.06l3.72 3.72a.75.75 0 101.06-1.06L11.06 10l3.72-3.72a.75.75 0 00-1.06-1.06L10 8.94 6.28 5.22z" />
+        <svg class="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
+          <path
+            d="M6.28 5.22a.75.75 0 00-1.06 1.06L8.94 10l-3.72 3.72a.75.75 0 101.06 1.06L10 11.06l3.72 3.72a.75.75 0 101.06-1.06L11.06 10l3.72-3.72a.75.75 0 00-1.06-1.06L10 8.94 6.28 5.22z"
+          />
         </svg>
       </button>
       <ComboboxTrigger class="cursor-pointer text-gray-400">
@@ -236,16 +230,15 @@ onMounted(() => {
       </ComboboxTrigger>
     </ComboboxAnchor>
 
-    <ComboboxContent class="absolute z-50 mt-1 max-h-60 w-full min-w-[200px] overflow-hidden rounded-md border border-gray-200 bg-white shadow-lg dark:border-gray-700 dark:bg-gray-800">
+    <ComboboxContent
+      class="absolute z-50 mt-1 max-h-60 w-full min-w-[200px] overflow-hidden rounded-md border border-gray-200 bg-white shadow-lg dark:border-gray-700 dark:bg-gray-800"
+    >
       <ComboboxViewport
         ref="viewportRef"
         class="max-h-[calc(15rem-0.5rem)] overflow-y-auto p-1"
         @scroll.passive="handleScroll"
       >
-        <ComboboxEmpty
-          v-if="!creatableOption"
-          class="py-2 text-center text-xs text-gray-500 dark:text-gray-400"
-        >
+        <ComboboxEmpty v-if="!creatableOption" class="py-2 text-center text-xs text-gray-500 dark:text-gray-400">
           No results found
         </ComboboxEmpty>
         <ComboboxItem
@@ -255,18 +248,12 @@ onMounted(() => {
           class="relative flex cursor-pointer items-center rounded px-2 py-1.5 pl-7 text-sm text-gray-700 select-none data-[disabled]:pointer-events-none data-[highlighted]:bg-blue-600 data-[disabled]:text-gray-400 data-[highlighted]:text-white dark:text-gray-300 dark:data-[highlighted]:text-white"
         >
           <ComboboxItemIndicator class="absolute left-0 inline-flex w-7 items-center justify-center">
-            <svg
-              class="h-4 w-4"
-              viewBox="0 0 20 20"
-              fill="currentColor"
-            >
-              <!-- eslint-disable max-len -->
+            <svg class="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
               <path
                 fill-rule="evenodd"
                 d="M16.704 4.153a.75.75 0 01.143 1.052l-8 10.5a.75.75 0 01-1.127.075l-4.5-4.5a.75.75 0 011.06-1.06l3.894 3.893 7.48-9.817a.75.75 0 011.05-.143z"
                 clip-rule="evenodd"
               />
-              <!-- eslint-enable max-len -->
             </svg>
           </ComboboxItemIndicator>
           <span>{{ option.label }}</span>
@@ -276,22 +263,14 @@ onMounted(() => {
           :value="creatableOption.value"
           class="relative flex cursor-pointer items-center rounded px-2 py-1.5 text-sm text-blue-600 select-none data-[highlighted]:bg-blue-600 data-[highlighted]:text-white dark:text-blue-400 dark:data-[highlighted]:text-white"
         >
-          <svg
-            class="mr-1.5 h-4 w-4"
-            viewBox="0 0 20 20"
-            fill="currentColor"
-          >
-            <!-- eslint-disable-next-line max-len -->
-            <path d="M10 5a.75.75 0 01.75.75v3.5h3.5a.75.75 0 010 1.5h-3.5v3.5a.75.75 0 01-1.5 0v-3.5h-3.5a.75.75 0 010-1.5h3.5v-3.5A.75.75 0 0110 5z" />
+          <svg class="mr-1.5 h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
+            <path
+              d="M10 5a.75.75 0 01.75.75v3.5h3.5a.75.75 0 010 1.5h-3.5v3.5a.75.75 0 01-1.5 0v-3.5h-3.5a.75.75 0 010-1.5h3.5v-3.5A.75.75 0 0110 5z"
+            />
           </svg>
           <span>Create &ldquo;{{ creatableOption.label }}&rdquo;</span>
         </ComboboxItem>
-        <div
-          v-if="isLoadingMore"
-          class="py-2 text-center text-xs text-gray-400 dark:text-gray-500"
-        >
-          Loading…
-        </div>
+        <div v-if="isLoadingMore" class="py-2 text-center text-xs text-gray-400 dark:text-gray-500">Loading…</div>
       </ComboboxViewport>
     </ComboboxContent>
   </ComboboxRoot>

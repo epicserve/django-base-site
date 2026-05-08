@@ -9,10 +9,10 @@
  */
 
 function base64UrlToBuffer(value) {
-  const padded = value.replace(/-/g, '+').replace(/_/g, '/'),
-    pad = padded.length % 4 === 0 ? '' : '='.repeat(4 - (padded.length % 4)),
-    binary = atob(padded + pad),
-    bytes = new Uint8Array(binary.length);
+  const padded = value.replace(/-/g, '+').replace(/_/g, '/');
+  const pad = padded.length % 4 === 0 ? '' : '='.repeat(4 - (padded.length % 4));
+  const binary = atob(padded + pad);
+  const bytes = new Uint8Array(binary.length);
 
   for (let i = 0; i < binary.length; i += 1) bytes[i] = binary.charCodeAt(i);
   return bytes.buffer;
@@ -33,8 +33,8 @@ function unwrap(options) {
 }
 
 export function decodeCreationOptions(options) {
-  const inner = unwrap(options),
-   decoded = { ...inner, challenge: base64UrlToBuffer(inner.challenge) };
+  const inner = unwrap(options);
+  const decoded = { ...inner, challenge: base64UrlToBuffer(inner.challenge) };
 
   if (inner.user) {
     decoded.user = { ...inner.user, id: base64UrlToBuffer(inner.user.id) };
@@ -49,8 +49,8 @@ export function decodeCreationOptions(options) {
 }
 
 export function decodeRequestOptions(options) {
-  const inner = unwrap(options),
-   decoded = { ...inner, challenge: base64UrlToBuffer(inner.challenge) };
+  const inner = unwrap(options);
+  const decoded = { ...inner, challenge: base64UrlToBuffer(inner.challenge) };
 
   if (inner.allowCredentials) {
     decoded.allowCredentials = inner.allowCredentials.map((c) => ({
@@ -62,15 +62,15 @@ export function decodeRequestOptions(options) {
 }
 
 export function encodeCredential(credential) {
-  const { response } = credential,
-    encoded = {
-      id: credential.id,
-      rawId: bufferToBase64Url(credential.rawId),
-      type: credential.type,
-      authenticatorAttachment: credential.authenticatorAttachment ?? null,
-      clientExtensionResults: credential.getClientExtensionResults?.() ?? {},
-      response: {},
-    };
+  const { response } = credential;
+  const encoded = {
+    id: credential.id,
+    rawId: bufferToBase64Url(credential.rawId),
+    type: credential.type,
+    authenticatorAttachment: credential.authenticatorAttachment ?? null,
+    clientExtensionResults: credential.getClientExtensionResults?.() ?? {},
+    response: {},
+  };
 
   if (response.attestationObject !== undefined) {
     // Registration response (PublicKeyCredentialAttestationResponse)
@@ -92,22 +92,24 @@ export function encodeCredential(credential) {
 }
 
 export async function createPasskeyCredential(creationOptionsJson) {
-  const publicKey = decodeCreationOptions(creationOptionsJson),
-    credential = await navigator.credentials.create({ publicKey });
+  const publicKey = decodeCreationOptions(creationOptionsJson);
+  const credential = await navigator.credentials.create({ publicKey });
 
   return encodeCredential(credential);
 }
 
 export async function getPasskeyAssertion(requestOptionsJson) {
-  const publicKey = decodeRequestOptions(requestOptionsJson),
-    credential = await navigator.credentials.get({ publicKey });
+  const publicKey = decodeRequestOptions(requestOptionsJson);
+  const credential = await navigator.credentials.get({ publicKey });
 
   return encodeCredential(credential);
 }
 
 export function isWebAuthnSupported() {
-  return typeof window !== 'undefined'
-    && typeof window.PublicKeyCredential !== 'undefined'
-    && typeof navigator.credentials?.create === 'function'
-    && typeof navigator.credentials?.get === 'function';
+  return (
+    typeof window !== 'undefined' &&
+    typeof window.PublicKeyCredential !== 'undefined' &&
+    typeof navigator.credentials?.create === 'function' &&
+    typeof navigator.credentials?.get === 'function'
+  );
 }

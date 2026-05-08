@@ -11,13 +11,8 @@ function reloadForUpdate() {
 </script>
 
 <template>
-  <div
-    v-if="appStore.loading"
-    class="flex min-h-screen items-center justify-center bg-white dark:bg-gray-900"
-  >
-    <div class="text-gray-400 dark:text-gray-500">
-      Loading...
-    </div>
+  <div v-if="appStore.loading" class="flex min-h-screen items-center justify-center bg-white dark:bg-gray-900">
+    <div class="text-gray-400 dark:text-gray-500">Loading...</div>
   </div>
   <template v-else>
     <div
@@ -34,29 +29,14 @@ function reloadForUpdate() {
     </div>
     <AppLayout v-if="appStore.isAuthenticated">
       <RouterView v-slot="{ Component, route }">
-        <Transition
-          name="page"
-          mode="out-in"
-        >
-          <component
-            :is="Component"
-            :key="route.path"
-          />
+        <Transition name="page" mode="out-in">
+          <component :is="Component" :key="route.path" />
         </Transition>
       </RouterView>
     </AppLayout>
-    <RouterView
-      v-else
-      v-slot="{ Component, route }"
-    >
-      <Transition
-        name="page"
-        mode="out-in"
-      >
-        <component
-          :is="Component"
-          :key="route.path"
-        />
+    <RouterView v-else v-slot="{ Component, route }">
+      <Transition name="page" mode="out-in">
+        <component :is="Component" :key="route.path" />
       </Transition>
     </RouterView>
   </template>
@@ -65,7 +45,9 @@ function reloadForUpdate() {
 <style scoped>
 .page-enter-active,
 .page-leave-active {
-  transition: opacity 0.15s ease, transform 0.15s ease;
+  transition:
+    opacity 0.15s ease,
+    transform 0.15s ease;
 }
 .page-enter-from {
   opacity: 0;

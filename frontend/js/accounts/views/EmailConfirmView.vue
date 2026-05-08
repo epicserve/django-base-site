@@ -67,17 +67,11 @@ onMounted(async () => {
 <template>
   <AuthLayout>
     <template v-if="status === 'loading'">
-      <h1 class="text-center text-2xl font-semibold tracking-tight text-gray-900 dark:text-white">
-        Confirming Email
-      </h1>
-      <p class="mt-4 text-center text-sm text-gray-500 dark:text-gray-400">
-        Please wait...
-      </p>
+      <h1 class="text-center text-2xl font-semibold tracking-tight text-gray-900 dark:text-white">Confirming Email</h1>
+      <p class="mt-4 text-center text-sm text-gray-500 dark:text-gray-400">Please wait...</p>
     </template>
     <template v-else-if="status === 'success'">
-      <h1 class="text-center text-2xl font-semibold tracking-tight text-gray-900 dark:text-white">
-        Email Confirmed
-      </h1>
+      <h1 class="text-center text-2xl font-semibold tracking-tight text-gray-900 dark:text-white">Email Confirmed</h1>
       <p class="mt-4 text-center text-sm text-gray-500 dark:text-gray-400">
         Your email address has been confirmed. You can now sign in.
       </p>

@@ -57,18 +57,8 @@ async function onSubmit() {
     </div>
     <form @submit.prevent="onSubmit">
       <FormErrors :errors="errors.non_field_errors || []" />
-      <FormField
-        v-model="firstName"
-        label="First name"
-        autocomplete="given-name"
-        :errors="errors.first_name || []"
-      />
-      <FormField
-        v-model="lastName"
-        label="Last name"
-        autocomplete="family-name"
-        :errors="errors.last_name || []"
-      />
+      <FormField v-model="firstName" label="First name" autocomplete="given-name" :errors="errors.first_name || []" />
+      <FormField v-model="lastName" label="Last name" autocomplete="family-name" :errors="errors.last_name || []" />
       <div class="mb-4 mt-4">
         <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Timezone</label>
         <TimezoneSelectApp

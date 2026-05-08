@@ -5,9 +5,7 @@ import AuthLayout from '@/layouts/AuthLayout.vue';
 
 <template>
   <AuthLayout>
-    <h1 class="text-center text-2xl font-semibold tracking-tight text-gray-900 dark:text-white">
-      Password Changed
-    </h1>
+    <h1 class="text-center text-2xl font-semibold tracking-tight text-gray-900 dark:text-white">Password Changed</h1>
     <p class="mt-4 text-center text-sm text-gray-500 dark:text-gray-400">
       Your password has been reset successfully. You can now sign in with your new password.
     </p>

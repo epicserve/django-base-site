@@ -37,7 +37,7 @@ async function add() {
     const optsResp = await authApi.beginAddPasskey(passwordless.value);
     const options = optsResp.data?.creation_options || optsResp.data;
     const rpId = options?.publicKey?.rp?.id || options?.rp?.id;
-    // eslint-disable-next-line no-console
+    // oxlint-disable-next-line no-console
     console.info('[passkey enroll] page origin:', window.location.origin, '/ rp.id:', rpId);
     const credential = await createPasskeyCredential(options);
 
@@ -54,9 +54,11 @@ async function add() {
       router.push({ name: 'account-reauthenticate', query: { next: '/accounts/security/passkeys/' } });
       return;
     }
-    errors.value = err.data ? parseAllauthErrors(err.data) : {
-      non_field_errors: [err.message || 'Failed to add passkey.'],
-    };
+    errors.value = err.data
+      ? parseAllauthErrors(err.data)
+      : {
+          non_field_errors: [err.message || 'Failed to add passkey.'],
+        };
   } finally {
     loading.value = false;
   }
@@ -98,9 +100,7 @@ onMounted(() => {
 
 <template>
   <AccountLayout>
-    <h2 class="text-lg font-semibold text-gray-900 dark:text-white mb-2">
-      Passkeys
-    </h2>
+    <h2 class="text-lg font-semibold text-gray-900 dark:text-white mb-2">Passkeys</h2>
     <p class="text-sm text-gray-500 dark:text-gray-400 mb-4">
       Sign in with Touch ID, Windows Hello, your phone, or a hardware key.
     </p>
@@ -112,10 +112,7 @@ onMounted(() => {
       This browser doesn't support passkeys.
     </p>
 
-    <div
-      v-if="passkeys.length"
-      class="space-y-2 mb-6"
-    >
+    <div v-if="passkeys.length" class="space-y-2 mb-6">
       <div
         v-for="pk in passkeys"
         :key="pk.id"
@@ -155,30 +152,15 @@ onMounted(() => {
       class="space-y-3 max-w-md rounded-lg border border-gray-200 dark:border-gray-700 p-4"
       @submit.prevent="add"
     >
-      <h3 class="text-sm font-semibold text-gray-900 dark:text-white">
-        Add a passkey
-      </h3>
-      <FormField
-        v-model="newName"
-        label="Name"
-        placeholder="MacBook, YubiKey, iPhone…"
-        :errors="errors.name || []"
-      />
+      <h3 class="text-sm font-semibold text-gray-900 dark:text-white">Add a passkey</h3>
+      <FormField v-model="newName" label="Name" placeholder="MacBook, YubiKey, iPhone…" :errors="errors.name || []" />
       <label class="flex items-start gap-2 cursor-pointer">
-        <input
-          v-model="passwordless"
-          type="checkbox"
-          class="mt-0.5 cursor-pointer text-blue-600 focus:ring-blue-500"
-        >
+        <input v-model="passwordless" type="checkbox" class="mt-0.5 cursor-pointer text-blue-600 focus:ring-blue-500" />
         <span class="text-sm text-gray-700 dark:text-gray-300">
           Allow this passkey to sign me in without a password
         </span>
       </label>
-      <p
-        v-for="e in (errors.non_field_errors || [])"
-        :key="e"
-        class="text-sm text-red-600 dark:text-red-400"
-      >
+      <p v-for="e in errors.non_field_errors || []" :key="e" class="text-sm text-red-600 dark:text-red-400">
         {{ e }}
       </p>
       <button

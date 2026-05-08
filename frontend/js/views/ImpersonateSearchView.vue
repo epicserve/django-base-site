@@ -108,18 +108,11 @@ function impersonate(userId) {
 <template>
   <div class="mx-auto max-w-3xl">
     <div class="mb-6">
-      <h1 class="text-2xl font-semibold text-gray-900 dark:text-white">
-        Impersonate User
-      </h1>
-      <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">
-        Search for the user you want to impersonate
-      </p>
+      <h1 class="text-2xl font-semibold text-gray-900 dark:text-white">Impersonate User</h1>
+      <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">Search for the user you want to impersonate</p>
     </div>
     <div class="rounded-xl border border-gray-200 bg-white px-8 py-8 shadow-sm dark:border-gray-700 dark:bg-gray-800">
-      <label
-        class="sr-only"
-        for="search"
-      >Search</label>
+      <label class="sr-only" for="search">Search</label>
       <input
         id="search"
         v-model="query"
@@ -128,7 +121,7 @@ function impersonate(userId) {
         placeholder="Search by name, username, or email..."
         autofocus
         @keydown="onSearchKeydown"
-      >
+      />
     </div>
 
     <div
@@ -164,11 +157,7 @@ function impersonate(userId) {
             >
               <td class="px-6 py-3">
                 <span class="inline-flex items-center gap-2 font-medium text-blue-600 dark:text-blue-400">
-                  <UserAvatar
-                    :src="user.avatar_url || ''"
-                    :name="user.full_name || user.username || ''"
-                    size="md"
-                  />
+                  <UserAvatar :src="user.avatar_url || ''" :name="user.full_name || user.username || ''" size="md" />
                   {{ user.full_name || user.username }}
                 </span>
               </td>
@@ -187,9 +176,7 @@ function impersonate(userId) {
       v-else-if="query.trim().length >= 2 && !loading"
       class="mt-6 rounded-xl border border-gray-200 bg-white px-8 py-10 text-center shadow-sm dark:border-gray-700 dark:bg-gray-800"
     >
-      <p class="text-gray-500 dark:text-gray-400">
-        No users found matching "{{ query }}"
-      </p>
+      <p class="text-gray-500 dark:text-gray-400">No users found matching "{{ query }}"</p>
     </div>
   </div>
 </template>

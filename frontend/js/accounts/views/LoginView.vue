@@ -19,7 +19,9 @@ const loading = ref(false);
 const passkeyLoading = ref(false);
 const passkeySupported = ref(false);
 
-onMounted(() => { passkeySupported.value = isWebAuthnSupported(); });
+onMounted(() => {
+  passkeySupported.value = isWebAuthnSupported();
+});
 
 function getRedirectUrl() {
   return safeNextUrl(route.query.next);
@@ -57,9 +59,7 @@ async function onSubmit() {
       return;
     }
     if (handleFlows(err)) return;
-    errors.value = err.data
-      ? parseAllauthErrors(err.data)
-      : { non_field_errors: ['An unexpected error occurred.'] };
+    errors.value = err.data ? parseAllauthErrors(err.data) : { non_field_errors: ['An unexpected error occurred.'] };
     loading.value = false;
   }
 }
@@ -95,24 +95,11 @@ async function passkeyLogin() {
 
 <template>
   <AuthLayout>
-    <h1 class="text-center text-2xl font-semibold tracking-tight text-gray-900 dark:text-white">
-      Sign In
-    </h1>
-    <p class="mt-2 text-center text-sm text-gray-500 dark:text-gray-400">
-      Welcome back
-    </p>
-    <form
-      class="mt-6 space-y-4"
-      @submit.prevent="onSubmit"
-    >
+    <h1 class="text-center text-2xl font-semibold tracking-tight text-gray-900 dark:text-white">Sign In</h1>
+    <p class="mt-2 text-center text-sm text-gray-500 dark:text-gray-400">Welcome back</p>
+    <form class="mt-6 space-y-4" @submit.prevent="onSubmit">
       <FormErrors :errors="errors.non_field_errors || []" />
-      <FormField
-        v-model="email"
-        type="email"
-        placeholder="Email"
-        autocomplete="email"
-        :errors="errors.email || []"
-      />
+      <FormField v-model="email" type="email" placeholder="Email" autocomplete="email" :errors="errors.email || []" />
       <FormField
         v-model="password"
         type="password"
@@ -136,10 +123,7 @@ async function passkeyLogin() {
         {{ loading ? 'Signing in...' : 'Sign In' }}
       </button>
     </form>
-    <div
-      v-if="passkeySupported"
-      class="mt-4"
-    >
+    <div v-if="passkeySupported" class="mt-4">
       <div class="relative my-3">
         <div class="absolute inset-0 flex items-center">
           <div class="w-full border-t border-gray-200 dark:border-gray-700" />
@@ -160,10 +144,7 @@ async function passkeyLogin() {
     <template #footer>
       <p class="mt-6 text-center text-sm text-gray-500 dark:text-gray-400">
         Not a member?
-        <RouterLink
-          :to="{ name: 'signup' }"
-          class="font-medium text-blue-600 hover:text-blue-500 dark:text-blue-400"
-        >
+        <RouterLink :to="{ name: 'signup' }" class="font-medium text-blue-600 hover:text-blue-500 dark:text-blue-400">
           Create an account
         </RouterLink>
       </p>

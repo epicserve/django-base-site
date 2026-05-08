@@ -106,9 +106,7 @@ async function submitReauth() {
       await action();
     }
   } catch (err) {
-    reauthErrors.value = err.data
-      ? parseAllauthErrors(err.data)
-      : { non_field_errors: ['Could not verify password.'] };
+    reauthErrors.value = err.data ? parseAllauthErrors(err.data) : { non_field_errors: ['Could not verify password.'] };
   } finally {
     reauthLoading.value = false;
   }
@@ -126,24 +124,12 @@ onMounted(load);
 
 <template>
   <AccountLayout>
-    <h2 class="text-lg font-semibold text-gray-900 dark:text-white mb-4">
-      Authenticator app (TOTP)
-    </h2>
+    <h2 class="text-lg font-semibold text-gray-900 dark:text-white mb-4">Authenticator app (TOTP)</h2>
 
-    <div
-      v-if="loading"
-      class="text-sm text-gray-500 dark:text-gray-400"
-    >
-      Loading…
-    </div>
+    <div v-if="loading" class="text-sm text-gray-500 dark:text-gray-400">Loading…</div>
 
-    <div
-      v-else-if="isActive"
-      class="space-y-4"
-    >
-      <p class="text-sm text-gray-700 dark:text-gray-300">
-        An authenticator app is currently enabled on this account.
-      </p>
+    <div v-else-if="isActive" class="space-y-4">
+      <p class="text-sm text-gray-700 dark:text-gray-300">An authenticator app is currently enabled on this account.</p>
       <button
         type="button"
         :disabled="loading"
@@ -154,36 +140,24 @@ onMounted(load);
       </button>
     </div>
 
-    <div
-      v-else
-      class="space-y-4"
-    >
+    <div v-else class="space-y-4">
       <p class="text-sm text-gray-700 dark:text-gray-300">
         Scan the code below with your authenticator app, then enter the 6-digit code it generates to confirm.
       </p>
-      <div
-        v-if="totpUrl"
-        class="rounded-md border border-gray-200 bg-white dark:border-gray-700 p-4 inline-block"
-      >
+      <div v-if="totpUrl" class="rounded-md border border-gray-200 bg-white dark:border-gray-700 p-4 inline-block">
         <img
           :src="`/qr/?data=${encodeURIComponent(totpUrl)}`"
           alt="TOTP QR code"
           class="block"
           width="180"
           height="180"
-        >
+        />
       </div>
-      <p
-        v-if="secret"
-        class="text-xs text-gray-500 dark:text-gray-400"
-      >
+      <p v-if="secret" class="text-xs text-gray-500 dark:text-gray-400">
         Or enter this key manually: <code class="font-mono">{{ secret }}</code>
       </p>
 
-      <form
-        class="space-y-4 max-w-xs"
-        @submit.prevent="activate"
-      >
+      <form class="space-y-4 max-w-xs" @submit.prevent="activate">
         <FormErrors :errors="errors.non_field_errors || []" />
         <FormField
           v-model="code"
@@ -202,21 +176,11 @@ onMounted(load);
       </form>
     </div>
 
-    <div
-      v-if="needsReauth"
-      class="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4"
-    >
+    <div v-if="needsReauth" class="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
       <div class="w-full max-w-sm rounded-lg bg-white p-6 shadow-xl dark:bg-gray-800">
-        <h3 class="text-base font-semibold text-gray-900 dark:text-white">
-          Confirm your password
-        </h3>
-        <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">
-          Re-enter your password to continue.
-        </p>
-        <form
-          class="mt-4 space-y-3"
-          @submit.prevent="submitReauth"
-        >
+        <h3 class="text-base font-semibold text-gray-900 dark:text-white">Confirm your password</h3>
+        <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">Re-enter your password to continue.</p>
+        <form class="mt-4 space-y-3" @submit.prevent="submitReauth">
           <FormErrors :errors="reauthErrors.non_field_errors || []" />
           <FormField
             v-model="reauthPassword"
