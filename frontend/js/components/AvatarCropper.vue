@@ -82,12 +82,15 @@ async function save() {
     const formData = new FormData();
 
     formData.append('image', imageFile.value);
-    formData.append('crop_data', JSON.stringify({
-      left: Math.round(coordinates.left),
-      top: Math.round(coordinates.top),
-      width: Math.round(coordinates.width),
-      height: Math.round(coordinates.height),
-    }));
+    formData.append(
+      'crop_data',
+      JSON.stringify({
+        left: Math.round(coordinates.left),
+        top: Math.round(coordinates.top),
+        width: Math.round(coordinates.width),
+        height: Math.round(coordinates.height),
+      }),
+    );
 
     const data = await postFormData(props.uploadUrl, formData);
 
@@ -123,18 +126,8 @@ async function removeAvatar() {
 
 <template>
   <div class="flex items-center gap-4">
-    <img
-      v-if="hasAvatar"
-      :src="avatarUrl"
-      alt="Profile photo"
-      class="h-16 w-16 rounded-full object-cover"
-    >
-    <UserAvatar
-      v-else
-      :name="userName"
-      size="rail"
-      class="!h-16 !w-16 !text-base"
-    />
+    <img v-if="hasAvatar" :src="avatarUrl" alt="Profile photo" class="h-16 w-16 rounded-full object-cover" />
+    <UserAvatar v-else :name="userName" size="rail" class="!h-16 !w-16 !text-base" />
     <div class="flex gap-2">
       <button
         type="button"
@@ -155,26 +148,12 @@ async function removeAvatar() {
     </div>
   </div>
 
-  <AppModal
-    :open="showModal"
-    title="Change profile photo"
-    size="lg"
-    @close="closeModal"
-  >
-    <div
-      v-if="!imageSrc"
-      class="text-center py-8"
-    >
+  <AppModal :open="showModal" title="Change profile photo" size="lg" @close="closeModal">
+    <div v-if="!imageSrc" class="text-center py-8">
       <label
         class="cursor-pointer inline-flex items-center gap-2 rounded-md bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700"
       >
-        <svg
-          class="h-5 w-5"
-          fill="none"
-          viewBox="0 0 24 24"
-          stroke-width="1.5"
-          stroke="currentColor"
-        >
+        <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
           <path
             stroke-linecap="round"
             stroke-linejoin="round"
@@ -182,38 +161,20 @@ async function removeAvatar() {
           />
         </svg>
         Choose an image
-        <input
-          type="file"
-          accept="image/jpeg,image/png,image/webp"
-          class="hidden"
-          @change="onFileSelect"
-        >
+        <input type="file" accept="image/jpeg,image/png,image/webp" class="hidden" @change="onFileSelect" />
       </label>
-      <p class="mt-2 text-sm text-gray-500 dark:text-gray-400">
-        JPEG, PNG, or WebP up to 10 MB
-      </p>
+      <p class="mt-2 text-sm text-gray-500 dark:text-gray-400">JPEG, PNG, or WebP up to 10 MB</p>
     </div>
 
     <div v-else>
-      <Cropper
-        ref="cropperRef"
-        :src="imageSrc"
-        :stencil-props="{ aspectRatio: 1 }"
-        class="h-80"
-      />
+      <Cropper ref="cropperRef" :src="imageSrc" :stencil-props="{ aspectRatio: 1 }" class="h-80" />
     </div>
 
-    <p
-      v-if="error"
-      class="mt-2 text-sm text-red-600"
-    >
+    <p v-if="error" class="mt-2 text-sm text-red-600">
       {{ error }}
     </p>
 
-    <template
-      v-if="imageSrc"
-      #footer
-    >
+    <template v-if="imageSrc" #footer>
       <button
         type="button"
         class="cursor-pointer rounded-md border border-gray-300 px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 dark:border-gray-600 dark:text-gray-300 dark:hover:bg-gray-700"

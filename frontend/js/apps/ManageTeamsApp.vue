@@ -1,17 +1,7 @@
 <script setup>
 import { ref, computed, onMounted } from 'vue';
-import {
-  PlusIcon,
-  PencilIcon,
-  TrashIcon,
-} from '@heroicons/vue/24/outline';
-import {
-  get,
-  post,
-  patch,
-  del,
-  parseErrors,
-} from '../utils/api';
+import { PlusIcon, PencilIcon, TrashIcon } from '@heroicons/vue/24/outline';
+import { get, post, patch, del, parseErrors } from '../utils/api';
 import { showToast } from '../composables/useToast';
 import { userFullName } from '../utils/format';
 import AppModal from '../components/AppModal.vue';
@@ -37,10 +27,12 @@ const formName = ref('');
 const formMembers = ref([]);
 const formErrors = ref({});
 
-const memberOptionsList = computed(() => memberOptions.value.map((m) => ({
-  value: String(m.id),
-  label: userFullName(m) || m.username,
-})));
+const memberOptionsList = computed(() =>
+  memberOptions.value.map((m) => ({
+    value: String(m.id),
+    label: userFullName(m) || m.username,
+  })),
+);
 
 async function loadTeams() {
   try {
@@ -107,10 +99,7 @@ async function saveTeam() {
 }
 
 async function deleteTeam(team) {
-  const confirmed = await confirmRef.value.confirm(
-    `Are you sure you want to delete "${team.name}"?`,
-    'Delete Team',
-  );
+  const confirmed = await confirmRef.value.confirm(`Are you sure you want to delete "${team.name}"?`, 'Delete Team');
   if (!confirmed) return;
   try {
     await del(`${props.teamListUrl}${team.id}/`);
@@ -164,10 +153,7 @@ onMounted(() => {
             <td class="px-4 py-3">
               <div class="flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-gray-700 dark:text-gray-300">
                 <template v-if="(team.member_details || []).length === 1">
-                  <UserBadge
-                    :user="team.member_details[0]"
-                    truncate
-                  />
+                  <UserBadge :user="team.member_details[0]" truncate />
                 </template>
                 <template v-else-if="(team.member_details || []).length > 1">
                   <div class="flex items-center -space-x-1">
@@ -183,16 +169,17 @@ onMounted(() => {
                     <span
                       v-if="team.member_details.length > 3"
                       class="inline-flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-gray-200 text-[10px] font-medium text-gray-700 ring-2 ring-white dark:bg-gray-700 dark:text-gray-300 dark:ring-gray-900"
-                      :title="team.member_details.slice(3).map(m => userFullName(m)).join(', ')"
-                    >+{{ team.member_details.length - 3 }}</span>
+                      :title="
+                        team.member_details
+                          .slice(3)
+                          .map((m) => userFullName(m))
+                          .join(', ')
+                      "
+                      >+{{ team.member_details.length - 3 }}</span
+                    >
                   </div>
                 </template>
-                <span
-                  v-else
-                  class="text-sm text-gray-400 dark:text-gray-500"
-                >
-                  No members
-                </span>
+                <span v-else class="text-sm text-gray-400 dark:text-gray-500"> No members </span>
               </div>
             </td>
             <td class="px-4 py-3 text-right">
@@ -215,60 +202,35 @@ onMounted(() => {
             </td>
           </tr>
           <tr v-if="teams.length === 0">
-            <td
-              colspan="3"
-              class="py-12 text-center text-gray-500 dark:text-gray-400"
-            >
-              No teams found.
-            </td>
+            <td colspan="3" class="py-12 text-center text-gray-500 dark:text-gray-400">No teams found.</td>
           </tr>
         </tbody>
       </table>
     </AppListCard>
 
     <!-- Create / Edit Modal -->
-    <AppModal
-      :open="modalOpen"
-      :title="modalTitle"
-      @close="closeModal"
-    >
+    <AppModal :open="modalOpen" :title="modalTitle" @close="closeModal">
       <div class="mb-4">
-        <label
-          for="team-name"
-          class="block text-sm font-medium text-gray-700 dark:text-gray-300"
-        >Name</label>
+        <label for="team-name" class="block text-sm font-medium text-gray-700 dark:text-gray-300">Name</label>
         <input
           id="team-name"
           v-model="formName"
           type="text"
           class="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:border-blue-500 focus:ring-blue-500 dark:bg-gray-800 dark:border-gray-600 dark:text-white"
           @keyup.enter="saveTeam"
-        >
-        <p
-          v-if="formErrors.name"
-          class="mt-1 text-sm text-red-600"
-        >
+        />
+        <p v-if="formErrors.name" class="mt-1 text-sm text-red-600">
           {{ formErrors.name.join(' ') }}
         </p>
       </div>
       <div class="mb-4">
         <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Members</label>
-        <ComboboxTagsInput
-          v-model="formMembers"
-          :options="memberOptionsList"
-          placeholder="Add members..."
-        />
-        <p
-          v-if="formErrors.members"
-          class="mt-1 text-sm text-red-600"
-        >
+        <ComboboxTagsInput v-model="formMembers" :options="memberOptionsList" placeholder="Add members..." />
+        <p v-if="formErrors.members" class="mt-1 text-sm text-red-600">
           {{ formErrors.members.join(' ') }}
         </p>
       </div>
-      <p
-        v-if="formErrors.non_field_errors"
-        class="mb-4 text-sm text-red-600"
-      >
+      <p v-if="formErrors.non_field_errors" class="mb-4 text-sm text-red-600">
         {{ formErrors.non_field_errors.join(' ') }}
       </p>
       <template #footer>

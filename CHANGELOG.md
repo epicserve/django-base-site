@@ -1,6 +1,18 @@
 # CHANGELOG
 
 
+## 2026-05-08
+
+### Changed
+
+* ESLint -> [Oxlint](https://oxc.rs/docs/guide/usage/linter) + [Oxfmt](https://oxc.rs/docs/guide/usage/formatter) for JavaScript/Vue linting and formatting. Rust-based, ESLint v8 / Prettier-compatible config formats. Removes `@eslint/js`, `eslint`, `eslint-plugin-vue`, and `globals` in favor of `oxlint` and `oxfmt` (both pinned to exact versions since Oxfmt is still in beta). Configs live at `.oxlintrc.json` and `.oxfmtrc.json`; `eslint.config.mjs` deleted.
+* Comma-chained `const` declarations broken into one-per-line throughout `frontend/` (the old `one-var: 'always'` ESLint rule has no Oxlint equivalent and the JS community default is one declaration per statement).
+
+### Removed
+
+* `<template>` block linting from `eslint-plugin-vue` (Oxlint, like Biome, only lints the `<script>` block of `.vue` SFCs). Templates are still formatted by Oxfmt.
+
+
 ## 2026-05-02
 
 ### Added

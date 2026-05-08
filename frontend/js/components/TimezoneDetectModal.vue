@@ -73,15 +73,12 @@ onUnmounted(() => {
 </script>
 
 <template>
-  <div
-    v-if="visible"
-    class="fixed inset-0 z-[100] bg-black/50"
-  >
-    <div class="fixed left-1/2 top-1/2 z-[101] w-full max-w-md -translate-x-1/2 -translate-y-1/2 rounded-lg bg-white shadow-xl dark:bg-gray-800">
+  <div v-if="visible" class="fixed inset-0 z-[100] bg-black/50">
+    <div
+      class="fixed left-1/2 top-1/2 z-[101] w-full max-w-md -translate-x-1/2 -translate-y-1/2 rounded-lg bg-white shadow-xl dark:bg-gray-800"
+    >
       <div class="border-b border-gray-200 px-6 py-4 dark:border-gray-700">
-        <h3 class="text-lg font-semibold text-gray-900 dark:text-white">
-          Your timezone has changed
-        </h3>
+        <h3 class="text-lg font-semibold text-gray-900 dark:text-white">Your timezone has changed</h3>
       </div>
       <div class="px-6 py-4">
         <p class="mb-4 text-sm text-gray-600 dark:text-gray-400">
@@ -89,20 +86,14 @@ onUnmounted(() => {
         </p>
         <div class="flex items-center gap-4">
           <div class="flex-1 rounded-md bg-red-50 p-3 text-center dark:bg-red-900/20">
-            <div class="text-xs uppercase tracking-wide text-gray-500 dark:text-gray-400">
-              Current Setting
-            </div>
+            <div class="text-xs uppercase tracking-wide text-gray-500 dark:text-gray-400">Current Setting</div>
             <div class="mt-1 text-sm font-semibold text-gray-900 dark:text-white">
               {{ userTzDisplay }}
             </div>
           </div>
-          <div class="text-gray-400">
-            &rarr;
-          </div>
+          <div class="text-gray-400">&rarr;</div>
           <div class="flex-1 rounded-md bg-green-50 p-3 text-center dark:bg-green-900/20">
-            <div class="text-xs uppercase tracking-wide text-gray-500 dark:text-gray-400">
-              Detected
-            </div>
+            <div class="text-xs uppercase tracking-wide text-gray-500 dark:text-gray-400">Detected</div>
             <div class="mt-1 text-sm font-semibold text-gray-900 dark:text-white">
               {{ browserTzDisplay }}
             </div>

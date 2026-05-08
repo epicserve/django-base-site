@@ -5,9 +5,9 @@ import { initAppStore } from './stores/app';
 import { startVersionWatcher } from './composables/useVersionWatcher';
 import App from './App.vue';
 
-const appStore = initAppStore(),
-  app = createApp(App),
-  router = createRouter(appStore);
+const appStore = initAppStore();
+const app = createApp(App);
+const router = createRouter(appStore);
 
 appStore.contextReady = appStore.fetchContext().catch(() => {
   appStore.loading = false;

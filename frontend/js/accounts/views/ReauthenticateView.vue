@@ -21,9 +21,11 @@ async function onSubmit() {
     await authApi.reauthenticate(password.value);
     router.push(safeNextUrl(route.query.next, '/accounts/security/', { allowAccounts: true }));
   } catch (err) {
-    errors.value = err.data ? parseAllauthErrors(err.data) : {
-      non_field_errors: ['Could not verify password.'],
-    };
+    errors.value = err.data
+      ? parseAllauthErrors(err.data)
+      : {
+          non_field_errors: ['Could not verify password.'],
+        };
     loading.value = false;
   }
 }
@@ -37,10 +39,7 @@ async function onSubmit() {
     <p class="mt-2 text-center text-sm text-gray-500 dark:text-gray-400">
       For your security, please re-enter your password to continue.
     </p>
-    <form
-      class="mt-6 space-y-4"
-      @submit.prevent="onSubmit"
-    >
+    <form class="mt-6 space-y-4" @submit.prevent="onSubmit">
       <FormErrors :errors="errors.non_field_errors || []" />
       <FormField
         v-model="password"

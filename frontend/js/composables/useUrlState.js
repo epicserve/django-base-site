@@ -1,8 +1,8 @@
 import { onMounted, onUnmounted } from 'vue';
 
 export function readUrlParams(defaults = {}) {
-  const params = new URLSearchParams(window.location.search),
-    result = {};
+  const params = new URLSearchParams(window.location.search);
+  const result = {};
   Object.keys(defaults).forEach((key) => {
     const val = params.get(key);
     if (val !== null) {
@@ -21,8 +21,11 @@ export function pushUrlParams(params) {
       search.set(key, value);
     }
   });
-  window.history.pushState(null, '', search.toString()
-    ? `${window.location.pathname}?${search}` : window.location.pathname);
+  window.history.pushState(
+    null,
+    '',
+    search.toString() ? `${window.location.pathname}?${search}` : window.location.pathname,
+  );
 }
 
 export function usePopState(callback) {

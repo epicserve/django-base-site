@@ -205,8 +205,8 @@ export function createRouter(appStore) {
   });
 
   router.onError((err, to) => {
-    const msg = err?.message ?? '',
-     isChunkError =
+    const msg = err?.message ?? '';
+    const isChunkError =
       err?.name === 'ChunkLoadError' ||
       /Loading chunk \S+ failed/i.test(msg) ||
       /Failed to fetch dynamically imported module/i.test(msg) ||

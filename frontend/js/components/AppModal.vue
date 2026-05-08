@@ -28,10 +28,7 @@ function onOpenAutoFocus(event) {
 </script>
 
 <template>
-  <DialogRoot
-    :open="props.open"
-    @update:open="onOpenChange"
-  >
+  <DialogRoot :open="props.open" @update:open="onOpenChange">
     <DialogPortal>
       <DialogOverlay class="fixed inset-0 z-40 bg-black/50" />
       <DialogContent
@@ -50,18 +47,12 @@ function onOpenAutoFocus(event) {
           <VisuallyHidden as-child>
             <DialogDescription />
           </VisuallyHidden>
-          <DialogClose
-            class="cursor-pointer text-gray-400 hover:text-gray-600 dark:hover:text-gray-300"
-          >
-            <!-- eslint-disable max-len -->
-            <svg
-              class="h-5 w-5"
-              viewBox="0 0 20 20"
-              fill="currentColor"
-            >
-              <path d="M6.28 5.22a.75.75 0 00-1.06 1.06L8.94 10l-3.72 3.72a.75.75 0 101.06 1.06L10 11.06l3.72 3.72a.75.75 0 101.06-1.06L11.06 10l3.72-3.72a.75.75 0 00-1.06-1.06L10 8.94 6.28 5.22z" />
+          <DialogClose class="cursor-pointer text-gray-400 hover:text-gray-600 dark:hover:text-gray-300">
+            <svg class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+              <path
+                d="M6.28 5.22a.75.75 0 00-1.06 1.06L8.94 10l-3.72 3.72a.75.75 0 101.06 1.06L10 11.06l3.72 3.72a.75.75 0 101.06-1.06L11.06 10l3.72-3.72a.75.75 0 00-1.06-1.06L10 8.94 6.28 5.22z"
+              />
             </svg>
-            <!-- eslint-enable max-len -->
           </DialogClose>
         </div>
         <div class="px-6 py-4 min-h-0 overflow-y-auto">

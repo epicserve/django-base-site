@@ -25,14 +25,14 @@ export function humanDateTime(isoString) {
 
 export function relativeTime(isoString) {
   if (!isoString) return '';
-  const d = new Date(isoString),
-    diffMs = Date.now() - d.getTime(),
-    sec = Math.round(diffMs / 1000),
-    min = Math.round(sec / 60),
-    hr = Math.round(min / 60),
-    day = Math.round(hr / 24),
-    now = new Date(),
-    sameYear = d.getFullYear() === now.getFullYear();
+  const d = new Date(isoString);
+  const diffMs = Date.now() - d.getTime();
+  const sec = Math.round(diffMs / 1000);
+  const min = Math.round(sec / 60);
+  const hr = Math.round(min / 60);
+  const day = Math.round(hr / 24);
+  const now = new Date();
+  const sameYear = d.getFullYear() === now.getFullYear();
   if (sec < 45) return 'just now';
   if (min < 60) return `${min}m ago`;
   if (hr < 24) return `${hr}h ago`;
@@ -93,8 +93,8 @@ export function humanTime(isoString) {
 
 export function humanDuration(seconds) {
   if (!seconds && seconds !== 0) return '';
-  const h = Math.floor(seconds / 3600),
-    m = Math.floor((seconds % 3600) / 60);
+  const h = Math.floor(seconds / 3600);
+  const m = Math.floor((seconds % 3600) / 60);
 
   if (h === 0) return `${m} min`;
   if (m === 0) return `${h} h`;
@@ -112,12 +112,12 @@ export function groupBy(array, keyFn) {
 }
 
 export function toApiDateTime(date) {
-  const yyyy = date.getFullYear(),
-    mm = String(date.getMonth() + 1).padStart(2, '0'),
-    dd = String(date.getDate()).padStart(2, '0'),
-    hh = String(date.getHours()).padStart(2, '0'),
-    min = String(date.getMinutes()).padStart(2, '0'),
-    ss = String(date.getSeconds()).padStart(2, '0');
+  const yyyy = date.getFullYear();
+  const mm = String(date.getMonth() + 1).padStart(2, '0');
+  const dd = String(date.getDate()).padStart(2, '0');
+  const hh = String(date.getHours()).padStart(2, '0');
+  const min = String(date.getMinutes()).padStart(2, '0');
+  const ss = String(date.getSeconds()).padStart(2, '0');
   return `${yyyy}-${mm}-${dd}T${hh}:${min}:${ss}`;
 }
 

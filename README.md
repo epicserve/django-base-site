@@ -88,7 +88,7 @@ features.
 * [Ty](https://github.com/astral-sh/ty) - Python type checking
 * [dj Lint](https://djlint.com/) - Automatic Django HTML template formatting and linting
 * [Django Debug Toolbar](https://github.com/jazzband/django-debug-toolbar) - Inspect query counts, settings, and templates in DEBUG.
-* [Eslint](https://eslint.org/) (flat config) with [`eslint-plugin-vue`](https://eslint.vuejs.org/) - JS/Vue linting
+* [Oxlint](https://oxc.rs/docs/guide/usage/linter) + [Oxfmt](https://oxc.rs/docs/guide/usage/formatter) (Rust-based, ESLint/Prettier-compatible) - JS/Vue linting and formatting
 
 ### 💄 Frontend
 
@@ -189,7 +189,7 @@ build                        # Rebuild Docker images + collectstatic
 build_frontend               # bun run build + collectstatic
 clean                        # Remove build files, caches, coverage data
 collectstatic                # Run Django's collectstatic
-format                       # Format Python (ruff), JS (eslint), HTML (djlint), justfile
+format                       # Format Python (ruff), JS (oxfmt + oxlint), HTML (djlint), justfile
 lint                         # Run all linters + ty type check + check for missing migrations
 test                         # pytest (Django + ninja API tests)
 test_with_coverage           # pytest --cov, then open the HTML report

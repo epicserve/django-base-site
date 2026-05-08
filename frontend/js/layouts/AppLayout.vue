@@ -88,16 +88,12 @@ onUnmounted(() => {
 });
 </script>
 
-<!-- eslint-disable max-len -->
 <template>
   <nav class="border-b border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900">
     <div class="mx-auto w-full px-4 sm:px-6 lg:px-8">
       <div class="flex h-14 items-center justify-between">
         <div class="flex items-center gap-6">
-          <RouterLink
-            class="text-lg font-semibold text-gray-900 dark:text-white"
-            to="/"
-          >
+          <RouterLink class="text-lg font-semibold text-gray-900 dark:text-white" to="/">
             {{ appStore.siteName }}
           </RouterLink>
         </div>
@@ -106,10 +102,7 @@ onUnmounted(() => {
           <div class="hidden lg:flex items-center gap-1">
             <!-- Org dropdown -->
             <template v-if="appStore.isOrg">
-              <div
-                class="relative"
-                data-dropdown="nav"
-              >
+              <div class="relative" data-dropdown="nav">
                 <button
                   class="cursor-pointer flex items-center gap-1.5 px-2 py-1.5 text-sm font-medium text-gray-700 hover:text-gray-900 dark:text-gray-300 dark:hover:text-white"
                   @click.stop="toggleOrgDropdown"
@@ -123,11 +116,7 @@ onUnmounted(() => {
                     stroke-width="1.5"
                     stroke="currentColor"
                   >
-                    <path
-                      stroke-linecap="round"
-                      stroke-linejoin="round"
-                      d="m19.5 8.25-7.5 7.5-7.5-7.5"
-                    />
+                    <path stroke-linecap="round" stroke-linejoin="round" d="m19.5 8.25-7.5 7.5-7.5-7.5" />
                   </svg>
                 </button>
                 <div
@@ -143,10 +132,7 @@ onUnmounted(() => {
                     <Cog6ToothIcon class="h-4 w-4 text-gray-400 dark:text-gray-500" />
                     Settings
                   </RouterLink>
-                  <div
-                    v-if="appStore.isOwner"
-                    class="my-1 border-t border-gray-100 dark:border-gray-700"
-                  />
+                  <div v-if="appStore.isOwner" class="my-1 border-t border-gray-100 dark:border-gray-700" />
                   <RouterLink
                     v-if="appStore.orgMemberCount > 0"
                     class="cursor-pointer flex items-center gap-2 px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-700"
@@ -186,24 +172,19 @@ onUnmounted(() => {
               </RouterLink>
             </template>
 
-            <span
-              aria-hidden="true"
-              class="mx-2 h-6 w-px bg-gray-200 dark:bg-gray-700"
-            />
+            <span aria-hidden="true" class="mx-2 h-6 w-px bg-gray-200 dark:bg-gray-700" />
 
             <!-- User dropdown -->
-            <div
-              class="relative"
-              data-dropdown="nav"
-            >
-              <button
-                class="flex cursor-pointer items-center p-1.5"
-                @click.stop="toggleUserDropdown"
-              >
+            <div class="relative" data-dropdown="nav">
+              <button class="flex cursor-pointer items-center p-1.5" @click.stop="toggleUserDropdown">
                 <UserAvatar
                   v-if="appStore.user"
                   :src="appStore.user.avatar_url || ''"
-                  :name="`${appStore.user.first_name || ''} ${appStore.user.last_name || ''}`.trim() || appStore.user.email || ''"
+                  :name="
+                    `${appStore.user.first_name || ''} ${appStore.user.last_name || ''}`.trim() ||
+                    appStore.user.email ||
+                    ''
+                  "
                   class="!h-8 !w-8 !text-xs transition hover:opacity-80 hover:ring-2 hover:ring-gray-300 dark:hover:ring-gray-600"
                 />
               </button>
@@ -229,7 +210,11 @@ onUnmounted(() => {
                   <ArrowRightOnRectangleIcon class="h-4 w-4 text-gray-400 dark:text-gray-500" />
                   Sign Out
                 </RouterLink>
-                <template v-if="appStore.user && (appStore.user.is_staff || appStore.user.is_hijacked || appStore.user.is_superuser)">
+                <template
+                  v-if="
+                    appStore.user && (appStore.user.is_staff || appStore.user.is_hijacked || appStore.user.is_superuser)
+                  "
+                >
                   <div class="my-1 border-t border-gray-100 dark:border-gray-700" />
                   <a
                     v-if="appStore.user.is_staff"
@@ -292,10 +277,7 @@ onUnmounted(() => {
           </div>
 
           <!-- Mobile hamburger -->
-          <div
-            class="lg:hidden"
-            data-dropdown="nav"
-          >
+          <div class="lg:hidden" data-dropdown="nav">
             <button
               class="cursor-pointer rounded-md p-1.5 text-gray-500 hover:bg-gray-100 dark:text-gray-400 dark:hover:bg-gray-800"
               :aria-label="mobileMenuOpen ? 'Close menu' : 'Open menu'"
@@ -311,11 +293,7 @@ onUnmounted(() => {
                 stroke-width="1.5"
                 stroke="currentColor"
               >
-                <path
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                  d="M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25h16.5"
-                />
+                <path stroke-linecap="round" stroke-linejoin="round" d="M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25h16.5" />
               </svg>
               <svg
                 v-else
@@ -326,11 +304,7 @@ onUnmounted(() => {
                 stroke-width="1.5"
                 stroke="currentColor"
               >
-                <path
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                  d="M6 18 18 6M6 6l12 12"
-                />
+                <path stroke-linecap="round" stroke-linejoin="round" d="M6 18 18 6M6 6l12 12" />
               </svg>
             </button>
           </div>
@@ -344,13 +318,12 @@ onUnmounted(() => {
         data-dropdown="nav"
       >
         <!-- Identity -->
-        <div
-          v-if="appStore.user"
-          class="flex items-center gap-3 px-4 py-3"
-        >
+        <div v-if="appStore.user" class="flex items-center gap-3 px-4 py-3">
           <UserAvatar
             :src="appStore.user.avatar_url || ''"
-            :name="`${appStore.user.first_name || ''} ${appStore.user.last_name || ''}`.trim() || appStore.user.email || ''"
+            :name="
+              `${appStore.user.first_name || ''} ${appStore.user.last_name || ''}`.trim() || appStore.user.email || ''
+            "
             class="!h-9 !w-9 !text-sm"
           />
           <div class="min-w-0 flex-1">
@@ -443,7 +416,9 @@ onUnmounted(() => {
         </RouterLink>
 
         <!-- Admin section -->
-        <template v-if="appStore.user && (appStore.user.is_staff || appStore.user.is_hijacked || appStore.user.is_superuser)">
+        <template
+          v-if="appStore.user && (appStore.user.is_staff || appStore.user.is_hijacked || appStore.user.is_superuser)"
+        >
           <div class="my-1 border-t border-gray-100 dark:border-gray-700" />
           <a
             v-if="appStore.user.is_staff"

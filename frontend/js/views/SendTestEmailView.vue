@@ -47,9 +47,7 @@ async function submit() {
 <template>
   <div class="mx-auto max-w-3xl">
     <div class="mb-6">
-      <h1 class="text-2xl font-semibold text-gray-900 dark:text-white">
-        Send Test Email
-      </h1>
+      <h1 class="text-2xl font-semibold text-gray-900 dark:text-white">Send Test Email</h1>
       <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">
         Send a test email to a staff user to verify email configuration.
       </p>
@@ -58,9 +56,7 @@ async function submit() {
       class="rounded-xl border border-gray-200 bg-white px-8 py-8 shadow-sm dark:border-gray-700 dark:bg-gray-800"
       @submit.prevent="submit"
     >
-      <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">
-        Recipient
-      </label>
+      <label class="block text-sm font-medium text-gray-700 dark:text-gray-300"> Recipient </label>
       <div class="mt-1">
         <SearchableSelect
           v-model="selectedUserId"

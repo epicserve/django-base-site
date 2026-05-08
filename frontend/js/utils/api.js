@@ -27,13 +27,13 @@ function getCSRFToken() {
 
 export async function request(url, options = {}) {
   const defaults = {
-      headers: {
-        'Content-Type': 'application/json',
-        'X-CSRFToken': getCSRFToken(),
-      },
+    headers: {
+      'Content-Type': 'application/json',
+      'X-CSRFToken': getCSRFToken(),
     },
-    config = { ...defaults, ...options, headers: { ...defaults.headers, ...(options.headers || {}) } },
-    response = await fetch(url, config);
+  };
+  const config = { ...defaults, ...options, headers: { ...defaults.headers, ...options.headers } };
+  const response = await fetch(url, config);
 
   if (!response.ok) {
     const error = new Error(`HTTP ${response.status}`);
@@ -61,9 +61,8 @@ export function get(url, params = {}) {
       searchParams.append(key, value);
     }
   });
-  // eslint-disable-next-line one-var
-  const qs = searchParams.toString(),
-    fullUrl = qs ? `${url}?${qs}` : url;
+  const qs = searchParams.toString();
+  const fullUrl = qs ? `${url}?${qs}` : url;
 
   return request(fullUrl, { method: 'GET' });
 }
@@ -127,8 +126,8 @@ export async function getAllResults(url, params = {}, results = []) {
 
   results.push(...data.results);
   if (data.next) {
-    const nextUrl = new URL(data.next),
-      nextParams = { ...params, page: nextUrl.searchParams.get('page') };
+    const nextUrl = new URL(data.next);
+    const nextParams = { ...params, page: nextUrl.searchParams.get('page') };
 
     return getAllResults(url, nextParams, results);
   }
