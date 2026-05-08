@@ -12,7 +12,6 @@ from apps.organizations.models import Organization
 def notify(
     recipients: Sequence[User],
     *,
-    type: Notification.Type | str,
     title: str,
     url: str | None = None,
     organization: Organization | None = None,
@@ -22,9 +21,6 @@ def notify(
     data: dict[str, Any] | None = None,
 ) -> list[Notification]:
     """Create one notification per recipient. Producer apps call this; they never touch the model directly."""
-    if type not in Notification.Type.values:
-        raise ValueError(f"Unknown notification type: {type!r}. Valid: {Notification.Type.values}")
-
     target_ct = None
     target_id = None
     if target is not None:
@@ -36,7 +32,6 @@ def notify(
             Notification(
                 recipient=recipient,
                 organization=organization,
-                type=type,
                 actor=actor,
                 target_content_type=target_ct,
                 target_object_id=target_id,

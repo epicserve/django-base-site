@@ -18,10 +18,6 @@ class Notification(TimeStampModelMixin):
     notifications — register the model in that setting and use ORM deletes.
     """
 
-    class Type(models.TextChoices):
-        IN_APP = "in_app", "In-app notification"
-        EMAIL = "email", "Email"
-
     recipient = models.ForeignKey(
         settings.AUTH_USER_MODEL,
         on_delete=models.CASCADE,
@@ -35,11 +31,6 @@ class Notification(TimeStampModelMixin):
         null=True,
         blank=True,
         help_text="Org scope; null for personal/global notifications.",
-    )
-    type = models.CharField(
-        max_length=32,
-        choices=Type.choices,
-        help_text="Category of event. Drives icon/grouping in the UI.",
     )
     actor = models.ForeignKey(
         settings.AUTH_USER_MODEL,
@@ -78,7 +69,7 @@ class Notification(TimeStampModelMixin):
 
     def __str__(self):
         """Return a string representation of the notification."""
-        return f"{self.get_type_display()} for {self.recipient}: {self.title}"
+        return f"Notification for {self.recipient}: {self.title}"
 
     @property
     def is_read(self):
