@@ -13,6 +13,7 @@ import re
 import socket
 from pathlib import Path
 
+from celery.schedules import crontab
 from epicenv import Env
 
 env = Env()
@@ -268,7 +269,7 @@ CELERY_BEAT_SCHEDULE = {
         "task": "apps.notifications.tasks.purge_expired_notifications",
         # Daily at 03:00 UTC. The worker is started with `-B` (embedded beat)
         # in compose.yml; in production use a dedicated beat process.
-        "schedule": 24 * 60 * 60,
+        "schedule": crontab(hour=3, minute=0),
     },
 }
 

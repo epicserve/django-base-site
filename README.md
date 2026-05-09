@@ -58,11 +58,13 @@ features.
 
 [custom_user_model]: https://docs.djangoproject.com/en/stable/topics/auth/customizing/#substituting-a-custom-user-model
 
-### 🏢 Multi-Tenant Scaffolding
+### 🧩 Custom Django Applications
 
-* `apps/organizations/` - `Organization`, `OrganizationMember` (with `is_owner` / `is_primary` flags), and `OrganizationInvite` models. `OrganizationMiddleware` lazy-loads `request.org` from the session; an org switcher lives in the user-menu navbar.
-* `apps/teams/` - generic `Team` model (organization FK + M2M users) with full CRUD ninja API.
-* Server-rendered accept-invite flow lives in the SPA at `/organizations/invite/:key/accept/` (works for anonymous visitors with sign-in / sign-up roundtrip via `?next=`).
+These first-party apps under `apps/` are the foundation for any B2B SaaS built on this template.
+
+* **`apps/organizations/`** — multi-tenant scaffolding: `Organization`, `OrganizationMember` (with `is_owner` / `is_primary` flags), and `OrganizationInvite` models. `OrganizationMiddleware` lazy-loads `request.org` from the session; an org switcher lives in the user-menu navbar. The accept-invite flow lives in the SPA at `/organizations/invite/:key/accept/` and works for anonymous visitors via a sign-in / sign-up roundtrip with `?next=`.
+* **`apps/teams/`** — generic `Team` model (organization FK + M2M users) with full CRUD ninja API.
+* **`apps/notifications/`** — `Notification` model (recipient + org + GenericForeignKey target) and `NotificationPreference` model, ninja API at `/api/notifications/` (list, unread-count, bulk, per-row patch/delete, per-user category preferences), a `notify()` producer service, retention via the `purge_expired_notifications` celery beat task and the `purge_notifications` management command, and a bell-dropdown UI with 20-second polling that pauses on hidden tabs. Producers register their models in `settings.NOTIFICATIONS_TARGET_MODELS` so target deletes cascade-clean their notifications, and declare categories in `settings.NOTIFICATIONS_CATEGORIES` so users can opt channels in or out per category.
 
 ### 🔧 Python Testing Tools
 
@@ -97,7 +99,7 @@ features.
 * [Vite 8](https://vitejs.dev/) - Frontend build tool. Hashed-asset cache + manifest support so WhiteNoise can serve them with immutable headers.
 * [bun](https://bun.sh/) - Fast JS toolchain (replaces npm). The `frontend` Docker service is built from `oven/bun:1`.
 * [@heroicons/vue](https://github.com/tailwindlabs/heroicons), [vue-advanced-cropper](https://norserium.github.io/vue-advanced-cropper/), [reka-ui](https://reka-ui.com/) - UI primitives.
-* Account settings (General, Email, Password change, Security with TOTP / recovery codes / passkeys), org settings (General, Members + Invites, Teams), Send-Test-Email and Impersonate views (superuser/staff).
+* Account settings (General, Email, Password change, Security with TOTP / recovery codes / passkeys, Notifications), org settings (General, Members + Invites, Teams), notification bell with polling and a `/notifications/` archive page, Test Notifications and Impersonate views (superuser/staff).
 
 ### 📝 Documentation
 

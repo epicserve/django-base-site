@@ -9,7 +9,7 @@ from apps.accounts.models import User
 from apps.notifications.categories import filter_recipients
 from apps.notifications.constants import NotificationChannel
 from apps.notifications.models import Notification
-from apps.organizations.models import Organization
+from apps.organizations.models import Organization, OrganizationMember
 
 
 def notify(
@@ -32,7 +32,26 @@ def notify(
     `category` is set and a recipient has the in_app channel disabled for that
     category, that recipient is skipped (the email-side primitive is in
     `apps.base.utils.email.send_email` and gates separately).
+
+    When `organization` is set, every recipient must be a member of that org —
+    a `ValueError` is raised otherwise. The list-API filters cross-org
+    notifications out at read time, but creating misrouted rows would still
+    waste storage and skew analytics, so we fail loudly at the producer.
     """
+    if organization is not None and recipients:
+        member_ids = set(
+            OrganizationMember.objects.filter(
+                organization=organization,
+                user__in=recipients,
+            ).values_list("user_id", flat=True)
+        )
+        outsiders = [r.pk for r in recipients if r.pk not in member_ids]
+        if outsiders:
+            raise ValueError(
+                f"notify(): recipients {outsiders} are not members of "
+                f"organization {organization.pk} ({organization.name})."
+            )
+
     target_ct = None
     target_id = None
     if target is not None:

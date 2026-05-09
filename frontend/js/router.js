@@ -184,6 +184,14 @@ export function createRouter(appStore) {
         meta: { requiresAuth: true, superuserOnly: true },
       },
 
+      // Notifications archive
+      {
+        path: '/notifications/',
+        name: 'notifications',
+        component: () => import('./views/NotificationsView.vue'),
+        meta: { requiresAuth: true },
+      },
+
       // 404 catch-all
       {
         path: '/:pathMatch(.*)*',

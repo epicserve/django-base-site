@@ -1,6 +1,25 @@
 # CHANGELOG
 
 
+## 2026-05-09
+
+### Added
+
+* `apps/notifications/` — `Notification` (recipient + org + GenericForeignKey target) and `NotificationPreference` models, ninja API at `/api/notifications/` (list, unread-count, bulk, per-row patch/delete, prefs), a `notify()` service helper, category-and-channel preferences (`settings.NOTIFICATIONS_CATEGORIES` + `NotificationChannel`), per-row + retention-window purge via the `purge_expired_notifications` celery beat task and the `purge_notifications` management command, and a `post_delete` cleanup signal driven by `settings.NOTIFICATIONS_TARGET_MODELS` so target deletes don't leave orphans. `notify()` validates that recipients are members of the supplied organization.
+* `AppNotificationBell.vue` + `useNotifications.js` composable — bell dropdown with Unread/All tabs, select-mode + bulk actions, click-outside, 20-second polling that pauses on `visibilitychange`, toast on new arrivals, and an `AppModal`-driven detail view for notifications with no navigable URL. Keyboard accessible: list rows are focusable + Enter/Space trigger actions, Escape closes the dropdown, and the unread badge announces via `aria-live`.
+* `/notifications/` SPA page — full paginated archive with the same Unread/All tabs, select-mode, and bulk actions as the bell. Linked from the bell footer.
+* Account settings **Notifications** tab (`AccountNotificationsView.vue`) for per-category in-app/email channel toggles.
+* Embedded celery beat in the worker (`celery -A config worker -B`) and a `CELERY_BEAT_SCHEDULE` entry that runs the daily purge at 03:00 UTC via `crontab` — the comment in `_base.py` notes that production should run beat as a dedicated process.
+* `NOTIFICATIONS_RETENTION_DAYS` env variable (default 90) registered in the epicenv schema.
+
+### Changed
+
+* Renamed the superuser **Send Test Email** view (`/send-test-emails/`) to **Test Notifications** (`/test-notifications/`). The form gains a "Send in-app notification" checkbox so the page can exercise both delivery channels; the API endpoint moved from `/api/send-test-email/` to `/api/test-notifications/` and validates that the recipient is a member of the sender's current org before creating an in-app row.
+* `apps.base.utils.email.send_email` now accepts an optional `category=` argument; when set with User-instance recipients, recipients with the email channel disabled for that category are filtered out via `apps.notifications.categories.filter_recipients`.
+* `compose.yml` worker command: `celery -A config worker` → `celery -A config worker -B` so the embedded beat runs the purge schedule for local dev.
+* `.gitignore` now excludes `celerybeat-schedule*` produced by the embedded beat.
+
+
 ## 2026-05-02
 
 ### Added

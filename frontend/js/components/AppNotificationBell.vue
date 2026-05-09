@@ -1,6 +1,6 @@
 <script setup>
 import { ref, computed, watch } from 'vue';
-import { useRouter } from 'vue-router';
+import { useRouter, RouterLink } from 'vue-router';
 import { BellIcon, TrashIcon, CheckIcon, XMarkIcon } from '@heroicons/vue/24/outline';
 import { BellAlertIcon } from '@heroicons/vue/24/solid';
 import { useNotifications } from '../composables/useNotifications';
@@ -128,12 +128,21 @@ function handleOutside(e) {
   }
 }
 
+function handleEscape(e) {
+  if (e.key === 'Escape') {
+    isOpen.value = false;
+    exitSelectMode();
+  }
+}
+
 watch(isOpen, (open) => {
   setDropdownOpen(open);
   if (open) {
     document.addEventListener('click', handleOutside);
+    document.addEventListener('keydown', handleEscape);
   } else {
     document.removeEventListener('click', handleOutside);
+    document.removeEventListener('keydown', handleEscape);
   }
 });
 </script>
@@ -155,6 +164,8 @@ watch(isOpen, (open) => {
       />
       <span
         v-if="hasUnread"
+        role="status"
+        aria-live="polite"
         class="absolute -top-0.5 -right-0.5 flex h-4 min-w-4 items-center justify-center rounded-full bg-blue-500 px-1 text-[10px] font-semibold leading-none text-white"
       >
         {{ badgeLabel }}
@@ -292,9 +303,14 @@ watch(isOpen, (open) => {
           <li
             v-for="n in notifications"
             :key="n.id"
-            class="group cursor-pointer px-3 py-3 hover:bg-gray-50 dark:hover:bg-gray-700/50"
+            tabindex="0"
+            role="button"
+            :aria-label="`${n.is_read ? '' : 'Unread, '}${n.title}${n.actor ? ` from ${userFullName(n.actor)}` : ''}`"
+            class="group cursor-pointer px-3 py-3 hover:bg-gray-50 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-inset dark:hover:bg-gray-700/50"
             :class="!n.is_read ? 'bg-blue-50/40 dark:bg-blue-900/10' : ''"
             @click="handleRowClick(n)"
+            @keydown.enter.prevent="handleRowClick(n)"
+            @keydown.space.prevent="handleRowClick(n)"
           >
             <div class="flex items-start gap-3">
               <input
@@ -339,7 +355,7 @@ watch(isOpen, (open) => {
               <button
                 v-if="!selectMode"
                 type="button"
-                class="cursor-pointer shrink-0 rounded p-1 text-gray-400 opacity-0 transition group-hover:opacity-100 hover:bg-gray-200 hover:text-gray-700 dark:hover:bg-gray-600 dark:hover:text-gray-200"
+                class="cursor-pointer shrink-0 rounded p-1 text-gray-400 opacity-0 transition group-hover:opacity-100 group-focus-within:opacity-100 hover:bg-gray-200 hover:text-gray-700 dark:hover:bg-gray-600 dark:hover:text-gray-200"
                 aria-label="Delete notification"
                 @click.stop="handleDelete(n.id)"
               >
@@ -348,6 +364,17 @@ watch(isOpen, (open) => {
             </div>
           </li>
         </ul>
+      </div>
+
+      <!-- Footer -->
+      <div class="border-t border-gray-200 px-3 py-2 text-center dark:border-gray-700">
+        <RouterLink
+          :to="{ name: 'notifications' }"
+          class="text-xs font-medium text-blue-600 hover:underline dark:text-blue-400"
+          @click="isOpen = false"
+        >
+          View all notifications →
+        </RouterLink>
       </div>
     </div>
 
