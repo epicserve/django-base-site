@@ -263,6 +263,14 @@ CACHES = {
 # Celery configuration docs: https://docs.celeryq.dev/en/stable/getting-started/backends-and-brokers/redis.html#configuration
 CELERY_BROKER_URL = REDIS_URL
 CELERY_BROKER_TRANSPORT_OPTIONS = {"global_keyprefix": REDIS_PREFIX}
+CELERY_BEAT_SCHEDULE = {
+    "purge-expired-notifications": {
+        "task": "apps.notifications.tasks.purge_expired_notifications",
+        # Daily at 03:00 UTC. The worker is started with `-B` (embedded beat)
+        # in compose.yml; in production use a dedicated beat process.
+        "schedule": 24 * 60 * 60,
+    },
+}
 
 SESSION_ENGINE = "django.contrib.sessions.backends.cache"
 
@@ -279,6 +287,25 @@ DEFAULT_PAGE_SIZE = 50
 # Models registered here get a post_delete receiver that cleans up Notification
 # rows whose GenericForeignKey targets them. Add producer-app models as needed.
 NOTIFICATIONS_TARGET_MODELS: list[str] = []
+
+# Default retention window for notifications without an explicit `expires_at`.
+# The `purge_expired_notifications` celery task / `purge_notifications`
+# management command deletes anything older than this.
+NOTIFICATIONS_RETENTION_DAYS = env.int("NOTIFICATIONS_RETENTION_DAYS", default=90)
+
+# Notification categories shown on the account-settings Notifications tab and
+# consulted by `apps.notifications.categories.should_send`. Use
+# `apps.notifications.constants.NotificationChannel` for `default_channels`
+# values so typos are caught at import time. Each entry:
+#   {
+#     "key": "comments",
+#     "label": "Comments",
+#     "description": "Replies to your posts.",
+#     "default_channels": (NotificationChannel.IN_APP, NotificationChannel.EMAIL),
+#   }
+# Out of the box, no categories are registered. Add entries here as downstream
+# apps introduce notification subjects.
+NOTIFICATIONS_CATEGORIES: list[dict] = []
 
 # DJANGO DEBUG TOOLBAR SETTINGS
 if DEBUG is True:

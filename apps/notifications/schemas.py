@@ -54,3 +54,17 @@ class BulkActionIn(Schema):
 class BulkResultOut(Schema):
     updated: int = 0
     deleted: int = 0
+
+
+class NotificationPreferenceOut(Schema):
+    key: str
+    label: str
+    description: str = ""
+    default_channels: list[str] = []
+    in_app: bool
+    email: bool
+
+
+class NotificationPreferencePatchIn(Schema):
+    in_app: bool | None = None
+    email: bool | None = None

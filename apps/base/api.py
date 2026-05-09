@@ -11,7 +11,7 @@ from apps.base.templatetags.vite import _get_manifest, vite_settings
 from apps.base.utils.email import send_email
 from apps.base.utils.timezones import get_timezone_label
 from apps.notifications.services import notify
-from apps.organizations.models import Organization
+from apps.organizations.models import Organization, OrganizationMember
 from apps.organizations.session import get_member_count, get_owner_count
 
 router = Router(tags=["app"])
@@ -132,6 +132,16 @@ def send_test_notification(request, payload: TestNotificationIn):
 
     if payload.send_in_app:
         sender_org = request.org.instance if getattr(request.org, "id", None) else None
+        if (
+            sender_org is not None
+            and not OrganizationMember.objects.filter(user=recipient, organization=sender_org).exists()
+        ):
+            raise HttpError(
+                400,
+                f"{recipient.get_full_name() or recipient.username} isn't a member of "
+                f"{sender_org.name}. Switch to an organization they belong to (or none) "
+                f"to send a personal-scope test notification.",
+            )
         notify(
             [recipient],
             title="Test Notification",

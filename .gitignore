@@ -3,6 +3,7 @@
 .coverage
 .env*
 .idea/
+celerybeat-schedule*
 .mypy_cache/**/*
 .pytest_cache/**/*
 .ruff_cache/**/*
