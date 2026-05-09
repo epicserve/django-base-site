@@ -122,7 +122,10 @@ services:
     image: epicserve/django-base-site:python
     init: true
 
-    command: sh -c "celery -A config worker -l info"
+    # `-B` runs celery beat embedded in the worker — fine for a starter and for
+    # local dev. In production, run `celery -A config beat` as a separate
+    # process so that scaling workers doesn't run the schedule N times.
+    command: sh -c "celery -A config worker -B -l info"
 
     volumes:
       - .:/srv/app:cached

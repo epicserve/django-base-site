@@ -220,5 +220,8 @@ EMAIL_URL = { type = "str", default="smtp://mailpit:1025", help_text = "Email se
 # Instance Settings
 INSTANCE = { type = "str", default = "dev", help_text = "Instance name (e.g., dev, staging, prod)" }
 
+# Notifications
+NOTIFICATIONS_RETENTION_DAYS = { type = "int", default = 90, help_text = "Default age (days) at which notifications without an explicit expires_at are purged." }
+
 [tool.uv]
 exclude-newer = "P7D"

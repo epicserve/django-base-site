@@ -16,11 +16,34 @@ def get_user_email(user):
     return formataddr((user_name, user.email))
 
 
-def send_email(sending_user, recipients: list, subject: str, base_template_name: str, context: dict):
+def send_email(
+    sending_user,
+    recipients: list,
+    subject: str,
+    base_template_name: str,
+    context: dict,
+    category: str = "",
+):
+    """
+    Send a templated multipart email.
+
+    When `category` is set and `recipients` is a list of User instances,
+    recipients with the email channel disabled for that category are filtered
+    out (see apps.notifications.categories.should_send). When `recipients` is
+    a list of email strings, no filtering is done — the caller is responsible
+    for honoring preferences.
+    """
     context["subject"] = subject
     user_model = get_user_model()
 
-    if isinstance(recipients[0], user_model):
+    if recipients and isinstance(recipients[0], user_model):
+        if category:
+            from apps.notifications.categories import filter_recipients
+            from apps.notifications.constants import NotificationChannel
+
+            recipients = filter_recipients(recipients, category, NotificationChannel.EMAIL)
+        if not recipients:
+            return
         recipients = [get_user_email(user) for user in recipients]
 
     text_message = render_to_string(f"{base_template_name}.txt", context=context)

@@ -15,8 +15,10 @@ def connect_target_receivers():
     """
     Connect post_delete cleanup for each model listed in settings.NOTIFICATIONS_TARGET_MODELS.
 
-    Replaces the FK CASCADE that was lost when `comment` became a GenericForeignKey.
-    Scoped per-model so unrelated deletes don't pay the cost.
+    Notification.target is a GenericForeignKey, so the database has no FK CASCADE
+    to clean up rows whose target row was deleted. This receiver provides that
+    cascade in application code, scoped per-model so unrelated deletes don't pay
+    the cost.
     """
     for label in getattr(settings, "NOTIFICATIONS_TARGET_MODELS", ()):
         model = django_apps.get_model(label)

@@ -133,6 +133,12 @@ export function createRouter(appStore) {
         meta: { requiresAuth: true },
       },
       {
+        path: '/accounts/notifications/',
+        name: 'account-notifications',
+        component: () => import('./accounts/views/AccountNotificationsView.vue'),
+        meta: { requiresAuth: true },
+      },
+      {
         path: '/accounts/security/totp/',
         name: 'account-totp',
         component: () => import('./accounts/views/AccountTotpView.vue'),

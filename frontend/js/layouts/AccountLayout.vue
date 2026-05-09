@@ -12,6 +12,7 @@ const tabs = [
     label: 'Security',
     activeNames: ['account-security', 'account-totp', 'account-recovery-codes', 'account-passkeys'],
   },
+  { to: { name: 'account-notifications' }, label: 'Notifications', activeNames: ['account-notifications'] },
 ];
 </script>
 
