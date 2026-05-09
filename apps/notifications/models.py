@@ -70,8 +70,7 @@ class Notification(TimeStampModelMixin):
         null=True,
         blank=True,
         db_index=True,
-        help_text="If set, the cleanup task will purge this row when now >= expires_at, "
-        "regardless of NOTIFICATIONS_RETENTION_DAYS.",
+        help_text="Per-row retention override; cleanup deletes the row once this time has passed.",
     )
 
     objects = NotificationQuerySet.as_manager()
