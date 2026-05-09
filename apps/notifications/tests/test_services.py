@@ -3,12 +3,14 @@ from datetime import timedelta
 from django.utils import timezone
 
 import pytest
+from model_bakery import baker
 
 from apps.accounts.models import User
 from apps.notifications.constants import NotificationChannel
 from apps.notifications.models import Notification, NotificationPreference
 from apps.notifications.services import notify
 from apps.notifications.tasks import purge_expired
+from apps.organizations.models import OrganizationMember
 
 COMMENTS_CATEGORY = {
     "key": "comments",
@@ -47,6 +49,21 @@ class TestNotify:
         NotificationPreference.objects.create(user=self.alice, category="orphan", in_app=False)
         notify([self.alice], title="hi", category="orphan")
         assert Notification.objects.count() == 1
+
+    def test_raises_when_recipient_not_in_org(self):
+        org = baker.make("organizations.Organization")
+        OrganizationMember.objects.create(organization=org, user=self.alice)
+        # bob is not a member of `org` — notify() must refuse to create the row.
+        with pytest.raises(ValueError, match="not members of organization"):
+            notify([self.alice, self.bob], title="hi", organization=org)
+        assert Notification.objects.count() == 0
+
+    def test_allows_org_recipients_when_all_are_members(self):
+        org = baker.make("organizations.Organization")
+        OrganizationMember.objects.create(organization=org, user=self.alice)
+        OrganizationMember.objects.create(organization=org, user=self.bob)
+        notify([self.alice, self.bob], title="hi", organization=org)
+        assert Notification.objects.count() == 2
 
 
 @pytest.mark.django_db
