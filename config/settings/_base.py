@@ -65,6 +65,7 @@ INSTALLED_APPS = [
     "apps.organizations",
     "apps.teams",
     "apps.notifications",
+    "apps.billing",
     "maintenance_mode",
     "allauth",
     "allauth.account",
@@ -271,6 +272,16 @@ CELERY_BEAT_SCHEDULE = {
         # in compose.yml; in production use a dedicated beat process.
         "schedule": crontab(hour=3, minute=0),
     },
+    # Billing tasks are no-ops when BILLING_ENABLED=False; they remain in the
+    # schedule so toggling billing on doesn't require a worker restart.
+    "billing-check-trials-ending": {
+        "task": "apps.billing.tasks.check_trials_ending",
+        "schedule": crontab(hour=4, minute=0),  # daily 04:00 UTC
+    },
+    "billing-reconcile-subscriptions": {
+        "task": "apps.billing.tasks.reconcile_subscriptions",
+        "schedule": crontab(day_of_week=1, hour=5, minute=0),  # weekly Mon 05:00 UTC
+    },
 }
 
 SESSION_ENGINE = "django.contrib.sessions.backends.cache"
@@ -307,6 +318,26 @@ NOTIFICATIONS_RETENTION_DAYS = env.int("NOTIFICATIONS_RETENTION_DAYS", default=9
 # Out of the box, no categories are registered. Add entries here as downstream
 # apps introduce notification subjects.
 NOTIFICATIONS_CATEGORIES: list[dict] = []
+
+# BILLING SETTINGS
+# When BILLING_ENABLED is False (the default), the billing API and Stripe
+# webhook URL are not mounted, `apps.billing.access.org_has_feature()` returns
+# every feature's default, and the SPA hides the pricing page + billing tab.
+# This lets the starter template run out of the box without Stripe credentials.
+BILLING_ENABLED = env.bool("BILLING_ENABLED", default=False)
+STRIPE_SECRET_KEY = env("STRIPE_SECRET_KEY", default="")
+STRIPE_PUBLISHABLE_KEY = env("STRIPE_PUBLISHABLE_KEY", default="")
+STRIPE_WEBHOOK_SECRET = env("STRIPE_WEBHOOK_SECRET", default="")
+
+# Subscription plans. Empty out of the box. See `apps.billing.plans` for the
+# expected dict schema. When BILLING_ENABLED is True, `BillingConfig.ready()`
+# raises ImproperlyConfigured if a non-free plan has no Stripe price IDs.
+BILLING_PLANS: list[dict] = []
+
+# Feature catalog. Empty out of the box. See `apps.billing.features` for the
+# expected dict schema. Values from BILLING_PLANS[*]["features"] override
+# these defaults at runtime.
+BILLING_FEATURES: list[dict] = []
 
 # DJANGO DEBUG TOOLBAR SETTINGS
 if DEBUG is True:

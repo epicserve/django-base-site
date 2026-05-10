@@ -48,7 +48,7 @@ def send_email(
 
     text_message = render_to_string(f"{base_template_name}.txt", context=context)
     html_message = render_to_string(f"{base_template_name}.html", context=context)
-    headers = {"Reply-To": get_user_email(sending_user)}
+    headers = {"Reply-To": get_user_email(sending_user)} if sending_user is not None else {}
     mail = EmailMultiAlternatives(subject, text_message, settings.DEFAULT_FROM_EMAIL, recipients, headers=headers)
     mail.attach_alternative(html_message, "text/html")
     mail.send()

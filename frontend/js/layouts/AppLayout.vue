@@ -6,6 +6,8 @@ import AppToast from '@/components/AppToast.vue';
 import AppNotificationBell from '@/components/AppNotificationBell.vue';
 import TimezoneDetectModal from '@/components/TimezoneDetectModal.vue';
 import UserAvatar from '@/components/UserAvatar.vue';
+import TrialEndingBanner from '@/components/billing/TrialEndingBanner.vue';
+import PastDueBanner from '@/components/billing/PastDueBanner.vue';
 import { useNotifications } from '@/composables/useNotifications';
 import {
   Cog6ToothIcon,
@@ -95,6 +97,8 @@ onUnmounted(() => {
 
 <!-- eslint-disable max-len -->
 <template>
+  <PastDueBanner />
+  <TrialEndingBanner />
   <nav class="border-b border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900">
     <div class="mx-auto w-full px-4 sm:px-6 lg:px-8">
       <div class="flex h-14 items-center justify-between">
