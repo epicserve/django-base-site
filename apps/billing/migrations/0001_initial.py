@@ -5,64 +5,126 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     initial = True
 
     dependencies = [
-        ('organizations', '0004_add_is_primary_to_organizationmember'),
+        ("organizations", "0004_add_is_primary_to_organizationmember"),
     ]
 
     operations = [
         migrations.CreateModel(
-            name='WebhookEvent',
+            name="WebhookEvent",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('created', models.DateTimeField(auto_now_add=True)),
-                ('modified', models.DateTimeField(auto_now=True)),
-                ('stripe_event_id', models.CharField(db_index=True, max_length=64, unique=True)),
-                ('event_type', models.CharField(max_length=64)),
-                ('processed_at', models.DateTimeField(blank=True, null=True)),
+                ("id", models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name="ID")),
+                ("created", models.DateTimeField(auto_now_add=True)),
+                ("modified", models.DateTimeField(auto_now=True)),
+                ("stripe_event_id", models.CharField(db_index=True, max_length=64, unique=True)),
+                ("event_type", models.CharField(max_length=64)),
+                ("processed_at", models.DateTimeField(blank=True, null=True)),
             ],
             options={
-                'abstract': False,
+                "abstract": False,
             },
         ),
         migrations.CreateModel(
-            name='BillingCustomer',
+            name="BillingCustomer",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('created', models.DateTimeField(auto_now_add=True)),
-                ('modified', models.DateTimeField(auto_now=True)),
-                ('stripe_customer_id', models.CharField(db_index=True, max_length=64, unique=True)),
-                ('email', models.EmailField(blank=True, help_text='Mirror of the email Stripe knows for this customer.', max_length=254)),
-                ('organization', models.OneToOneField(on_delete=django.db.models.deletion.CASCADE, related_name='billing_customer', to='organizations.organization')),
+                ("id", models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name="ID")),
+                ("created", models.DateTimeField(auto_now_add=True)),
+                ("modified", models.DateTimeField(auto_now=True)),
+                ("stripe_customer_id", models.CharField(db_index=True, max_length=64, unique=True)),
+                (
+                    "email",
+                    models.EmailField(
+                        blank=True, help_text="Mirror of the email Stripe knows for this customer.", max_length=254
+                    ),
+                ),
+                (
+                    "organization",
+                    models.OneToOneField(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        related_name="billing_customer",
+                        to="organizations.organization",
+                    ),
+                ),
             ],
             options={
-                'abstract': False,
+                "abstract": False,
             },
         ),
         migrations.CreateModel(
-            name='Subscription',
+            name="Subscription",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('created', models.DateTimeField(auto_now_add=True)),
-                ('modified', models.DateTimeField(auto_now=True)),
-                ('stripe_subscription_id', models.CharField(db_index=True, max_length=64, unique=True)),
-                ('plan_key', models.CharField(db_index=True, help_text="Matches BILLING_PLANS[*]['key']. Falls back gracefully if removed.", max_length=64)),
-                ('billing_cycle', models.CharField(choices=[('monthly', 'Monthly'), ('annual', 'Annual')], default='monthly', max_length=16)),
-                ('status', models.CharField(choices=[('trialing', 'Trialing'), ('active', 'Active'), ('past_due', 'Past due'), ('canceled', 'Canceled'), ('incomplete', 'Incomplete'), ('incomplete_expired', 'Incomplete expired'), ('unpaid', 'Unpaid'), ('paused', 'Paused')], db_index=True, max_length=32)),
-                ('quantity', models.PositiveIntegerField(default=1, help_text='Seat count for seat-based plans; 1 otherwise.')),
-                ('current_period_start', models.DateTimeField(blank=True, null=True)),
-                ('current_period_end', models.DateTimeField(blank=True, db_index=True, null=True)),
-                ('trial_end', models.DateTimeField(blank=True, db_index=True, null=True)),
-                ('cancel_at_period_end', models.BooleanField(default=False)),
-                ('canceled_at', models.DateTimeField(blank=True, null=True)),
-                ('trial_ending_notified_at', models.DateTimeField(blank=True, help_text='Set once the trial-ending notification has fired (idempotency guard).', null=True)),
-                ('raw', models.JSONField(blank=True, default=dict, help_text='Last full Stripe payload — forensics only.')),
-                ('organization', models.OneToOneField(on_delete=django.db.models.deletion.CASCADE, related_name='subscription', to='organizations.organization')),
+                ("id", models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name="ID")),
+                ("created", models.DateTimeField(auto_now_add=True)),
+                ("modified", models.DateTimeField(auto_now=True)),
+                ("stripe_subscription_id", models.CharField(db_index=True, max_length=64, unique=True)),
+                (
+                    "plan_key",
+                    models.CharField(
+                        db_index=True,
+                        help_text="Matches BILLING_PLANS[*]['key']. Falls back gracefully if removed.",
+                        max_length=64,
+                    ),
+                ),
+                (
+                    "billing_cycle",
+                    models.CharField(
+                        choices=[("monthly", "Monthly"), ("annual", "Annual")], default="monthly", max_length=16
+                    ),
+                ),
+                (
+                    "status",
+                    models.CharField(
+                        choices=[
+                            ("trialing", "Trialing"),
+                            ("active", "Active"),
+                            ("past_due", "Past due"),
+                            ("canceled", "Canceled"),
+                            ("incomplete", "Incomplete"),
+                            ("incomplete_expired", "Incomplete expired"),
+                            ("unpaid", "Unpaid"),
+                            ("paused", "Paused"),
+                        ],
+                        db_index=True,
+                        max_length=32,
+                    ),
+                ),
+                (
+                    "quantity",
+                    models.PositiveIntegerField(default=1, help_text="Seat count for seat-based plans; 1 otherwise."),
+                ),
+                ("current_period_start", models.DateTimeField(blank=True, null=True)),
+                ("current_period_end", models.DateTimeField(blank=True, db_index=True, null=True)),
+                ("trial_end", models.DateTimeField(blank=True, db_index=True, null=True)),
+                ("cancel_at_period_end", models.BooleanField(default=False)),
+                ("canceled_at", models.DateTimeField(blank=True, null=True)),
+                (
+                    "trial_ending_notified_at",
+                    models.DateTimeField(
+                        blank=True,
+                        help_text="Set once the trial-ending notification has fired (idempotency guard).",
+                        null=True,
+                    ),
+                ),
+                (
+                    "raw",
+                    models.JSONField(blank=True, default=dict, help_text="Last full Stripe payload — forensics only."),
+                ),
+                (
+                    "organization",
+                    models.OneToOneField(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        related_name="subscription",
+                        to="organizations.organization",
+                    ),
+                ),
             ],
             options={
-                'indexes': [models.Index(fields=['status', 'current_period_end'], name='billing_sub_status_684a21_idx'), models.Index(fields=['status', 'trial_end'], name='billing_sub_status_259f02_idx')],
+                "indexes": [
+                    models.Index(fields=["status", "current_period_end"], name="billing_sub_status_684a21_idx"),
+                    models.Index(fields=["status", "trial_end"], name="billing_sub_status_259f02_idx"),
+                ],
             },
         ),
     ]
