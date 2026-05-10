@@ -44,3 +44,10 @@ api.add_router("/organization-settings/", org_settings_router)
 api.add_router("/organizations/", orgs_router)
 api.add_router("/teams/", teams_router)
 api.add_router("/users/", users_router)
+
+# Billing is opt-in; when BILLING_ENABLED is False the router is not mounted
+# (see apps/billing/access.py for how feature gates fall through).
+if settings.BILLING_ENABLED:
+    from apps.billing.api import router as billing_router
+
+    api.add_router("/billing/", billing_router)

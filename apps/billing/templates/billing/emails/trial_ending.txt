@@ -1,0 +1,5 @@
+{% extends 'emails/base_email.txt' %}{% block content %}Hi,
+
+Your trial for {{ organization }} ends on {{ subscription.trial_end|date:"F j, Y" }}.
+
+Add a payment method to keep your subscription active. You can manage billing from the billing settings page.{% endblock content %}
