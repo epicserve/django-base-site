@@ -99,7 +99,20 @@ These first-party apps under `apps/` are the foundation for any B2B SaaS built o
 * [Vite 8](https://vitejs.dev/) - Frontend build tool. Hashed-asset cache + manifest support so WhiteNoise can serve them with immutable headers.
 * [bun](https://bun.sh/) - Fast JS toolchain (replaces npm). The `frontend` Docker service is built from `oven/bun:1`.
 * [@heroicons/vue](https://github.com/tailwindlabs/heroicons), [vue-advanced-cropper](https://norserium.github.io/vue-advanced-cropper/), [reka-ui](https://reka-ui.com/) - UI primitives.
-* Account settings (General, Email, Password change, Security with TOTP / recovery codes / passkeys, Notifications), org settings (General, Members + Invites, Teams), notification bell with polling and a `/notifications/` archive page, Test Notifications and Impersonate views (superuser/staff).
+* Account settings (General, Email, Password change, Security with TOTP / recovery codes / passkeys, Notifications), org settings (General, Members + Invites, Teams, Billing), notification bell with polling and a `/notifications/` archive page, public `/pricing/` page, Test Notifications and Impersonate views (superuser/staff).
+
+### 💳 Billing (opt-in)
+
+Stripe-backed subscriptions tied to Organizations. Off by default — set `BILLING_ENABLED=true` to turn on.
+
+* `apps/billing/` with `BillingCustomer`, `Subscription`, and `WebhookEvent` models. Stripe is the source of truth; we mirror just enough locally to gate features and render the billing UI.
+* Settings-declared plan + feature registries (`BILLING_PLANS`, `BILLING_FEATURES`) — same pattern as `NOTIFICATIONS_CATEGORIES`. Plans support monthly/annual prices, free tier, trial periods, per-seat pricing, and a "highlighted" flag for the popular plan.
+* [Stripe Checkout](https://docs.stripe.com/payments/checkout) (full-page redirect) for new subscriptions and [Stripe Customer Portal](https://docs.stripe.com/customer-management) for upgrades, cancels, payment-method updates, and invoice history. Coupons / promotion codes are accepted at Checkout.
+* Webhook at `/webhooks/stripe/` with HMAC signature verification and `WebhookEvent`-backed dedupe of Stripe retries.
+* Per-seat sync — adding/removing org members updates Stripe quantity via `transaction.on_commit` in a `OrganizationMember` `post_save`/`post_delete` receiver.
+* Trial-ending reminders + drift-recovery reconcile run as celery beat tasks.
+* Feature gating: `appStore.hasFeature('teams')` in the SPA, `org_has_feature(org, 'teams')` and `@requires_feature('teams')` in Python. When `BILLING_ENABLED=False`, every feature falls through to its declared default so the starter template runs without Stripe credentials.
+* Local dev: `stripe listen --forward-to http://localhost:8000/webhooks/stripe/` to bridge the test-mode webhooks.
 
 ### 📝 Documentation
 

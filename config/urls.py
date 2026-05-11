@@ -34,6 +34,18 @@ urlpatterns: list[URLResolver | URLPattern] = [
         SPAView.as_view(),
         name="accept_invite",
     ),
+]
+
+# Stripe webhook URL — registered outside the ninja API because Stripe POSTs
+# unauthenticated requests with HMAC signatures (different auth model from the
+# session-auth + CSRF API). Must be registered BEFORE the SPA catch-all so
+# the catch-all regex doesn't swallow the POST and return HTML 200.
+if settings.BILLING_ENABLED:
+    from apps.billing.webhooks import stripe_webhook
+
+    urlpatterns.append(path("webhooks/stripe/", stripe_webhook, name="stripe-webhook"))
+
+urlpatterns += [
     re_path(r"^public/", _public_not_found, name="public-not-found"),
     re_path(r"^(?!public/).*$", SPAView.as_view(), name="spa"),
 ]

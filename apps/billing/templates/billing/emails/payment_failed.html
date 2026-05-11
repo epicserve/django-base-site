@@ -1,0 +1,9 @@
+{% extends "emails/base_email.html" %}
+
+{% block content %}
+  <p>Hi,</p>
+  <p>
+    We weren't able to process the latest payment for <strong>{{ organization }}</strong>.
+  </p>
+  <p>To keep your subscription active, please update your payment method in the billing portal.</p>
+{% endblock content %}

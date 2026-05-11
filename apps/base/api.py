@@ -10,6 +10,7 @@ from apps.base.permissions import require_superuser
 from apps.base.templatetags.vite import _get_manifest, vite_settings
 from apps.base.utils.email import send_email
 from apps.base.utils.timezones import get_timezone_label
+from apps.billing.access import org_billing_summary
 from apps.notifications.services import notify
 from apps.organizations.models import Organization, OrganizationMember
 from apps.organizations.session import get_member_count, get_owner_count
@@ -46,16 +47,19 @@ def app_context(request):
             "instance": getattr(settings, "INSTANCE", ""),
             "signupOpen": getattr(settings, "ACCOUNT_SIGNUP_OPEN", False),
             "version": _get_app_version(),
+            "billing": org_billing_summary(None),
         }
 
     user = request.user
-    org = getattr(request, "org", None)
+    org_ctx = getattr(request, "org", None)
     user_orgs = [
         {"id": o.pk, "name": o.name, "slug": o.slug} for o in Organization.objects.filter(organizationmember__user=user)
     ]
     org_data = None
-    if org and org.pk:
-        org_data = {"id": org.id, "name": org.name, "slug": org.slug, "is_owner": org.is_owner}
+    org_instance = None
+    if org_ctx and org_ctx.pk:
+        org_data = {"id": org_ctx.id, "name": org_ctx.name, "slug": org_ctx.slug, "is_owner": org_ctx.is_owner}
+        org_instance = org_ctx.instance
 
     return {
         "user": {
@@ -80,6 +84,7 @@ def app_context(request):
         "instance": getattr(settings, "INSTANCE", ""),
         "signupOpen": getattr(settings, "ACCOUNT_SIGNUP_OPEN", False),
         "version": _get_app_version(),
+        "billing": org_billing_summary(org_instance),
     }
 
 
