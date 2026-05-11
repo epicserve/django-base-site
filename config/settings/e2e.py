@@ -3,6 +3,11 @@ from ._base import BASE_DIR
 
 PASSWORD_HASHERS = ("django.contrib.auth.hashers.MD5PasswordHasher",)
 
+# e2e tests should never hit Stripe.
+BILLING_ENABLED = False
+BILLING_PLANS: list[dict] = []
+BILLING_FEATURES: list[dict] = []
+
 CACHES = {
     "default": {
         "BACKEND": "django.core.cache.backends.dummy.DummyCache",
