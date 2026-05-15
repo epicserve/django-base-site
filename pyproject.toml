@@ -146,3 +146,6 @@ section-order = ["future", "standard-library", "django", "third-party", "first-p
 
 [tool.uv]
 exclude-newer = "P7D"
+
+[tool.uv.exclude-newer-package]
+epicenv = "2026-05-15"
