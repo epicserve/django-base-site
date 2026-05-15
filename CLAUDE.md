@@ -100,7 +100,7 @@ The project supports remote debugging with VS Code, PyCharm, LazyVim/Neovim, or 
 
 ## Environment Configuration
 
-Uses `.env` for local development. Schema is defined in `pyproject.toml` under `[tool.epicenv.variables]`. Generate a new `.env` with `just create_env` (or `uvx epicenv create`).
+Uses `.env` for local development. Schema is defined in `.env.toml` under `[variables]`. Generate a new `.env` with `just create_env` (or `uvx epicenv create`).
 
 Key variables:
 - `DEBUG=on` for development

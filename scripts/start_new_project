@@ -24,13 +24,12 @@ RESET=$(tput -Txterm sgr0)
 function create_env_file() {
     local project_name=$1
 
-    # Update pyproject.toml with project-specific initial values for Postgres
-    sed -i.bak "s|POSTGRES_USER = { type = \"str\", initial = \"django_base_site\"|POSTGRES_USER = { type = \"str\", initial = \"${project_name}\"|" pyproject.toml
-    sed -i.bak "s|POSTGRES_DB = { type = \"str\", initial = \"django_base_site\"|POSTGRES_DB = { type = \"str\", initial = \"${project_name}\"|" pyproject.toml
-    rm -f pyproject.toml.bak
+    # Update .env.toml with project-specific initial values for Postgres
+    sed -i.bak "s|initial = \"django_base_site\"|initial = \"${project_name}\"|g" .env.toml
+    rm -f .env.toml.bak
 
-    # Generate .env file using epicenv
-    uvx epicenv create
+    # Generate .env file using epicenv (pinned for reproducible bootstrap)
+    uvx epicenv@1.4.0 create
 }
 
 function ask_yes_or_no_default_yes() {

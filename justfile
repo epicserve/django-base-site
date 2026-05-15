@@ -6,9 +6,9 @@ project_slug := 'django-base-site'
 @_default:
     just -l
 
-# Create or regenerate .env file from pyproject.toml schema
+# Create or regenerate .env file from .env.toml schema
 @create_env:
-    uvx epicenv create
+    uvx epicenv@1.4.0 create
 
 # Remove extra Django Base Site files not needed in a new project
 @clean_extra_files:

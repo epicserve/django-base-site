@@ -155,12 +155,12 @@ Example output:
     $ curl -LOk https://github.com/epicserve/django-base-site/archive/main.zip && unzip main
     $ mv django-base-site-main example
     $ cd example
-    $ uvx epicenv create        # Generates .env from the schema in pyproject.toml
+    $ uvx epicenv create        # Generates .env from the schema in .env.toml
     $ just clean_extra_files
     $ find ./public -name ".keep" | xargs rm -rf
     $ just start
 
-`epicenv create` reads the `[tool.epicenv.variables]` block in `pyproject.toml` and produces a `.env` with sensible defaults — `SECRET_KEY` and `POSTGRES_PASSWORD` are auto-generated, `SITE_DOMAIN=localhost:8000` (so passkeys work), and the MinIO + Mailpit credentials are pre-wired.
+`epicenv create` reads the `[variables]` block in `.env.toml` and produces a `.env` with sensible defaults — `SECRET_KEY` and `POSTGRES_PASSWORD` are auto-generated, `SITE_DOMAIN=localhost:8000` (so passkeys work), and the MinIO + Mailpit credentials are pre-wired.
 
 ## Usage
 

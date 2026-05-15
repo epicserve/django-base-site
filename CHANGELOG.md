@@ -1,6 +1,14 @@
 # CHANGELOG
 
 
+## 2026-05-15
+
+### Changed
+
+* Upgraded `epicenv[django]` to v1.4 and moved the env schema from `[tool.epicenv.variables]` in `pyproject.toml` to a dedicated `.env.toml` file at the project root. Every variable uses the multi-line `[variables.NAME]` form for a uniform layout.
+* Pinned the exact epicenv version used by `scripts/start_new_project` and the `just create_env` recipe (`uvx epicenv@1.4.0 create`) so new project bootstraps remain reproducible.
+
+
 ## 2026-05-09
 
 ### Added

@@ -1,7 +1,8 @@
 **/.venv
 *console.log
 .coverage
-.env*
+.env
+.env.[0-9]*
 .idea/
 celerybeat-schedule*
 .mypy_cache/**/*
