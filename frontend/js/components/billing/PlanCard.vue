@@ -75,12 +75,12 @@ const ctaState = computed(() => {
     return { label: 'Current plan', action: null, disabled: true, hint: '' };
   }
   if (props.hasSubscription) {
-    // Switching plans (upgrade or downgrade) goes through Stripe Customer Portal.
+    // Plan switching is disabled by default — see docs/billing.md to enable.
     return {
-      label: props.plan.is_free ? 'Downgrade to Free' : 'Switch to this plan',
-      action: () => billing.manageBilling(),
-      disabled: false,
-      hint: '',
+      label: 'Already subscribed',
+      action: null,
+      disabled: true,
+      hint: 'To change plans, cancel your current subscription from billing settings, then pick a new plan.',
     };
   }
   if (props.plan.is_free) {

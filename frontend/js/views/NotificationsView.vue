@@ -1,7 +1,14 @@
 <script setup>
 import { ref, computed, watch, onMounted } from 'vue';
 import { useRouter, RouterLink } from 'vue-router';
-import { TrashIcon, CheckIcon, XMarkIcon, ChevronLeftIcon, ChevronRightIcon } from '@heroicons/vue/24/outline';
+import {
+  TrashIcon,
+  CheckIcon,
+  XMarkIcon,
+  ChevronLeftIcon,
+  ChevronRightIcon,
+  InformationCircleIcon,
+} from '@heroicons/vue/24/outline';
 import { get, patch, post, del } from '@/utils/api';
 import { useNotifications } from '@/composables/useNotifications';
 import { showToast } from '@/composables/useToast';
@@ -311,11 +318,18 @@ onMounted(load);
               @click.stop="toggleSelect(n.id)"
             >
             <UserAvatar
-              v-else
-              :src="n.actor ? n.actor.avatar_url : ''"
-              :name="n.actor ? userFullName(n.actor) : ''"
+              v-else-if="n.actor"
+              :src="n.actor.avatar_url || ''"
+              :name="userFullName(n.actor)"
               size="md"
             />
+            <span
+              v-else
+              class="inline-flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-blue-100 text-blue-600 dark:bg-blue-900/40 dark:text-blue-300"
+              aria-hidden="true"
+            >
+              <InformationCircleIcon class="h-4 w-4" />
+            </span>
             <div class="min-w-0 flex-1">
               <div class="flex items-start justify-between gap-2">
                 <p

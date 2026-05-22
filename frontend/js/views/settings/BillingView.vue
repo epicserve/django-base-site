@@ -187,7 +187,7 @@ async function onManageBilling() {
             Manage billing
           </h2>
           <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">
-            Open the Stripe billing portal to update payment methods, change plans,
+            Open the Stripe billing portal to update payment methods,
             cancel your subscription, or download invoices.
           </p>
           <button
@@ -216,21 +216,6 @@ async function onManageBilling() {
             class="mt-3 inline-block text-sm font-medium text-indigo-600 hover:text-indigo-500 dark:text-indigo-400"
           >
             Manage members →
-          </RouterLink>
-        </section>
-
-        <section class="rounded-lg border border-gray-200 bg-white p-6 dark:border-gray-700 dark:bg-gray-800">
-          <h2 class="text-lg font-semibold text-gray-900 dark:text-white">
-            Change plan
-          </h2>
-          <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">
-            Compare available plans and switch from the pricing page.
-          </p>
-          <RouterLink
-            :to="{ name: 'pricing' }"
-            class="mt-3 inline-block text-sm font-medium text-indigo-600 hover:text-indigo-500 dark:text-indigo-400"
-          >
-            View all plans →
           </RouterLink>
         </section>
       </template>

@@ -88,6 +88,7 @@ def create_checkout(request, payload: CheckoutIn):
             billing_cycle=payload.billing_cycle,
             success_url=success_url,
             cancel_url=cancel_url,
+            user=request.user,
         )
     except ValueError as exc:
         raise HttpError(400, str(exc)) from exc

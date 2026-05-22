@@ -12,6 +12,7 @@ upsert path keeps drift from creeping in.
 
 from __future__ import annotations
 
+import hashlib
 import logging
 from datetime import UTC
 from typing import Any
@@ -64,19 +65,36 @@ def _from_unix(value: int | None):
     return datetime.fromtimestamp(value, tz=UTC)
 
 
-def get_or_create_customer(org) -> BillingCustomer:
-    """Idempotent. Caches Stripe customer creation in BillingCustomer."""
+def get_or_create_customer(org, *, fallback_email: str = "") -> BillingCustomer:
+    """
+    Idempotent. Caches Stripe customer creation in BillingCustomer.
+
+    `fallback_email` is used when `org.billing_email` is blank — typically the
+    current user's email — so Stripe Checkout doesn't have to prompt the buyer
+    for an address it could already infer. If an existing customer's email
+    differs from the desired one, both Stripe and the local mirror are updated.
+    """
+    email = org.billing_email or fallback_email or ""
     existing = BillingCustomer.objects.filter(organization=org).first()
     if existing is not None:
+        if email and email != existing.email:
+            stripe = _stripe()
+            stripe.Customer.modify(existing.stripe_customer_id, email=email)
+            existing.email = email
+            existing.save(update_fields=["email", "modified"])
         return existing
 
     stripe = _stripe()
-    email = org.billing_email or ""
+    # Hash the inputs into the key so re-creating a customer with different
+    # params (e.g. a now-known email) doesn't collide with the prior 24-hour
+    # idempotency window.
+    seed = f"{org.pk}|{org.slug}|{org.name}|{email}"
+    key_hash = hashlib.sha256(seed.encode()).hexdigest()[:16]
     customer = stripe.Customer.create(
         email=email or None,
         name=org.name,
         metadata={"organization_id": str(org.pk), "organization_slug": org.slug},
-        idempotency_key=f"org-{org.pk}-customer",
+        idempotency_key=f"org-{org.pk}-customer-{key_hash}",
     )
     return BillingCustomer.objects.create(
         organization=org,
@@ -92,6 +110,7 @@ def create_checkout_session(
     billing_cycle: str,
     success_url: str,
     cancel_url: str,
+    user=None,
 ) -> str:
     """Return a Stripe Checkout URL for a new subscription."""
     plan = get_plan(plan_key)
@@ -101,7 +120,8 @@ def create_checkout_session(
         raise ValueError(f"Plan {plan_key!r} is the free tier and doesn't require checkout.")
 
     stripe = _stripe()
-    customer = get_or_create_customer(org)
+    fallback_email = getattr(user, "email", "") or ""
+    customer = get_or_create_customer(org, fallback_email=fallback_email)
     price_id = price_id_for(plan, billing_cycle)
     quantity = _seat_count_for(org) if plan.seat_based else 1
 
@@ -123,7 +143,10 @@ def create_checkout_session(
             "plan_key": plan.key,
             "billing_cycle": billing_cycle,
         },
-        idempotency_key=f"org-{org.pk}-checkout-{plan.key}-{billing_cycle}",
+        idempotency_key=(
+            f"org-{org.pk}-checkout-{plan.key}-{billing_cycle}-"
+            f"{hashlib.sha256(f'{customer.stripe_customer_id}|{price_id}|{quantity}'.encode()).hexdigest()[:16]}"
+        ),
     )
     return session.url
 
