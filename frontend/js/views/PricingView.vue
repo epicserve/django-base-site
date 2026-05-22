@@ -1,9 +1,10 @@
 <script setup>
 import { computed, inject, onMounted, ref } from 'vue';
 import { useRouter } from 'vue-router';
-import MarketingLayout from '@/layouts/MarketingLayout.vue';
+import { ChevronLeftIcon } from '@heroicons/vue/20/solid';
 import BillingCycleToggle from '@/components/billing/BillingCycleToggle.vue';
 import PlanCard from '@/components/billing/PlanCard.vue';
+import AppToast from '@/components/AppToast.vue';
 import { useBilling } from '@/composables/useBilling';
 import { showToast } from '@/composables/useToast';
 
@@ -11,6 +12,16 @@ const appStore = inject('appStore');
 const router = useRouter();
 const billing = useBilling();
 const cycle = ref('monthly');
+
+const backLink = computed(() => {
+  if (appStore.isAuthenticated && appStore.isOrg && appStore.isOwner) {
+    return { label: 'Back to Billing', to: { name: 'org-settings-billing', params: { slug: appStore.org.slug } } };
+  }
+  if (appStore.isAuthenticated) {
+    return { label: 'Back to Dashboard', to: { name: 'home' } };
+  }
+  return { label: 'Back to sign in', to: { name: 'login' } };
+});
 
 onMounted(async () => {
   if (!appStore.billing?.enabled) {
@@ -48,9 +59,23 @@ const hasSubscription = computed(() => !!billing.subscription.value?.status);
 </script>
 
 <template>
-  <MarketingLayout>
+  <nav class="border-b border-gray-200 bg-white dark:border-gray-700 dark:bg-gray-900">
+    <div class="mx-auto w-full max-w-7xl px-4 sm:px-6 lg:px-8">
+      <div class="flex h-14 items-center">
+        <RouterLink
+          class="inline-flex items-center gap-1 text-sm text-gray-600 hover:text-gray-900 dark:text-gray-300 dark:hover:text-white"
+          :to="backLink.to"
+        >
+          <ChevronLeftIcon class="h-4 w-4" />
+          {{ backLink.label }}
+        </RouterLink>
+      </div>
+    </div>
+  </nav>
+
+  <main class="mx-auto w-full max-w-7xl px-4 pb-16 sm:px-6 lg:px-8 mt-12">
     <header class="mx-auto max-w-2xl text-center">
-      <h1 class="text-3xl font-semibold tracking-tight text-gray-900 dark:text-white sm:text-4xl">
+      <h1 class="font-display text-4xl tracking-tight text-gray-900 dark:text-white sm:text-5xl">
         Simple, transparent pricing
       </h1>
       <p class="mt-3 text-lg text-gray-500 dark:text-gray-400">
@@ -109,5 +134,7 @@ const hasSubscription = computed(() => !!billing.subscription.value?.status);
         :has-subscription="hasSubscription"
       />
     </div>
-  </MarketingLayout>
+  </main>
+
+  <AppToast />
 </template>
