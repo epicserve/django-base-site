@@ -285,6 +285,33 @@ def sync_seat_quantity(org) -> None:
     sync_seat_quantity_by_id(org.pk)
 
 
+def sync_customer_email_by_id(org_id: int) -> None:
+    """Push the org's billing_email to Stripe and the local mirror when it differs."""
+    if not getattr(settings, "BILLING_ENABLED", False):
+        return
+
+    customer = BillingCustomer.objects.filter(organization_id=org_id).first()
+    if customer is None:
+        return
+
+    from apps.organizations.models import Organization
+
+    org = Organization.objects.filter(pk=org_id).only("billing_email").first()
+    if org is None:
+        return
+
+    desired = org.billing_email or ""
+    # Don't blank out Stripe when the field is cleared — receipts should still
+    # have somewhere to land. Only push positive changes.
+    if not desired or desired == customer.email:
+        return
+
+    stripe = _stripe()
+    stripe.Customer.modify(customer.stripe_customer_id, email=desired)
+    customer.email = desired
+    customer.save(update_fields=["email", "modified"])
+
+
 def cancel_subscription(org) -> None:
     """Set cancel_at_period_end=True on the Stripe subscription."""
     sub = Subscription.objects.filter(organization=org).first()
