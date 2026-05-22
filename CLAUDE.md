@@ -21,13 +21,15 @@ Django Base Site is an opinionated Django starter template with a production-rea
 Use Just for all development tasks. Common ones:
 
 **Setup & Management:**
+- `just init` - First-time setup: brings services up, runs `just create_superuser`, then attaches — use after `scripts/start_new_project` or after wiping the DB. Use `just start` for every subsequent boot.
 - `just start` - `docker compose up`
 - `just start_with_debugpy` - same with debugpy listening on `:5678`
 - `just stop` - Stop all services
 - `just build` - Rebuild Docker images + clear node_modules + collectstatic
 - `just build_frontend` - `bun run build` + collectstatic
 - `just clean` - Remove caches, coverage, dist
-- `just create_env` - Generate `.env` from the schema in `pyproject.toml`
+- `just create_env` - Generate `.env` from the schema in `.env.toml`
+- `just create_superuser` - Idempotent `epicenv create-superuser` (edit the recipe in the top-level `justfile` to pipe credentials from a secrets manager)
 
 **Code Quality:**
 - `just format` - Format Python (ruff), JS (eslint), HTML (djlint), justfile
@@ -112,6 +114,7 @@ Key variables:
 - `USE_DEBUGPY=true` — enable remote debugging
 - `MEDIA_S3_*` — MinIO / S3 credentials. `MEDIA_S3_ENDPOINT_URL` is the Docker-internal hostname (`http://minio:9000`); `MEDIA_S3_URL_ENDPOINT_URL` is the browser-facing one (`http://localhost:9000`). The split is handled by `apps.base.storage.S3MediaStorage`.
 - `ACCOUNT_SIGNUP_OPEN` — bool, gates new registrations.
+- `DJANGO_SUPERUSER_USERNAME` / `_EMAIL` / `_PASSWORD` — optional; consumed by `just create_superuser` (which `just init` runs on first boot) via the idempotent `epicenv create-superuser`. Leave blank to skip, or edit the `just create_superuser` recipe in the top-level `justfile` to pipe credentials from a secrets manager (1Password, Vault, etc.) instead of putting them in `.env`.
 
 ## SPA Auth Flow
 

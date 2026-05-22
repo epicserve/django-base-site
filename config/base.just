@@ -84,6 +84,14 @@ reset := `tput -Txterm sgr0`
     just _start_msg "Collecting static files"
     {{ python_cmd_prefix }} ./manage.py collectstatic --no-input --no-default-ignore --clear
 
+# First-time setup: bring services up, create the superuser, then attach.
+# Run this on first install; use `just start` for every subsequent boot.
+@init:
+    just _start_msg "Initial setup: bringing services up"
+    docker compose up --wait -d
+    just create_superuser
+    just start
+
 # Dump the database
 @db_dump:
     just _start_msg "Dumping the database"

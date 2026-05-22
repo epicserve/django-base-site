@@ -15,7 +15,7 @@ dependencies = [
     "django-ninja~=1.4",
     "django-ses~=4.3",
     "django-storages~=1.8",
-    "epicenv[django]~=1.4",
+    "epicenv[django]~=1.6",
     "fido2~=2.2",
     "gunicorn~=26.0",
     "hiredis~=3.0",  # needed for Django's native cache and sessions
@@ -148,4 +148,4 @@ section-order = ["future", "standard-library", "django", "third-party", "first-p
 exclude-newer = "P7D"
 
 [tool.uv.exclude-newer-package]
-epicenv = "2026-05-15"
+epicenv = "2026-05-23"

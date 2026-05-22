@@ -179,11 +179,32 @@ Once `just start` is up, the following are available:
 
 > **Note**: Use `http://localhost:8000/` rather than `http://127.0.0.1:8000/` so passkey enrollment works — WebAuthn rejects bare IP addresses as Relying Party IDs.
 
+### Django superuser
+
+On a fresh project run `just init` — it brings services up, runs `just create_superuser` (which calls the idempotent `epicenv create-superuser`), then attaches to the foreground logs like a normal `just start`. Use `just start` for every subsequent boot so you don't pay the setup overhead each time.
+
+Two ways to provide credentials:
+
+* **Env-var path (simplest).** Set `DJANGO_SUPERUSER_USERNAME`, `DJANGO_SUPERUSER_EMAIL`, and `DJANGO_SUPERUSER_PASSWORD` in `.env` (the variables are declared in `.env.toml` with empty defaults). `just init` and `just create_superuser` both pick them up automatically through the container env. If `DJANGO_SUPERUSER_USERNAME` is blank, the recipe skips with a friendly message — so `just init` is safe to run before you've decided on a superuser strategy.
+* **Secrets-manager path.** The `create_superuser` recipe lives in your project's top-level `justfile` so you can edit it in place. Replace the default body with a pipeline that fetches credentials from your secrets manager and pipes JSON into `epicenv create-superuser`. Example for 1Password:
+
+  ```just
+  create_superuser:
+      #!/usr/bin/env bash
+      docker compose up --wait -d web
+      uvx epicenv secrets get op://Private/django-admin \
+          --fields username,email,password \
+          | docker compose exec -T web epicenv create-superuser
+  ```
+
+  Since `epicenv create-superuser` honors stdin first and env vars last, piped credentials take priority over anything in `.env`. `just create_superuser` brings the `web` container up if it isn't already, so it's runnable on demand any time (e.g., after rotating the admin password).
+
 ### Just commands
 
 The Django Base Site comes with Just recipes for all the most common commands and tasks. To see the full list run `just` in the root of the project. Common ones:
 
 ```
+init                         # First-time setup: services up + create_superuser + attach (use just start subsequently)
 start                        # docker compose up
 start_with_debugpy           # Start with debugpy listening on :5678
 stop                         # Stop all services
@@ -200,7 +221,8 @@ db_dump                      # pg_dump to ~/Downloads
 db_restore [dump_file]       # Restore from the latest dump (or a specific file)
 upgrade_python_packages      # uv sync --all-packages --all-extras
 upgrade_node_packages        # bun update
-create_env                   # Generate .env from the schema in pyproject.toml
+create_env                   # Generate .env from the schema in .env.toml
+create_superuser             # Idempotent epicenv create-superuser (override to pipe from a secrets manager)
 ```
 
 ## Deploying to Production

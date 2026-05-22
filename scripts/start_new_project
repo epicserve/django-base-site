@@ -29,7 +29,7 @@ function create_env_file() {
     rm -f .env.toml.bak
 
     # Generate .env file using epicenv (pinned for reproducible bootstrap)
-    uvx epicenv@1.4.0 create
+    uvx epicenv@1.6.2 create
 }
 
 function ask_yes_or_no_default_yes() {
@@ -77,7 +77,7 @@ fi
 if [ $QUIET_INSTALL -eq 1 ]; then
   cp -r . $PROJECT_DIRECTORY
   cd $PROJECT_DIRECTORY
-  rm -rf .git/
+  rm -rf .git/ .env
 else
   curl -LOks $DOWNLOAD_LOCATION && unzip -q $BRANCH
   mv django-base-site-$BRANCH $PROJECT_DIRECTORY
@@ -97,7 +97,22 @@ find ./public -name ".keep" | xargs rm -rf
 echo ""
 echo "Done."
 echo ""
-echo "To start Docker Compose run:"
+echo "To enable superuser creation, either:"
+echo "  1. Set DJANGO_SUPERUSER_USERNAME / _EMAIL / _PASSWORD in .env, or"
+echo "  2. Edit the create_superuser recipe in justfile to pipe credentials"
+echo "     from your secrets manager. Example for 1Password (adapt to your tool):"
+echo ""
+echo "     @create_superuser:"
+echo "         uvx epicenv secrets get op://Private/django-admin \\"
+echo "             --fields username,email,password \\"
+echo "             | docker compose exec -T web epicenv create-superuser"
+echo ""
+echo "For the first boot, run:"
 echo "$ cd $PROJECT_DIRECTORY"
-echo "$ just start"
+echo "$ just init"
+echo ""
+echo "'just init' brings services up, creates the Django superuser, and then starts the project. This is a one-time"
+echo "setup step that you can skip on subsequent boots. Use 'just start' on every subsequent boot — it skips"
+echo "the one-time setup. Use 'just create_superuser' on its own any time after that (e.g., after rotating the"
+echo "admin password)."
 echo ""

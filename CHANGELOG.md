@@ -1,6 +1,17 @@
 # CHANGELOG
 
 
+## 2026-05-22
+
+### Added
+
+* Django superuser hook via `just init` + `epicenv create-superuser`. New `DJANGO_SUPERUSER_USERNAME` / `_EMAIL` / `_PASSWORD` variables in `.env.toml` declare the credentials (left blank by default); `just init` brings services up, runs the new idempotent `create_superuser` recipe in the top-level `justfile`, then hands off to `just start`. The recipe skips with a friendly message when `DJANGO_SUPERUSER_USERNAME` is blank, brings the `web` container up if it isn't already, and is safe to run standalone any time (e.g., after rotating the admin password). Teams using a secrets manager edit the `create_superuser` recipe in place to pipe credentials from 1Password (or similar) into `docker compose exec -T web epicenv create-superuser`. `scripts/start_new_project` now instructs developers to run `just init` the first time and `just start` for every subsequent boot.
+
+### Changed
+
+* Upgraded `epicenv[django]` to v1.6.2. Bumps the `uvx epicenv@…` pins in `scripts/start_new_project` and the `just create_env` recipe to `1.6.2`, and refreshes the `[tool.uv.exclude-newer-package]` settle date so `uv sync` (both locally and in `Dockerfile.web`) can resolve the new release. v1.6.2 also patches a non-blocking-stdin bug in `epicenv create-superuser` that made it miss JSON piped from any slow upstream (`uvx epicenv secrets get …`, `op item get`, etc.) — the secrets-manager example in the `create_superuser` recipe now works as a plain pipeline without needing a bash-shebang workaround.
+
+
 ## 2026-05-15
 
 ### Changed

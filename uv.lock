@@ -7,7 +7,7 @@ exclude-newer = "0001-01-01T00:00:00Z" # This has no effect and is included for 
 exclude-newer-span = "P7D"
 
 [options.exclude-newer-package]
-epicenv = "2026-05-16T00:00:00Z"
+epicenv = "2026-05-24T05:00:00Z"
 
 [[package]]
 name = "aiohappyeyeballs"
@@ -771,7 +771,7 @@ requires-dist = [
     { name = "django-ninja", specifier = "~=1.4" },
     { name = "django-ses", specifier = "~=4.3" },
     { name = "django-storages", specifier = "~=1.8" },
-    { name = "epicenv", extras = ["django"], specifier = "~=1.4" },
+    { name = "epicenv", extras = ["django"], specifier = "~=1.6" },
     { name = "fido2", specifier = "~=2.2" },
     { name = "gunicorn", specifier = "~=26.0" },
     { name = "hiredis", specifier = "~=3.0" },
@@ -989,15 +989,15 @@ django = [
 
 [[package]]
 name = "epicenv"
-version = "1.4.0"
+version = "1.6.2"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "click" },
     { name = "environs" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/e9/dc/bb38800a1933bf3309df8bdb5288c97b2b515cbe2d29667d4186935fc5ca/epicenv-1.4.0.tar.gz", hash = "sha256:63781679c82c3c670e66789457b5da81c6ece9aa8bd421e474077e2da9750548", size = 53381, upload-time = "2026-05-14T17:27:07.454Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/3b/5f/3e76d4de0f58540858acedbdfe2ad34ef367b0ee27b871455d079727d885/epicenv-1.6.2.tar.gz", hash = "sha256:99bf0e8bee15aab03402ee961d9b95514541c77f7ffcb7d8d8348ab7a7d3912d", size = 67665, upload-time = "2026-05-22T18:45:52.503Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/ac/5c/230635215d08d7e69aa0aad65078574ac711018db8af2f1e70851d150832/epicenv-1.4.0-py3-none-any.whl", hash = "sha256:c25e01070a68a2ec9463f256d3855eeaaba4c44ea01e66030863ece4e7803750", size = 20712, upload-time = "2026-05-14T17:27:06.471Z" },
+    { url = "https://files.pythonhosted.org/packages/22/b3/f18c7ad063e140c141380ff387ea79a9b023baa07ef55673cf0096e6e26d/epicenv-1.6.2-py3-none-any.whl", hash = "sha256:d1611789f7b1e36f0902dc13a12066fba746d85e5266ce5a63666b7496282b96", size = 30742, upload-time = "2026-05-22T18:45:53.74Z" },
 ]
 
 [package.optional-dependencies]
