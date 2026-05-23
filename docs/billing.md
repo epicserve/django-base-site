@@ -6,7 +6,7 @@ Off by default. Set `BILLING_ENABLED=true` in your `.env` to turn it on. While o
 
 ## Overview
 
-* **Plans + features** are declared as plain dicts in `settings.BILLING_PLANS` and `settings.BILLING_FEATURES` ([config/settings/_base.py](../config/settings/_base.py)). Same pattern as `NOTIFICATIONS_CATEGORIES`. Plans support monthly + annual prices, a free tier, trial periods, per-seat pricing, and an `is_highlighted` flag for the "Popular" badge on the pricing page.
+* **Plans + features** are declared as plain dicts in `settings.BILLING_PLANS` and `settings.BILLING_FEATURES` ([config/settings/_base.py](../config/settings/_base.py)). Same pattern as `NOTIFICATIONS_CATEGORIES`. Plans support monthly + annual prices, a free tier, trial periods, per-seat pricing, and an `is_highlighted` flag for the "Popular" badge on the pricing page. A bundled three-tier example lives in [apps/billing/example_plans.py](../apps/billing/example_plans.py) and loads when `BILLING_USE_EXAMPLE_PLANS=true` — see "Dogfooding locally" below.
 * **New subscriptions** go through [Stripe Checkout](https://docs.stripe.com/payments/checkout) (full-page redirect).
 * **Existing subscriptions** are managed through the [Stripe Customer Portal](https://docs.stripe.com/customer-management) — payment methods, cancels, invoice history.
 * **Webhook** at `/webhooks/stripe/` with HMAC signature verification. `WebhookEvent` rows dedupe Stripe retries.
@@ -34,7 +34,7 @@ STRIPE_PRICE_BUSINESS_MONTHLY=price_…
 STRIPE_PRICE_BUSINESS_ANNUAL=price_…
 ```
 
-If you've renamed plans or added more, mirror them in [config/settings/_base.py](../config/settings/_base.py) `BILLING_PLANS` — each non-free plan needs `monthly_price_id` and `annual_price_id` fields wired to env vars.
+If you've renamed plans or added more, mirror them in [config/settings/_base.py](../config/settings/_base.py) `BILLING_PLANS` — each non-free plan needs `monthly_price_id` and `annual_price_id` fields wired to env vars. Or if you're just kicking the tires, skip this step and use the bundled example — see [Dogfooding locally](#dogfooding-locally) below.
 
 ### 3. Enable billing
 
@@ -72,6 +72,41 @@ Restart again. Without `stripe listen` running, Stripe Checkout will succeed but
 | `4000 0000 0000 9995` | Declines (insufficient funds) |
 
 Any future expiry, any CVC, any ZIP. Full list at https://docs.stripe.com/testing.
+
+## Testing locally
+
+If you just want to see the billing UX end-to-end with realistic plans — without editing `config/settings/_base.py` or clicking around the Stripe Dashboard — there's a one-command path that uses the bundled Free / Pro / Business demo at [apps/billing/example_plans.py](../apps/billing/example_plans.py).
+
+### 1. Set your Stripe test key
+
+```
+STRIPE_SECRET_KEY=sk_test_…
+```
+
+### 2. Seed Stripe
+
+```
+docker compose exec web python manage.py seed_example_billing
+```
+
+The command creates the Pro and Business products and their monthly + annual prices in your Stripe test account, then prints the four env-var lines you need. It's idempotent — rerunning it never creates duplicates (products are looked up by a `djbs_seed_key` metadata marker; prices use Stripe's first-class `lookup_key`). The command refuses to run against `sk_live_…` keys unless you pass `--force-live`.
+
+### 3. Paste the printed lines into `.env` and flip the flag
+
+```
+BILLING_ENABLED=true
+BILLING_USE_EXAMPLE_PLANS=true
+STRIPE_PUBLISHABLE_KEY=pk_test_…
+STRIPE_WEBHOOK_SECRET=whsec_…
+STRIPE_PRICE_PRO_MONTHLY=price_…
+STRIPE_PRICE_PRO_ANNUAL=price_…
+STRIPE_PRICE_BUSINESS_MONTHLY=price_…
+STRIPE_PRICE_BUSINESS_ANNUAL=price_…
+```
+
+`BILLING_USE_EXAMPLE_PLANS=true` loads the example plans into `settings.BILLING_PLANS` and `settings.BILLING_FEATURES` at startup. The flag has no effect when `BILLING_ENABLED=false`. When you're ready to ship your own plans, copy the structure from `example_plans.py` into `BILLING_PLANS` in `_base.py` and turn the flag off.
+
+Restart with `just stop && just start`, then forward webhooks with `stripe listen` as in step 4 of [Local setup](#local-setup).
 
 ## Plan switching is disabled by default
 

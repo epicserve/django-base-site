@@ -107,12 +107,28 @@ const hasSubscription = computed(() => !!billing.subscription.value?.status);
       <p class="text-lg font-medium">
         No plans configured yet.
       </p>
-      <p
+      <div
         v-if="appStore.user?.is_staff"
-        class="mt-1 text-sm"
+        class="mt-3 text-sm"
       >
-        Add entries to <code>BILLING_PLANS</code> in your settings to populate this page.
-      </p>
+        <p>To test the bundled example plans:</p>
+        <ol class="mx-auto mt-2 max-w-xl list-decimal space-y-1 pl-6 text-left">
+          <li>
+            Run <code class="rounded bg-indigo-50 px-1.5 py-0.5 font-mono text-xs text-indigo-700 dark:bg-indigo-900/30 dark:text-indigo-300">docker compose exec web python manage.py seed_example_billing</code>
+            to create Pro + Business in your Stripe test account.
+          </li>
+          <li>
+            Paste the four <code class="rounded bg-indigo-50 px-1.5 py-0.5 font-mono text-xs text-indigo-700 dark:bg-indigo-900/30 dark:text-indigo-300">STRIPE_PRICE_*</code> lines it prints into your <code class="rounded bg-indigo-50 px-1.5 py-0.5 font-mono text-xs text-indigo-700 dark:bg-indigo-900/30 dark:text-indigo-300">.env</code>.
+          </li>
+          <li>
+            Set <code class="rounded bg-indigo-50 px-1.5 py-0.5 font-mono text-xs text-indigo-700 dark:bg-indigo-900/30 dark:text-indigo-300">BILLING_USE_EXAMPLE_PLANS=true</code> and restart.
+          </li>
+        </ol>
+        <p class="mt-3 text-xs">
+          Or add your own entries to <code class="rounded bg-indigo-50 px-1.5 py-0.5 font-mono text-xs text-indigo-700 dark:bg-indigo-900/30 dark:text-indigo-300">BILLING_PLANS</code> in
+          <code class="rounded bg-indigo-50 px-1.5 py-0.5 font-mono text-xs text-indigo-700 dark:bg-indigo-900/30 dark:text-indigo-300">config/settings/_base.py</code>.
+        </p>
+      </div>
       <p
         v-else
         class="mt-1 text-sm"

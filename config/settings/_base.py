@@ -329,97 +329,29 @@ STRIPE_SECRET_KEY = env("STRIPE_SECRET_KEY", default="")
 STRIPE_PUBLISHABLE_KEY = env("STRIPE_PUBLISHABLE_KEY", default="")
 STRIPE_WEBHOOK_SECRET = env("STRIPE_WEBHOOK_SECRET", default="")
 
-# Subscription plans. Empty out of the box. See `apps.billing.plans` for the
-# expected dict schema. When BILLING_ENABLED is True, `BillingConfig.ready()`
-# raises ImproperlyConfigured if a non-free plan has no Stripe price IDs —
-# put the price IDs in env vars per environment (test mode for dev, live for
-# prod).
+# Subscription plans + feature catalog. Empty out of the box. Declare your own
+# here (see the schema in `apps.billing.plans` and `apps.billing.features`),
+# or set BILLING_USE_EXAMPLE_PLANS=true in your .env to load the bundled
+# Free / Pro / Business demo from `apps.billing.example_plans` — handy for
+# dogfooding the billing UX without editing settings.
 #
-# Example three-tier setup — uncomment and adjust:
-#
-# BILLING_PLANS: list[dict] = [
-#     {
-#         "key": "free",
-#         "name": "Free",
-#         "description": "For personal projects and trying things out.",
-#         "is_free": True,
-#         "is_default": True,
-#         "features": {
-#             "teams": False,
-#             "max_team_count": 0,
-#             "advanced_reporting": False,
-#         },
-#     },
-#     {
-#         "key": "pro",
-#         "name": "Pro",
-#         "description": "For growing teams that need collaboration.",
-#         "monthly_price_id": env("STRIPE_PRICE_PRO_MONTHLY", default=""),
-#         "annual_price_id": env("STRIPE_PRICE_PRO_ANNUAL", default=""),
-#         "monthly_price_cents": 1900,
-#         "annual_price_cents": 19000,  # ~2 months free vs. monthly
-#         "currency": "usd",
-#         "trial_days": 14,
-#         "seat_based": True,
-#         "is_highlighted": True,
-#         "features": {
-#             "teams": True,
-#             "max_team_count": 10,
-#             "advanced_reporting": False,
-#         },
-#     },
-#     {
-#         "key": "business",
-#         "name": "Business",
-#         "description": "Advanced reporting and unlimited teams.",
-#         "monthly_price_id": env("STRIPE_PRICE_BUSINESS_MONTHLY", default=""),
-#         "annual_price_id": env("STRIPE_PRICE_BUSINESS_ANNUAL", default=""),
-#         "monthly_price_cents": 4900,
-#         "annual_price_cents": 49000,
-#         "currency": "usd",
-#         "trial_days": 14,
-#         "seat_based": True,
-#         "features": {
-#             "teams": True,
-#             "max_team_count": 100,
-#             "advanced_reporting": True,
-#         },
-#     },
-# ]
+# When BILLING_ENABLED is True, `BillingConfig.ready()` raises
+# ImproperlyConfigured if a non-free plan has no Stripe price IDs — put the
+# price IDs in env vars per environment (test mode for dev, live for prod).
 BILLING_PLANS: list[dict] = []
-
-# Feature catalog. Empty out of the box. See `apps.billing.features` for the
-# expected dict schema. Values from BILLING_PLANS[*]["features"] override the
-# `default` at runtime; the `default` is what `org_has_feature()` returns when
-# BILLING_ENABLED=False or when the org has no active subscription and no
-# default plan is declared.
-#
-# Example feature catalog matching the plans above — uncomment and adjust:
-#
-# BILLING_FEATURES: list[dict] = [
-#     {
-#         "key": "teams",
-#         "label": "Teams",
-#         "description": "Group org members into teams.",
-#         "type": "bool",
-#         "default": True,  # unrestricted when billing is off
-#     },
-#     {
-#         "key": "max_team_count",
-#         "label": "Team count",
-#         "description": "Maximum number of teams.",
-#         "type": "limit",
-#         "default": 0,
-#     },
-#     {
-#         "key": "advanced_reporting",
-#         "label": "Advanced reporting",
-#         "description": "PDF exports and scheduled reports.",
-#         "type": "bool",
-#         "default": False,
-#     },
-# ]
 BILLING_FEATURES: list[dict] = []
+if env.bool("BILLING_USE_EXAMPLE_PLANS", default=False):
+    from apps.billing import example_plans
+
+    BILLING_PLANS = example_plans.build_plans(
+        {
+            "pro_monthly": env("STRIPE_PRICE_PRO_MONTHLY", default=""),
+            "pro_annual": env("STRIPE_PRICE_PRO_ANNUAL", default=""),
+            "business_monthly": env("STRIPE_PRICE_BUSINESS_MONTHLY", default=""),
+            "business_annual": env("STRIPE_PRICE_BUSINESS_ANNUAL", default=""),
+        }
+    )
+    BILLING_FEATURES = example_plans.BILLING_FEATURES
 
 # DJANGO DEBUG TOOLBAR SETTINGS
 if DEBUG is True:

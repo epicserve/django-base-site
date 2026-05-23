@@ -1,6 +1,14 @@
 # CHANGELOG
 
 
+## 2026-05-23
+
+### Added
+
+* `apps/billing/example_plans.py` — bundled Free / Pro / Business three-tier demo, opt-in via the new `BILLING_USE_EXAMPLE_PLANS` env var (registered in `.env.toml`, default `false`). When the flag is on, `config/settings/_base.py` imports `BILLING_PLANS` and `BILLING_FEATURES` from the example module instead of leaving them empty. Lets the maintainer (and anyone evaluating the template) dogfood the billing UX without editing settings and dragging a 70-line diff through unrelated work. The conditional import only fires when the flag is set, so the default startup path never touches `apps.billing`. See the new "Dogfooding locally" section in [docs/billing.md](docs/billing.md).
+* `python manage.py seed_example_billing` — idempotent Stripe seeder that creates Pro + Business products and prices in test mode, then prints the four `STRIPE_PRICE_*` env-var lines to paste into `.env`. Pairs with `BILLING_USE_EXAMPLE_PLANS=true` for a one-command dogfood setup. Idempotency comes from Stripe's `lookup_key` on prices and a `djbs_seed_key` metadata marker on products — rerunning the command never creates duplicates. Refuses to run against `sk_live_…` keys unless `--force-live` is passed. The `/pricing/` empty-state page now points staff users at this command with a three-step recipe instead of the one-liner "add entries to `BILLING_PLANS`".
+
+
 ## 2026-05-22
 
 ### Added
