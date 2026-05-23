@@ -7,8 +7,11 @@ posts unauthenticated requests with HMAC signatures, not session+CSRF auth.
 
 Idempotency: Stripe retries failed webhook deliveries with the same event ID.
 The handler tries to insert a `WebhookEvent(stripe_event_id=...)` row; on
-IntegrityError it returns 200 immediately (already processed). Unhandled event
-types also return 200 so Stripe stops retrying.
+IntegrityError, if the existing row is already processed (or has reached
+WEBHOOK_MAX_FAILURES) we return 200 immediately. On handler exception we bump
+`failure_count` on the row (rather than deleting it) and 500 — so Stripe
+retries with backoff but a deterministic bug stops after MAX failures.
+Unhandled event types return 200 so Stripe stops retrying.
 """
 
 from __future__ import annotations
@@ -16,12 +19,13 @@ from __future__ import annotations
 import logging
 
 from django.db import IntegrityError, transaction
+from django.db.models import F
 from django.http import HttpRequest, HttpResponse, HttpResponseBadRequest
 from django.utils import timezone
 from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_POST
 
-from apps.billing.constants import SubscriptionStatus
+from apps.billing.constants import WEBHOOK_MAX_FAILURES, SubscriptionStatus
 from apps.billing.models import BillingCustomer, Subscription, WebhookEvent
 from apps.billing.services import _stripe, sync_subscription_from_stripe
 
@@ -151,27 +155,47 @@ def stripe_webhook(request: HttpRequest) -> HttpResponse:
     except (ValueError, stripe.error.SignatureVerificationError):
         return HttpResponseBadRequest("invalid signature")
 
-    # Idempotency guard — try to insert a marker row; if it already exists,
-    # this delivery is a retry for an event we've already processed.
+    event_id = event["id"]
+    event_type = event["type"]
+
+    # Idempotency + bounded retry. We keep the WebhookEvent row across failures
+    # (instead of deleting on exception) so a deterministic handler bug doesn't
+    # cause Stripe to retry forever — past WEBHOOK_MAX_FAILURES we return 200
+    # and operators see the failed row in admin.
     try:
         with transaction.atomic():
-            WebhookEvent.objects.create(stripe_event_id=event["id"], event_type=event["type"])
+            record = WebhookEvent.objects.create(stripe_event_id=event_id, event_type=event_type)
     except IntegrityError:
-        return HttpResponse(status=200)
+        record = WebhookEvent.objects.get(stripe_event_id=event_id)
+        if record.processed_at is not None:
+            return HttpResponse(status=200)
+        if record.failure_count >= WEBHOOK_MAX_FAILURES:
+            logger.warning(
+                "Stripe webhook %s (%s) gave up after %d failures.",
+                event_id,
+                event_type,
+                record.failure_count,
+            )
+            return HttpResponse(status=200)
 
-    handler = _EVENT_HANDLERS.get(event["type"])
+    handler = _EVENT_HANDLERS.get(event_type)
     if handler is None:
         # Unknown event type — 200 so Stripe stops retrying.
-        WebhookEvent.objects.filter(stripe_event_id=event["id"]).update(processed_at=timezone.now())
+        WebhookEvent.objects.filter(pk=record.pk).update(processed_at=timezone.now())
         return HttpResponse(status=200)
 
     try:
         handler(event)
-    except Exception:
-        logger.exception("Stripe webhook handler failed for event %s (%s)", event.get("id"), event.get("type"))
-        # Roll back the dedupe marker so Stripe retries.
-        WebhookEvent.objects.filter(stripe_event_id=event["id"]).delete()
+    except Exception as exc:
+        logger.exception("Stripe webhook handler failed for event %s (%s)", event_id, event_type)
+        WebhookEvent.objects.filter(pk=record.pk).update(
+            failure_count=F("failure_count") + 1,
+            last_error=str(exc)[:1000],
+        )
+        record.refresh_from_db(fields=["failure_count"])
+        if record.failure_count >= WEBHOOK_MAX_FAILURES:
+            return HttpResponse(status=200)
         return HttpResponse(status=500)
 
-    WebhookEvent.objects.filter(stripe_event_id=event["id"]).update(processed_at=timezone.now())
+    WebhookEvent.objects.filter(pk=record.pk).update(processed_at=timezone.now())
     return HttpResponse(status=200)

@@ -20,7 +20,7 @@ from typing import Any
 from django.conf import settings
 from django.db import transaction
 
-from apps.billing.constants import BillingCycle, SubscriptionStatus
+from apps.billing.constants import STRIPE_API_VERSION, BillingCycle, SubscriptionStatus
 from apps.billing.models import BillingCustomer, Subscription
 from apps.billing.plans import (
     Plan,
@@ -46,14 +46,18 @@ def _stripe():
 
     if not stripe.api_key:
         stripe.api_key = settings.STRIPE_SECRET_KEY
-    if getattr(stripe, "api_version", None) != "2024-10-28.acacia":
-        stripe.api_version = "2024-10-28.acacia"
+    if getattr(stripe, "api_version", None) != STRIPE_API_VERSION:
+        stripe.api_version = STRIPE_API_VERSION
     return stripe
 
 
 def _seat_count_for(org) -> int:
     from apps.organizations.models import OrganizationMember
 
+    # `or 1` guards checkout when the buyer hasn't been added to the org as a
+    # member yet — Stripe rejects quantity=0 on a seat-based plan. Steady-state
+    # the creator is always a member, so the fallback is only hit during the
+    # creation race window.
     return OrganizationMember.objects.filter(organization=org).count() or 1
 
 
@@ -310,17 +314,6 @@ def sync_customer_email_by_id(org_id: int) -> None:
     stripe.Customer.modify(customer.stripe_customer_id, email=desired)
     customer.email = desired
     customer.save(update_fields=["email", "modified"])
-
-
-def cancel_subscription(org) -> None:
-    """Set cancel_at_period_end=True on the Stripe subscription."""
-    sub = Subscription.objects.filter(organization=org).first()
-    if sub is None:
-        return
-    stripe = _stripe()
-    stripe.Subscription.modify(sub.stripe_subscription_id, cancel_at_period_end=True)
-    sub.cancel_at_period_end = True
-    sub.save(update_fields=["cancel_at_period_end", "modified"])
 
 
 def schedule_seat_sync(org) -> None:

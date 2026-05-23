@@ -89,6 +89,11 @@ class WebhookEvent(TimeStampModelMixin):
     stripe_event_id = models.CharField(max_length=64, unique=True, db_index=True)
     event_type = models.CharField(max_length=64)
     processed_at = models.DateTimeField(null=True, blank=True)
+    failure_count = models.PositiveSmallIntegerField(
+        default=0,
+        help_text="Number of times the handler raised. Stops retrying past WEBHOOK_MAX_FAILURES.",
+    )
+    last_error = models.TextField(blank=True, help_text="Truncated exception message from the most recent failure.")
 
     def __str__(self):
         """Return a string representation of the webhook event."""

@@ -37,6 +37,8 @@ class BillingConfig(AppConfig):
     def _configure_stripe():
         import stripe
 
+        from apps.billing.constants import STRIPE_API_VERSION
+
         stripe.api_key = settings.STRIPE_SECRET_KEY
         # Pin the Stripe API version so SDK bumps don't silently shift webhook payloads.
-        stripe.api_version = "2024-10-28.acacia"
+        stripe.api_version = STRIPE_API_VERSION

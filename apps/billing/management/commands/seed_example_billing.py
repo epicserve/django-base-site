@@ -26,8 +26,8 @@ from django.core.management.base import BaseCommand, CommandError
 import stripe
 
 from apps.billing import example_plans
+from apps.billing.constants import STRIPE_API_VERSION
 
-STRIPE_API_VERSION = "2024-10-28.acacia"
 SEED_KEY_PREFIX = "example"
 LOOKUP_KEY_PREFIX = "djbs_example"
 CYCLES = (("monthly", "month"), ("annual", "year"))

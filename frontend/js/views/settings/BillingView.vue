@@ -1,5 +1,5 @@
 <script setup>
-import { computed, inject, onMounted, ref } from 'vue';
+import { computed, inject, onBeforeUnmount, onMounted, ref } from 'vue';
 import { RouterLink, useRoute, useRouter } from 'vue-router';
 import { useBilling } from '@/composables/useBilling';
 import { showToast } from '@/composables/useToast';
@@ -32,6 +32,10 @@ onMounted(async () => {
     router.replace({ name: route.name, params: route.params, query: {} });
   }
 });
+
+// pollHandle in useBilling is module-level; cancel on unmount so navigation
+// during a 30s post-checkout poll doesn't leave a stray timer firing.
+onBeforeUnmount(() => billing.cancelPolling());
 
 const sub = computed(() => billing.subscription.value);
 const hasSubscription = computed(() => !!sub.value?.status);
