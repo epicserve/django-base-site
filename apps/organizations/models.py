@@ -47,18 +47,18 @@ class Organization(TimeStampModelMixin):
 
     @property
     def members(self):
-        return get_user_model().objects.filter(pk__in=self.organizationmember_set.values_list("pk", flat=True))
+        return get_user_model().objects.filter(pk__in=self.organizationmember_set.values_list("user_id", flat=True))
 
     @property
     def regular_members(self):
         return get_user_model().objects.filter(
-            pk__in=self.organizationmember_set.filter(is_owner=False).values_list("pk", flat=True)
+            pk__in=self.organizationmember_set.filter(is_owner=False).values_list("user_id", flat=True)
         )
 
     @property
     def owners(self):
         return get_user_model().objects.filter(
-            pk__in=self.organizationmember_set.filter(is_owner=True).values_list("pk", flat=True)
+            pk__in=self.organizationmember_set.filter(is_owner=True).values_list("user_id", flat=True)
         )
 
 
