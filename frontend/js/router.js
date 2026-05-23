@@ -53,6 +53,11 @@ export function createRouter(appStore) {
             name: 'org-settings-teams',
             component: () => import('./views/settings/TeamsView.vue'),
           },
+          {
+            path: 'billing/',
+            name: 'org-settings-billing',
+            component: () => import('./views/settings/BillingView.vue'),
+          },
         ],
       },
 
@@ -192,6 +197,14 @@ export function createRouter(appStore) {
         meta: { requiresAuth: true },
       },
 
+      // Public pricing page (uses MarketingLayout)
+      {
+        path: '/pricing/',
+        name: 'pricing',
+        component: () => import('./views/PricingView.vue'),
+        meta: { public: true, publicChrome: true },
+      },
+
       // 404 catch-all
       {
         path: '/:pathMatch(.*)*',
@@ -214,6 +227,14 @@ export function createRouter(appStore) {
     }
     if (to.meta.superuserOnly && !appStore.user?.is_superuser) {
       return { name: 'home' };
+    }
+    // When BILLING_ENABLED is false, hide pricing page + billing tab so users
+    // don't land on dead routes when the feature isn't configured.
+    if (to.name === 'pricing' && !appStore.billing?.enabled) {
+      return appStore.isAuthenticated ? { name: 'home' } : { name: 'login' };
+    }
+    if (to.name === 'org-settings-billing' && !appStore.billing?.enabled) {
+      return { name: 'org-settings-general', params: to.params };
     }
     return true;
   });

@@ -65,6 +65,7 @@ INSTALLED_APPS = [
     "apps.organizations",
     "apps.teams",
     "apps.notifications",
+    "apps.billing",
     "maintenance_mode",
     "allauth",
     "allauth.account",
@@ -271,6 +272,16 @@ CELERY_BEAT_SCHEDULE = {
         # in compose.yml; in production use a dedicated beat process.
         "schedule": crontab(hour=3, minute=0),
     },
+    # Billing tasks are no-ops when BILLING_ENABLED=False; they remain in the
+    # schedule so toggling billing on doesn't require a worker restart.
+    "billing-check-trials-ending": {
+        "task": "apps.billing.tasks.check_trials_ending",
+        "schedule": crontab(hour=4, minute=0),  # daily 04:00 UTC
+    },
+    "billing-reconcile-subscriptions": {
+        "task": "apps.billing.tasks.reconcile_subscriptions",
+        "schedule": crontab(day_of_week=1, hour=5, minute=0),  # weekly Mon 05:00 UTC
+    },
 }
 
 SESSION_ENGINE = "django.contrib.sessions.backends.cache"
@@ -307,6 +318,40 @@ NOTIFICATIONS_RETENTION_DAYS = env.int("NOTIFICATIONS_RETENTION_DAYS", default=9
 # Out of the box, no categories are registered. Add entries here as downstream
 # apps introduce notification subjects.
 NOTIFICATIONS_CATEGORIES: list[dict] = []
+
+# BILLING SETTINGS
+# When BILLING_ENABLED is False (the default), the billing API and Stripe
+# webhook URL are not mounted, `apps.billing.access.org_has_feature()` returns
+# every feature's default, and the SPA hides the pricing page + billing tab.
+# This lets the starter template run out of the box without Stripe credentials.
+BILLING_ENABLED = env.bool("BILLING_ENABLED", default=False)
+STRIPE_SECRET_KEY = env("STRIPE_SECRET_KEY", default="")
+STRIPE_PUBLISHABLE_KEY = env("STRIPE_PUBLISHABLE_KEY", default="")
+STRIPE_WEBHOOK_SECRET = env("STRIPE_WEBHOOK_SECRET", default="")
+
+# Subscription plans + feature catalog. Empty out of the box. Declare your own
+# here (see the schema in `apps.billing.plans` and `apps.billing.features`),
+# or set BILLING_USE_EXAMPLE_PLANS=true in your .env to load the bundled
+# Free / Pro / Business demo from `apps.billing.example_plans` — handy for
+# dogfooding the billing UX without editing settings.
+#
+# When BILLING_ENABLED is True, `BillingConfig.ready()` raises
+# ImproperlyConfigured if a non-free plan has no Stripe price IDs — put the
+# price IDs in env vars per environment (test mode for dev, live for prod).
+BILLING_PLANS: list[dict] = []
+BILLING_FEATURES: list[dict] = []
+if env.bool("BILLING_USE_EXAMPLE_PLANS", default=False):
+    from apps.billing import example_plans
+
+    BILLING_PLANS = example_plans.build_plans(
+        {
+            "pro_monthly": env("STRIPE_PRICE_PRO_MONTHLY", default=""),
+            "pro_annual": env("STRIPE_PRICE_PRO_ANNUAL", default=""),
+            "business_monthly": env("STRIPE_PRICE_BUSINESS_MONTHLY", default=""),
+            "business_annual": env("STRIPE_PRICE_BUSINESS_ANNUAL", default=""),
+        }
+    )
+    BILLING_FEATURES = example_plans.BILLING_FEATURES
 
 # DJANGO DEBUG TOOLBAR SETTINGS
 if DEBUG is True:

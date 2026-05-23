@@ -1,0 +1,5 @@
+{% extends 'emails/base_email.txt' %}{% block content %}Hi,
+
+We weren't able to process the latest payment for {{ organization }}.
+
+To keep your subscription active, please update your payment method in the billing portal.{% endblock content %}

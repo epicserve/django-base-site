@@ -1,7 +1,7 @@
 [project]
 name = "django-base-site"
 description = "A Django project template for creating new Django projects."
-version = "0.1.0"
+version = "0.2.0"
 requires-python = ">=3.12"
 dependencies = [
     "Django~=5.0",
@@ -22,6 +22,7 @@ dependencies = [
     "psycopg2-binary~=2.9",
     "python-json-logger~=4.1",
     "redis~=7.1",  # needed for celery
+    "stripe~=14.0",
     "whitenoise~=6.7",
 ]
 
@@ -133,6 +134,8 @@ ignore = ["D100", "D101", "D102", "D103", "D104", "D106", "D107", "D203", "D212"
 [tool.ruff.lint.per-file-ignores]
 "**/{tests}/*" = ["S101"]
 "e2e/*" = ["S101"]
+# Generated migration files commonly exceed line length on big choice lists.
+"**/migrations/*" = ["E501"]
 
 [tool.ruff.lint.flake8-bugbear]
 # django-ninja uses these as default values in function signatures

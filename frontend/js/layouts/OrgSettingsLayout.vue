@@ -12,6 +12,9 @@ const tabs = computed(() => {
     { name: 'org-settings-members', label: 'Members' },
     { name: 'org-settings-teams', label: 'Teams' },
   ];
+  if (appStore.billing?.enabled) {
+    items.push({ name: 'org-settings-billing', label: 'Billing' });
+  }
   return items.map((t) => ({ ...t, to: { name: t.name, params: { slug } } }));
 });
 </script>

@@ -1,7 +1,7 @@
 <script setup>
 import { ref, computed, watch } from 'vue';
 import { useRouter, RouterLink } from 'vue-router';
-import { BellIcon, TrashIcon, CheckIcon, XMarkIcon } from '@heroicons/vue/24/outline';
+import { BellIcon, TrashIcon, CheckIcon, XMarkIcon, InformationCircleIcon } from '@heroicons/vue/24/outline';
 import { BellAlertIcon } from '@heroicons/vue/24/solid';
 import { useNotifications } from '../composables/useNotifications';
 import { relativeTime, userFullName } from '../utils/format';
@@ -321,11 +321,18 @@ watch(isOpen, (open) => {
                 @click.stop="toggleSelect(n.id)"
               >
               <UserAvatar
-                v-else
-                :src="n.actor ? n.actor.avatar_url : ''"
-                :name="n.actor ? userFullName(n.actor) : ''"
+                v-else-if="n.actor"
+                :src="n.actor.avatar_url || ''"
+                :name="userFullName(n.actor)"
                 size="md"
               />
+              <span
+                v-else
+                class="inline-flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-blue-100 text-blue-600 dark:bg-blue-900/40 dark:text-blue-300"
+                aria-hidden="true"
+              >
+                <InformationCircleIcon class="h-4 w-4" />
+              </span>
               <div class="min-w-0 flex-1">
                 <div class="flex items-start justify-between gap-2">
                   <p

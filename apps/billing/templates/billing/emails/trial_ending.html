@@ -1,0 +1,9 @@
+{% extends "emails/base_email.html" %}
+
+{% block content %}
+  <p>Hi,</p>
+  <p>
+    Your trial for <strong>{{ organization }}</strong> ends on {{ subscription.trial_end|date:"F j, Y" }}.
+  </p>
+  <p>Add a payment method to keep your subscription active. You can manage billing from the billing settings page.</p>
+{% endblock content %}

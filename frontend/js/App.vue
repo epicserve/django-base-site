@@ -1,9 +1,14 @@
 <script setup>
-import { inject } from 'vue';
-import { RouterView } from 'vue-router';
+import { computed, inject } from 'vue';
+import { RouterView, useRoute } from 'vue-router';
 import AppLayout from '@/layouts/AppLayout.vue';
 
 const appStore = inject('appStore');
+const route = useRoute();
+
+// Routes with `meta.publicChrome` (e.g. /pricing) bring their own MarketingLayout
+// and should not be wrapped in AppLayout even when the user is authenticated.
+const useAppLayout = computed(() => appStore.isAuthenticated && !route.meta?.publicChrome);
 
 function reloadForUpdate() {
   window.location.reload();
@@ -32,22 +37,22 @@ function reloadForUpdate() {
         Reload
       </button>
     </div>
-    <AppLayout v-if="appStore.isAuthenticated">
-      <RouterView v-slot="{ Component, route }">
+    <AppLayout v-if="useAppLayout">
+      <RouterView v-slot="{ Component, route: r }">
         <Transition
           name="page"
           mode="out-in"
         >
           <component
             :is="Component"
-            :key="route.path"
+            :key="r.path"
           />
         </Transition>
       </RouterView>
     </AppLayout>
     <RouterView
       v-else
-      v-slot="{ Component, route }"
+      v-slot="{ Component, route: r }"
     >
       <Transition
         name="page"
@@ -55,7 +60,7 @@ function reloadForUpdate() {
       >
         <component
           :is="Component"
-          :key="route.path"
+          :key="r.path"
         />
       </Transition>
     </RouterView>

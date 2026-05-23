@@ -1,0 +1,5 @@
+{% extends 'emails/base_email.txt' %}{% block content %}Hi,
+
+Your {{ organization }} subscription has been canceled.
+
+If this wasn't you, you can resubscribe from the billing settings page.{% endblock content %}

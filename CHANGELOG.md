@@ -1,6 +1,14 @@
 # CHANGELOG
 
 
+## 2026-05-23
+
+### Added
+
+* `apps/billing/example_plans.py` — bundled Free / Pro / Business three-tier demo, opt-in via the new `BILLING_USE_EXAMPLE_PLANS` env var (registered in `.env.toml`, default `false`). When the flag is on, `config/settings/_base.py` imports `BILLING_PLANS` and `BILLING_FEATURES` from the example module instead of leaving them empty. Lets the maintainer (and anyone evaluating the template) dogfood the billing UX without editing settings and dragging a 70-line diff through unrelated work. The conditional import only fires when the flag is set, so the default startup path never touches `apps.billing`. See the new "Dogfooding locally" section in [docs/billing.md](docs/billing.md).
+* `python manage.py seed_example_billing` — idempotent Stripe seeder that creates Pro + Business products and prices in test mode, then prints the four `STRIPE_PRICE_*` env-var lines to paste into `.env`. Pairs with `BILLING_USE_EXAMPLE_PLANS=true` for a one-command dogfood setup. Idempotency comes from Stripe's `lookup_key` on prices and a `djbs_seed_key` metadata marker on products — rerunning the command never creates duplicates. Refuses to run against `sk_live_…` keys unless `--force-live` is passed. The `/pricing/` empty-state page now points staff users at this command with a three-step recipe instead of the one-liner "add entries to `BILLING_PLANS`".
+
+
 ## 2026-05-22
 
 ### Added
@@ -18,6 +26,34 @@
 
 * Upgraded `epicenv[django]` to v1.4 and moved the env schema from `[tool.epicenv.variables]` in `pyproject.toml` to a dedicated `.env.toml` file at the project root. Every variable uses the multi-line `[variables.NAME]` form for a uniform layout.
 * Pinned the exact epicenv version used by `scripts/start_new_project` and the `just create_env` recipe (`uvx epicenv@1.4.0 create`) so new project bootstraps remain reproducible.
+
+
+## 2026-05-09 (later)
+
+### Added
+
+* `apps/billing/` — opt-in Stripe subscriptions tied to Organizations. Models: `BillingCustomer` (one Stripe customer per org, survives cancellation), `Subscription` (local mirror of the active Stripe sub with status / billing_cycle / quantity / period and trial dates), `WebhookEvent` (idempotency dedupe for Stripe retries). Settings-declared plan + feature registries follow the `NOTIFICATIONS_CATEGORIES` pattern (`BILLING_PLANS` and `BILLING_FEATURES` in `_base.py`); plans are loaded into `apps/billing/plans.py` `Plan` dataclasses and features into `apps/billing/features.py` `Feature` dataclasses.
+* Ninja API at `/api/billing/` (mounted only when `BILLING_ENABLED=true`): `GET /plans/` + `GET /features/` (public, drive the pricing page), `GET /subscription/` (owner-only current state), `POST /checkout/` (returns Stripe Checkout URL — full-page redirect), `POST /portal/` (returns Stripe Customer Portal URL — handles upgrade/downgrade/cancel/payment-methods/invoices). Checkout sets `allow_promotion_codes=True` so coupon codes work; `subscription_data.trial_period_days` is set on the first subscription only (Stripe rejects trials on subsequent subs for the same customer).
+* Stripe webhook at `/webhooks/stripe/` (mounted only when `BILLING_ENABLED=true`, registered in `config/urls.py` before the SPA catch-all). Verifies signatures with `stripe.Webhook.construct_event`, dedupes via `WebhookEvent`, handles `checkout.session.completed`, `customer.subscription.{created,updated,deleted}`, `invoice.payment_{succeeded,failed}` — sends in-app notifications + emails on `payment_failed` and `subscription_deleted`.
+* `org_has_feature(org, key)` / `org_feature_value(org, key)` helpers in `apps/billing/access.py` plus a `requires_feature` decorator that 402-Payment-Required's missing features. When `BILLING_ENABLED=False`, gates fall through to feature defaults so the starter template runs out of the box without Stripe credentials.
+* Per-seat pricing — `OrganizationMember` `post_save`/`post_delete` receivers schedule `transaction.on_commit(sync_seat_quantity)` so the Stripe quantity update fires after the membership change commits. No-ops for non-seat-based plans, free plans, and disabled billing.
+* Trial reminders — `check_trials_ending` celery beat task (daily 04:00 UTC) sends `billing_trial_ending` notifications + emails 3 days before `trial_end`, idempotent via `Subscription.trial_ending_notified_at`.
+* Drift recovery — `reconcile_subscriptions` celery beat task (weekly Mon 05:00 UTC) iterates all `BillingCustomer` rows and re-syncs from Stripe, defending against missed webhooks.
+* `app_context.billing` block in `/api/app-context/` — exposes `enabled`, `plan`, `status`, `trial_end`, `cancel_at_period_end`, and a resolved `features` map. SPA store (`frontend/js/stores/app.js`) surfaces `appStore.hasFeature(key)` / `appStore.featureValue(key, fallback)`.
+* `/pricing/` SPA page (`PricingView.vue`) — public (uses `MarketingLayout.vue`), monthly/annual toggle, plan cards with smart CTA logic (Sign up / Create org / Subscribe / Switch / Current). Hidden when `BILLING_ENABLED=false` via a router guard.
+* Org Settings → **Billing** tab (`BillingView.vue`, route `/organizations/:slug/settings/billing/`) — current plan + status badge, trial countdown, "open Stripe portal" button, seat info, change-plan link to `/pricing/`. Handles the post-checkout webhook race by polling `GET /api/billing/subscription/` until the sub becomes active. Tab is conditionally appended in `OrgSettingsLayout.vue` only when billing is enabled.
+* `<FeatureGate feature="X">` Vue component + `useFeature(key)` composable for declarative gating; `useBilling()` composable owns the subscription/plans state and the subscribe / portal / poll-until-active actions.
+* `TrialEndingBanner.vue` (dismissible, keyed on `trial_end`) and `PastDueBanner.vue` (non-dismissible, links to portal) mounted at the top of `AppLayout.vue`.
+* `frontend/js/views/settings/TeamsView.vue` is now wrapped in `<FeatureGate feature="teams">` with an upgrade-prompt fallback so non-paying orgs see a CTA instead of the teams UI.
+* Email templates under `apps/billing/templates/billing/emails/`: `payment_failed`, `subscription_canceled`, `trial_ending` (multipart text + HTML, matching the existing template pattern).
+* `BILLING_ENABLED`, `STRIPE_SECRET_KEY`, `STRIPE_PUBLISHABLE_KEY`, `STRIPE_WEBHOOK_SECRET` registered in the epicenv schema. `apps/billing/apps.py:ready()` hard-fails at startup with `ImproperlyConfigured` when billing is enabled but keys are missing or any non-free plan lacks a Stripe price ID.
+* `stripe~=14.0` added to `pyproject.toml` dependencies.
+
+### Changed
+
+* `apps.base.utils.email.send_email` now accepts `sending_user=None` for system-generated emails (e.g. billing webhook handlers); when `None`, the `Reply-To` header is omitted.
+* `apps/base/api.py` `app_context` includes a `billing` block with feature-flag map even when `BILLING_ENABLED=False` (all features fall through to their declared defaults).
+* `App.vue` skips wrapping in `AppLayout` when the route declares `meta.publicChrome=true` so the public `/pricing/` page renders its own `MarketingLayout` chrome instead of the in-app nav.
 
 
 ## 2026-05-09
