@@ -15,7 +15,6 @@ The Django Base Site uses Docker Compose for local development. Install [Docker]
 | `web`      | `epicserve/django-base-site:python`  | Django dev server. Runs migrations + `ensure_s3_bucket` on startup.    |
 | `worker`   | same as web                          | Celery worker.                                                         |
 | `frontend` | `epicserve/django-base-site:bun`     | bun running the Vite dev server. HMR exposed at http://localhost:3000  |
-| `docs`     | same as web                          | MkDocs (compose profile `full` / `docs` only).                         |
 
 The `web` and `frontend` containers run as `${HOST_UID:-1000}:${HOST_GID:-1000}` so bind-mount writes don't end up root-owned.
 

@@ -112,6 +112,17 @@ db_restore dump_file="":
     docker compose exec -T db psql -h db -U ${POSTGRES_DB} -d postgres -c "CREATE DATABASE ${POSTGRES_DB};" > /dev/null
     docker compose exec -T db pg_restore -d ${DATABASE_URL} --no-owner --no-privileges < "${DUMP_FILE}"
 
+# Serve documentation locally with Zensical (on port 4000)
+@docs:
+    uv run zensical serve -f zensical.toml
+
+# Build the documentation site (outputs to docs_site/)
+@docs-build:
+    uv run zensical build -f zensical.toml --clean
+
+# Lint documentation links
+@docs-lint: lint_docs
+
 # Format all code
 @format: format_py format_js format_just format_html
 
@@ -139,9 +150,9 @@ db_restore dump_file="":
 # Lint everything
 lint: lint_js lint_html lint_py lint_migrations lint_types
 
-# Lint docs with mkdocs-linkcheck
+# Lint docs links
 @lint_docs:
-    just _start_msg "Check mkdocs docs using mkdocs-linkcheck"
+    just _start_msg "Check documentation links"
     {{ python_cmd_prefix }} mkdocs-linkcheck ./docs
 
 # Lint HTML

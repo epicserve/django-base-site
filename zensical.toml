@@ -1,0 +1,78 @@
+# zensical.toml
+# Native Zensical configuration for Django Base Site docs.
+# This replaces the previous mkdocs.yml (kept temporarily for reference during transition).
+
+[project]
+site_name = "Django Base Site"
+repo_url = "https://github.com/epicserve/django-base-site"
+repo_name = "epicserve/django-base-site"
+docs_dir = "docs"
+site_dir = "docs_site"
+
+# Development server address (chosen to avoid conflict with Django's runserver on 8000)
+dev_addr = "localhost:4000"
+
+# Optional but recommended for production docs
+# site_url = "https://django-base-site.readthedocs.io/"
+
+copyright = "Copyright &copy; 2026 epicserve"
+
+# ----------------------------------------------------------------------------
+# Theme configuration
+# ----------------------------------------------------------------------------
+[project.theme]
+
+# Keep the classic (Material for MkDocs look) during the initial switch.
+# Switch to "modern" later for the new design.
+variant = "classic"
+
+# Features for a polished documentation experience (classic Material look)
+features = [
+  # Code
+  "content.code.annotate",
+  "content.code.copy",
+  "content.code.select",
+
+  # Navigation & UX
+  "navigation.footer",
+  "navigation.indexes",
+  "navigation.path",
+  "navigation.sections",
+  "navigation.top",
+  "navigation.tracking",
+  "toc.follow",
+
+  # Search
+  "search.highlight",
+  "search.suggest",
+]
+
+# ----------------------------------------------------------------------------
+# Color palette (matching previous green + light/dark toggle)
+# ----------------------------------------------------------------------------
+[[project.theme.palette]]
+scheme = "default"
+primary = "green"
+accent = "light-green"
+toggle.icon = "material/toggle-switch-off-outline"
+toggle.name = "Switch to dark mode"
+
+[[project.theme.palette]]
+scheme = "slate"
+primary = "green"
+accent = "light-green"
+toggle.icon = "material/toggle-switch"
+toggle.name = "Switch to light mode"
+
+# ----------------------------------------------------------------------------
+# Markdown extensions (matching previous setup + snippets for changelog)
+# ----------------------------------------------------------------------------
+[project.markdown_extensions.admonition]
+
+[project.markdown_extensions.pymdownx.details]
+
+[project.markdown_extensions.pymdownx.superfences]
+
+[project.markdown_extensions.pymdownx.snippets]
+base_path = "."
+check_paths = true

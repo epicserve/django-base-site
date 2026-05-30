@@ -16,7 +16,7 @@
 
 ---
 
-<!--intro-start-->
+<!-- --8<-- [start:intro] -->
 The Django Base Site is an opinionated starter template to jump-start any new Django project. It has been lovingly
 maintained for over twelve years and has been used to jump-start many other projects. Because it is organized logically,
 it will help you and your team collaborate and stay organized as your project grows. All the best practices and tools
@@ -25,9 +25,9 @@ your team deploy your site to production in minutes instead of days.
 
 To get started, jump to the [installation](#installation) section or keep reading to learn more about the included
 features.
-<!--intro-end-->
+<!-- --8<-- [end:intro] -->
 
-<!--readme-start-->
+<!-- --8<-- [start:readme] -->
 
 ## ✨ Features
 
@@ -116,16 +116,9 @@ Stripe-backed subscriptions tied to Organizations. Off by default — set `BILLI
 
 ### 📝 Documentation
 
-The Django Base Site uses [MkDocs](https://www.mkdocs.org/) for documentation. You can copy the
-[config file](https://github.com/epicserve/django-base-site/blob/main/config/mkdocs.yml) and the
-[docs](https://github.com/epicserve/django-base-site/tree/main/docs) directory to help jumpstart the documentation for
-your new project. The following are MkDocs plugins being used:
+The Django Base Site uses [Zensical](https://zensical.org/) (the modern successor to MkDocs + Material for MkDocs, built by the same team) for its documentation.
 
-* [MkDocs Material](https://squidfunk.github.io/mkdocs-material/) - Beautify MkDocs theme
-* [mkdocstrings](https://mkdocstrings.github.io/) - Build documentation from Python docstrings
-* [mkdocs-include-markdown-plugin](https://github.com/mondeja/mkdocs-include-markdown-plugin) - Include docs from other
-  files
-* [mkdocs-linkcheck](https://github.com/byrnereese/linkchecker-mkdocs) - Automatic link checking
+Documentation source lives in the `docs/` directory. Configuration is in `zensical.toml` at the project root. You can copy the docs when starting a new project if you want to maintain documentation in the same style.
 
 ## Installation
 
@@ -254,4 +247,4 @@ me know, and I can link to the post here.
    main branch (or branch off of it).
 4. Make a pull request.
 
-<!--readme-end-->
+<!-- --8<-- [end:readme] -->

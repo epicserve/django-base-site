@@ -4,9 +4,8 @@
 
 # Required
 version: 2
-# Last updated: 2026-01-25
+# Last updated: 2026-05-26
 
-# Set the version of Python and other tools you might need
 build:
   os: ubuntu-24.04
   tools:
@@ -17,6 +16,9 @@ build:
       - uv export --group dev --no-hashes > requirements-rtd.txt
     post_install:
       - pip install -r requirements-rtd.txt
-
-mkdocs:
-  configuration: config/mkdocs.yml
+    build:
+      html:
+        - zensical build -f zensical.toml
+    post_build:
+      - mkdir -p $READTHEDOCS_OUTPUT/html/
+      - cp -r site/* $READTHEDOCS_OUTPUT/html/ || cp -r docs_site/* $READTHEDOCS_OUTPUT/html/ || true

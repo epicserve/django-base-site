@@ -6,7 +6,7 @@ Off by default. Set `BILLING_ENABLED=true` in your `.env` to turn it on. While o
 
 ## Overview
 
-* **Plans + features** are declared as plain dicts in `settings.BILLING_PLANS` and `settings.BILLING_FEATURES` ([config/settings/_base.py](../config/settings/_base.py)). Same pattern as `NOTIFICATIONS_CATEGORIES`. Plans support monthly + annual prices, a free tier, trial periods, per-seat pricing, and an `is_highlighted` flag for the "Popular" badge on the pricing page. A bundled three-tier example lives in [apps/billing/example_plans.py](../apps/billing/example_plans.py) and loads when `BILLING_USE_EXAMPLE_PLANS=true` — see "Dogfooding locally" below.
+* **Plans + features** are declared as plain dicts in `settings.BILLING_PLANS` and `settings.BILLING_FEATURES` ([config/settings/_base.py](../config/settings/_base.py)). Same pattern as `NOTIFICATIONS_CATEGORIES`. Plans support monthly + annual prices, a free tier, trial periods, per-seat pricing, and an `is_highlighted` flag for the "Popular" badge on the pricing page. A bundled three-tier example lives in [apps/billing/example_plans.py](../apps/billing/example_plans.py) and loads when `BILLING_USE_EXAMPLE_PLANS=true` — see [Dogfooding locally](#dogfooding-locally) below.
 * **New subscriptions** go through [Stripe Checkout](https://docs.stripe.com/payments/checkout) (full-page redirect).
 * **Existing subscriptions** are managed through the [Stripe Customer Portal](https://docs.stripe.com/customer-management) — payment methods, cancels, invoice history.
 * **Webhook** at `/webhooks/stripe/` with HMAC signature verification. `WebhookEvent` rows dedupe Stripe retries.
@@ -73,7 +73,7 @@ Restart again. Without `stripe listen` running, Stripe Checkout will succeed but
 
 Any future expiry, any CVC, any ZIP. Full list at https://docs.stripe.com/testing.
 
-## Testing locally
+## Dogfooding locally
 
 If you just want to see the billing UX end-to-end with realistic plans — without editing `config/settings/_base.py` or clicking around the Stripe Dashboard — there's a one-command path that uses the bundled Free / Pro / Business demo at [apps/billing/example_plans.py](../apps/billing/example_plans.py).
 

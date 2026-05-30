@@ -50,6 +50,14 @@ Use Just for all development tasks. Common ones:
 - `just upgrade_python_packages` - `uv sync --all-packages --all-extras`
 - `just upgrade_node_packages` - `bun update`
 
+**Documentation:**
+- Documentation is built with [Zensical](https://zensical.org/) (successor to MkDocs + Material).
+- `just docs` - Serve docs locally at http://localhost:4000
+- `just docs-build` - Build the static site (outputs to `docs_site/`)
+- `just docs-lint` - Check links in the documentation
+- Config: `zensical.toml` (at project root)
+- The old `docker compose --profile docs` service has been removed.
+
 ## Testing
 
 - pytest with pytest-django.

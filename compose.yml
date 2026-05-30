@@ -166,31 +166,6 @@ services:
       retries: 3
       start_period: 30s
 
-  docs:
-    container_name: docs
-    image: epicserve/django-base-site:python
-    init: true
-
-    command: sh -c "mkdocs serve -f config/mkdocs.yml --dev-addr 0.0.0.0:4000"
-
-    volumes:
-      - .:/srv/app:cached
-
-    ports:
-      - "127.0.0.1:4000:4000"
-
-    environment:
-      LIVE_RELOAD_SUPPORT: 'true'
-      FAST_MODE: 'true'
-
-    profiles:
-      - full
-      - docs
-
-    depends_on:
-      web:
-        condition: service_started
-
 volumes:
   postgres_data:
   redis_data:

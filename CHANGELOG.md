@@ -1,6 +1,22 @@
 # CHANGELOG
 
 
+## 2026-05-30
+
+### Changed
+
+* Documentation system migrated from MkDocs + Material for MkDocs to **[Zensical](https://zensical.org/)** (the official successor by the same team).
+  - Configuration moved to native `zensical.toml` at the project root (replaced `config/mkdocs.yml`).
+  - Removed `mkdocs-include-markdown-plugin`. Content includes now use `pymdownx.snippets` (e.g. `docs/index.md` pulls sections from `README.md`; `docs/changelog.md` includes the full `CHANGELOG.md`).
+  - Restored `docs/index.md` to include the main README content via snippets, plus a new "Working on the Documentation" section.
+  - New Just commands: `just docs` (serve on port 4000), `just docs-build`, `just docs-lint` (added to `config/base.just` in alphabetical order).
+  - Local documentation server now runs on port 4000 by default (`dev_addr` in `zensical.toml`) to avoid conflict with Django.
+  - Removed the `docs` service and `full`/`docs` profiles from `compose.yml`.
+  - Updated `.readthedocs.yaml` to use `zensical build`.
+  - Navigation improvements: added `navigation.indexes`, set `title: Overview` on the index page via frontmatter, and expanded features in `zensical.toml` while remaining on the `classic` theme variant.
+  - Cleaned up old MkDocs references across the project (README, CLAUDE.md, docs, etc.).
+
+
 ## 2026-05-23
 
 ### Added
