@@ -5,6 +5,7 @@
 
 ### Changed
 
+* The sign-in page (`frontend/js/accounts/views/LoginView.vue`) now automatically attempts passkey/WebAuthn sign-in on mount when the browser supports it, opening the credential selector without requiring a click. The existing **Sign in with a passkey** button is preserved as an explicit fallback/manual trigger. A new `attemptPasskeyLogin(isAuto)` helper backs both paths: auto attempts stay silent on common gesture-related rejections (`NotAllowedError` / `AbortError`), while explicit button clicks retain the full loading/error UX. A `passkeyInFlight` guard prevents the auto and manual triggers from overlapping.
 * Documentation system migrated from MkDocs + Material for MkDocs to **[Zensical](https://zensical.org/)** (the official successor by the same team).
   - Configuration moved to native `zensical.toml` at the project root (replaced `config/mkdocs.yml`).
   - Removed `mkdocs-include-markdown-plugin`. Content includes now use `pymdownx.snippets` (e.g. `docs/index.md` pulls sections from `README.md`; `docs/changelog.md` includes the full `CHANGELOG.md`).
