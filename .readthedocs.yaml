@@ -4,7 +4,7 @@
 
 # Required
 version: 2
-# Last updated: 2026-05-26
+# Last updated: 2026-05-30
 
 build:
   os: ubuntu-24.04
@@ -21,4 +21,4 @@ build:
         - zensical build -f zensical.toml
     post_build:
       - mkdir -p $READTHEDOCS_OUTPUT/html/
-      - cp -r site/* $READTHEDOCS_OUTPUT/html/ || cp -r docs_site/* $READTHEDOCS_OUTPUT/html/ || true
+      - cp -r docs_site/* $READTHEDOCS_OUTPUT/html/
