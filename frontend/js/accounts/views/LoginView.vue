@@ -18,8 +18,14 @@ const errors = ref({});
 const loading = ref(false);
 const passkeyLoading = ref(false);
 const passkeySupported = ref(false);
+const passkeyInFlight = ref(false);
 
-onMounted(() => { passkeySupported.value = isWebAuthnSupported(); });
+onMounted(() => {
+  passkeySupported.value = isWebAuthnSupported();
+  if (passkeySupported.value) {
+    attemptPasskeyLogin(true);
+  }
+});
 
 function getRedirectUrl() {
   return safeNextUrl(route.query.next);
@@ -64,9 +70,15 @@ async function onSubmit() {
   }
 }
 
-async function passkeyLogin() {
-  passkeyLoading.value = true;
+async function attemptPasskeyLogin(isAuto = false) {
+  if (passkeyInFlight.value) return;
+  passkeyInFlight.value = true;
+
+  if (!isAuto) {
+    passkeyLoading.value = true;
+  }
   errors.value = {};
+
   try {
     const optsResp = await authApi.beginPasskeyLogin();
     const options = optsResp.data?.request_options || optsResp.data;
@@ -78,18 +90,26 @@ async function passkeyLogin() {
     window.location.href = getRedirectUrl();
   } catch (err) {
     if (err.name === 'NotAllowedError' || err.name === 'AbortError') {
-      passkeyLoading.value = false;
+      if (!isAuto) passkeyLoading.value = false;
+      passkeyInFlight.value = false;
       return;
     }
     if (err.response?.status === 409) {
       window.location.href = getRedirectUrl();
       return;
     }
-    errors.value = err.data
-      ? parseAllauthErrors(err.data)
-      : { non_field_errors: [err.message || 'Passkey sign-in failed.'] };
-    passkeyLoading.value = false;
+    if (!isAuto) {
+      errors.value = err.data
+        ? parseAllauthErrors(err.data)
+        : { non_field_errors: [err.message || 'Passkey sign-in failed.'] };
+      passkeyLoading.value = false;
+    }
+    passkeyInFlight.value = false;
   }
+}
+
+async function passkeyLogin() {
+  attemptPasskeyLogin(false);
 }
 </script>
 
