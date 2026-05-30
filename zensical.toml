@@ -22,11 +22,10 @@ copyright = "Copyright &copy; 2026 epicserve"
 # ----------------------------------------------------------------------------
 [project.theme]
 
-# Keep the classic (Material for MkDocs look) during the initial switch.
-# Switch to "modern" later for the new design.
-variant = "classic"
+# Using the modern Zensical theme (the new default design).
+# Previously pinned to "classic" to match the old Material for MkDocs look during migration.
 
-# Features for a polished documentation experience (classic Material look)
+# Features for a polished documentation experience
 features = [
   # Code
   "content.code.annotate",
@@ -48,20 +47,21 @@ features = [
 ]
 
 # ----------------------------------------------------------------------------
-# Color palette (matching previous green + light/dark toggle)
+# Color palette
+# Navy + Orange for a distinctive but modern look.
 # ----------------------------------------------------------------------------
 [[project.theme.palette]]
 scheme = "default"
-primary = "green"
-accent = "light-green"
-toggle.icon = "material/toggle-switch-off-outline"
+primary = "navy"
+accent = "orange"
+toggle.icon = "lucide/sun"
 toggle.name = "Switch to dark mode"
 
 [[project.theme.palette]]
 scheme = "slate"
-primary = "green"
-accent = "light-green"
-toggle.icon = "material/toggle-switch"
+primary = "navy"
+accent = "orange"
+toggle.icon = "lucide/moon"
 toggle.name = "Switch to light mode"
 
 # ----------------------------------------------------------------------------
