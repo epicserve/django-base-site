@@ -18,9 +18,7 @@ const userOptions = computed(() =>
   })),
 );
 
-const canSubmit = computed(
-  () => Boolean(selectedUserId.value) && (sendEmail.value || sendInApp.value),
-);
+const canSubmit = computed(() => Boolean(selectedUserId.value) && (sendEmail.value || sendInApp.value));
 
 onMounted(async () => {
   loading.value = true;
@@ -57,9 +55,7 @@ async function submit() {
 <template>
   <div class="mx-auto max-w-3xl">
     <div class="mb-6">
-      <h1 class="text-2xl font-semibold text-gray-900 dark:text-white">
-        Test Notifications
-      </h1>
+      <h1 class="text-2xl font-semibold text-gray-900 dark:text-white">Test Notifications</h1>
       <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">
         Send a test notification to a staff user to verify email and in-app notification delivery.
       </p>
@@ -68,9 +64,7 @@ async function submit() {
       class="rounded-xl border border-gray-200 bg-white px-8 py-8 shadow-sm dark:border-gray-700 dark:bg-gray-800"
       @submit.prevent="submit"
     >
-      <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">
-        Recipient
-      </label>
+      <label class="block text-sm font-medium text-gray-700 dark:text-gray-300"> Recipient </label>
       <div class="mt-1">
         <SearchableSelect
           v-model="selectedUserId"
@@ -84,7 +78,7 @@ async function submit() {
           v-model="sendEmail"
           type="checkbox"
           class="h-4 w-4 cursor-pointer rounded border-gray-300 text-blue-600 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700"
-        >
+        />
         Send email notification
       </label>
 
@@ -93,7 +87,7 @@ async function submit() {
           v-model="sendInApp"
           type="checkbox"
           class="h-4 w-4 cursor-pointer rounded border-gray-300 text-blue-600 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700"
-        >
+        />
         Send in app notification
       </label>
 

@@ -1,6 +1,21 @@
 # CHANGELOG
 
 
+## 2026-06-27
+
+### Changed
+
+* ESLint -> [Oxlint](https://oxc.rs/docs/guide/usage/linter) + [Oxfmt](https://oxc.rs/docs/guide/usage/formatter) for JavaScript/Vue linting and formatting. Rust-based, ESLint / Prettier-compatible config formats. Removes `@eslint/js`, `eslint`, `eslint-plugin-vue`, and `globals` in favor of `oxlint` (1.71.0) and `oxfmt` (0.56.0, exact-pinned since Oxfmt is still in beta). Configs live at `.oxlintrc.json` and `.oxfmtrc.json`; `eslint.config.mjs` deleted. The `.oxlintrc.json` `plugins` list explicitly includes `eslint` (setting `plugins` overwrites the default set, so the `eslint`-core rules — `no-console`, `no-debugger`, `no-param-reassign` — must be re-listed to stay active). `.oxfmtrc.json` uses `singleQuote: true` uniformly, so CSS (both `app.css` and `.vue` `<style>` blocks) matches the codebase's single-quote convention.
+
+### Removed
+
+* `<template>` block linting from `eslint-plugin-vue` (Oxlint only lints the `<script>` block of `.vue` SFCs). Templates are still formatted by Oxfmt. The old `one-var`, `max-len`, and `no-underscore-dangle` ESLint rules have no enabled Oxlint equivalent — line length is now handled by Oxfmt's `printWidth: 120`, and the now-defunct `eslint-disable` comments for those rules were dropped.
+
+### CI
+
+* `lint_js` (and the CI `Lint` job, via `just lint`) now runs `oxfmt --check` in addition to `oxlint`, so formatting drift is caught in CI — mirroring the Python side's `ruff format --check`. ESLint previously combined linting and formatting in one pass; splitting into Oxlint + Oxfmt would otherwise have dropped format verification from CI.
+
+
 ## 2026-05-30
 
 ### Changed

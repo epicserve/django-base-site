@@ -32,11 +32,7 @@ defineExpose({ confirm });
 </script>
 
 <template>
-  <AppModal
-    :open="isOpen"
-    :title="title"
-    @close="onClose"
-  >
+  <AppModal :open="isOpen" :title="title" @close="onClose">
     <p class="text-gray-700 dark:text-gray-300">
       {{ message }}
     </p>

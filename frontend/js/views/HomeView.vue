@@ -11,16 +11,16 @@ const greeting = computed(() => {
 const tagline = "You're using the Django Base Site. Get started building the next great thing!";
 
 const stack = [
-  { label: 'Authentication',     value: 'django-allauth · headless · MFA + passkeys' },
-  { label: 'Multi-tenant',       value: 'organizations · teams · invites' },
-  { label: 'API',                value: 'django-ninja' },
-  { label: 'Database',           value: 'PostgreSQL 17' },
-  { label: 'Cache & sessions',   value: 'Redis 7' },
-  { label: 'Background tasks',   value: 'Celery (Redis broker)' },
-  { label: 'Object storage',     value: 'MinIO · S3-compatible' },
-  { label: 'Email',              value: 'Mailpit (dev) · django-ses (prod)' },
-  { label: 'Frontend',           value: 'Vue 3 · Tailwind v4 · Vite · bun' },
-  { label: 'WSGI server',        value: 'gunicorn (4 × 2)' },
+  { label: 'Authentication', value: 'django-allauth · headless · MFA + passkeys' },
+  { label: 'Multi-tenant', value: 'organizations · teams · invites' },
+  { label: 'API', value: 'django-ninja' },
+  { label: 'Database', value: 'PostgreSQL 17' },
+  { label: 'Cache & sessions', value: 'Redis 7' },
+  { label: 'Background tasks', value: 'Celery (Redis broker)' },
+  { label: 'Object storage', value: 'MinIO · S3-compatible' },
+  { label: 'Email', value: 'Mailpit (dev) · django-ses (prod)' },
+  { label: 'Frontend', value: 'Vue 3 · Tailwind v4 · Vite · bun' },
+  { label: 'WSGI server', value: 'gunicorn (4 × 2)' },
 ];
 </script>
 
@@ -89,7 +89,7 @@ const stack = [
   -webkit-mask-image: radial-gradient(ellipse 80% 60% at 30% 0%, black, transparent 70%);
 }
 
-:where([data-theme="dark"]) .welcome__grid {
+:where([data-theme='dark']) .welcome__grid {
   background-image:
     linear-gradient(to right, rgb(255 255 255 / 0.04) 1px, transparent 1px),
     linear-gradient(to bottom, rgb(255 255 255 / 0.04) 1px, transparent 1px);
@@ -97,7 +97,9 @@ const stack = [
 
 .welcome__title {
   font-weight: 350;
-  font-variation-settings: "opsz" 144, "SOFT" 25;
+  font-variation-settings:
+    'opsz' 144,
+    'SOFT' 25;
   letter-spacing: -0.02em;
   line-height: 1;
 }
@@ -108,7 +110,7 @@ const stack = [
 .welcome__row:hover .welcome__index {
   color: rgb(37 99 235); /* blue-600 */
 }
-:where([data-theme="dark"]) .welcome__row:hover .welcome__index {
+:where([data-theme='dark']) .welcome__row:hover .welcome__index {
   color: rgb(96 165 250); /* blue-400 */
 }
 
@@ -127,7 +129,9 @@ const stack = [
 .welcome__reveal {
   animation: welcomeRise 700ms cubic-bezier(0.16, 1, 0.3, 1) both;
 }
-.welcome__reveal--2 { animation-delay: 100ms; }
+.welcome__reveal--2 {
+  animation-delay: 100ms;
+}
 
 @media (prefers-reduced-motion: reduce) {
   .welcome__reveal {

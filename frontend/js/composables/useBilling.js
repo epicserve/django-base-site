@@ -2,10 +2,10 @@ import { ref } from 'vue';
 import { get, post } from '@/utils/api';
 
 const subscription = ref(null),
- plans = ref([]),
- features = ref([]),
- subscriptionLoading = ref(false),
- plansLoading = ref(false);
+  plans = ref([]),
+  features = ref([]),
+  subscriptionLoading = ref(false),
+  plansLoading = ref(false);
 
 let pollHandle = null;
 
@@ -54,7 +54,7 @@ async function pollUntilActive({ timeoutMs = 30000, intervalMs = 2000 } = {}) {
         // keep trying
       }
       const s = subscription.value,
-       ready = s && s.status && ['trialing', 'active'].includes(s.status);
+        ready = s && s.status && ['trialing', 'active'].includes(s.status);
       if (ready || Date.now() - start > timeoutMs) {
         resolve(!!ready);
         return;

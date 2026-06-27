@@ -105,18 +105,17 @@ async function addEmail() {
 
 <template>
   <AccountLayout>
-    <div
-      v-if="emails.length"
-      class="space-y-2"
-    >
+    <div v-if="emails.length" class="space-y-2">
       <label
         v-for="(addr, idx) in emails"
         :key="addr.email"
         :for="`email_radio_${idx}`"
         class="cursor-pointer flex items-center justify-between rounded-lg border px-4 py-3 transition"
-        :class="addr.primary
-          ? 'border-blue-200 bg-blue-50/50 dark:border-blue-800 dark:bg-blue-950/30'
-          : 'border-gray-200 hover:border-gray-300 dark:border-gray-700 dark:hover:border-gray-600'"
+        :class="
+          addr.primary
+            ? 'border-blue-200 bg-blue-50/50 dark:border-blue-800 dark:bg-blue-950/30'
+            : 'border-gray-200 hover:border-gray-300 dark:border-gray-700 dark:hover:border-gray-600'
+        "
       >
         <div class="flex items-center gap-3">
           <input
@@ -125,12 +124,9 @@ async function addEmail() {
             type="radio"
             :value="addr.email"
             class="text-blue-600 focus:ring-blue-500"
-          >
+          />
           <div>
-            <span
-              class="text-sm text-gray-900 dark:text-white"
-              :class="{ 'font-medium': addr.primary }"
-            >
+            <span class="text-sm text-gray-900 dark:text-white" :class="{ 'font-medium': addr.primary }">
               {{ addr.email }}
             </span>
           </div>
@@ -142,23 +138,18 @@ async function addEmail() {
           >
             Primary
           </span>
-          <span
-            v-if="addr.verified"
-            class="inline-flex items-center gap-1 text-xs text-gray-500 dark:text-gray-400"
-          >
+          <span v-if="addr.verified" class="inline-flex items-center gap-1 text-xs text-gray-500 dark:text-gray-400">
             <svg
               class="h-3.5 w-3.5 text-green-500"
               xmlns="http://www.w3.org/2000/svg"
               viewBox="0 0 20 20"
               fill="currentColor"
             >
-              <!-- eslint-disable max-len -->
               <path
                 fill-rule="evenodd"
                 d="M16.704 4.153a.75.75 0 0 1 .143 1.052l-8 10.5a.75.75 0 0 1-1.127.075l-4.5-4.5a.75.75 0 0 1 1.06-1.06l3.894 3.893 7.48-9.817a.75.75 0 0 1 1.05-.143Z"
                 clip-rule="evenodd"
               />
-              <!-- eslint-enable max-len -->
             </svg>
             Verified
           </span>
@@ -171,18 +162,12 @@ async function addEmail() {
         </div>
       </label>
     </div>
-    <p
-      v-else
-      class="text-gray-700 dark:text-gray-300"
-    >
-      <strong>Warning:</strong> You currently do not have any e-mail address set up.
-      You should really add an e-mail address so you can receive notifications, reset your password, etc.
+    <p v-else class="text-gray-700 dark:text-gray-300">
+      <strong>Warning:</strong> You currently do not have any e-mail address set up. You should really add an e-mail
+      address so you can receive notifications, reset your password, etc.
     </p>
 
-    <div
-      v-if="emails.length"
-      class="mt-4 flex items-center gap-3"
-    >
+    <div v-if="emails.length" class="mt-4 flex items-center gap-3">
       <button
         type="button"
         :disabled="loading"
@@ -210,28 +195,17 @@ async function addEmail() {
     </div>
 
     <div class="mt-8 border-t border-gray-200 dark:border-gray-700 pt-6">
-      <h2 class="text-sm font-medium text-gray-900 dark:text-white mb-3">
-        Add E-mail Address
-      </h2>
-      <form
-        class="flex items-end gap-3"
-        @submit.prevent="addEmail"
-      >
+      <h2 class="text-sm font-medium text-gray-900 dark:text-white mb-3">Add E-mail Address</h2>
+      <form class="flex items-end gap-3" @submit.prevent="addEmail">
         <div class="flex-1">
-          <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-            E-mail
-          </label>
+          <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1"> E-mail </label>
           <input
             v-model="newEmail"
             type="email"
             placeholder="New email address"
             class="block w-full rounded-lg border border-gray-300 px-3 py-2.5 text-sm shadow-sm placeholder:text-gray-400 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:placeholder:text-gray-500"
-          >
-          <p
-            v-for="err in (addErrors.email || [])"
-            :key="err"
-            class="mt-1 text-sm text-red-600 dark:text-red-400"
-          >
+          />
+          <p v-for="err in addErrors.email || []" :key="err" class="mt-1 text-sm text-red-600 dark:text-red-400">
             {{ err }}
           </p>
         </div>

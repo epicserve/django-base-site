@@ -31,24 +31,13 @@ async function onSubmit() {
 
 <template>
   <AuthLayout>
-    <h1 class="text-center text-2xl font-semibold tracking-tight text-gray-900 dark:text-white">
-      Password Reset
-    </h1>
+    <h1 class="text-center text-2xl font-semibold tracking-tight text-gray-900 dark:text-white">Password Reset</h1>
     <p class="mt-2 text-center text-sm text-gray-500 dark:text-gray-400">
       Enter your e-mail address and we'll send you a link to reset your password.
     </p>
-    <form
-      class="mt-6 space-y-4"
-      @submit.prevent="onSubmit"
-    >
+    <form class="mt-6 space-y-4" @submit.prevent="onSubmit">
       <FormErrors :errors="errors.non_field_errors || []" />
-      <FormField
-        v-model="email"
-        type="email"
-        placeholder="Email"
-        autocomplete="email"
-        :errors="errors.email || []"
-      />
+      <FormField v-model="email" type="email" placeholder="Email" autocomplete="email" :errors="errors.email || []" />
       <button
         type="submit"
         :disabled="loading"
@@ -59,10 +48,7 @@ async function onSubmit() {
     </form>
     <template #footer>
       <p class="mt-6 text-center text-sm text-gray-500 dark:text-gray-400">
-        <RouterLink
-          :to="{ name: 'login' }"
-          class="font-medium text-blue-600 hover:text-blue-500 dark:text-blue-400"
-        >
+        <RouterLink :to="{ name: 'login' }" class="font-medium text-blue-600 hover:text-blue-500 dark:text-blue-400">
           Back to Sign In
         </RouterLink>
       </p>

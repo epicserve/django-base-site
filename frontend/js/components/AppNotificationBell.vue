@@ -29,9 +29,9 @@ const detailNotification = ref(null);
 const filterTab = ref('unread');
 const hasUnread = computed(() => unreadCount.value > 0);
 const badgeLabel = computed(() => (unreadCount.value > 99 ? '99+' : String(unreadCount.value)));
-const allSelected = computed(() => (
-  notifications.value.length > 0 && selectedIds.value.size === notifications.value.length
-));
+const allSelected = computed(
+  () => notifications.value.length > 0 && selectedIds.value.size === notifications.value.length,
+);
 
 function toggleDropdown() {
   isOpen.value = !isOpen.value;
@@ -148,20 +148,14 @@ watch(isOpen, (open) => {
 </script>
 
 <template>
-  <div
-    class="relative"
-    data-dropdown="notifications"
-  >
+  <div class="relative" data-dropdown="notifications">
     <button
       type="button"
       class="cursor-pointer relative flex items-center rounded-md p-2 text-gray-500 hover:bg-gray-100 hover:text-gray-700 dark:text-gray-400 dark:hover:bg-gray-800 dark:hover:text-gray-200"
       :aria-label="hasUnread ? `Notifications, ${unreadCount} unread` : 'Notifications'"
       @click.stop="toggleDropdown"
     >
-      <component
-        :is="hasUnread ? BellAlertIcon : BellIcon"
-        class="h-5 w-5"
-      />
+      <component :is="hasUnread ? BellAlertIcon : BellIcon" class="h-5 w-5" />
       <span
         v-if="hasUnread"
         role="status"
@@ -183,25 +177,26 @@ watch(isOpen, (open) => {
           <button
             type="button"
             class="cursor-pointer rounded px-2 py-1 text-xs font-medium"
-            :class="filterTab === 'unread'
-              ? 'bg-gray-100 text-gray-900 dark:bg-gray-700 dark:text-white'
-              : 'text-gray-500 hover:text-gray-900 dark:text-gray-400 dark:hover:text-gray-200'"
+            :class="
+              filterTab === 'unread'
+                ? 'bg-gray-100 text-gray-900 dark:bg-gray-700 dark:text-white'
+                : 'text-gray-500 hover:text-gray-900 dark:text-gray-400 dark:hover:text-gray-200'
+            "
             @click="switchTab('unread')"
           >
             Unread
-            <span
-              v-if="hasUnread"
-              class="ml-1 rounded-full bg-blue-500 px-1.5 text-[10px] font-semibold text-white"
-            >
+            <span v-if="hasUnread" class="ml-1 rounded-full bg-blue-500 px-1.5 text-[10px] font-semibold text-white">
               {{ badgeLabel }}
             </span>
           </button>
           <button
             type="button"
             class="cursor-pointer rounded px-2 py-1 text-xs font-medium"
-            :class="filterTab === 'all'
-              ? 'bg-gray-100 text-gray-900 dark:bg-gray-700 dark:text-white'
-              : 'text-gray-500 hover:text-gray-900 dark:text-gray-400 dark:hover:text-gray-200'"
+            :class="
+              filterTab === 'all'
+                ? 'bg-gray-100 text-gray-900 dark:bg-gray-700 dark:text-white'
+                : 'text-gray-500 hover:text-gray-900 dark:text-gray-400 dark:hover:text-gray-200'
+            "
             @click="switchTab('all')"
           >
             All
@@ -289,17 +284,10 @@ watch(isOpen, (open) => {
           class="px-4 py-8 text-center text-sm text-gray-500 dark:text-gray-400"
         >
           <CheckIcon class="mx-auto mb-2 h-6 w-6 text-gray-400 dark:text-gray-500" />
-          <template v-if="filterTab === 'unread'">
-            You're all caught up.
-          </template>
-          <template v-else>
-            No notifications yet.
-          </template>
+          <template v-if="filterTab === 'unread'"> You're all caught up. </template>
+          <template v-else> No notifications yet. </template>
         </div>
-        <ul
-          v-else
-          class="divide-y divide-gray-100 dark:divide-gray-700"
-        >
+        <ul v-else class="divide-y divide-gray-100 dark:divide-gray-700">
           <li
             v-for="n in notifications"
             :key="n.id"
@@ -319,13 +307,8 @@ watch(isOpen, (open) => {
                 class="mt-1 cursor-pointer rounded border-gray-300 text-blue-600 focus:ring-blue-500"
                 :checked="selectedIds.has(n.id)"
                 @click.stop="toggleSelect(n.id)"
-              >
-              <UserAvatar
-                v-else-if="n.actor"
-                :src="n.actor.avatar_url || ''"
-                :name="userFullName(n.actor)"
-                size="md"
               />
+              <UserAvatar v-else-if="n.actor" :src="n.actor.avatar_url || ''" :name="userFullName(n.actor)" size="md" />
               <span
                 v-else
                 class="inline-flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-blue-100 text-blue-600 dark:bg-blue-900/40 dark:text-blue-300"
@@ -337,22 +320,15 @@ watch(isOpen, (open) => {
                 <div class="flex items-start justify-between gap-2">
                   <p
                     class="text-sm"
-                    :class="n.is_read
-                      ? 'text-gray-700 dark:text-gray-300'
-                      : 'font-semibold text-gray-900 dark:text-white'"
+                    :class="
+                      n.is_read ? 'text-gray-700 dark:text-gray-300' : 'font-semibold text-gray-900 dark:text-white'
+                    "
                   >
                     {{ n.title }}
                   </p>
-                  <span
-                    v-if="!n.is_read"
-                    class="mt-1.5 h-2 w-2 shrink-0 rounded-full bg-blue-500"
-                    aria-hidden="true"
-                  />
+                  <span v-if="!n.is_read" class="mt-1.5 h-2 w-2 shrink-0 rounded-full bg-blue-500" aria-hidden="true" />
                 </div>
-                <p
-                  v-if="n.body"
-                  class="mt-0.5 line-clamp-2 text-xs text-gray-500 dark:text-gray-400"
-                >
+                <p v-if="n.body" class="mt-0.5 line-clamp-2 text-xs text-gray-500 dark:text-gray-400">
                   {{ n.body }}
                 </p>
                 <p class="mt-1 text-[11px] text-gray-400 dark:text-gray-500">
@@ -391,14 +367,8 @@ watch(isOpen, (open) => {
       size="lg"
       @close="detailNotification = null"
     >
-      <div
-        v-if="detailNotification"
-        class="space-y-4"
-      >
-        <div
-          v-if="detailNotification.actor"
-          class="flex items-center gap-3"
-        >
+      <div v-if="detailNotification" class="space-y-4">
+        <div v-if="detailNotification.actor" class="flex items-center gap-3">
           <UserAvatar
             :src="detailNotification.actor.avatar_url || ''"
             :name="userFullName(detailNotification.actor)"
@@ -414,25 +384,14 @@ watch(isOpen, (open) => {
             </p>
           </div>
         </div>
-        <p
-          v-else
-          class="text-xs text-gray-500 dark:text-gray-400"
-        >
+        <p v-else class="text-xs text-gray-500 dark:text-gray-400">
           {{ relativeTime(detailNotification.created) }}
           · {{ new Date(detailNotification.created).toLocaleString() }}
         </p>
-        <div
-          v-if="detailNotification.body"
-          class="whitespace-pre-line text-sm text-gray-700 dark:text-gray-200"
-        >
+        <div v-if="detailNotification.body" class="whitespace-pre-line text-sm text-gray-700 dark:text-gray-200">
           {{ detailNotification.body }}
         </div>
-        <p
-          v-else
-          class="text-sm italic text-gray-500 dark:text-gray-400"
-        >
-          No additional details.
-        </p>
+        <p v-else class="text-sm italic text-gray-500 dark:text-gray-400">No additional details.</p>
       </div>
     </AppModal>
   </div>

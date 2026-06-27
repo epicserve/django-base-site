@@ -32,7 +32,7 @@ export async function request(url, options = {}) {
         'X-CSRFToken': getCSRFToken(),
       },
     },
-    config = { ...defaults, ...options, headers: { ...defaults.headers, ...(options.headers || {}) } },
+    config = { ...defaults, ...options, headers: { ...defaults.headers, ...options.headers } },
     response = await fetch(url, config);
 
   if (!response.ok) {
@@ -61,7 +61,6 @@ export function get(url, params = {}) {
       searchParams.append(key, value);
     }
   });
-  // eslint-disable-next-line one-var
   const qs = searchParams.toString(),
     fullUrl = qs ? `${url}?${qs}` : url;
 

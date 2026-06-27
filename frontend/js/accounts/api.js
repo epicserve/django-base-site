@@ -18,7 +18,6 @@ export function parseAllauthErrors(responseData) {
 }
 
 const BASE = '/_allauth/browser/v1',
-
   authApi = {
     getSession: () => get(`${BASE}/auth/session`),
 
@@ -40,20 +39,23 @@ const BASE = '/_allauth/browser/v1',
 
     addEmail: (email) => post(`${BASE}/account/email`, { email }),
 
-    setPrimaryEmail: (email) => request(`${BASE}/account/email`, {
-      method: 'PATCH',
-      body: JSON.stringify({ email, primary: true }),
-    }),
+    setPrimaryEmail: (email) =>
+      request(`${BASE}/account/email`, {
+        method: 'PATCH',
+        body: JSON.stringify({ email, primary: true }),
+      }),
 
-    removeEmail: (email) => request(`${BASE}/account/email`, {
-      method: 'DELETE',
-      body: JSON.stringify({ email }),
-    }),
+    removeEmail: (email) =>
+      request(`${BASE}/account/email`, {
+        method: 'DELETE',
+        body: JSON.stringify({ email }),
+      }),
 
-    resendVerification: (email) => request(`${BASE}/account/email`, {
-      method: 'PUT',
-      body: JSON.stringify({ email }),
-    }),
+    resendVerification: (email) =>
+      request(`${BASE}/account/email`, {
+        method: 'PUT',
+        body: JSON.stringify({ email }),
+      }),
 
     // MFA / 2FA
     listAuthenticators: () => get(`${BASE}/account/authenticators`),
@@ -68,25 +70,26 @@ const BASE = '/_allauth/browser/v1',
 
     regenerateRecoveryCodes: () => post(`${BASE}/account/authenticators/recovery-codes`, {}),
 
-    beginAddPasskey: (passwordless) => get(
-      `${BASE}/account/authenticators/webauthn`,
-      { passwordless: passwordless ? 'true' : 'false' },
-    ),
+    beginAddPasskey: (passwordless) =>
+      get(`${BASE}/account/authenticators/webauthn`, { passwordless: passwordless ? 'true' : 'false' }),
 
-    addPasskey: (name, credential) => post(`${BASE}/account/authenticators/webauthn`, {
-      name,
-      credential,
-    }),
+    addPasskey: (name, credential) =>
+      post(`${BASE}/account/authenticators/webauthn`, {
+        name,
+        credential,
+      }),
 
-    renamePasskey: (id, name) => request(`${BASE}/account/authenticators/webauthn`, {
-      method: 'PUT',
-      body: JSON.stringify({ id, name }),
-    }),
+    renamePasskey: (id, name) =>
+      request(`${BASE}/account/authenticators/webauthn`, {
+        method: 'PUT',
+        body: JSON.stringify({ id, name }),
+      }),
 
-    removePasskey: (id) => request(`${BASE}/account/authenticators/webauthn`, {
-      method: 'DELETE',
-      body: JSON.stringify({ authenticators: [id] }),
-    }),
+    removePasskey: (id) =>
+      request(`${BASE}/account/authenticators/webauthn`, {
+        method: 'DELETE',
+        body: JSON.stringify({ authenticators: [id] }),
+      }),
 
     submit2FA: (code) => post(`${BASE}/auth/2fa/authenticate`, { code }),
 

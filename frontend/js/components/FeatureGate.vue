@@ -11,8 +11,5 @@ const allowed = computed(() => appStore.hasFeature(props.feature));
 
 <template>
   <slot v-if="allowed" />
-  <slot
-    v-else
-    name="fallback"
-  />
+  <slot v-else name="fallback" />
 </template>

@@ -38,9 +38,11 @@ async function onSubmit() {
       router.push({ name: 'login' });
       return;
     }
-    errors.value = err.data ? parseAllauthErrors(err.data) : {
-      non_field_errors: ['Invalid code.'],
-    };
+    errors.value = err.data
+      ? parseAllauthErrors(err.data)
+      : {
+          non_field_errors: ['Invalid code.'],
+        };
     loading.value = false;
   }
 }
@@ -54,10 +56,7 @@ async function onSubmit() {
     <p class="mt-2 text-center text-sm text-gray-500 dark:text-gray-400">
       Enter the 6-digit code from your authenticator app, or one of your recovery codes.
     </p>
-    <form
-      class="mt-6 space-y-4"
-      @submit.prevent="onSubmit"
-    >
+    <form class="mt-6 space-y-4" @submit.prevent="onSubmit">
       <FormErrors :errors="errors.non_field_errors || []" />
       <FormField
         v-model="code"

@@ -20,10 +20,11 @@ const grouped = computed(() => {
   const q = search.value.toLowerCase();
   const matches = q
     ? TIMEZONE_CHOICES.filter(
-      (tz) => tz.label.toLowerCase().includes(q)
-          || tz.value.toLowerCase().includes(q)
-          || tz.region.toLowerCase().includes(q),
-    )
+        (tz) =>
+          tz.label.toLowerCase().includes(q) ||
+          tz.value.toLowerCase().includes(q) ||
+          tz.region.toLowerCase().includes(q),
+      )
     : TIMEZONE_CHOICES;
 
   return matches.reduce((groups, tz) => {
@@ -52,30 +53,31 @@ function onBlur() {
 
 <template>
   <div class="relative">
-    <input
-      :name="fieldName"
-      type="hidden"
-      :value="selected"
-    >
+    <input :name="fieldName" type="hidden" :value="selected" />
     <input
       type="text"
       :value="isOpen ? search : selectedLabel"
       :placeholder="selectedLabel || 'Search timezones...'"
       class="block w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:border-blue-500 focus:ring-blue-500 dark:bg-gray-800 dark:border-gray-600 dark:text-white sm:text-sm"
       autocomplete="off"
-      @focus="isOpen = true; search = ''"
+      @focus="
+        isOpen = true;
+        search = '';
+      "
       @blur="onBlur"
-      @input="search = $event.target.value; isOpen = true"
-    >
+      @input="
+        search = $event.target.value;
+        isOpen = true;
+      "
+    />
     <ul
       v-if="isOpen && hasResults"
       class="absolute z-10 mt-1 max-h-60 w-full overflow-auto rounded-md bg-white py-1 shadow-lg ring-1 ring-black/5 dark:bg-gray-800 dark:ring-gray-600"
     >
-      <template
-        v-for="(tzList, region) in grouped"
-        :key="region"
-      >
-        <li class="sticky top-0 bg-gray-100 px-3 py-1 text-xs font-semibold uppercase tracking-wider text-gray-500 dark:bg-gray-700 dark:text-gray-400">
+      <template v-for="(tzList, region) in grouped" :key="region">
+        <li
+          class="sticky top-0 bg-gray-100 px-3 py-1 text-xs font-semibold uppercase tracking-wider text-gray-500 dark:bg-gray-700 dark:text-gray-400"
+        >
           {{ region }}
         </li>
         <li

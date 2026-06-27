@@ -37,10 +37,7 @@ const pages = computed(() => {
 </script>
 
 <template>
-  <nav
-    v-if="totalPages > 1"
-    class="mt-4 flex items-center justify-center gap-1"
-  >
+  <nav v-if="totalPages > 1" class="mt-4 flex items-center justify-center gap-1">
     <button
       :disabled="currentPage === 1"
       class="cursor-pointer rounded-md border border-gray-300 px-3 py-1.5 text-sm hover:bg-gray-100 disabled:opacity-50 disabled:cursor-not-allowed dark:border-gray-600 dark:hover:bg-gray-700 dark:text-gray-300"
@@ -49,17 +46,8 @@ const pages = computed(() => {
       &laquo;
     </button>
 
-    <!-- eslint-disable vue/no-v-for-template-key -->
-    <template
-      v-for="(p, idx) in pages"
-      :key="idx"
-    >
-      <span
-        v-if="p === '...'"
-        class="px-2 py-1.5 text-sm text-gray-500 dark:text-gray-400"
-      >
-        &hellip;
-      </span>
+    <template v-for="(p, idx) in pages" :key="idx">
+      <span v-if="p === '...'" class="px-2 py-1.5 text-sm text-gray-500 dark:text-gray-400"> &hellip; </span>
       <button
         v-else
         :class="[
@@ -73,7 +61,6 @@ const pages = computed(() => {
         {{ p }}
       </button>
     </template>
-    <!-- eslint-enable vue/no-v-for-template-key -->
 
     <button
       :disabled="currentPage === totalPages"

@@ -33,7 +33,7 @@ Use Just for all development tasks. Common ones:
 - `just create_superuser` - Idempotent `epicenv create-superuser` (edit the recipe in the top-level `justfile` to pipe credentials from a secrets manager)
 
 **Code Quality:**
-- `just format` - Format Python (ruff), JS (eslint), HTML (djlint), justfile
+- `just format` - Format Python (ruff), JS (oxfmt + oxlint), HTML (djlint), justfile
 - `just lint` - Run all linters + ty type check + check for missing migrations
 - `just pre_commit` - format + lint + test
 
@@ -72,7 +72,7 @@ Use Just for all development tasks. Common ones:
 
 - **Python**: Ruff for formatting + linting (replaces Black/isort). Ty for type checking. Django conventions throughout. Bandit (S) ruleset enabled in Ruff.
 - **Ninja**: `[tool.ruff.lint.flake8-bugbear] extend-immutable-calls` includes `ninja.Query/File/Form/Body/Path` so default-arg-with-call patterns don't trip B008.
-- **JavaScript / Vue**: ESLint flat config (`eslint.config.mjs`) with `@eslint/js` recommended + `eslint-plugin-vue` flat/recommended. 120-char line length.
+- **JavaScript / Vue**: Oxlint (`.oxlintrc.json`) for linting + Oxfmt (`.oxfmtrc.json`, Prettier-compatible) for formatting. Both run via `bun run lint-js` / `format-js`. Vue SFC `<script>` blocks are linted; `<template>` blocks are formatted but not linted. 120-char line length.
 - **HTML / Django templates**: djLint for formatting and linting.
 - **CSS**: Tailwind v4 utilities (no separate Sass/Stylelint pipeline anymore — both were dropped during the SPA conversion).
 - **Line Length**: 120 characters for Python and HTML.
@@ -147,4 +147,4 @@ Key variables:
 
 - **Backend**: Django 5, django-allauth[mfa] (with fido2 for WebAuthn), django-ninja, django-hijack, Pillow, Celery, Redis, PostgreSQL 17, gunicorn, WhiteNoise, django-storages + boto3, django-ses, django-alive, django-maintenance-mode.
 - **Frontend**: Vue 3, Vue Router 5, Tailwind v4, Vite 8, bun, @heroicons/vue, vue-advanced-cropper, reka-ui (modal/toast primitives).
-- **Development**: Docker, pytest, pytest-playwright, pyotp, Ruff, Ty, ESLint, djLint, model-bakery.
+- **Development**: Docker, pytest, pytest-playwright, pyotp, Ruff, Ty, Oxlint, Oxfmt, djLint, model-bakery.

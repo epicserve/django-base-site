@@ -33,9 +33,7 @@ const selectedIds = ref(new Set());
 const detailNotification = ref(null);
 
 const hasUnread = computed(() => unreadCount.value > 0);
-const allSelected = computed(() => (
-  items.value.length > 0 && selectedIds.value.size === items.value.length
-));
+const allSelected = computed(() => items.value.length > 0 && selectedIds.value.size === items.value.length);
 const rangeLabel = computed(() => {
   if (totalCount.value === 0) return '0';
   const start = (page.value - 1) * PAGE_SIZE + 1;
@@ -159,12 +157,8 @@ onMounted(load);
   <div class="mx-auto max-w-3xl">
     <header class="mb-6 flex items-center justify-between gap-4">
       <div>
-        <h1 class="text-2xl font-semibold text-gray-900 dark:text-white">
-          Notifications
-        </h1>
-        <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">
-          Your full notification history.
-        </p>
+        <h1 class="text-2xl font-semibold text-gray-900 dark:text-white">Notifications</h1>
+        <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">Your full notification history.</p>
       </div>
       <RouterLink
         :to="{ name: 'account-notifications' }"
@@ -176,14 +170,18 @@ onMounted(load);
 
     <div class="overflow-hidden rounded-lg border border-gray-200 dark:border-gray-700">
       <!-- Tabs / actions -->
-      <div class="flex flex-wrap items-center justify-between gap-2 border-b border-gray-200 bg-gray-50 px-3 py-2 dark:border-gray-700 dark:bg-gray-800">
+      <div
+        class="flex flex-wrap items-center justify-between gap-2 border-b border-gray-200 bg-gray-50 px-3 py-2 dark:border-gray-700 dark:bg-gray-800"
+      >
         <div class="flex items-center gap-1">
           <button
             type="button"
             class="cursor-pointer rounded px-2 py-1 text-sm font-medium"
-            :class="filterTab === 'all'
-              ? 'bg-white text-gray-900 shadow-sm dark:bg-gray-700 dark:text-white'
-              : 'text-gray-500 hover:text-gray-900 dark:text-gray-400 dark:hover:text-gray-200'"
+            :class="
+              filterTab === 'all'
+                ? 'bg-white text-gray-900 shadow-sm dark:bg-gray-700 dark:text-white'
+                : 'text-gray-500 hover:text-gray-900 dark:text-gray-400 dark:hover:text-gray-200'
+            "
             @click="switchTab('all')"
           >
             All
@@ -191,16 +189,15 @@ onMounted(load);
           <button
             type="button"
             class="cursor-pointer rounded px-2 py-1 text-sm font-medium"
-            :class="filterTab === 'unread'
-              ? 'bg-white text-gray-900 shadow-sm dark:bg-gray-700 dark:text-white'
-              : 'text-gray-500 hover:text-gray-900 dark:text-gray-400 dark:hover:text-gray-200'"
+            :class="
+              filterTab === 'unread'
+                ? 'bg-white text-gray-900 shadow-sm dark:bg-gray-700 dark:text-white'
+                : 'text-gray-500 hover:text-gray-900 dark:text-gray-400 dark:hover:text-gray-200'
+            "
             @click="switchTab('unread')"
           >
             Unread
-            <span
-              v-if="hasUnread"
-              class="ml-1 rounded-full bg-blue-500 px-1.5 text-[10px] font-semibold text-white"
-            >
+            <span v-if="hasUnread" class="ml-1 rounded-full bg-blue-500 px-1.5 text-[10px] font-semibold text-white">
               {{ unreadCount }}
             </span>
           </button>
@@ -275,28 +272,15 @@ onMounted(load);
       </div>
 
       <!-- List -->
-      <div
-        v-if="loading && items.length === 0"
-        class="px-4 py-12 text-center text-sm text-gray-500 dark:text-gray-400"
-      >
+      <div v-if="loading && items.length === 0" class="px-4 py-12 text-center text-sm text-gray-500 dark:text-gray-400">
         Loading&hellip;
       </div>
-      <div
-        v-else-if="items.length === 0"
-        class="px-4 py-12 text-center text-sm text-gray-500 dark:text-gray-400"
-      >
+      <div v-else-if="items.length === 0" class="px-4 py-12 text-center text-sm text-gray-500 dark:text-gray-400">
         <CheckIcon class="mx-auto mb-2 h-6 w-6 text-gray-400 dark:text-gray-500" />
-        <template v-if="filterTab === 'unread'">
-          You're all caught up.
-        </template>
-        <template v-else>
-          No notifications yet.
-        </template>
+        <template v-if="filterTab === 'unread'"> You're all caught up. </template>
+        <template v-else> No notifications yet. </template>
       </div>
-      <ul
-        v-else
-        class="divide-y divide-gray-100 dark:divide-gray-700"
-      >
+      <ul v-else class="divide-y divide-gray-100 dark:divide-gray-700">
         <li
           v-for="n in items"
           :key="n.id"
@@ -316,13 +300,8 @@ onMounted(load);
               class="mt-1 cursor-pointer rounded border-gray-300 text-blue-600 focus:ring-blue-500"
               :checked="selectedIds.has(n.id)"
               @click.stop="toggleSelect(n.id)"
-            >
-            <UserAvatar
-              v-else-if="n.actor"
-              :src="n.actor.avatar_url || ''"
-              :name="userFullName(n.actor)"
-              size="md"
             />
+            <UserAvatar v-else-if="n.actor" :src="n.actor.avatar_url || ''" :name="userFullName(n.actor)" size="md" />
             <span
               v-else
               class="inline-flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-blue-100 text-blue-600 dark:bg-blue-900/40 dark:text-blue-300"
@@ -334,22 +313,15 @@ onMounted(load);
               <div class="flex items-start justify-between gap-2">
                 <p
                   class="text-sm"
-                  :class="n.is_read
-                    ? 'text-gray-700 dark:text-gray-300'
-                    : 'font-semibold text-gray-900 dark:text-white'"
+                  :class="
+                    n.is_read ? 'text-gray-700 dark:text-gray-300' : 'font-semibold text-gray-900 dark:text-white'
+                  "
                 >
                   {{ n.title }}
                 </p>
-                <span
-                  v-if="!n.is_read"
-                  class="mt-1.5 h-2 w-2 shrink-0 rounded-full bg-blue-500"
-                  aria-hidden="true"
-                />
+                <span v-if="!n.is_read" class="mt-1.5 h-2 w-2 shrink-0 rounded-full bg-blue-500" aria-hidden="true" />
               </div>
-              <p
-                v-if="n.body"
-                class="mt-0.5 line-clamp-2 text-xs text-gray-500 dark:text-gray-400"
-              >
+              <p v-if="n.body" class="mt-0.5 line-clamp-2 text-xs text-gray-500 dark:text-gray-400">
                 {{ n.body }}
               </p>
               <p class="mt-1 text-[11px] text-gray-400 dark:text-gray-500">
@@ -405,14 +377,8 @@ onMounted(load);
       size="lg"
       @close="detailNotification = null"
     >
-      <div
-        v-if="detailNotification"
-        class="space-y-4"
-      >
-        <div
-          v-if="detailNotification.actor"
-          class="flex items-center gap-3"
-        >
+      <div v-if="detailNotification" class="space-y-4">
+        <div v-if="detailNotification.actor" class="flex items-center gap-3">
           <UserAvatar
             :src="detailNotification.actor.avatar_url || ''"
             :name="userFullName(detailNotification.actor)"
@@ -428,25 +394,14 @@ onMounted(load);
             </p>
           </div>
         </div>
-        <p
-          v-else
-          class="text-xs text-gray-500 dark:text-gray-400"
-        >
+        <p v-else class="text-xs text-gray-500 dark:text-gray-400">
           {{ relativeTime(detailNotification.created) }}
           · {{ new Date(detailNotification.created).toLocaleString() }}
         </p>
-        <div
-          v-if="detailNotification.body"
-          class="whitespace-pre-line text-sm text-gray-700 dark:text-gray-200"
-        >
+        <div v-if="detailNotification.body" class="whitespace-pre-line text-sm text-gray-700 dark:text-gray-200">
           {{ detailNotification.body }}
         </div>
-        <p
-          v-else
-          class="text-sm italic text-gray-500 dark:text-gray-400"
-        >
-          No additional details.
-        </p>
+        <p v-else class="text-sm italic text-gray-500 dark:text-gray-400">No additional details.</p>
       </div>
     </AppModal>
   </div>

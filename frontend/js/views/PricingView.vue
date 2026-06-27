@@ -84,10 +84,7 @@ const hasSubscription = computed(() => !!billing.subscription.value?.status);
     </header>
 
     <div class="mt-8 flex justify-center">
-      <BillingCycleToggle
-        v-model="cycle"
-        :annual-savings-label="annualSavings"
-      />
+      <BillingCycleToggle v-model="cycle" :annual-savings-label="annualSavings" />
     </div>
 
     <div
@@ -104,42 +101,55 @@ const hasSubscription = computed(() => !!billing.subscription.value?.status);
       v-else-if="!(billing.plans.value || []).length"
       class="mt-12 rounded-2xl border border-dashed border-gray-300 p-12 text-center text-gray-500 dark:border-gray-700 dark:text-gray-400"
     >
-      <p class="text-lg font-medium">
-        No plans configured yet.
-      </p>
-      <div
-        v-if="appStore.user?.is_staff"
-        class="mt-3 text-sm"
-      >
+      <p class="text-lg font-medium">No plans configured yet.</p>
+      <div v-if="appStore.user?.is_staff" class="mt-3 text-sm">
         <p>To test the bundled example plans:</p>
         <ol class="mx-auto mt-2 max-w-xl list-decimal space-y-1 pl-6 text-left">
           <li>
-            Run <code class="rounded bg-indigo-50 px-1.5 py-0.5 font-mono text-xs text-indigo-700 dark:bg-indigo-900/30 dark:text-indigo-300">docker compose exec web python manage.py seed_example_billing</code>
+            Run
+            <code
+              class="rounded bg-indigo-50 px-1.5 py-0.5 font-mono text-xs text-indigo-700 dark:bg-indigo-900/30 dark:text-indigo-300"
+              >docker compose exec web python manage.py seed_example_billing</code
+            >
             to create Pro + Business in your Stripe test account.
           </li>
           <li>
-            Paste the four <code class="rounded bg-indigo-50 px-1.5 py-0.5 font-mono text-xs text-indigo-700 dark:bg-indigo-900/30 dark:text-indigo-300">STRIPE_PRICE_*</code> lines it prints into your <code class="rounded bg-indigo-50 px-1.5 py-0.5 font-mono text-xs text-indigo-700 dark:bg-indigo-900/30 dark:text-indigo-300">.env</code>.
+            Paste the four
+            <code
+              class="rounded bg-indigo-50 px-1.5 py-0.5 font-mono text-xs text-indigo-700 dark:bg-indigo-900/30 dark:text-indigo-300"
+              >STRIPE_PRICE_*</code
+            >
+            lines it prints into your
+            <code
+              class="rounded bg-indigo-50 px-1.5 py-0.5 font-mono text-xs text-indigo-700 dark:bg-indigo-900/30 dark:text-indigo-300"
+              >.env</code
+            >.
           </li>
           <li>
-            Set <code class="rounded bg-indigo-50 px-1.5 py-0.5 font-mono text-xs text-indigo-700 dark:bg-indigo-900/30 dark:text-indigo-300">BILLING_USE_EXAMPLE_PLANS=true</code> and restart.
+            Set
+            <code
+              class="rounded bg-indigo-50 px-1.5 py-0.5 font-mono text-xs text-indigo-700 dark:bg-indigo-900/30 dark:text-indigo-300"
+              >BILLING_USE_EXAMPLE_PLANS=true</code
+            >
+            and restart.
           </li>
         </ol>
         <p class="mt-3 text-xs">
-          Or add your own entries to <code class="rounded bg-indigo-50 px-1.5 py-0.5 font-mono text-xs text-indigo-700 dark:bg-indigo-900/30 dark:text-indigo-300">BILLING_PLANS</code> in
-          <code class="rounded bg-indigo-50 px-1.5 py-0.5 font-mono text-xs text-indigo-700 dark:bg-indigo-900/30 dark:text-indigo-300">config/settings/_base.py</code>.
+          Or add your own entries to
+          <code
+            class="rounded bg-indigo-50 px-1.5 py-0.5 font-mono text-xs text-indigo-700 dark:bg-indigo-900/30 dark:text-indigo-300"
+            >BILLING_PLANS</code
+          >
+          in
+          <code
+            class="rounded bg-indigo-50 px-1.5 py-0.5 font-mono text-xs text-indigo-700 dark:bg-indigo-900/30 dark:text-indigo-300"
+            >config/settings/_base.py</code
+          >.
         </p>
       </div>
-      <p
-        v-else
-        class="mt-1 text-sm"
-      >
-        Pricing coming soon.
-      </p>
+      <p v-else class="mt-1 text-sm">Pricing coming soon.</p>
     </div>
-    <div
-      v-else
-      class="mt-12 grid gap-6 sm:grid-cols-2 lg:grid-cols-3"
-    >
+    <div v-else class="mt-12 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
       <PlanCard
         v-for="plan in billing.plans.value"
         :key="plan.key"

@@ -1,0 +1,5 @@
+{
+  "printWidth": 120,
+  "singleQuote": true,
+  "ignorePatterns": ["public/static/", "collected_static/", "htmlcov/", "frontend/config/"]
+}
