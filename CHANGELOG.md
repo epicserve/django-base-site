@@ -3,6 +3,10 @@
 
 ## 2026-06-27
 
+### Added
+
+* Git hooks that run the code quality checks automatically. A `pre-commit` hook runs `just format` and a `pre-push` hook runs `just lint`. Hooks live in the version-controlled `.githooks/` directory and are enabled with `git config core.hooksPath` (rather than copying into `.git/hooks/`), so they're reviewable and travel with the repo. New `just install_hooks` recipe installs them; `just init` now installs them automatically. Since `just format` reformats the whole working tree, the `pre-commit` hook re-stages the files you'd already staged so the fixes are committed — but it aborts if a file is only partially staged (`git add -p`), to avoid sneaking unstaged hunks into the commit. Bypass any hook with `--no-verify`.
+
 ### Changed
 
 * ESLint -> [Oxlint](https://oxc.rs/docs/guide/usage/linter) + [Oxfmt](https://oxc.rs/docs/guide/usage/formatter) for JavaScript/Vue linting and formatting. Rust-based, ESLint / Prettier-compatible config formats. Removes `@eslint/js`, `eslint`, `eslint-plugin-vue`, and `globals` in favor of `oxlint` (1.71.0) and `oxfmt` (0.56.0, exact-pinned since Oxfmt is still in beta). Configs live at `.oxlintrc.json` and `.oxfmtrc.json`; `eslint.config.mjs` deleted. The `.oxlintrc.json` `plugins` list explicitly includes `eslint` (setting `plugins` overwrites the default set, so the `eslint`-core rules — `no-console`, `no-debugger`, `no-param-reassign` — must be re-listed to stay active). `.oxfmtrc.json` uses `singleQuote: true` uniformly, so CSS (both `app.css` and `.vue` `<style>` blocks) matches the codebase's single-quote convention.

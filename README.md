@@ -210,7 +210,8 @@ Two ways to provide credentials:
 The Django Base Site comes with Just recipes for all the most common commands and tasks. To see the full list run `just` in the root of the project. Common ones:
 
 ```
-init                         # First-time setup: services up + create_superuser + attach (use just start subsequently)
+init                         # First-time setup: install hooks + services up + create_superuser + attach (use just start subsequently)
+install_hooks                # Install Git hooks (pre-commit -> just format, pre-push -> just lint)
 start                        # docker compose up
 start_with_debugpy           # Start with debugpy listening on :5678
 stop                         # Stop all services
@@ -230,6 +231,21 @@ upgrade_node_packages        # bun update
 create_env                   # Generate .env from the schema in .env.toml
 create_superuser             # Idempotent epicenv create-superuser (override to pipe from a secrets manager)
 ```
+
+### Git hooks
+
+Two Git hooks live in the version-controlled `.githooks/` directory and are enabled via `git config core.hooksPath` (no copying into `.git/hooks/`, so they're reviewable and update with the repo):
+
+* **pre-commit** runs `just format`. Because `just format` reformats the whole working tree, the hook then re-stages just the files you'd already staged so the fixes land in your commit. If a file is only *partially* staged (e.g. via `git add -p`), the hook aborts instead — it won't sneak the unstaged hunks into your commit.
+* **pre-push** runs `just lint` (Ruff, Oxlint/Oxfmt, djLint, `ty`, and the missing-migration check).
+
+`just init` installs the hooks automatically on first setup. To install (or re-install — e.g. after re-`git init`-ing a project bootstrapped from this template) run:
+
+```
+just install_hooks
+```
+
+The hooks invoke the same Docker-based tooling as the `just` recipes, so the `web` and `frontend` services should be running (or override `PYTHON_CMD_PREFIX` / `BUN_CMD_PREFIX` to run the tools outside Docker). Bypass a hook for a single command with `git commit --no-verify` / `git push --no-verify`.
 
 ## Deploying to Production
 

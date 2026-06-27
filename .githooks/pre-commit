@@ -1,0 +1,39 @@
+#!/usr/bin/env bash
+# Installed by `just install_hooks` (also run by `just init`).
+# Formats the working tree, then re-stages the files you'd already staged so the
+# fixes land in this commit. Aborts if a file is partially staged (git add -p),
+# to avoid sneaking unstaged hunks into the commit. Bypass with: git commit --no-verify
+set -euo pipefail
+
+cd "$(git rev-parse --show-toplevel)"
+
+# Nothing staged? Let git handle the (empty) commit; skip formatting.
+if git diff --cached --quiet; then
+    exit 0
+fi
+
+# Files with staged changes (excludes deletions).
+staged=$(git diff --cached --name-only --diff-filter=ACMR)
+
+# Files that are BOTH staged and have unstaged changes = partially staged.
+# Re-staging those after formatting would also stage hunks you left out, so refuse.
+partial=$(comm -12 \
+    <(git diff --cached --name-only --diff-filter=ACMR | sort -u) \
+    <(git diff --name-only | sort -u))
+
+if [ -n "$partial" ]; then
+    echo "pre-commit: these files are partially staged, so 'just format' is skipped:"
+    echo "$partial" | sed 's/^/  /'
+    echo "Stage them fully (git add), unstage the rest, or run 'just format' yourself."
+    echo "Bypass once with: git commit --no-verify"
+    exit 1
+fi
+
+just format
+
+# Re-stage the previously-staged files so formatting fixes are committed.
+if [ -n "$staged" ]; then
+    while IFS= read -r f; do
+        if [ -e "$f" ]; then git add -- "$f"; fi
+    done <<< "$staged"
+fi

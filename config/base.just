@@ -87,10 +87,17 @@ reset := `tput -Txterm sgr0`
 # First-time setup: bring services up, create the superuser, then attach.
 # Run this on first install; use `just start` for every subsequent boot.
 @init:
+    just install_hooks
     just _start_msg "Initial setup: bringing services up"
     docker compose up --wait -d
     just create_superuser
     just start
+
+# Install Git hooks (pre-commit -> just format, pre-push -> just lint)
+@install_hooks:
+    just _start_msg "Installing Git hooks"
+    git config core.hooksPath .githooks
+    chmod +x .githooks/pre-commit .githooks/pre-push
 
 # Dump the database
 @db_dump:
