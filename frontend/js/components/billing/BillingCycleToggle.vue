@@ -15,9 +15,11 @@ function setCycle(value) {
     <button
       type="button"
       class="cursor-pointer rounded-full px-4 py-1.5 text-sm transition"
-      :class="modelValue === 'monthly'
-        ? 'bg-white shadow text-gray-900 dark:bg-gray-700 dark:text-white'
-        : 'text-gray-500 dark:text-gray-400'"
+      :class="
+        modelValue === 'monthly'
+          ? 'bg-white shadow text-gray-900 dark:bg-gray-700 dark:text-white'
+          : 'text-gray-500 dark:text-gray-400'
+      "
       :aria-pressed="modelValue === 'monthly'"
       @click="setCycle('monthly')"
     >
@@ -26,17 +28,16 @@ function setCycle(value) {
     <button
       type="button"
       class="cursor-pointer rounded-full px-4 py-1.5 text-sm transition"
-      :class="modelValue === 'annual'
-        ? 'bg-white shadow text-gray-900 dark:bg-gray-700 dark:text-white'
-        : 'text-gray-500 dark:text-gray-400'"
+      :class="
+        modelValue === 'annual'
+          ? 'bg-white shadow text-gray-900 dark:bg-gray-700 dark:text-white'
+          : 'text-gray-500 dark:text-gray-400'
+      "
       :aria-pressed="modelValue === 'annual'"
       @click="setCycle('annual')"
     >
       Annual
-      <span
-        v-if="annualSavingsLabel"
-        class="ml-1 text-xs text-green-600 dark:text-green-400"
-      >
+      <span v-if="annualSavingsLabel" class="ml-1 text-xs text-green-600 dark:text-green-400">
         {{ annualSavingsLabel }}
       </span>
     </button>

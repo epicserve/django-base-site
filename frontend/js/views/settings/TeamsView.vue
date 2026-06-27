@@ -9,15 +9,12 @@ const appStore = inject('appStore');
 
 <template>
   <FeatureGate feature="teams">
-    <ManageTeamsApp
-      team-list-url="/api/teams/"
-      organization-member-list-url="/api/organization-members/"
-    />
+    <ManageTeamsApp team-list-url="/api/teams/" organization-member-list-url="/api/organization-members/" />
     <template #fallback>
-      <div class="rounded-lg border border-dashed border-gray-300 bg-white p-8 text-center dark:border-gray-700 dark:bg-gray-800">
-        <h2 class="text-lg font-semibold text-gray-900 dark:text-white">
-          Teams aren't included on your current plan
-        </h2>
+      <div
+        class="rounded-lg border border-dashed border-gray-300 bg-white p-8 text-center dark:border-gray-700 dark:bg-gray-800"
+      >
+        <h2 class="text-lg font-semibold text-gray-900 dark:text-white">Teams aren't included on your current plan</h2>
         <p class="mt-2 text-sm text-gray-500 dark:text-gray-400">
           Upgrade to unlock teams and team-based access controls.
         </p>
@@ -28,12 +25,7 @@ const appStore = inject('appStore');
         >
           Upgrade plan
         </RouterLink>
-        <p
-          v-else
-          class="mt-4 text-sm text-gray-500 dark:text-gray-400"
-        >
-          Contact your org owner to upgrade.
-        </p>
+        <p v-else class="mt-4 text-sm text-gray-500 dark:text-gray-400">Contact your org owner to upgrade.</p>
       </div>
     </template>
   </FeatureGate>

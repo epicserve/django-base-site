@@ -25,7 +25,7 @@ function clear() {
       :placeholder="placeholder"
       class="rounded-md border border-gray-300 py-1.5 pl-2.5 pr-8 text-sm shadow-sm focus:border-blue-500 focus:ring-blue-500 dark:bg-gray-800 dark:border-gray-600 dark:text-white"
       @input="onInput"
-    >
+    />
     <button
       v-if="modelValue"
       type="button"

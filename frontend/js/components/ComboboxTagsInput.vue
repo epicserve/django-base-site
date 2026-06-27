@@ -38,9 +38,9 @@ const mergedOptions = computed(() => [...props.options, ...localOptions.value]);
 
 const selectedValues = computed({
   get() {
-    return props.modelValue.map(
-      (v) => mergedOptions.value.find((o) => String(o.value) === String(v))?.label,
-    ).filter(Boolean);
+    return props.modelValue
+      .map((v) => mergedOptions.value.find((o) => String(o.value) === String(v))?.label)
+      .filter(Boolean);
   },
   set(val) {
     if (val.includes(CREATE_SENTINEL)) {
@@ -48,9 +48,9 @@ const selectedValues = computed({
       if (name) createItem(name);
       return;
     }
-    const ids = val.map(
-      (label) => String(mergedOptions.value.find((o) => o.label === label)?.value),
-    ).filter((v) => v !== 'undefined');
+    const ids = val
+      .map((label) => String(mergedOptions.value.find((o) => o.label === label)?.value))
+      .filter((v) => v !== 'undefined');
     emit('update:modelValue', ids);
   },
 });
@@ -82,9 +82,10 @@ async function createItem(name) {
     query.value = '';
     showToast(`${props.createLabel} created.`);
   } catch (err) {
-    const msg = err?.data?.name?.[0]
-      || err?.data?.non_field_errors?.[0]
-      || `Failed to create ${props.createLabel.toLowerCase()}.`;
+    const msg =
+      err?.data?.name?.[0] ||
+      err?.data?.non_field_errors?.[0] ||
+      `Failed to create ${props.createLabel.toLowerCase()}.`;
     showToast(msg, 'error');
   }
 }
@@ -95,18 +96,18 @@ function tagClassFor(label) {
   return opt ? props.tagClass(opt.value) : props.tagClass('');
 }
 
-watch(selectedValues, () => {
-  query.value = '';
-}, { deep: true });
+watch(
+  selectedValues,
+  () => {
+    query.value = '';
+  },
+  { deep: true },
+);
 </script>
 
 <template>
   <div class="relative min-w-[200px]">
-    <ComboboxRoot
-      v-model="selectedValues"
-      multiple
-      ignore-filter
-    >
+    <ComboboxRoot v-model="selectedValues" multiple ignore-filter>
       <ComboboxAnchor as-child>
         <TagsInputRoot
           v-model="selectedValues"
@@ -121,22 +122,18 @@ watch(selectedValues, () => {
             :class="tagClassFor(item)"
           >
             <TagsInputItemText />
-            <TagsInputItemDelete class="cursor-pointer text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-200">
-              <svg
-                class="h-3 w-3"
-                viewBox="0 0 20 20"
-                fill="currentColor"
-              >
-                <!-- eslint-disable-next-line max-len -->
-                <path d="M6.28 5.22a.75.75 0 00-1.06 1.06L8.94 10l-3.72 3.72a.75.75 0 101.06 1.06L10 11.06l3.72 3.72a.75.75 0 101.06-1.06L11.06 10l3.72-3.72a.75.75 0 00-1.06-1.06L10 8.94 6.28 5.22z" />
+            <TagsInputItemDelete
+              class="cursor-pointer text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-200"
+            >
+              <svg class="h-3 w-3" viewBox="0 0 20 20" fill="currentColor">
+                <path
+                  d="M6.28 5.22a.75.75 0 00-1.06 1.06L8.94 10l-3.72 3.72a.75.75 0 101.06 1.06L10 11.06l3.72 3.72a.75.75 0 101.06-1.06L11.06 10l3.72-3.72a.75.75 0 00-1.06-1.06L10 8.94 6.28 5.22z"
+                />
               </svg>
             </TagsInputItemDelete>
           </TagsInputItem>
 
-          <ComboboxInput
-            v-model="query"
-            as-child
-          >
+          <ComboboxInput v-model="query" as-child>
             <TagsInputInput
               :placeholder="placeholder"
               class="min-w-[80px] flex-1 bg-transparent text-sm outline-none placeholder:text-gray-400 dark:text-white dark:placeholder:text-gray-500"
@@ -152,10 +149,7 @@ watch(selectedValues, () => {
           position="popper"
           :side-offset="4"
         >
-          <ComboboxEmpty
-            v-if="!creatableOption"
-            class="px-3 py-2 text-sm text-gray-500 dark:text-gray-400"
-          >
+          <ComboboxEmpty v-if="!creatableOption" class="px-3 py-2 text-sm text-gray-500 dark:text-gray-400">
             No results found
           </ComboboxEmpty>
           <ComboboxItem
@@ -166,18 +160,12 @@ watch(selectedValues, () => {
           >
             {{ option.label }}
             <ComboboxItemIndicator>
-              <svg
-                class="h-4 w-4"
-                viewBox="0 0 20 20"
-                fill="currentColor"
-              >
-                <!-- eslint-disable max-len -->
+              <svg class="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
                 <path
                   fill-rule="evenodd"
                   d="M16.704 4.153a.75.75 0 01.143 1.052l-8 10.5a.75.75 0 01-1.127.075l-4.5-4.5a.75.75 0 011.06-1.06l3.894 3.893 7.48-9.817a.75.75 0 011.05-.143z"
                   clip-rule="evenodd"
                 />
-                <!-- eslint-enable max-len -->
               </svg>
             </ComboboxItemIndicator>
           </ComboboxItem>
@@ -186,13 +174,10 @@ watch(selectedValues, () => {
             :value="creatableOption.value"
             class="flex cursor-pointer items-center px-3 py-1.5 text-sm text-blue-600 hover:bg-blue-600 hover:text-white data-[highlighted]:bg-blue-600 data-[highlighted]:text-white dark:text-blue-400 dark:hover:text-white"
           >
-            <svg
-              class="mr-1.5 h-4 w-4"
-              viewBox="0 0 20 20"
-              fill="currentColor"
-            >
-              <!-- eslint-disable-next-line max-len -->
-              <path d="M10 5a.75.75 0 01.75.75v3.5h3.5a.75.75 0 010 1.5h-3.5v3.5a.75.75 0 01-1.5 0v-3.5h-3.5a.75.75 0 010-1.5h3.5v-3.5A.75.75 0 0110 5z" />
+            <svg class="mr-1.5 h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
+              <path
+                d="M10 5a.75.75 0 01.75.75v3.5h3.5a.75.75 0 010 1.5h-3.5v3.5a.75.75 0 01-1.5 0v-3.5h-3.5a.75.75 0 010-1.5h3.5v-3.5A.75.75 0 0110 5z"
+              />
             </svg>
             Create &ldquo;{{ creatableOption.label }}&rdquo;
           </ComboboxItem>

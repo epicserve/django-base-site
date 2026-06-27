@@ -241,11 +241,11 @@ export function createRouter(appStore) {
 
   router.onError((err, to) => {
     const msg = err?.message ?? '',
-     isChunkError =
-      err?.name === 'ChunkLoadError' ||
-      /Loading chunk \S+ failed/i.test(msg) ||
-      /Failed to fetch dynamically imported module/i.test(msg) ||
-      /Importing a module script failed/i.test(msg);
+      isChunkError =
+        err?.name === 'ChunkLoadError' ||
+        /Loading chunk \S+ failed/i.test(msg) ||
+        /Failed to fetch dynamically imported module/i.test(msg) ||
+        /Importing a module script failed/i.test(msg);
     if (isChunkError && to?.fullPath) {
       window.location.assign(to.fullPath);
     }

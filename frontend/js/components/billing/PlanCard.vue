@@ -84,7 +84,7 @@ const ctaState = computed(() => {
     };
   }
   if (props.plan.is_free) {
-    return { label: 'Use free plan', action: null, disabled: true, hint: 'You\'re already on the free plan.' };
+    return { label: 'Use free plan', action: null, disabled: true, hint: "You're already on the free plan." };
   }
   return {
     label: 'Subscribe',
@@ -153,20 +153,14 @@ function showCheck(row) {
           Popular
         </span>
       </div>
-      <p
-        v-if="plan.description"
-        class="text-sm text-gray-500 dark:text-gray-400"
-      >
+      <p v-if="plan.description" class="text-sm text-gray-500 dark:text-gray-400">
         {{ plan.description }}
       </p>
     </header>
 
     <div class="flex items-baseline gap-1">
       <span class="text-3xl font-semibold text-gray-900 dark:text-white">{{ priceLabel }}</span>
-      <span
-        v-if="cycleSuffix"
-        class="text-sm text-gray-500 dark:text-gray-400"
-      >
+      <span v-if="cycleSuffix" class="text-sm text-gray-500 dark:text-gray-400">
         {{ cycleSuffix }}
       </span>
     </div>
@@ -176,19 +170,12 @@ function showCheck(row) {
     >
       Save {{ annualSavingsPct }}% with annual billing
     </p>
-    <p
-      v-if="plan.trial_days > 0 && !hasSubscription"
-      class="text-xs text-gray-500 dark:text-gray-400"
-    >
+    <p v-if="plan.trial_days > 0 && !hasSubscription" class="text-xs text-gray-500 dark:text-gray-400">
       {{ plan.trial_days }}-day free trial
     </p>
 
     <ul class="flex-1 space-y-2 text-sm text-gray-700 dark:text-gray-300">
-      <li
-        v-for="row in featureRows"
-        :key="row.key"
-        class="flex items-start gap-2"
-      >
+      <li v-for="row in featureRows" :key="row.key" class="flex items-start gap-2">
         <CheckIcon
           class="mt-0.5 h-4 w-4 shrink-0"
           :class="showCheck(row) ? 'text-green-600 dark:text-green-400' : 'text-gray-300 dark:text-gray-600'"
@@ -202,9 +189,11 @@ function showCheck(row) {
     <button
       type="button"
       class="rounded-md px-4 py-2 text-sm font-medium transition"
-      :class="ctaState.disabled
-        ? 'cursor-not-allowed bg-gray-100 text-gray-400 dark:bg-gray-700 dark:text-gray-500'
-        : 'cursor-pointer bg-indigo-600 text-white hover:bg-indigo-500'"
+      :class="
+        ctaState.disabled
+          ? 'cursor-not-allowed bg-gray-100 text-gray-400 dark:bg-gray-700 dark:text-gray-500'
+          : 'cursor-pointer bg-indigo-600 text-white hover:bg-indigo-500'
+      "
       :disabled="ctaState.disabled || busy"
       :aria-disabled="ctaState.disabled"
       :title="ctaState.hint || undefined"

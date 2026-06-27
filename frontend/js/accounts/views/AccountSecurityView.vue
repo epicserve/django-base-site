@@ -27,22 +27,12 @@ onMounted(load);
 
 <template>
   <AccountLayout>
-    <div
-      v-if="loading"
-      class="text-sm text-gray-500 dark:text-gray-400"
-    >
-      Loading…
-    </div>
-    <div
-      v-else
-      class="space-y-6"
-    >
+    <div v-if="loading" class="text-sm text-gray-500 dark:text-gray-400">Loading…</div>
+    <div v-else class="space-y-6">
       <section class="rounded-lg border border-gray-200 dark:border-gray-700 p-4">
         <div class="flex items-center justify-between">
           <div>
-            <h2 class="text-sm font-semibold text-gray-900 dark:text-white">
-              Authenticator app (TOTP)
-            </h2>
+            <h2 class="text-sm font-semibold text-gray-900 dark:text-white">Authenticator app (TOTP)</h2>
             <p class="text-sm text-gray-500 dark:text-gray-400 mt-1">
               <span v-if="totp">Enabled. Use your authenticator app to generate codes when signing in.</span>
               <span v-else>Use Google Authenticator, 1Password, Authy, or similar to add a second factor.</span>
@@ -60,9 +50,7 @@ onMounted(load);
       <section class="rounded-lg border border-gray-200 dark:border-gray-700 p-4">
         <div class="flex items-center justify-between">
           <div>
-            <h2 class="text-sm font-semibold text-gray-900 dark:text-white">
-              Recovery codes
-            </h2>
+            <h2 class="text-sm font-semibold text-gray-900 dark:text-white">Recovery codes</h2>
             <p class="text-sm text-gray-500 dark:text-gray-400 mt-1">
               <span v-if="recoveryCodes">
                 {{ recoveryCodes.unused_code_count }} of {{ recoveryCodes.total_code_count }} unused.
@@ -83,9 +71,7 @@ onMounted(load);
       <section class="rounded-lg border border-gray-200 dark:border-gray-700 p-4">
         <div class="flex items-center justify-between mb-3">
           <div>
-            <h2 class="text-sm font-semibold text-gray-900 dark:text-white">
-              Passkeys
-            </h2>
+            <h2 class="text-sm font-semibold text-gray-900 dark:text-white">Passkeys</h2>
             <p class="text-sm text-gray-500 dark:text-gray-400 mt-1">
               Sign in with Touch ID, Windows Hello, your phone, or a hardware security key — no password needed.
             </p>
@@ -97,10 +83,7 @@ onMounted(load);
             {{ passkeys.length ? 'Manage' : 'Add' }}
           </RouterLink>
         </div>
-        <p
-          v-if="passkeys.length"
-          class="text-xs text-gray-500 dark:text-gray-400"
-        >
+        <p v-if="passkeys.length" class="text-xs text-gray-500 dark:text-gray-400">
           {{ passkeys.length }} passkey{{ passkeys.length === 1 ? '' : 's' }} registered.
         </p>
       </section>

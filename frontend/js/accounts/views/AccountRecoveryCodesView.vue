@@ -55,34 +55,20 @@ onMounted(load);
 
 <template>
   <AccountLayout>
-    <h2 class="text-lg font-semibold text-gray-900 dark:text-white mb-2">
-      Recovery codes
-    </h2>
+    <h2 class="text-lg font-semibold text-gray-900 dark:text-white mb-2">Recovery codes</h2>
     <p class="text-sm text-gray-500 dark:text-gray-400 mb-4">
       Each code can be used once if you lose access to your authenticator app. Store them somewhere safe.
     </p>
 
-    <div
-      v-if="loading"
-      class="text-sm text-gray-500 dark:text-gray-400"
-    >
-      Loading…
-    </div>
+    <div v-if="loading" class="text-sm text-gray-500 dark:text-gray-400">Loading…</div>
 
     <div v-else>
       <div class="rounded-lg border border-gray-200 dark:border-gray-700 p-4 grid grid-cols-2 gap-2 font-mono text-sm">
-        <div
-          v-for="c in codes"
-          :key="c"
-          class="text-gray-900 dark:text-white"
-        >
+        <div v-for="c in codes" :key="c" class="text-gray-900 dark:text-white">
           {{ c }}
         </div>
       </div>
-      <p
-        v-if="total"
-        class="mt-2 text-xs text-gray-500 dark:text-gray-400"
-      >
+      <p v-if="total" class="mt-2 text-xs text-gray-500 dark:text-gray-400">
         {{ unused.length }} of {{ total }} unused.
       </p>
 

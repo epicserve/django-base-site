@@ -16,12 +16,7 @@ const avatarUrl = computed(() => props.user?.avatar_url || '');
 
 <template>
   <span class="inline-flex items-center gap-2">
-    <UserAvatar
-      :src="avatarUrl"
-      :name="fullName"
-      :size="size"
-      :fallback="fallback"
-    />
+    <UserAvatar :src="avatarUrl" :name="fullName" :size="size" :fallback="fallback" />
     <span :class="truncate ? 'truncate' : ''">{{ fullName }}</span>
   </span>
 </template>

@@ -12,15 +12,13 @@ const loading = ref(true);
 const submitting = ref(false);
 const invite = ref(null);
 const error = ref('');
-const result = ref('');  // 'accepted' | 'declined' | ''
+const result = ref(''); // 'accepted' | 'declined' | ''
 
 async function loadInvite() {
   try {
     invite.value = await get(`/api/invite-by-key/${route.params.key}/`);
   } catch (e) {
-    error.value = e.response?.status === 404
-      ? 'This invitation link is invalid.'
-      : 'Could not load this invitation.';
+    error.value = e.response?.status === 404 ? 'This invitation link is invalid.' : 'Could not load this invitation.';
   } finally {
     loading.value = false;
   }
@@ -68,32 +66,17 @@ onMounted(loadInvite);
 
 <template>
   <AuthLayout>
-    <div
-      v-if="loading"
-      class="text-center text-sm text-gray-400"
-    >
-      Loading invitation...
-    </div>
+    <div v-if="loading" class="text-center text-sm text-gray-400">Loading invitation...</div>
 
-    <div
-      v-else-if="error"
-      class="text-center"
-    >
-      <h1 class="text-xl font-semibold text-gray-900 dark:text-white">
-        Invitation unavailable
-      </h1>
+    <div v-else-if="error" class="text-center">
+      <h1 class="text-xl font-semibold text-gray-900 dark:text-white">Invitation unavailable</h1>
       <p class="mt-2 text-sm text-gray-500 dark:text-gray-400">
         {{ error }}
       </p>
     </div>
 
-    <div
-      v-else-if="result === 'accepted'"
-      class="text-center"
-    >
-      <h1 class="text-xl font-semibold text-gray-900 dark:text-white">
-        You've joined {{ invite.organization_name }}!
-      </h1>
+    <div v-else-if="result === 'accepted'" class="text-center">
+      <h1 class="text-xl font-semibold text-gray-900 dark:text-white">You've joined {{ invite.organization_name }}!</h1>
       <RouterLink
         class="mt-4 inline-block rounded-md bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700"
         :to="{ name: 'home' }"
@@ -102,37 +85,20 @@ onMounted(loadInvite);
       </RouterLink>
     </div>
 
-    <div
-      v-else-if="result === 'declined'"
-      class="text-center"
-    >
-      <h1 class="text-xl font-semibold text-gray-900 dark:text-white">
-        Invitation declined
-      </h1>
-      <p class="mt-2 text-sm text-gray-500 dark:text-gray-400">
-        You can close this page.
-      </p>
+    <div v-else-if="result === 'declined'" class="text-center">
+      <h1 class="text-xl font-semibold text-gray-900 dark:text-white">Invitation declined</h1>
+      <p class="mt-2 text-sm text-gray-500 dark:text-gray-400">You can close this page.</p>
     </div>
 
-    <div
-      v-else-if="invite.is_expired"
-      class="text-center"
-    >
-      <h1 class="text-xl font-semibold text-gray-900 dark:text-white">
-        Invitation expired
-      </h1>
+    <div v-else-if="invite.is_expired" class="text-center">
+      <h1 class="text-xl font-semibold text-gray-900 dark:text-white">Invitation expired</h1>
       <p class="mt-2 text-sm text-gray-500 dark:text-gray-400">
         Ask {{ invite.sender_name }} to send you a new invitation.
       </p>
     </div>
 
-    <div
-      v-else-if="invite.is_already_member"
-      class="text-center"
-    >
-      <h1 class="text-xl font-semibold text-gray-900 dark:text-white">
-        Already a member
-      </h1>
+    <div v-else-if="invite.is_already_member" class="text-center">
+      <h1 class="text-xl font-semibold text-gray-900 dark:text-white">Already a member</h1>
       <p class="mt-2 text-sm text-gray-500 dark:text-gray-400">
         You're already a member of {{ invite.organization_name }}.
       </p>
@@ -145,18 +111,13 @@ onMounted(loadInvite);
     </div>
 
     <div v-else>
-      <h1 class="text-center text-2xl font-semibold tracking-tight text-gray-900 dark:text-white">
-        You're invited!
-      </h1>
+      <h1 class="text-center text-2xl font-semibold tracking-tight text-gray-900 dark:text-white">You're invited!</h1>
       <p class="mt-2 text-center text-sm text-gray-500 dark:text-gray-400">
-        <strong>{{ invite.sender_name }}</strong> invited you to join
-        <strong>{{ invite.organization_name }}</strong>.
+        <strong>{{ invite.sender_name }}</strong> invited you to join <strong>{{ invite.organization_name }}</strong
+        >.
       </p>
 
-      <div
-        v-if="appStore.isAuthenticated"
-        class="mt-6 space-y-2"
-      >
+      <div v-if="appStore.isAuthenticated" class="mt-6 space-y-2">
         <button
           type="button"
           class="w-full cursor-pointer rounded-md bg-blue-600 px-4 py-2.5 text-sm font-medium text-white hover:bg-blue-700 disabled:opacity-50"
@@ -175,10 +136,7 @@ onMounted(loadInvite);
         </button>
       </div>
 
-      <div
-        v-else
-        class="mt-6 space-y-2"
-      >
+      <div v-else class="mt-6 space-y-2">
         <button
           type="button"
           class="w-full cursor-pointer rounded-md bg-blue-600 px-4 py-2.5 text-sm font-medium text-white hover:bg-blue-700"

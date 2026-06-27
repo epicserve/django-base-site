@@ -34,7 +34,7 @@ function unwrap(options) {
 
 export function decodeCreationOptions(options) {
   const inner = unwrap(options),
-   decoded = { ...inner, challenge: base64UrlToBuffer(inner.challenge) };
+    decoded = { ...inner, challenge: base64UrlToBuffer(inner.challenge) };
 
   if (inner.user) {
     decoded.user = { ...inner.user, id: base64UrlToBuffer(inner.user.id) };
@@ -50,7 +50,7 @@ export function decodeCreationOptions(options) {
 
 export function decodeRequestOptions(options) {
   const inner = unwrap(options),
-   decoded = { ...inner, challenge: base64UrlToBuffer(inner.challenge) };
+    decoded = { ...inner, challenge: base64UrlToBuffer(inner.challenge) };
 
   if (inner.allowCredentials) {
     decoded.allowCredentials = inner.allowCredentials.map((c) => ({
@@ -106,8 +106,10 @@ export async function getPasskeyAssertion(requestOptionsJson) {
 }
 
 export function isWebAuthnSupported() {
-  return typeof window !== 'undefined'
-    && typeof window.PublicKeyCredential !== 'undefined'
-    && typeof navigator.credentials?.create === 'function'
-    && typeof navigator.credentials?.get === 'function';
+  return (
+    typeof window !== 'undefined' &&
+    typeof window.PublicKeyCredential !== 'undefined' &&
+    typeof navigator.credentials?.create === 'function' &&
+    typeof navigator.credentials?.get === 'function'
+  );
 }

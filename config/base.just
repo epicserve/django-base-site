@@ -133,7 +133,7 @@ db_restore dump_file="":
 
 # Format Javascript code
 @format_js:
-    just _start_msg "Formatting Javascript code using eslint"
+    just _start_msg "Formatting Javascript code using oxfmt + oxlint"
     {{ bun_cmd_prefix }} bun run format-js
 
 # Format the justfile
@@ -160,9 +160,9 @@ lint: lint_js lint_html lint_py lint_migrations lint_types
     just _start_msg "Checking HTML using djLint"
     {{ python_cmd_prefix }} djlint . --lint
 
-# Lint Javascript code with eslint
+# Lint Javascript code with oxfmt + oxlint
 @lint_js:
-    just _start_msg "Checking Javascript code using eslint"
+    just _start_msg "Checking Javascript formatting (oxfmt) and code (oxlint)"
     {{ bun_cmd_prefix }} bun run lint-js
 
 # Check for missing Django migrations

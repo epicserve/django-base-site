@@ -11,10 +11,7 @@ const appStore = inject('appStore');
   <nav class="border-b border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900">
     <div class="mx-auto w-full max-w-7xl px-4 sm:px-6 lg:px-8">
       <div class="flex h-14 items-center justify-between">
-        <RouterLink
-          class="text-lg font-semibold text-gray-900 dark:text-white"
-          to="/"
-        >
+        <RouterLink class="text-lg font-semibold text-gray-900 dark:text-white" to="/">
           {{ appStore.siteName }}
         </RouterLink>
         <div class="flex items-center gap-3 text-sm">
@@ -40,11 +37,7 @@ const appStore = inject('appStore');
               Sign up
             </RouterLink>
           </template>
-          <RouterLink
-            v-else
-            class="text-gray-700 hover:text-gray-900 dark:text-gray-300 dark:hover:text-white"
-            to="/"
-          >
+          <RouterLink v-else class="text-gray-700 hover:text-gray-900 dark:text-gray-300 dark:hover:text-white" to="/">
             Dashboard
           </RouterLink>
         </div>

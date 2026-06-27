@@ -51,7 +51,6 @@ async function fetchList({ filter = currentFilter.value } = {}) {
   try {
     const params = { page_size: 30 };
     if (filter === 'unread') params.is_read = 'false';
-    // eslint-disable-next-line one-var
     const data = await get('/api/notifications/', params);
     notifications.value = data.results;
     if (filter === 'unread') {

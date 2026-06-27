@@ -21,8 +21,11 @@ export function pushUrlParams(params) {
       search.set(key, value);
     }
   });
-  window.history.pushState(null, '', search.toString()
-    ? `${window.location.pathname}?${search}` : window.location.pathname);
+  window.history.pushState(
+    null,
+    '',
+    search.toString() ? `${window.location.pathname}?${search}` : window.location.pathname,
+  );
 }
 
 export function usePopState(callback) {

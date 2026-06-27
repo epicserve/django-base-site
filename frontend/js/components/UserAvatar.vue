@@ -22,7 +22,12 @@ const iconSizes = {
 };
 
 const imgFailed = ref(false);
-watch(() => props.src, () => { imgFailed.value = false; });
+watch(
+  () => props.src,
+  () => {
+    imgFailed.value = false;
+  },
+);
 const showImg = computed(() => !!props.src && !imgFailed.value);
 
 const initials = computed(() => {
@@ -52,7 +57,7 @@ const initialsBg = computed(() => {
     class="inline-block shrink-0 aspect-square rounded-full object-cover"
     :class="sizes[size]"
     @error="imgFailed = true"
-  >
+  />
   <span
     v-else-if="fallback === 'icon'"
     class="inline-flex shrink-0 aspect-square items-center justify-center rounded-full bg-gray-200 font-medium text-gray-500 dark:bg-gray-700 dark:text-gray-400"
