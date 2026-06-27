@@ -245,7 +245,7 @@ Two Git hooks live in the version-controlled `.githooks/` directory and are enab
 just install_hooks
 ```
 
-The hooks invoke the same Docker-based tooling as the `just` recipes, so the `web` and `frontend` services should be running (or override `PYTHON_CMD_PREFIX` / `BUN_CMD_PREFIX` to run the tools outside Docker). Bypass a hook for a single command with `git commit --no-verify` / `git push --no-verify`.
+The hooks invoke the same Docker-based tooling as the `just` recipes. When the default Docker command prefix is in use, each hook checks whether the `web` service is running and, if not, starts it (and its dependencies) with `docker compose up --wait -d web`, so a commit/push won't fail just because the stack is down. Set `PYTHON_CMD_PREFIX=""` (and `BUN_CMD_PREFIX`) to run the tools outside Docker, in which case the hooks leave Docker alone. Bypass a hook for a single command with `git commit --no-verify` / `git push --no-verify`.
 
 ## Deploying to Production
 

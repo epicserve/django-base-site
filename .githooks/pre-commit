@@ -29,6 +29,9 @@ if [ -n "$partial" ]; then
     exit 1
 fi
 
+# Make sure the formatter's tooling is reachable (starts web when using Docker).
+just _ensure_web
+
 just format
 
 # Re-stage the previously-staged files so formatting fixes are committed.

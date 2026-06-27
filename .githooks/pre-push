@@ -5,4 +5,7 @@ set -euo pipefail
 
 cd "$(git rev-parse --show-toplevel)"
 
+# Make sure the linter's tooling is reachable (starts web when using Docker).
+just _ensure_web
+
 just lint

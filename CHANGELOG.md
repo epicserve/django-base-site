@@ -5,7 +5,7 @@
 
 ### Added
 
-* Git hooks that run the code quality checks automatically. A `pre-commit` hook runs `just format` and a `pre-push` hook runs `just lint`. Hooks live in the version-controlled `.githooks/` directory and are enabled with `git config core.hooksPath` (rather than copying into `.git/hooks/`), so they're reviewable and travel with the repo. New `just install_hooks` recipe installs them; `just init` now installs them automatically. Since `just format` reformats the whole working tree, the `pre-commit` hook re-stages the files you'd already staged so the fixes are committed — but it aborts if a file is only partially staged (`git add -p`), to avoid sneaking unstaged hunks into the commit. Bypass any hook with `--no-verify`.
+* Git hooks that run the code quality checks automatically. A `pre-commit` hook runs `just format` and a `pre-push` hook runs `just lint`. Hooks live in the version-controlled `.githooks/` directory and are enabled with `git config core.hooksPath` (rather than copying into `.git/hooks/`), so they're reviewable and travel with the repo. New `just install_hooks` recipe installs them; `just init` now installs them automatically. Since `just format` reformats the whole working tree, the `pre-commit` hook re-stages the files you'd already staged so the fixes are committed — but it aborts if a file is only partially staged (`git add -p`), to avoid sneaking unstaged hunks into the commit. When the default Docker command prefix is in use, the hooks start the `web` service (`docker compose up --wait -d web`) if it isn't already running, so a commit/push doesn't fail just because the stack is down. Bypass any hook with `--no-verify`.
 
 ### Changed
 

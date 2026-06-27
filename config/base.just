@@ -21,6 +21,17 @@ reset := `tput -Txterm sgr0`
 @_start_msg msg:
     just _green "{{ msg }} ..."
 
+# Start the web service (and its deps) if it isn't already running, when using the Docker prefix
+_ensure_web:
+    #!/usr/bin/env bash
+    if [[ "{{ python_cmd_prefix }}" != docker* ]]; then
+        exit 0
+    fi
+    if [ -z "$(docker compose ps --status running -q web)" ]; then
+        just _start_msg "Starting the web service"
+        docker compose up --wait -d web
+    fi
+
 # Build Docker images
 @build:
     just _start_msg "Building docker project"
