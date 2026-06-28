@@ -8,6 +8,12 @@ python_cmd_prefix := env_var_or_default('PYTHON_CMD_PREFIX', 'docker compose exe
 python_cmd_prefix_with_deps := env_var_or_default('PYTHON_CMD_PREFIX_WITH_DEPS', 'docker compose exec web')
 bun_cmd_prefix := env_var_or_default('BUN_CMD_PREFIX', 'docker compose run --no-deps --rm -e NODE_ENV=production frontend')
 
+# Native (uvx/bunx) tool versions, read from the lockfiles so they match Docker + CI
+ruff_version := `grep -A1 '^name = "ruff"$' uv.lock | grep -m1 '^version = ' | sed -E 's/version = "([^"]+)"/\1/'`
+djlint_version := `grep -A1 '^name = "djlint"$' uv.lock | grep -m1 '^version = ' | sed -E 's/version = "([^"]+)"/\1/'`
+oxfmt_version := `grep -m1 '"oxfmt":' package.json | sed -E 's/.*"oxfmt": *"([^"]+)".*/\1/'`
+oxlint_version := `grep -m1 '"oxlint":' package.json | sed -E 's/.*"oxlint": *"([^"]+)".*/\1/'`
+
 set dotenv-load := true
 
 # COLORS
@@ -30,6 +36,19 @@ _ensure_web:
     if [ -z "$(docker compose ps --status running -q web)" ]; then
         just _start_msg "Starting the web service"
         docker compose up --wait -d web
+    fi
+
+# Ensure uvx + bunx (the native format/lint runners) are on PATH
+_require_native_tools:
+    #!/usr/bin/env bash
+    set -eu
+    missing=()
+    command -v uvx >/dev/null 2>&1 || missing+=("uv (provides uvx) — https://docs.astral.sh/uv/getting-started/installation/")
+    command -v bunx >/dev/null 2>&1 || missing+=("bun (provides bunx) — https://bun.sh/docs/installation")
+    if [ "${#missing[@]}" -gt 0 ]; then
+        echo "Native format/lint needs these on your PATH:" >&2
+        printf '  - %s\n' "${missing[@]}" >&2
+        exit 1
     fi
 
 # Build Docker images
@@ -141,58 +160,18 @@ db_restore dump_file="":
 # Lint documentation links
 @docs-lint: lint_docs
 
-# Format all code
-@format: format_py format_js format_just format_html
-
-# Format HTML
-@format_html:
-    just _start_msg "Formatting HTML using djLint"
-    {{ python_cmd_prefix }} djlint . --reformat --quiet
-
-# Format Javascript code
-@format_js:
-    just _start_msg "Formatting Javascript code using oxfmt + oxlint"
-    {{ bun_cmd_prefix }} bun run format-js
-
-# Format the justfile
-@format_just:
+# Format all code natively via uvx/bunx (no Docker); versions come from uv.lock / package.json
+@format: _require_native_tools
+    just _start_msg "Formatting Python code using ruff {{ ruff_version }}"
+    uvx "ruff@{{ ruff_version }}" format
+    uvx "ruff@{{ ruff_version }}" check --fix
+    just _start_msg "Formatting HTML using djLint {{ djlint_version }}"
+    uvx "djlint@{{ djlint_version }}" . --reformat --quiet
+    just _start_msg "Formatting Javascript using oxfmt {{ oxfmt_version }} + oxlint {{ oxlint_version }}"
+    bunx "oxfmt@{{ oxfmt_version }}" ./frontend/
+    bunx "oxlint@{{ oxlint_version }}" --fix ./frontend/
     just _start_msg "Formatting the justfile"
     just --fmt --unstable
-
-# Format all code natively via uvx/bunx (no Docker); used by the pre-commit hook.
-# Tool versions are read from uv.lock / package.json so they match Docker + CI exactly.
-format_native:
-    #!/usr/bin/env bash
-    set -eu
-    missing=()
-    command -v uvx >/dev/null 2>&1 || missing+=("uv (provides uvx) — https://docs.astral.sh/uv/getting-started/installation/")
-    command -v bunx >/dev/null 2>&1 || missing+=("bun (provides bunx) — https://bun.sh/docs/installation")
-    if [ "${#missing[@]}" -gt 0 ]; then
-        echo "just format_native needs these on your PATH:" >&2
-        printf '  - %s\n' "${missing[@]}" >&2
-        echo "Install them, or run 'just format' to format via Docker instead." >&2
-        exit 1
-    fi
-    ruff_ver=$(grep -A1 '^name = "ruff"$' uv.lock | grep -m1 '^version = ' | sed -E 's/version = "([^"]+)"/\1/')
-    djlint_ver=$(grep -A1 '^name = "djlint"$' uv.lock | grep -m1 '^version = ' | sed -E 's/version = "([^"]+)"/\1/')
-    oxfmt_ver=$(grep -m1 '"oxfmt":' package.json | sed -E 's/.*"oxfmt": *"([^"]+)".*/\1/')
-    oxlint_ver=$(grep -m1 '"oxlint":' package.json | sed -E 's/.*"oxlint": *"([^"]+)".*/\1/')
-    just _start_msg "Formatting Python code using ruff ${ruff_ver}"
-    uvx "ruff@${ruff_ver}" format
-    uvx "ruff@${ruff_ver}" check --fix
-    just _start_msg "Formatting HTML using djLint ${djlint_ver}"
-    uvx "djlint@${djlint_ver}" . --reformat --quiet
-    just _start_msg "Formatting Javascript code using oxfmt ${oxfmt_ver} + oxlint ${oxlint_ver}"
-    bunx "oxfmt@${oxfmt_ver}" ./frontend/
-    bunx "oxlint@${oxlint_ver}" --fix ./frontend/
-    just _start_msg "Formatting the justfile"
-    just --fmt --unstable
-
-# Format Python code
-@format_py:
-    just _start_msg "Formatting Python code using ruff"
-    {{ python_cmd_prefix }} ruff format
-    {{ python_cmd_prefix }} ruff check --fix
 
 # Lint everything
 lint: lint_js lint_html lint_py lint_migrations lint_types
@@ -203,25 +182,26 @@ lint: lint_js lint_html lint_py lint_migrations lint_types
     {{ python_cmd_prefix }} mkdocs-linkcheck ./docs
 
 # Lint HTML
-@lint_html:
-    just _start_msg "Checking HTML using djLint"
-    {{ python_cmd_prefix }} djlint . --lint
+@lint_html: _require_native_tools
+    just _start_msg "Checking HTML using djLint {{ djlint_version }}"
+    uvx "djlint@{{ djlint_version }}" . --lint
 
 # Lint Javascript code with oxfmt + oxlint
-@lint_js:
-    just _start_msg "Checking Javascript formatting (oxfmt) and code (oxlint)"
-    {{ bun_cmd_prefix }} bun run lint-js
+@lint_js: _require_native_tools
+    just _start_msg "Checking Javascript using oxfmt {{ oxfmt_version }} + oxlint {{ oxlint_version }}"
+    bunx "oxfmt@{{ oxfmt_version }}" --check ./frontend/
+    bunx "oxlint@{{ oxlint_version }}" ./frontend/
 
-# Check for missing Django migrations
+# Check for missing Django migrations (needs the project deps, so runs via Docker locally)
 @lint_migrations:
     just _start_msg "Check for missing Django migrations"
     {{ python_cmd_prefix_with_deps }} ./manage.py makemigrations --check --dry-run
 
 # Lint Python code ruff
-@lint_py:
-    just _start_msg "Checking code using Ruff"
-    {{ python_cmd_prefix }} ruff check
-    {{ python_cmd_prefix }} ruff format --check
+@lint_py: _require_native_tools
+    just _start_msg "Checking code using ruff {{ ruff_version }}"
+    uvx "ruff@{{ ruff_version }}" check
+    uvx "ruff@{{ ruff_version }}" format --check
 
 # Lint Python types
 @lint_types:

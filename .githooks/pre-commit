@@ -30,7 +30,7 @@ if [ -n "$partial" ]; then
 fi
 
 # Format natively via uvx/bunx (no Docker); versions come from uv.lock/package.json.
-just format_native
+just format
 
 # Re-stage the previously-staged files so formatting fixes are committed.
 if [ -n "$staged" ]; then
