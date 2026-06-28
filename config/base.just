@@ -159,6 +159,35 @@ db_restore dump_file="":
     just _start_msg "Formatting the justfile"
     just --fmt --unstable
 
+# Format all code natively via uvx/bunx (no Docker); used by the pre-commit hook.
+# Tool versions are read from uv.lock / package.json so they match Docker + CI exactly.
+format_native:
+    #!/usr/bin/env bash
+    set -eu
+    missing=()
+    command -v uvx >/dev/null 2>&1 || missing+=("uv (provides uvx) — https://docs.astral.sh/uv/getting-started/installation/")
+    command -v bunx >/dev/null 2>&1 || missing+=("bun (provides bunx) — https://bun.sh/docs/installation")
+    if [ "${#missing[@]}" -gt 0 ]; then
+        echo "just format_native needs these on your PATH:" >&2
+        printf '  - %s\n' "${missing[@]}" >&2
+        echo "Install them, or run 'just format' to format via Docker instead." >&2
+        exit 1
+    fi
+    ruff_ver=$(grep -A1 '^name = "ruff"$' uv.lock | grep -m1 '^version = ' | sed -E 's/version = "([^"]+)"/\1/')
+    djlint_ver=$(grep -A1 '^name = "djlint"$' uv.lock | grep -m1 '^version = ' | sed -E 's/version = "([^"]+)"/\1/')
+    oxfmt_ver=$(grep -m1 '"oxfmt":' package.json | sed -E 's/.*"oxfmt": *"([^"]+)".*/\1/')
+    oxlint_ver=$(grep -m1 '"oxlint":' package.json | sed -E 's/.*"oxlint": *"([^"]+)".*/\1/')
+    just _start_msg "Formatting Python code using ruff ${ruff_ver}"
+    uvx "ruff@${ruff_ver}" format
+    uvx "ruff@${ruff_ver}" check --fix
+    just _start_msg "Formatting HTML using djLint ${djlint_ver}"
+    uvx "djlint@${djlint_ver}" . --reformat --quiet
+    just _start_msg "Formatting Javascript code using oxfmt ${oxfmt_ver} + oxlint ${oxlint_ver}"
+    bunx "oxfmt@${oxfmt_ver}" ./frontend/
+    bunx "oxlint@${oxlint_ver}" --fix ./frontend/
+    just _start_msg "Formatting the justfile"
+    just --fmt --unstable
+
 # Format Python code
 @format_py:
     just _start_msg "Formatting Python code using ruff"

@@ -128,6 +128,9 @@ Before proceeding make sure you have installed [Docker](https://docs.docker.com/
 [Just](https://github.com/casey/just#installation). Docker with Docker Compose is used for local development and Just is
 used for common project commands.
 
+The [Git hooks](#git-hooks) additionally use [uv](https://docs.astral.sh/uv/) (for `uvx`) and [bun](https://bun.sh/) (for
+`bunx`) to run the formatters natively on commit — `uv` is already needed for `uvx epicenv` below.
+
 ### Quickstart Install Script
 
 Copy and paste the following into your terminal to run the install script:
@@ -219,7 +222,8 @@ build                        # Rebuild Docker images + collectstatic
 build_frontend               # bun run build + collectstatic
 clean                        # Remove build files, caches, coverage data
 collectstatic                # Run Django's collectstatic
-format                       # Format Python (ruff), JS (oxfmt + oxlint), HTML (djlint), justfile
+format                       # Format Python (ruff), JS (oxfmt + oxlint), HTML (djlint), justfile -- via Docker
+format_native                # Same as format but native via uvx/bunx, no Docker (used by the pre-commit hook)
 lint                         # Run all linters + ty type check + check for missing migrations
 test                         # pytest (Django + ninja API tests)
 test_with_coverage           # pytest --cov, then open the HTML report
@@ -236,8 +240,10 @@ create_superuser             # Idempotent epicenv create-superuser (override to 
 
 Two Git hooks live in the version-controlled `.githooks/` directory and are enabled via `git config core.hooksPath` (no copying into `.git/hooks/`, so they're reviewable and update with the repo):
 
-* **pre-commit** runs `just format`. Because `just format` reformats the whole working tree, the hook then re-stages just the files you'd already staged so the fixes land in your commit. If a file is only *partially* staged (e.g. via `git add -p`), the hook aborts instead — it won't sneak the unstaged hunks into your commit.
-* **pre-push** runs `just lint` (Ruff, Oxlint/Oxfmt, djLint, `ty`, and the missing-migration check).
+* **pre-commit** runs `just format_native`, which formats the whole working tree with **ruff, djLint, oxfmt, and oxlint run natively** through [`uvx`](https://docs.astral.sh/uv/) and [`bunx`](https://bun.sh/) — no Docker, so a commit takes about a second. The hook then re-stages just the files you'd already staged so the fixes land in your commit. If a file is only *partially* staged (e.g. via `git add -p`), the hook aborts instead — it won't sneak the unstaged hunks into your commit.
+* **pre-push** runs `just lint` (Ruff, Oxlint/Oxfmt, djLint, `ty`, and the missing-migration check). `ty` and the migration check need the project's installed dependencies, so this one still runs over Docker — the hook starts the `web` service (`docker compose up --wait -d web`) if it isn't already running.
+
+**Tool versions are not hand-managed.** `format_native` reads the exact ruff/djLint versions from `uv.lock` and the oxfmt/oxlint versions from `package.json` at runtime, so native formatting always matches what Docker and CI use — even after Dependabot bumps them. `uv` and `bun` themselves don't need pinning (they're just the runners), but they must be on your PATH for the pre-commit hook; if they aren't, the hook tells you what to install.
 
 `just init` installs the hooks automatically on first setup. To install (or re-install — e.g. after re-`git init`-ing a project bootstrapped from this template) run:
 
@@ -245,7 +251,7 @@ Two Git hooks live in the version-controlled `.githooks/` directory and are enab
 just install_hooks
 ```
 
-The hooks invoke the same Docker-based tooling as the `just` recipes. When the default Docker command prefix is in use, each hook checks whether the `web` service is running and, if not, starts it (and its dependencies) with `docker compose up --wait -d web`, so a commit/push won't fail just because the stack is down. Set `PYTHON_CMD_PREFIX=""` (and `BUN_CMD_PREFIX`) to run the tools outside Docker, in which case the hooks leave Docker alone. Bypass a hook for a single command with `git commit --no-verify` / `git push --no-verify`.
+Bypass a hook for a single command with `git commit --no-verify` / `git push --no-verify`.
 
 ## Deploying to Production
 
