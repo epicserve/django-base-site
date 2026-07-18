@@ -6,7 +6,7 @@ Off by default. Set `BILLING_ENABLED=true` in your `.env` to turn it on. While o
 
 ## Overview
 
-* **Plans + features** are declared as plain dicts in `settings.BILLING_PLANS` and `settings.BILLING_FEATURES` ([config/settings/_base.py](../config/settings/_base.py)). Same pattern as `NOTIFICATIONS_CATEGORIES`. Plans support monthly + annual prices, a free tier, trial periods, per-seat pricing, and an `is_highlighted` flag for the "Popular" badge on the pricing page. A bundled three-tier example lives in [apps/billing/example_plans.py](../apps/billing/example_plans.py) and loads when `BILLING_USE_EXAMPLE_PLANS=true` — see [Dogfooding locally](#dogfooding-locally) below.
+* **Plans + features** are declared as plain dicts in `settings.BILLING_PLANS` and `settings.BILLING_FEATURES` ([config/settings/_base.py](https://github.com/epicserve/django-base-site/blob/main/config/settings/_base.py)). Same pattern as `NOTIFICATIONS_CATEGORIES`. Plans support monthly + annual prices, a free tier, trial periods, per-seat pricing, and an `is_highlighted` flag for the "Popular" badge on the pricing page. A bundled three-tier example lives in [apps/billing/example_plans.py](https://github.com/epicserve/django-base-site/blob/main/apps/billing/example_plans.py) and loads when `BILLING_USE_EXAMPLE_PLANS=true` — see [Dogfooding locally](#dogfooding-locally) below.
 * **New subscriptions** go through [Stripe Checkout](https://docs.stripe.com/payments/checkout) (full-page redirect).
 * **Existing subscriptions** are managed through the [Stripe Customer Portal](https://docs.stripe.com/customer-management) — payment methods, cancels, invoice history.
 * **Webhook** at `/webhooks/stripe/` with HMAC signature verification. `WebhookEvent` rows dedupe Stripe retries.
@@ -34,7 +34,7 @@ STRIPE_PRICE_BUSINESS_MONTHLY=price_…
 STRIPE_PRICE_BUSINESS_ANNUAL=price_…
 ```
 
-If you've renamed plans or added more, mirror them in [config/settings/_base.py](../config/settings/_base.py) `BILLING_PLANS` — each non-free plan needs `monthly_price_id` and `annual_price_id` fields wired to env vars. Or if you're just kicking the tires, skip this step and use the bundled example — see [Dogfooding locally](#dogfooding-locally) below.
+If you've renamed plans or added more, mirror them in [config/settings/_base.py](https://github.com/epicserve/django-base-site/blob/main/config/settings/_base.py) `BILLING_PLANS` — each non-free plan needs `monthly_price_id` and `annual_price_id` fields wired to env vars. Or if you're just kicking the tires, skip this step and use the bundled example — see [Dogfooding locally](#dogfooding-locally) below.
 
 ### 3. Enable billing
 
@@ -75,7 +75,7 @@ Any future expiry, any CVC, any ZIP. Full list at https://docs.stripe.com/testin
 
 ## Dogfooding locally
 
-If you just want to see the billing UX end-to-end with realistic plans — without editing `config/settings/_base.py` or clicking around the Stripe Dashboard — there's a one-command path that uses the bundled Free / Pro / Business demo at [apps/billing/example_plans.py](../apps/billing/example_plans.py).
+If you just want to see the billing UX end-to-end with realistic plans — without editing `config/settings/_base.py` or clicking around the Stripe Dashboard — there's a one-command path that uses the bundled Free / Pro / Business demo at [apps/billing/example_plans.py](https://github.com/epicserve/django-base-site/blob/main/apps/billing/example_plans.py).
 
 ### 1. Set your Stripe test key
 
@@ -129,7 +129,7 @@ Self-service plan switching is gated behind two things the starter can't decide 
 
 #### 2. Restore the SPA CTA
 
-In [frontend/js/components/billing/PlanCard.vue](../frontend/js/components/billing/PlanCard.vue), the `if (props.hasSubscription)` branch in `ctaState` is currently a disabled "Already subscribed" state. Replace it with the original switch-plan CTA:
+In [frontend/js/components/billing/PlanCard.vue](https://github.com/epicserve/django-base-site/blob/main/frontend/js/components/billing/PlanCard.vue), the `if (props.hasSubscription)` branch in `ctaState` is currently a disabled "Already subscribed" state. Replace it with the original switch-plan CTA:
 
 ```js
 if (props.hasSubscription) {
@@ -144,7 +144,7 @@ if (props.hasSubscription) {
 
 #### 3. Restore the "Change plan" section on the billing settings page
 
-In [frontend/js/views/settings/BillingView.vue](../frontend/js/views/settings/BillingView.vue), add this section back near the bottom of the subscribed-state block (right after the seats section, inside the `<template>` for the subscribed state):
+In [frontend/js/views/settings/BillingView.vue](https://github.com/epicserve/django-base-site/blob/main/frontend/js/views/settings/BillingView.vue), add this section back near the bottom of the subscribed-state block (right after the seats section, inside the `<template>` for the subscribed state):
 
 ```html
 <section class="rounded-lg border border-gray-200 bg-white p-6 dark:border-gray-700 dark:bg-gray-800">
@@ -177,7 +177,7 @@ There's no universal right answer; pick what matches your product.
 
 ## Customizing plans and features
 
-Plans and features are declared in [config/settings/_base.py](../config/settings/_base.py). The dicts are normalized into dataclasses in [apps/billing/plans.py](../apps/billing/plans.py) and [apps/billing/features.py](../apps/billing/features.py); the SPA fetches them from `/api/billing/plans/` and `/api/billing/features/`.
+Plans and features are declared in [config/settings/_base.py](https://github.com/epicserve/django-base-site/blob/main/config/settings/_base.py). The dicts are normalized into dataclasses in [apps/billing/plans.py](https://github.com/epicserve/django-base-site/blob/main/apps/billing/plans.py) and [apps/billing/features.py](https://github.com/epicserve/django-base-site/blob/main/apps/billing/features.py); the SPA fetches them from `/api/billing/plans/` and `/api/billing/features/`.
 
 Each plan can declare:
 
@@ -200,7 +200,7 @@ Features support two `type`s:
 * `"bool"` — gate things on/off (`org_has_feature(org, 'teams')`).
 * `"limit"` — numeric caps (`org_feature_limit(org, 'max_team_count')`).
 
-Use them from Python with `@requires_feature('teams')` ([apps/billing/access.py](../apps/billing/access.py)) on view/api functions, or from Vue with `appStore.hasFeature('teams')` and `appStore.featureLimit('max_team_count')`.
+Use them from Python with `@requires_feature('teams')` ([apps/billing/access.py](https://github.com/epicserve/django-base-site/blob/main/apps/billing/access.py)) on view/api functions, or from Vue with `appStore.hasFeature('teams')` and `appStore.featureLimit('max_team_count')`.
 
 ## Production
 
@@ -213,12 +213,12 @@ Use them from Python with `@requires_feature('teams')` ([apps/billing/access.py]
 
 | File | Purpose |
 |------|---------|
-| [apps/billing/models.py](../apps/billing/models.py) | `BillingCustomer`, `Subscription`, `WebhookEvent`. |
-| [apps/billing/services.py](../apps/billing/services.py) | `get_or_create_customer`, `create_checkout_session`, `create_portal_session`, `sync_subscription_from_stripe`, `sync_seat_quantity`. Pure functions — callable from views, tasks, the shell. |
-| [apps/billing/webhooks.py](../apps/billing/webhooks.py) | Stripe webhook handler with HMAC verification and event dedupe. |
-| [apps/billing/access.py](../apps/billing/access.py) | `org_has_feature`, `org_feature_limit`, `@requires_feature`. |
-| [apps/billing/api.py](../apps/billing/api.py) | Ninja router — `/api/billing/plans/`, `/api/billing/features/`, `/api/billing/subscription/`, `/api/billing/checkout/`, `/api/billing/portal/`. |
-| [apps/billing/tasks.py](../apps/billing/tasks.py) | Celery beat tasks for trial reminders and drift reconcile. |
-| [frontend/js/composables/useBilling.js](../frontend/js/composables/useBilling.js) | SPA composable — `subscribe()`, `manageBilling()`, `fetchSubscription()`, etc. |
-| [frontend/js/views/PricingView.vue](../frontend/js/views/PricingView.vue) | Public pricing page. |
-| [frontend/js/views/settings/BillingView.vue](../frontend/js/views/settings/BillingView.vue) | Org-scoped billing settings tab. |
+| [apps/billing/models.py](https://github.com/epicserve/django-base-site/blob/main/apps/billing/models.py) | `BillingCustomer`, `Subscription`, `WebhookEvent`. |
+| [apps/billing/services.py](https://github.com/epicserve/django-base-site/blob/main/apps/billing/services.py) | `get_or_create_customer`, `create_checkout_session`, `create_portal_session`, `sync_subscription_from_stripe`, `sync_seat_quantity`. Pure functions — callable from views, tasks, the shell. |
+| [apps/billing/webhooks.py](https://github.com/epicserve/django-base-site/blob/main/apps/billing/webhooks.py) | Stripe webhook handler with HMAC verification and event dedupe. |
+| [apps/billing/access.py](https://github.com/epicserve/django-base-site/blob/main/apps/billing/access.py) | `org_has_feature`, `org_feature_limit`, `@requires_feature`. |
+| [apps/billing/api.py](https://github.com/epicserve/django-base-site/blob/main/apps/billing/api.py) | Ninja router — `/api/billing/plans/`, `/api/billing/features/`, `/api/billing/subscription/`, `/api/billing/checkout/`, `/api/billing/portal/`. |
+| [apps/billing/tasks.py](https://github.com/epicserve/django-base-site/blob/main/apps/billing/tasks.py) | Celery beat tasks for trial reminders and drift reconcile. |
+| [frontend/js/composables/useBilling.js](https://github.com/epicserve/django-base-site/blob/main/frontend/js/composables/useBilling.js) | SPA composable — `subscribe()`, `manageBilling()`, `fetchSubscription()`, etc. |
+| [frontend/js/views/PricingView.vue](https://github.com/epicserve/django-base-site/blob/main/frontend/js/views/PricingView.vue) | Public pricing page. |
+| [frontend/js/views/settings/BillingView.vue](https://github.com/epicserve/django-base-site/blob/main/frontend/js/views/settings/BillingView.vue) | Org-scoped billing settings tab. |

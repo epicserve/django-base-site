@@ -84,7 +84,7 @@ PyCharm Professional supports debugging Django applications running in Docker Co
 
 ## VS Code Setup
 
-The project includes pre-configured launch configurations in [.vscode/launch.json](.vscode/launch.json).
+The project includes pre-configured launch configurations in [.vscode/launch.json](https://github.com/epicserve/django-base-site/blob/main/.vscode/launch.json).
 
 ### Quick Start Workflow
 

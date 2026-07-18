@@ -17,6 +17,10 @@ dev_addr = "localhost:4000"
 
 copyright = "Copyright &copy; 2026 epicserve"
 
+# External links get an "opens in new tab" arrow icon (CSS) and target=_blank (JS)
+extra_css = ["assets/stylesheets/external-links.css"]
+extra_javascript = ["assets/javascripts/external-links.js"]
+
 # ----------------------------------------------------------------------------
 # Theme configuration
 # ----------------------------------------------------------------------------
