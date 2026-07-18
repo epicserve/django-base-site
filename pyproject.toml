@@ -36,8 +36,6 @@ dev = [
     "djlint",
     "ipdb",
     "mkdocs-linkcheck",
-    "mkdocs-material",
-    "mkdocstrings[python]",
     "zensical",
     "model-bakery",
     "pyotp",
