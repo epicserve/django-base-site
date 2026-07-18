@@ -8,4 +8,10 @@ cd "$(git rev-parse --show-toplevel)"
 # Make sure the linter's tooling is reachable (starts web when using Docker).
 just _ensure_web
 
+# git runs this hook with the pushed refs piped to stdin, not a terminal, so
+# `docker compose exec` must not allocate a TTY (-T) or it aborts with
+# "cannot attach stdin to a TTY-enabled container".
+export PYTHON_CMD_PREFIX="${PYTHON_CMD_PREFIX-docker compose exec -T web}"
+export PYTHON_CMD_PREFIX_WITH_DEPS="${PYTHON_CMD_PREFIX_WITH_DEPS-docker compose exec -T web}"
+
 just lint
