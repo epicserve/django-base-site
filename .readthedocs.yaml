@@ -18,7 +18,7 @@ build:
       - pip install -r requirements-rtd.txt
     build:
       html:
-        - zensical build -f zensical.toml
+        - zensical build -f zensical.toml --strict
     post_build:
       - mkdir -p $READTHEDOCS_OUTPUT/html/
       - cp -r docs_site/* $READTHEDOCS_OUTPUT/html/
