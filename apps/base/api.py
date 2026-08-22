@@ -113,16 +113,15 @@ def send_test_notification(request, payload: TestNotificationIn):
 
     date_time = dateformat.format(now(), settings.SHORT_DATETIME_FORMAT)
     subject = f"Test Email ({date_time})"
+    default_mailer = getattr(settings, "MAILERS", {}).get("default", {})
+    mailer_options = default_mailer.get("OPTIONS") or {}
     debug_settings = [
-        (name, getattr(settings, name, None))
-        for name in (
-            "SETTINGS_MODULE",
-            "EMAIL_HOST",
-            "EMAIL_HOST_USER",
-            "EMAIL_PORT",
-            "EMAIL_CONFIG",
-            "EMAIL_BACKEND",
-        )
+        ("SETTINGS_MODULE", settings.SETTINGS_MODULE),
+        ("MAILERS.default.BACKEND", default_mailer.get("BACKEND")),
+        ("MAILERS.default.OPTIONS.host", mailer_options.get("host")),
+        ("MAILERS.default.OPTIONS.port", mailer_options.get("port")),
+        ("MAILERS.default.OPTIONS.username", mailer_options.get("username")),
+        ("DEFAULT_FROM_EMAIL", settings.DEFAULT_FROM_EMAIL),
     ]
     context = {"subject": subject, "date_time": date_time, "debug_settings": debug_settings}
 

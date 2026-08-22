@@ -43,7 +43,7 @@ features.
 
 ### 📦️ Django Packages
 
-* [Django 5](https://www.djangoproject.com/) - Latest version of Django
+* [Django 6](https://www.djangoproject.com/) - Latest version of Django
 * [Custom User Model][custom_user_model] - Extends `AbstractUser` with per-user `timezone` (auto-detected from the browser via middleware) and avatar fields (uploaded to MinIO/S3 with crop data).
 * [Django Allauth](http://www.intenct.nl/projects/django-allauth/) (headless) - JSON auth API with full MFA support: TOTP, recovery codes, and WebAuthn passkeys (via [`fido2`](https://github.com/Yubico/python-fido2)).
 * [Django Ninja](https://django-ninja.dev/) - Fast type-safe API framework powering `/api/app-context/`, the user/avatar endpoints, organizations, teams, and the public invite flow.
