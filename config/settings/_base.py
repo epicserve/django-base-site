@@ -245,10 +245,6 @@ def _whitenoise_immutable_file_test(path: str, url: str) -> bool:
 
 WHITENOISE_IMMUTABLE_FILE_TEST = _whitenoise_immutable_file_test
 
-# Default primary key field type
-# https://docs.djangoproject.com/en/6.1/ref/settings/#default-auto-field
-DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
-
 # CACHE SETTINGS
 # Redis scheme docs: https://redis-py.readthedocs.io/en/stable/connections.html#redis.connection.ConnectionPool.from_url
 REDIS_URL = env("REDIS_URL", default="redis://redis:6379/0")
