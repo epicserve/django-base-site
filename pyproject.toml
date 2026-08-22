@@ -21,7 +21,7 @@ dependencies = [
     "hiredis~=3.0",  # needed for Django's native cache and sessions
     "psycopg2-binary~=2.9",
     "python-json-logger~=4.1",
-    "redis~=7.1",  # needed for celery
+    "redis>=7.1,<9.0",  # needed for celery
     "stripe~=14.0",
     "whitenoise~=6.7",
 ]
