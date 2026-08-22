@@ -4,7 +4,7 @@ description = "A Django project template for creating new Django projects."
 version = "0.2.0"
 requires-python = ">=3.12"
 dependencies = [
-    "django~=5.2",
+    "django>=5.2,<7.0",
     "pillow~=12.3",
     "boto3~=1.34",
     "celery~=5.5",
@@ -21,7 +21,7 @@ dependencies = [
     "hiredis~=3.0",  # needed for Django's native cache and sessions
     "psycopg2-binary~=2.9",
     "python-json-logger~=4.1",
-    "redis~=7.1",  # needed for celery
+    "redis>=7.1,<9.0",  # needed for celery
     "stripe~=14.0",
     "whitenoise~=6.7",
 ]
