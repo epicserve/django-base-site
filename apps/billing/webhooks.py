@@ -149,7 +149,7 @@ def stripe_webhook(request: HttpRequest) -> HttpResponse:
     import stripe
 
     payload = request.body
-    sig_header = request.META.get("HTTP_STRIPE_SIGNATURE", "")
+    sig_header = request.headers.get("stripe-signature", "")
     try:
         event = stripe.Webhook.construct_event(payload, sig_header, settings.STRIPE_WEBHOOK_SECRET)
     except (ValueError, stripe.error.SignatureVerificationError):

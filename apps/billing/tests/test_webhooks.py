@@ -44,7 +44,7 @@ def _post(event: dict):
         "/webhooks/stripe/",
         data=body,
         content_type="application/json",
-        HTTP_STRIPE_SIGNATURE="t=0,v1=fake",
+        headers={"stripe-signature": "t=0,v1=fake"},
     )
 
 

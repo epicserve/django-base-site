@@ -1,6 +1,14 @@
 # CHANGELOG
 
 
+## 2026-08-22
+
+### Changed
+
+* Upgraded to Django 6.1. Companion bumps: django-ninja 1.6.3 (required for 6.1), django-allauth 65.19.1, django-debug-toolbar 7.1.1, django-maintenance-mode 0.23.0, django-stubs 6.1.0, django-test-plus 2.6.2. Email settings moved from the deprecated `EMAIL_*` keys to `MAILERS` (SMTP via `EMAIL_URL` in non-prod, `django_ses.SESBackend` in prod). django-ninja is pinned to `~=1.6` so a future Django major cannot resolve backward to 1.4.x. Ran `django-upgrade --target-version 6.1`: dropped `DEFAULT_AUTO_FIELD` (BigAutoField is the Django 6 default) and switched Stripe webhook signature reads to `request.headers`.
+* Agent instructions now live in a single `AGENTS.md`. `CLAUDE.md` is a symlink to that file so Claude Code, Codex, and Cursor all read the same guidance.
+
+
 ## 2026-06-27
 
 ### Added
