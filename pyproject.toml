@@ -22,7 +22,7 @@ dependencies = [
     "psycopg2-binary~=2.9",
     "python-json-logger~=4.1",
     "redis>=7.1,<9.0",  # needed for celery
-    "stripe~=14.0",
+    "stripe>=14,<16",
     "whitenoise~=6.7",
 ]
 
