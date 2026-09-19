@@ -16,12 +16,14 @@
 
 {% block content %}
   {% autoescape off %}
-    {% blocktranslate %}You are receiving this email because you, or someone else, tried to access an account with email {{ email }}. However, we do not have any record of such an account in our database.{% endblocktranslate %}
-    <br>
-    <br>
-    {% blocktranslate %}This mail can be safely ignored if you did not initiate this action.{% endblocktranslate %}
-    <br>
-    <br>
-    {% blocktranslate %}If it was you, you can sign up for an account using the button below.{% endblocktranslate %}
+    <p>
+      {% blocktranslate %}You are receiving this email because you, or someone else, tried to access an account with email {{ email }}. However, we do not have any record of such an account in our database.{% endblocktranslate %}
+    </p>
+    <p>
+      {% blocktranslate %}This mail can be safely ignored if you did not initiate this action.{% endblocktranslate %}
+    </p>
+    <p>
+      {% blocktranslate %}If it was you, you can sign up for an account using the button below.{% endblocktranslate %}
+    </p>
   {% endautoescape %}
 {% endblock content %}
