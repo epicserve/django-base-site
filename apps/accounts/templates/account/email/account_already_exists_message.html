@@ -16,12 +16,12 @@
 
 {% block content %}
   {% autoescape off %}
-    {% blocktrans %}You are receiving this email because you or someone else tried to signup for an account using email address:{% endblocktrans %}
-    <br>
-    <br>
-    {{ email }}
-    <br>
-    <br>
-    {% blocktrans %}However, an account using that email address already exists. In case you have forgotten about this, please use the button below to recover your account.{% endblocktrans %}
+    <p>
+      {% blocktrans %}You are receiving this email because you or someone else tried to signup for an account using email address:{% endblocktrans %}
+    </p>
+    <p>{{ email }}</p>
+    <p>
+      {% blocktrans %}However, an account using that email address already exists. In case you have forgotten about this, please use the button below to recover your account.{% endblocktrans %}
+    </p>
   {% endautoescape %}
 {% endblock content %}
