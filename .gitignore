@@ -20,6 +20,6 @@ public/media/*
 
 # Claude Code: keep local settings out, but commit skills so projects made from this template inherit them
 .claude/*
-!.claude/skills/
+!.claude/skills
 CLAUDE.local.md
 .playwright-mcp/

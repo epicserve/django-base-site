@@ -1,6 +1,14 @@
 # CHANGELOG
 
 
+## 2026-09-19
+
+### Changed
+
+* Removed the `CLAUDE.md` symlink. Claude Code 2.1.277+ falls back to `AGENTS.md` when a folder has no `CLAUDE.md` (the "Project instructions" setting in `/config`, default `claude-md-or-agents-md`), so `AGENTS.md` is now the only agent-instructions file. If you need to support Claude Code older than 2.1.277, add a `CLAUDE.md` containing just `@AGENTS.md`.
+* `.claude/skills` is now a symlink to `.agents/skills` instead of a duplicated copy, so skills have a single source of truth for Claude Code, Codex, and Cursor. The `.gitignore` un-ignore rule was changed from `!.claude/skills/` to `!.claude/skills` because the trailing slash only matches directories and would have ignored the symlink.
+
+
 ## 2026-08-22
 
 ### Changed
