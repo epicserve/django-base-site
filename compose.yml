@@ -21,7 +21,7 @@ services:
 
   redis:
     container_name: redis
-    image: redis:7.0
+    image: redis:7.4
     init: true
     command: ["redis-server", "--appendonly", "yes"]
     volumes:
