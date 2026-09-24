@@ -184,7 +184,7 @@ STORAGES = {
     },
 }
 
-# Media S3 storage settings (used for both MinIO local dev and real S3 in prod).
+# Media S3 storage settings (used for both Silo local dev and real S3 in prod).
 # These are read by `apps.base.storage.S3MediaStorage` when DEFAULT_FILE_STORAGE is set
 # to an s3boto3-based backend.
 MEDIA_S3_ACCESS_KEY = env("MEDIA_S3_ACCESS_KEY", default="")

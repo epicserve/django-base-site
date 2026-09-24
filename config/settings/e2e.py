@@ -21,9 +21,9 @@ SESSION_ENGINE = "django.contrib.sessions.backends.db"
 VITE_DEV_MODE = False
 VITE_MANIFEST_FILE = BASE_DIR / "public" / "static" / "dist" / "js" / ".vite" / "manifest.json"
 
-# The CI e2e job runs the web container with --no-deps, so MinIO isn't
+# The CI e2e job runs the web container with --no-deps, so Silo isn't
 # available; swap the default storage to an in-memory backend so any test
-# that touches default_storage doesn't hang trying to reach minio:9000.
+# that touches default_storage doesn't hang trying to reach silo:9000.
 STORAGES = {
     "default": {"BACKEND": "django.core.files.storage.InMemoryStorage"},
     "staticfiles": {"BACKEND": "django.contrib.staticfiles.storage.StaticFilesStorage"},

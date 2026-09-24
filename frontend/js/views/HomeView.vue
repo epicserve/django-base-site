@@ -17,7 +17,7 @@ const stack = [
   { label: 'Database', value: 'PostgreSQL 17' },
   { label: 'Cache & sessions', value: 'Redis 7' },
   { label: 'Background tasks', value: 'Celery (Redis broker)' },
-  { label: 'Object storage', value: 'MinIO · S3-compatible' },
+  { label: 'Object storage', value: 'Silo · S3-compatible' },
   { label: 'Email', value: 'Mailpit (dev) · django-ses (prod)' },
   { label: 'Frontend', value: 'Vue 3 · Tailwind v4 · Vite · bun' },
   { label: 'WSGI server', value: 'gunicorn (4 × 2)' },

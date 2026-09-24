@@ -4,7 +4,7 @@ This file provides guidance to coding agents when working with code in this repo
 
 ## Project Overview
 
-Django Base Site is an opinionated Django starter template with a production-ready foundation. The stack is Django 6 + django-ninja + django-allauth (headless mode, with MFA + WebAuthn passkeys) on the backend, and a Vue 3 SPA with Tailwind v4 on the frontend. Multi-tenant scaffolding (organizations, teams, invites), a notifications system (in-app + email, per-user category prefs, generic-target cleanup, retention purge), and an opt-in Stripe billing app (Checkout + Customer Portal, settings-declared plans + features, per-seat pricing, trials, coupons) are built in. Celery + Redis for background tasks, MinIO for S3-compatible local media storage, gunicorn in production.
+Django Base Site is an opinionated Django starter template with a production-ready foundation. The stack is Django 6 + django-ninja + django-allauth (headless mode, with MFA + WebAuthn passkeys) on the backend, and a Vue 3 SPA with Tailwind v4 on the frontend. Multi-tenant scaffolding (organizations, teams, invites), a notifications system (in-app + email, per-user category prefs, generic-target cleanup, retention purge), and an opt-in Stripe billing app (Checkout + Customer Portal, settings-declared plans + features, per-seat pricing, trials, coupons) are built in. Celery + Redis for background tasks, Silo for S3-compatible local media storage, gunicorn in production.
 
 ## Architecture
 
@@ -14,8 +14,8 @@ Django Base Site is an opinionated Django starter template with a production-rea
 - **API**: A single `NinjaAPI` instance in `config/api.py` mounted at `/api/`. Routers come from each app's `api.py` (`apps.base.api`, `apps.accounts.api`, `apps.organizations.api`, `apps.teams.api`, `apps.notifications.api`).
 - **URLs** (`config/urls.py`): A re_path catch-all serves the Vue SPA shell for every non-API path. `/_allauth/` mounts allauth's headless API, `/hijack/` mounts django-hijack, `/admin/` is the Django admin, `/api/` is the ninja API. A `_public_not_found` shim before the catch-all keeps stale `/public/static/*` chunks from being answered with HTML.
 - **Frontend**: Vue 3 SPA in `frontend/` (was `src/` pre-conversion). `frontend/js/app.js` mounts `App.vue`, `frontend/js/router.js` defines all SPA routes (lazy-loaded). `frontend/js/stores/app.js` is the reactive app store; `appStore.fetchContext()` hits `/api/app-context/` to populate user, org, organizations, version, etc. `frontend/css/app.css` is Tailwind v4 with Fraunces / IBM Plex Sans / JetBrains Mono via Google Fonts. Built with bun + Vite.
-- **Docker**: `compose.yml` with healthchecks on every service: `db` (postgres 17), `redis` (7), `mailpit`, `minio`, `web`, `worker` (celery), `frontend` (bun running Vite). The web container runs `migrate` and `ensure_s3_bucket` on startup. Multi-stage production image at `config/docker/Dockerfile.web` (python-requirements → base → dev / js_assets → prod with gunicorn).
-- **Static / media**: WhiteNoise serves Vite-hashed assets in production with `Cache-Control: max-age=31536000, immutable` (regex defined in settings). Media uploads use `apps/base/storage.py:S3MediaStorage` which handles the Docker-internal vs. browser endpoint URL split for MinIO.
+- **Docker**: `compose.yml` with healthchecks on every service: `db` (postgres 17), `redis` (7), `mailpit`, `silo`, `web`, `worker` (celery), `frontend` (bun running Vite). The web container runs `migrate` and `ensure_s3_bucket` on startup. Multi-stage production image at `config/docker/Dockerfile.web` (python-requirements → base → dev / js_assets → prod with gunicorn).
+- **Static / media**: WhiteNoise serves Vite-hashed assets in production with `Cache-Control: max-age=31536000, immutable` (regex defined in settings). Media uploads use `apps/base/storage.py:S3MediaStorage` which handles the Docker-internal vs. browser endpoint URL split for Silo.
 
 ## Development Commands
 
@@ -121,7 +121,7 @@ Key variables:
 - `ALLOWED_HOSTS` — defaults to `localhost,127.0.0.1`
 - `INTERNAL_IPS` — for Django Debug Toolbar
 - `USE_DEBUGPY=true` — enable remote debugging
-- `MEDIA_S3_*` — MinIO / S3 credentials. `MEDIA_S3_ENDPOINT_URL` is the Docker-internal hostname (`http://minio:9000`); `MEDIA_S3_URL_ENDPOINT_URL` is the browser-facing one (`http://localhost:9000`). The split is handled by `apps.base.storage.S3MediaStorage`.
+- `MEDIA_S3_*` — Silo / S3 credentials (locally they are also Silo's root user and password). `MEDIA_S3_ENDPOINT_URL` is the Docker-internal hostname (`http://silo:9000`); `MEDIA_S3_URL_ENDPOINT_URL` is the browser-facing one (`http://localhost:9000`). The split is handled by `apps.base.storage.S3MediaStorage`.
 - `ACCOUNT_SIGNUP_OPEN` — bool, gates new registrations.
 - `DJANGO_SUPERUSER_USERNAME` / `_EMAIL` / `_PASSWORD` — optional; consumed by `just create_superuser` (which `just init` runs on first boot) via the idempotent `epicenv create-superuser`. Leave blank to skip, or edit the `just create_superuser` recipe in the top-level `justfile` to pipe credentials from a secrets manager (1Password, Vault, etc.) instead of putting them in `.env`.
 

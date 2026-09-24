@@ -47,20 +47,28 @@ services:
       retries: 3
       start_period: 10s
 
-  minio:
-    container_name: minio
-    image: minio/minio:latest
+  silo:
+    container_name: silo
+    # Silo is a maintained drop-in fork of the MinIO server: same `server` CLI,
+    # web console, on-disk format, and S3 API. MinIO archived its community
+    # edition and removed minio/minio from Docker Hub in 2026, which broke
+    # `just init` for new projects (#1345). Pinned; Dependabot bumps the tag.
+    # https://github.com/pgsty/silo
+    image: pgsty/silo:RELEASE.2026-09-16T00-00-00Z
     init: true
     command: server /data --console-address ":9001"
     environment:
-      MINIO_ROOT_USER: ${MINIO_ROOT_USER:-minioadmin}
-      MINIO_ROOT_PASSWORD: ${MINIO_ROOT_PASSWORD:-minioadmin}
+      # Silo keeps MinIO's MINIO_* variable names (it has no SILO_* namespace).
+      # Locally the root credentials double as Django's MEDIA_S3_* credentials.
+      MINIO_ROOT_USER: ${MEDIA_S3_ACCESS_KEY:-siloadmin}
+      MINIO_ROOT_PASSWORD: ${MEDIA_S3_SECRET_KEY:-siloadmin}
     volumes:
-      - minio_data:/data
+      - silo_data:/data
     ports:
       - "127.0.0.1:9000:9000"
       - "127.0.0.1:9001:9001"
     healthcheck:
+      # /minio/* routes are part of the S3-compatible API surface Silo preserves.
       test: ["CMD", "curl", "-f", "http://localhost:9000/minio/health/live"]
       interval: 10s
       timeout: 5s
@@ -108,7 +116,7 @@ services:
         condition: service_healthy
       mailpit:
         condition: service_healthy
-      minio:
+      silo:
         condition: service_healthy
 
     environment:
@@ -169,5 +177,5 @@ services:
 volumes:
   postgres_data:
   redis_data:
-  minio_data:
+  silo_data:
   node_modules:
