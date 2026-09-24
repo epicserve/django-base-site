@@ -17,9 +17,9 @@
     "@heroicons/vue": "^2.2.0",
     "@tailwindcss/vite": "^4.3.3",
     "@vitejs/plugin-vue": "^6.0.9",
-    "reka-ui": "^2.10.4",
+    "reka-ui": "^2.10.5",
     "tailwindcss": "^4.3.3",
-    "vue": "^3.5.42",
+    "vue": "^3.5.43",
     "vue-advanced-cropper": "^2.8.9",
     "vue-router": "^5.3.1"
   },
