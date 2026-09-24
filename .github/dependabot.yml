@@ -12,7 +12,20 @@ updates:
       interval: "weekly"
       day: "saturday"
       time: "11:00" # 11 AM UTC / 5 AM CST
-      
+
+  - package-ecosystem: "docker-compose"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+      day: "saturday"
+      time: "11:00" # 11 AM UTC / 5 AM CST
+    ignore:
+      # Major database upgrades need a migration plan; only surface minors/patches.
+      - dependency-name: "postgres"
+        update-types: ["version-update:semver-major"]
+      - dependency-name: "redis"
+        update-types: ["version-update:semver-major"]
+
   - package-ecosystem: "uv"
     directory: "/"
     schedule:

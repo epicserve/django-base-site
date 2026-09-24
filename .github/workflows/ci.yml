@@ -95,6 +95,33 @@ jobs:
           grep -q "example" config/docker/Dockerfile.web || (echo "ERROR: Dockerfile.web not updated correctly" && exit 1)
 
           echo "All verification checks passed!"
+      - name: Verify third-party compose images can still be pulled
+        working-directory: ${{ env.BUILD_DIR }}
+        # Guards against an upstream image vanishing from its registry, which
+        # breaks `just init` for every new project (#1345: MinIO removed
+        # minio/minio from Docker Hub). Images built from this repo are skipped
+        # because they're never pulled.
+        run: |
+          docker compose config --format json \
+            | jq -r '[.services[] | select(.build) | .image] as $built | [.services[] | .image] - $built | unique[]' \
+            | while read -r image; do
+                echo "Checking ${image} ..."
+                docker manifest inspect "${image}" > /dev/null || { echo "ERROR: ${image} can't be pulled"; exit 1; }
+              done
+      - name: Verify just init survives a project that isn't a Git repository yet
+        working-directory: ${{ env.BUILD_DIR }}
+        # start_new_project produces a plain directory (no .git/), and `just init`
+        # runs `install_hooks` first. It used to abort there with
+        # "fatal: not in a git directory"; it must skip the hooks with a note
+        # instead, and still install them once the project has been `git init`-ed.
+        run: |
+          test ! -e .git || { echo "ERROR: expected a fresh project without .git"; exit 1; }
+          output=$(just install_hooks 2>&1) || { echo "ERROR: just install_hooks failed without a Git repository:"; echo "${output}"; exit 1; }
+          echo "${output}"
+          echo "${output}" | grep -q "Skipping Git hooks" || { echo "ERROR: expected install_hooks to print its skip note"; exit 1; }
+          git init -q .
+          just install_hooks
+          test "$(git config core.hooksPath)" = ".githooks" || { echo "ERROR: core.hooksPath was not set after git init"; exit 1; }
       - name: Build docker images
         working-directory: ${{ env.BUILD_DIR }}
         run: docker compose build web frontend

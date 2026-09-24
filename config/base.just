@@ -123,8 +123,19 @@ _require_native_tools:
     just create_superuser
     just start
 
-# Install Git hooks (pre-commit -> just format, pre-push -> just lint)
-@install_hooks:
+# Install Git hooks (pre-commit -> just format, pre-push -> just lint). Skips with a note when this
+# directory isn't the root of a Git repository yet (e.g. right after scripts/start_new_project).
+install_hooks:
+    #!/usr/bin/env bash
+    set -e
+    if [ ! -e .git ]; then
+        if git rev-parse --is-inside-work-tree > /dev/null 2>&1; then
+            echo "Skipping Git hooks: this directory is inside the Git repository at $(git rev-parse --show-toplevel) but isn't its root, so a relative core.hooksPath would point at the wrong place."
+        else
+            echo "Skipping Git hooks: this directory isn't a Git repository yet. Run 'git init' and then 'just install_hooks' to enable them."
+        fi
+        exit 0
+    fi
     just _start_msg "Installing Git hooks"
     git config core.hooksPath .githooks
     chmod +x .githooks/pre-commit .githooks/pre-push

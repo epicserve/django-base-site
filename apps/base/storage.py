@@ -17,7 +17,7 @@ class S3MediaStorage(S3Boto3Storage):
     """
     S3-compatible storage that uses a separate endpoint for browser-facing URLs.
 
-    In local dev, the S3 API endpoint is http://minio:9000 (Docker-internal),
+    In local dev, the S3 API endpoint is http://silo:9000 (Docker-internal),
     but browser-accessible URLs must use http://localhost:9000. Setting
     ``url_endpoint_url`` replaces the internal endpoint in generated URLs
     while keeping the internal endpoint for actual file operations.

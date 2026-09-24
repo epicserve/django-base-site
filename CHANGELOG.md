@@ -1,6 +1,24 @@
 # CHANGELOG
 
 
+## 2026-09-22
+
+### Changed
+
+* Local object storage now runs on [Silo](https://github.com/pgsty/silo), a maintained AGPL fork of the MinIO server, instead of `minio/minio:latest`. MinIO archived its community edition in February 2026 and removed the `minio/minio` repository from Docker Hub, so `just init` on a fresh project failed with `pull access denied for minio/minio` (#1345). Silo keeps the `server` CLI, the S3 API and `/minio/*` routes, the web console at http://localhost:9001, and the on-disk format. Why Silo: it is maintained by Pigsty (the PostgreSQL distribution) with monthly releases, the Docker image carries a GitHub-verified SLSA provenance attestation (`gh attestation verify oci://index.docker.io/pgsty/silo:<tag> --owner pgsty`), it has a security policy and public advisory ledger, and Grafana Loki/Mimir, OpenCTI, RAGFlow, and nixpkgs already ship it. It only runs locally (ports bound to 127.0.0.1); production keeps using real S3.
+* The compose service, container, and volume are renamed `minio` → `silo` (`silo_data`), and the image is pinned to `pgsty/silo:RELEASE.2026-09-16T00-00-00Z` with a new Dependabot `docker-compose` entry that bumps it (and Postgres/Redis minors) weekly. Silo's root credentials now come from `MEDIA_S3_ACCESS_KEY` / `MEDIA_S3_SECRET_KEY` (default `siloadmin`), so the `MINIO_ROOT_USER` / `MINIO_ROOT_PASSWORD` variables are gone from `.env.toml` and Django's credentials can't drift from the server's. Inside the container the `MINIO_ROOT_*` variable names and the `/minio/health/live` healthcheck path stay, because Silo deliberately keeps MinIO's variable namespace and routes.
+* **Upgrading an existing checkout:** set `MEDIA_S3_ENDPOINT_URL=http://silo:9000` in `.env` (`uvx epicenv diff` shows the drift; delete the `MINIO_ROOT_*` lines), run `docker compose up -d --remove-orphans` to drop the old `minio` container, and either start with an empty bucket (`docker volume rm <project>_minio_data`) or copy the old volume: `docker run --rm -v <project>_minio_data:/from -v <project>_silo_data:/to alpine cp -a /from/. /to/`.
+
+### Fixed
+
+* `just init` no longer aborts with `fatal: not in a git directory` on a project bootstrapped by `scripts/start_new_project`. The script unpacks a plain GitHub archive (no `.git/`), and `init` ran `install_hooks` first, whose `git config core.hooksPath` needs a repository. `install_hooks` now prints a note and skips when the directory isn't a Git repository (or isn't the repository root, where a relative `core.hooksPath` would point at the wrong place) so the rest of `init` runs. The install script's closing instructions and the README now say to `git init` before `just init` so the hooks get installed.
+* `ensure_s3_bucket` (run by the `web` container on every boot) no longer crashes with `BucketAlreadyOwnedByYou` when another process creates the bucket between its existence check and its `create_bucket` call, e.g. two containers booting against an empty volume at the same time. That response is now reported as "already exists"; any other `create_bucket` error still raises. Covered by new tests in `apps/accounts/tests/test_ensure_s3_bucket.py`.
+
+### CI
+
+* The install-script job now checks that every third-party image in `compose.yml` can still be pulled from its registry, so the next `minio/minio`-style removal fails CI before it fails users, and that `just install_hooks` skips cleanly in a project that isn't a Git repository yet and then installs the hooks after `git init`. A new Dependabot `docker-compose` entry keeps the compose images (Silo, Postgres, Redis) current; Postgres/Redis majors are ignored.
+
+
 ## 2026-09-19
 
 ### Changed

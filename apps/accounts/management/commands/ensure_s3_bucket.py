@@ -6,7 +6,7 @@ from botocore.exceptions import ClientError
 
 
 class Command(BaseCommand):
-    help = "Ensure the S3/MinIO media bucket exists."
+    help = "Ensure the S3 (Silo locally) media bucket exists."
 
     def handle(self, *args, **options):
         storage_opts = settings.STORAGES.get("default", {}).get("OPTIONS", {})
@@ -24,7 +24,20 @@ class Command(BaseCommand):
         )
         try:
             s3.head_bucket(Bucket=bucket_name)
-            self.stdout.write(f'Bucket "{bucket_name}" already exists.')
         except ClientError:
+            pass
+        else:
+            self.stdout.write(f'Bucket "{bucket_name}" already exists.')
+            return
+
+        try:
             s3.create_bucket(Bucket=bucket_name)
-            self.stdout.write(f'Created bucket "{bucket_name}".')
+        except ClientError as exc:
+            # Another process (e.g. a second container booting at the same time) won the race
+            # between head_bucket and create_bucket. The bucket exists, which is all this
+            # command guarantees, so report it as such. Any other failure still raises.
+            if exc.response.get("Error", {}).get("Code") != "BucketAlreadyOwnedByYou":
+                raise
+            self.stdout.write(f'Bucket "{bucket_name}" already exists.')
+            return
+        self.stdout.write(f'Created bucket "{bucket_name}".')

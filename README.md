@@ -36,7 +36,7 @@ features.
 * [Epicenv](https://github.com/epicserve/epicenv) - A delightful environment variable manager with schema validation, type coercion, and CLI tools for generating `.env` files. See the [epicenv documentation](https://github.com/epicserve/epicenv#readme) for more details.
 * [Docker](https://www.docker.com/) - Docker Compose for development with healthchecks on every service, plus a multi-stage Dockerfile for a production-ready image.
 * [Mailpit](https://mailpit.axllent.org/) - Local SMTP capture with a web UI at http://localhost:8025
-* [MinIO](https://min.io/) - S3-compatible object storage for local media uploads (avatars, etc.) with a console at http://localhost:9001
+* [Silo](https://github.com/pgsty/silo) - S3-compatible object storage for local media uploads (avatars, etc.) with a console at http://localhost:9001. Silo is a maintained drop-in fork of the MinIO server, which removed its Docker Hub images in 2026.
 * [UV](https://github.com/astral-sh/uv) - Used to maintain Python requirements
 * [Just](https://github.com/casey/just) - Popular tool for running common commands (make equivalent)
 * [python-json-logger](https://github.com/madzak/python-json-logger) and [readable-log-formatter](https://github.com/ipmb/readable-log-formatter) - JSON logging for better log parsing
@@ -44,14 +44,14 @@ features.
 ### 📦️ Django Packages
 
 * [Django 6](https://www.djangoproject.com/) - Latest version of Django
-* [Custom User Model][custom_user_model] - Extends `AbstractUser` with per-user `timezone` (auto-detected from the browser via middleware) and avatar fields (uploaded to MinIO/S3 with crop data).
+* [Custom User Model][custom_user_model] - Extends `AbstractUser` with per-user `timezone` (auto-detected from the browser via middleware) and avatar fields (uploaded to Silo/S3 with crop data).
 * [Django Allauth](http://www.intenct.nl/projects/django-allauth/) (headless) - JSON auth API with full MFA support: TOTP, recovery codes, and WebAuthn passkeys (via [`fido2`](https://github.com/Yubico/python-fido2)).
 * [Django Ninja](https://django-ninja.dev/) - Fast type-safe API framework powering `/api/app-context/`, the user/avatar endpoints, organizations, teams, and the public invite flow.
 * [Django Hijack](https://github.com/django-hijack/django-hijack) - Staff impersonation with a SPA-driven user search, gated by a `staff_only` permission check.
 * [Celery](http://docs.celeryproject.org/) - Most popular task runner for running asynchronous tasks in the background.
 * [Gunicorn](https://gunicorn.org/) - Production WSGI server (4 workers × 2 threads), configured at `gunicorn.conf.py`.
 * [WhiteNoise](https://whitenoise.readthedocs.io/) - Serves Vite-hashed assets in production with `Cache-Control: max-age=31536000, immutable`.
-* [Django Storages](https://django-storages.readthedocs.io/) + boto3 - S3-compatible media storage with a custom backend (`apps.base.storage.S3MediaStorage`) that handles the Docker-internal vs. browser endpoint URL split for MinIO.
+* [Django Storages](https://django-storages.readthedocs.io/) + boto3 - S3-compatible media storage with a custom backend (`apps.base.storage.S3MediaStorage`) that handles the Docker-internal vs. browser endpoint URL split for Silo.
 * [Django Alive](https://github.com/lincolnloop/django-alive/) - Health-check endpoints
 * [Django Maintenance Mode](https://github.com/fabiocaccamo/django-maintenance-mode) - Drop the site into a maintenance window.
 * [Django SES](https://github.com/django-ses/django-ses) - Production email backend.
@@ -156,9 +156,28 @@ Example output:
 
     Done.
 
-    To start Docker Compose run:
+    To enable superuser creation, either:
+      1. Set DJANGO_SUPERUSER_USERNAME / _EMAIL / _PASSWORD in .env, or
+      2. Edit the create_superuser recipe in justfile to pipe credentials
+         from your secrets manager. Example for 1Password (adapt to your tool):
+
+         @create_superuser:
+             uvx epicenv secrets get op://Private/django-admin \
+                 --fields username,email,password \
+                 | docker compose exec -T web epicenv create-superuser
+
+    For the first boot, run:
     $ cd /Users/brento/Sites/example
-    $ just start
+    $ git init
+    $ just init
+
+    'just init' installs the Git hooks (skipped with a note if you didn't run 'git init'), brings services up,
+    creates the Django superuser, and then starts the project. This is a one-time setup step. Use 'just start' on
+    every subsequent boot — it skips the one-time setup. Use 'just create_superuser' or 'just install_hooks' on
+    their own any time after that (e.g., after rotating the admin password, or after running 'git init' later).
+
+The downloaded archive isn't a Git repository, so run `git init` before `just init` if you want the Git hooks
+installed (see [Git hooks](#git-hooks)). Without it, `just init` prints a note, skips the hooks, and carries on.
 
 ### Manual Installation
 
@@ -168,9 +187,10 @@ Example output:
     $ uvx epicenv create        # Generates .env from the schema in .env.toml
     $ just clean_extra_files
     $ find ./public -name ".keep" | xargs rm -rf
-    $ just start
+    $ git init                  # Optional, but lets `just init` install the Git hooks
+    $ just init
 
-`epicenv create` reads the `[variables]` block in `.env.toml` and produces a `.env` with sensible defaults — `SECRET_KEY` and `POSTGRES_PASSWORD` are auto-generated, `SITE_DOMAIN=localhost:8000` (so passkeys work), and the MinIO + Mailpit credentials are pre-wired.
+`epicenv create` reads the `[variables]` block in `.env.toml` and produces a `.env` with sensible defaults — `SECRET_KEY` and `POSTGRES_PASSWORD` are auto-generated, `SITE_DOMAIN=localhost:8000` (so passkeys work), and the Silo + Mailpit credentials are pre-wired.
 
 ## Usage
 
@@ -185,7 +205,7 @@ Once `just start` is up, the following are available:
 | http://localhost:8000/api/docs     | Live OpenAPI spec for the ninja API (DEBUG only)      |
 | http://localhost:3000/             | Vite dev server (HMR; usually proxied transparently)  |
 | http://localhost:8025/             | Mailpit — inspect outgoing emails                     |
-| http://localhost:9001/             | MinIO console — browse the media bucket               |
+| http://localhost:9001/             | Silo console — browse the media bucket                |
 
 > **Note**: Use `http://localhost:8000/` rather than `http://127.0.0.1:8000/` so passkey enrollment works — WebAuthn rejects bare IP addresses as Relying Party IDs.
 
@@ -245,7 +265,7 @@ Two Git hooks live in the version-controlled `.githooks/` directory and are enab
 
 **Tool versions are not hand-managed.** `just format`/`just lint` read the exact ruff/djLint versions from `uv.lock` and the oxfmt/oxlint versions from `package.json` at runtime, so native formatting/linting always matches what Docker and CI use — even after Dependabot bumps them. `uv` and `bun` themselves don't need pinning (they're just the runners), but they must be on your PATH; if they aren't, the recipe tells you what to install.
 
-`just init` installs the hooks automatically on first setup. To install (or re-install — e.g. after re-`git init`-ing a project bootstrapped from this template) run:
+`just init` installs the hooks automatically on first setup, provided the project is already a Git repository. The install script unpacks a plain archive (no `.git/`), so run `git init` before `just init`; otherwise `just init` prints a note and skips the hooks instead of failing. To install them later (or re-install — e.g. after re-`git init`-ing a project bootstrapped from this template) run:
 
 ```
 just install_hooks

@@ -31,7 +31,7 @@ const mobileMenuOpen = ref(false);
 
 const devToolHost = computed(() => window.location.hostname || 'localhost');
 const mailpitUrl = computed(() => `http://${devToolHost.value}:8025/`);
-const minioUrl = computed(() => `http://${devToolHost.value}:9001/`);
+const siloUrl = computed(() => `http://${devToolHost.value}:9001/`);
 
 function getCookie(name) {
   const match = document.cookie.match(new RegExp(`(^|;\\s*)${name}=([^;]+)`));
@@ -273,12 +273,12 @@ onUnmounted(() => {
                     </a>
                     <a
                       class="cursor-pointer flex items-center gap-2 px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-700"
-                      :href="minioUrl"
+                      :href="siloUrl"
                       target="_blank"
                       rel="noopener"
                     >
                       <CircleStackIcon class="h-4 w-4 text-gray-400 dark:text-gray-500" />
-                      MinIO Admin
+                      Silo Admin
                     </a>
                   </template>
                 </template>
@@ -477,12 +477,12 @@ onUnmounted(() => {
             </a>
             <a
               class="cursor-pointer flex items-center gap-2 rounded px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-700"
-              :href="minioUrl"
+              :href="siloUrl"
               target="_blank"
               rel="noopener"
             >
               <CircleStackIcon class="h-4 w-4 text-gray-400 dark:text-gray-500" />
-              MinIO Admin
+              Silo Admin
             </a>
           </template>
         </template>

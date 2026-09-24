@@ -11,7 +11,7 @@ The Django Base Site uses Docker Compose for local development. Install [Docker]
 | `db`       | `postgres:17`                        | Postgres 17. Volume `postgres_data`.                                   |
 | `redis`    | `redis:7.0`                          | Cache + Celery broker. Append-only enabled.                            |
 | `mailpit`  | `axllent/mailpit`                    | Local SMTP capture. Web UI at http://localhost:8025                    |
-| `minio`    | `minio/minio:latest`                 | S3-compatible media storage. Console at http://localhost:9001          |
+| `silo`     | `pgsty/silo:RELEASE.2026-09-16T00-00-00Z` | S3-compatible media storage via [Silo](https://github.com/pgsty/silo), a maintained MinIO fork. Console at http://localhost:9001 |
 | `web`      | `epicserve/django-base-site:python`  | Django dev server. Runs migrations + `ensure_s3_bucket` on startup.    |
 | `worker`   | same as web                          | Celery worker.                                                         |
 | `frontend` | `epicserve/django-base-site:bun`     | bun running the Vite dev server. HMR exposed at http://localhost:3000  |
@@ -48,8 +48,14 @@ Follow [JetBrains' Docker Compose interpreter guide](https://www.jetbrains.com/h
 |-------------------------------------|---------------------------------------------------------|
 | `django-base-site_postgres_data`    | Postgres data files                                     |
 | `django-base-site_redis_data`       | Redis append-only log                                   |
-| `django-base-site_minio_data`       | MinIO bucket storage                                    |
+| `django-base-site_silo_data`        | Silo bucket storage                                     |
 | `django-base-site_node_modules`     | bun-managed `node_modules` for the frontend container   |
+
+Checkouts from before 2026-09-22 still have the old `minio` service, container, and `django-base-site_minio_data` volume. To move over: set `MEDIA_S3_ENDPOINT_URL=http://silo:9000` in `.env` (`uvx epicenv diff` lists the drift, and the `MINIO_ROOT_*` lines can be deleted), run `docker compose up -d --remove-orphans` to drop the old `minio` container, then either start with an empty bucket (`docker volume rm django-base-site_minio_data`) or copy the old data across:
+
+```bash
+docker run --rm -v django-base-site_minio_data:/from -v django-base-site_silo_data:/to alpine cp -a /from/. /to/
+```
 
 If you change `package.json` and the frontend container fails to find a new dep, the `node_modules` volume is stale. Fix:
 
@@ -84,7 +90,7 @@ docker compose up -d --force-recreate web
 - **Start with `just start` / `docker compose up`** — `docker compose run web ./manage.py runserver` won't expose the port to the host.
 - **Stale `node_modules` volume.** Docker only seeds named volumes from the image on first creation. After a `bun install` that adds a new package, drop the volume (above) and bring the stack back up.
 - **bun lockfile.** Once `bun install` produces `bun.lock`, commit it. The Dockerfiles use plain `bun install` so first-build works without the lockfile; switch to `bun install --frozen-lockfile` once you've committed `bun.lock` for reproducible prod builds.
-- **MinIO endpoint URL split.** `MEDIA_S3_ENDPOINT_URL` (Docker-internal, e.g. `http://minio:9000`) and `MEDIA_S3_URL_ENDPOINT_URL` (browser-facing, e.g. `http://localhost:9000`) must be distinct. The custom `apps.base.storage.S3MediaStorage` rewrites generated URLs.
+- **Silo endpoint URL split.** `MEDIA_S3_ENDPOINT_URL` (Docker-internal, e.g. `http://silo:9000`) and `MEDIA_S3_URL_ENDPOINT_URL` (browser-facing, e.g. `http://localhost:9000`) must be distinct. The custom `apps.base.storage.S3MediaStorage` rewrites generated URLs.
 
 ## References
 
