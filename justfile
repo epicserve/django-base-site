@@ -1,4 +1,6 @@
 import 'config/base.just'
+# Docs-site recipes; optional because `just clean_extra_files` deletes the file in new projects
+import? 'config/docs.just'
 
 project_slug := 'django-base-site'
 
@@ -36,15 +38,20 @@ create_superuser:
         -e DJANGO_SUPERUSER_PASSWORD \
         web epicenv create-superuser
 
-# Remove extra Django Base Site files not needed in a new project
+# Remove extra Django Base Site files not needed in a new project. Keeps the project CI
+# (.github/workflows/ci.yml) and Dependabot config; drops the template-only workflow, the
+# docs site, and AGENTS.md's template-only blocks.
 @clean_extra_files:
     rm -f LICENSE.md
     rm -f README.md
     rm -f CHANGELOG.md
     rm -rf docs/
-    rm -rf .github/
+    rm -f config/docs.just
+    rm -f zensical.toml
+    rm -f .github/workflows/template.yml
     rm -rf .readthedocs.yaml
     rm -r scripts/start_new_project
+    sed -i.bak '/^<!-- template-only:start -->$/,/^<!-- template-only:end -->$/d' AGENTS.md && rm AGENTS.md.bak
 
 # Upgrade both Python and Node
 @upgrade_all_packages:

@@ -14,7 +14,7 @@ Django Base Site is an opinionated Django starter template with a production-rea
 - **API**: A single `NinjaAPI` instance in `config/api.py` mounted at `/api/`. Routers come from each app's `api.py` (`apps.base.api`, `apps.accounts.api`, `apps.organizations.api`, `apps.teams.api`, `apps.notifications.api`).
 - **URLs** (`config/urls.py`): A re_path catch-all serves the Vue SPA shell for every non-API path. `/_allauth/` mounts allauth's headless API, `/hijack/` mounts django-hijack, `/admin/` is the Django admin, `/api/` is the ninja API. A `_public_not_found` shim before the catch-all keeps stale `/public/static/*` chunks from being answered with HTML.
 - **Frontend**: Vue 3 SPA in `frontend/` (was `src/` pre-conversion). `frontend/js/app.js` mounts `App.vue`, `frontend/js/router.js` defines all SPA routes (lazy-loaded). `frontend/js/stores/app.js` is the reactive app store; `appStore.fetchContext()` hits `/api/app-context/` to populate user, org, organizations, version, etc. `frontend/css/app.css` is Tailwind v4 with Fraunces / IBM Plex Sans / JetBrains Mono via Google Fonts. Built with bun + Vite.
-- **Docker**: `compose.yml` with healthchecks on every service: `db` (postgres 17), `redis` (7), `mailpit`, `silo`, `web`, `worker` (celery), `frontend` (bun running Vite). The web container runs `migrate` and `ensure_s3_bucket` on startup. Multi-stage production image at `config/docker/Dockerfile.web` (python-requirements → base → dev / js_assets → prod with gunicorn).
+- **Docker**: `compose.yml` services: `db` (postgres 17), `redis` (7), `mailpit`, `silo`, `web`, `worker` (celery), `frontend` (bun running Vite). All but `web` and `worker` have healthchecks. The web container runs `migrate` and `ensure_s3_bucket` on startup. Multi-stage production image at `config/docker/Dockerfile.web` (python-requirements → base → dev / js_assets → prod with gunicorn).
 - **Static / media**: WhiteNoise serves Vite-hashed assets in production with `Cache-Control: max-age=31536000, immutable` (regex defined in settings). Media uploads use `apps/base/storage.py:S3MediaStorage` which handles the Docker-internal vs. browser endpoint URL split for Silo.
 
 ## Development Commands
@@ -22,7 +22,7 @@ Django Base Site is an opinionated Django starter template with a production-rea
 Use Just for all development tasks. Common ones:
 
 **Setup & Management:**
-- `just init` - First-time setup: brings services up, runs `just create_superuser`, then attaches — use after `scripts/start_new_project` or after wiping the DB. Use `just start` for every subsequent boot.
+- `just init` - First-time setup: brings services up, runs `just create_superuser`, then attaches — use on a new project's first boot or after wiping the DB. Use `just start` for every subsequent boot.
 - `just start` - `docker compose up`
 - `just start_with_debugpy` - same with debugpy listening on `:5678`
 - `just stop` - Stop all services
@@ -35,7 +35,7 @@ Use Just for all development tasks. Common ones:
 **Code Quality:**
 - `just format` - Format Python (ruff), JS (oxfmt + oxlint), HTML (djlint), justfile
 - `just lint` - Run all linters + ty type check + check for missing migrations
-- `just pre_commit` - format + lint + test
+- `just pre_commit` - format + lint + test + test_e2e
 
 **Testing:**
 - `just test` - pytest (Django + ninja API tests)
@@ -50,14 +50,17 @@ Use Just for all development tasks. Common ones:
 - `just upgrade_python_packages` - `uv sync --all-packages --all-extras`
 - `just upgrade_node_packages` - `bun update`
 
+<!-- template-only:start -->
+
 **Documentation:**
 - Documentation is built with [Zensical](https://zensical.org/) (successor to MkDocs + Material).
 - `just docs` - Serve docs locally at http://localhost:4000
 - `just docs-build` - Build the static site (outputs to `docs_site/`)
 - `just docs-lint` - Check links in the documentation
-- Config: `zensical.toml` (at project root)
+- Config: `zensical.toml` (at project root); the recipes live in `config/docs.just`
 - The old `docker compose --profile docs` service has been removed.
 
+<!-- template-only:end -->
 ## Testing
 
 - pytest with pytest-django.
@@ -67,7 +70,19 @@ Use Just for all development tasks. Common ones:
 - pyotp for the TOTP / MFA tests under `apps/accounts/tests/test_mfa_flows.py`.
 - Playwright e2e tests under `e2e/` (auth flow, invite flow); `--ignore=e2e` is on `pyproject.toml` `[tool.pytest.ini_options]` so the unit suite stays fast.
 - Coverage configuration in `config/coverage.ini`.
+- CI (`.github/workflows/ci.yml`) runs `just lint`, the pytest suite, and the Playwright e2e suite on pushes to `main` and on pull requests. Dependabot (`.github/dependabot.yml`) opens weekly dependency PRs; the `/weekly-maintenance` skill reviews and merges them.
 
+<!-- template-only:start -->
+
+## Template-Only Files
+
+These exist only in the Django Base Site template. `scripts/start_new_project` runs `just clean_extra_files`, which deletes them from new projects:
+
+- `README.md`, `CHANGELOG.md`, `LICENSE.md`, `docs/`, `zensical.toml`, `config/docs.just`, `.readthedocs.yaml`, `scripts/start_new_project`.
+- `.github/workflows/template.yml` — the "Tests install script" job: runs `scripts/start_new_project` and checks the generated project (CI and Dependabot kept, docs tooling gone, no dead links or `just` recipes in its AGENTS.md, images pullable), then boots it with `docker compose up` and checks `/api/app-context/` responds. It doesn't run pytest; `ci.yml`'s Tests job covers the code.
+- Blocks of this file wrapped in `<!-- template-only:start -->` / `<!-- template-only:end -->` markers, each on a line of its own. Put anything that only applies to the template (docs site, release notes, the install script) inside such a block, and don't link to the files above from outside one.
+
+<!-- template-only:end -->
 ## Code Standards
 
 - **Python**: Ruff for formatting + linting (replaces Black/isort). Ty for type checking. Django conventions throughout. Bandit (S) ruleset enabled in Ruff.
@@ -97,12 +112,12 @@ The project supports remote debugging with VS Code, PyCharm, LazyVim/Neovim, or 
 1. Configure Docker Compose Python interpreter (Settings → Python Interpreter)
 2. Create Django Server run configuration
 3. Click Debug — PyCharm handles everything automatically
-4. See [docs/debugging.md](docs/debugging.md) for detailed setup
+4. See the [debugging guide](https://django-base-site.readthedocs.io/en/latest/debugging/) for detailed setup
 
 **LazyVim/Neovim:**
 - Configure nvim-dap to connect to `localhost:5678`
 - The debugger uses the standard Debug Adapter Protocol (DAP)
-- See [docs/debugging.md](docs/debugging.md)
+- See the [debugging guide](https://django-base-site.readthedocs.io/en/latest/debugging/)
 
 **Notes:**
 - Debugger listens on port 5678

@@ -1,0 +1,167 @@
+name: Template
+
+# Template-only: checks that scripts/start_new_project produces a working project.
+# `just clean_extra_files` deletes this file from new projects, which keep
+# ci.yml (Lint, Tests, E2E tests) and dependabot.yml.
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+  workflow_dispatch:
+
+concurrency:
+  group: ci-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  install-script:
+    runs-on: ubuntu-latest
+    name: Tests install script
+    env:
+      BUILD_DIR: /home/runner/work/django-base-site/new_project/
+      SECRET_KEY: secret-key-for-testing-only
+      READ_DOT_ENV_FILE: on
+      PYTHON_CMD_PREFIX: docker compose run -u root --rm --no-deps web
+    steps:
+      - uses: actions/checkout@v7
+      - name: Use Just for running commands
+        run: curl --proto '=https' --tlsv1.2 -sSf https://just.systems/install.sh | bash -s -- --to /usr/local/bin
+      - name: Match docker user to runner UID/GID
+        # The bun container bind-mounts the workspace and writes to it, so it
+        # needs the same UID/GID as the runner user that owns the files.
+        run: |
+          echo "HOST_UID=$(id -u)" >> $GITHUB_ENV
+          echo "HOST_GID=$(id -g)" >> $GITHUB_ENV
+      - name: Install uv
+        uses: astral-sh/setup-uv@v7
+      - name: Test install script
+        run: |
+          ./scripts/start_new_project "example" ${GITHUB_REF#refs/heads/} 1 ${{ env.BUILD_DIR }}
+      - name: Verify project files were updated correctly
+        working-directory: ${{ env.BUILD_DIR }}
+        run: |
+          echo "Verifying compose.yml was updated..."
+          grep -q "image: example" compose.yml || (echo "ERROR: compose.yml not updated correctly" && exit 1)
+          ! grep -q "image: epicserve/django-base-site" compose.yml || (echo "ERROR: compose.yml still contains template text" && exit 1)
+
+          echo "Verifying justfile was updated..."
+          grep -q "example" justfile || (echo "ERROR: justfile not updated correctly" && exit 1)
+
+          echo "Verifying Dockerfile.web was updated..."
+          grep -q "example" config/docker/Dockerfile.web || (echo "ERROR: Dockerfile.web not updated correctly" && exit 1)
+
+          echo "All verification checks passed!"
+      - name: Verify the new project keeps its CI and Dependabot config
+        working-directory: ${{ env.BUILD_DIR }}
+        # clean_extra_files used to delete all of .github/, so every new project
+        # started with no CI and no Dependabot (#1358). Only this template-only
+        # workflow should be removed, and ci.yml must not depend on the template.
+        run: |
+          test -f .github/workflows/ci.yml || { echo "ERROR: .github/workflows/ci.yml was removed"; exit 1; }
+          test -f .github/dependabot.yml || { echo "ERROR: .github/dependabot.yml was removed"; exit 1; }
+          test ! -e .github/workflows/template.yml || { echo "ERROR: the template-only workflow wasn't removed"; exit 1; }
+          if grep -n "start_new_project" .github/workflows/ci.yml; then
+            echo "ERROR: ci.yml references scripts/start_new_project, which new projects don't have"
+            exit 1
+          fi
+      - name: Verify the template's docs-site tooling was removed
+        working-directory: ${{ env.BUILD_DIR }}
+        # docs/ is deleted from new projects, so its Zensical config and the
+        # `just docs*` recipes that build it must go too, or they fail (#1358).
+        run: |
+          test ! -e zensical.toml || { echo "ERROR: zensical.toml was left behind without docs/"; exit 1; }
+          test ! -e config/docs.just || { echo "ERROR: config/docs.just was left behind without docs/"; exit 1; }
+          recipes=" $(just --summary) "
+          for recipe in docs docs-build docs-lint lint_docs; do
+            if [[ "${recipes}" == *" ${recipe} "* ]]; then
+              echo "ERROR: 'just ${recipe}' still exists but docs/ was deleted"
+              exit 1
+            fi
+          done
+      - name: Verify AGENTS.md only points at things the new project has
+        working-directory: ${{ env.BUILD_DIR }}
+        # AGENTS.md is the first file an agent reads in a new project. It used to
+        # link to the deleted docs/ and document the deleted `just docs*` recipes
+        # (#1358). Template-only content goes between template-only markers,
+        # which clean_extra_files strips.
+        run: |
+          status=0
+          if grep -n "template-only:" AGENTS.md; then
+            echo "ERROR: template-only markers are left in AGENTS.md"
+            status=1
+          fi
+          # Every relative Markdown link must resolve.
+          while IFS= read -r target; do
+            [ -e "${target%%#*}" ] || { echo "ERROR: AGENTS.md links to a missing path: ${target}"; status=1; }
+          done < <(grep -oE '\]\([^)]+\)' AGENTS.md | sed -E 's/^\]\((.*)\)$/\1/' | grep -vE '^(https?:|mailto:|#)' | sort -u)
+          # Every `just <recipe>` it mentions must exist.
+          recipes=" $(just --summary) "
+          while IFS= read -r recipe; do
+            [[ "${recipes}" == *" ${recipe} "* ]] || { echo "ERROR: AGENTS.md mentions 'just ${recipe}', which doesn't exist"; status=1; }
+          done < <(grep -oE '`just [a-z0-9_-]+' AGENTS.md | sed 's/^`just //' | sort -u)
+          exit ${status}
+      - name: Verify third-party compose images can still be pulled
+        working-directory: ${{ env.BUILD_DIR }}
+        # Guards against an upstream image vanishing from its registry, which
+        # breaks `just init` for every new project (#1345: MinIO removed
+        # minio/minio from Docker Hub). Images built from this repo are skipped
+        # because they're never pulled.
+        run: |
+          docker compose config --format json \
+            | jq -r '[.services[] | select(.build) | .image] as $built | [.services[] | .image] - $built | unique[]' \
+            | while read -r image; do
+                echo "Checking ${image} ..."
+                docker manifest inspect "${image}" > /dev/null || { echo "ERROR: ${image} can't be pulled"; exit 1; }
+              done
+      - name: Verify just init survives a project that isn't a Git repository yet
+        working-directory: ${{ env.BUILD_DIR }}
+        # start_new_project produces a plain directory (no .git/), and `just init`
+        # runs `install_hooks` first. It used to abort there with
+        # "fatal: not in a git directory"; it must skip the hooks with a note
+        # instead, and still install them once the project has been `git init`-ed.
+        run: |
+          test ! -e .git || { echo "ERROR: expected a fresh project without .git"; exit 1; }
+          output=$(just install_hooks 2>&1) || { echo "ERROR: just install_hooks failed without a Git repository:"; echo "${output}"; exit 1; }
+          echo "${output}"
+          echo "${output}" | grep -q "Skipping Git hooks" || { echo "ERROR: expected install_hooks to print its skip note"; exit 1; }
+          git init -q .
+          just install_hooks
+          test "$(git config core.hooksPath)" = ".githooks" || { echo "ERROR: core.hooksPath was not set after git init"; exit 1; }
+      - name: Build docker images
+        working-directory: ${{ env.BUILD_DIR }}
+        run: docker compose build web frontend
+      - name: Build assets
+        working-directory: ${{ env.BUILD_DIR }}
+        run: just build_frontend
+      - name: Boot the new project and check the app responds
+        working-directory: ${{ env.BUILD_DIR }}
+        # Smoke-tests what the installer produced, started the way a user starts
+        # it: the generated .env, the compose services and their healthchecks,
+        # and web's startup (migrate + ensure_s3_bucket against Silo). The
+        # project's code itself is tested by ci.yml's Tests job, so pytest
+        # doesn't run here. web has no healthcheck, so poll the API until it
+        # answers.
+        run: |
+          docker compose up --wait -d web || { docker compose ps; docker compose logs; exit 1; }
+          for attempt in $(seq 1 60); do
+            if curl -fs -o /dev/null http://localhost:8000/api/app-context/; then
+              echo "The app responded after ${attempt} attempt(s)"
+              exit 0
+            fi
+            if [ -z "$(docker compose ps --status running -q web)" ]; then
+              echo "ERROR: the web container stopped before the app responded"
+              docker compose ps -a
+              docker compose logs web
+              exit 1
+            fi
+            sleep 2
+          done
+          echo "ERROR: /api/app-context/ didn't respond within 2 minutes"
+          docker compose ps -a
+          docker compose logs web
+          exit 1
