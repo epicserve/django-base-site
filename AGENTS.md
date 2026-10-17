@@ -79,7 +79,9 @@ Use Just for all development tasks. Common ones:
 These exist only in the Django Base Site template. `scripts/start_new_project` runs `just clean_extra_files`, which deletes them from new projects:
 
 - `README.md`, `CHANGELOG.md`, `LICENSE.md`, `docs/`, `zensical.toml`, `config/docs.just`, `.readthedocs.yaml`, `scripts/start_new_project`.
-- `.github/workflows/template.yml` — the "Tests install script" job: runs `scripts/start_new_project` and checks the generated project (CI and Dependabot kept, docs tooling gone, no dead links or `just` recipes in its AGENTS.md, images pullable), then boots it with `docker compose up` and checks `/api/app-context/` responds. It doesn't run pytest; `ci.yml`'s Tests job covers the code.
+- `config/template.just`, which holds `clean_extra_files` itself, so the recipe doesn't linger in new projects.
+- The docs site's dev dependencies (`zensical`, `mkdocs-linkcheck`), removed from `pyproject.toml` and `uv.lock` with `uv remove`.
+- `.github/workflows/template.yml` — the "Tests install script" job: runs `scripts/start_new_project` and checks the generated project (CI and Dependabot kept, docs tooling and its dependencies gone, no dead links or `just` recipes in its AGENTS.md, nothing else pointing at the deleted files, images pullable), then boots it with `docker compose up` and checks `/api/app-context/` responds. It doesn't run pytest; `ci.yml`'s Tests job covers the code.
 - Blocks of this file wrapped in `<!-- template-only:start -->` / `<!-- template-only:end -->` markers, each on a line of its own. Put anything that only applies to the template (docs site, release notes, the install script) inside such a block, and don't link to the files above from outside one.
 
 <!-- template-only:end -->

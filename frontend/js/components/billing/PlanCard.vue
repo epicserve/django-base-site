@@ -75,7 +75,8 @@ const ctaState = computed(() => {
     return { label: 'Current plan', action: null, disabled: true, hint: '' };
   }
   if (props.hasSubscription) {
-    // Plan switching is disabled by default — see docs/billing.md to enable.
+    // Plan switching is disabled by default. To enable it, see
+    // https://django-base-site.readthedocs.io/en/latest/billing/#enabling-plan-switching
     return {
       label: 'Already subscribed',
       action: null,

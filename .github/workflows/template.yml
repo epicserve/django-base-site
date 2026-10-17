@@ -83,6 +83,12 @@ jobs:
               exit 1
             fi
           done
+          # Its dev dependencies go too, and uv.lock must still match pyproject.toml.
+          if grep -nE '"(zensical|mkdocs-linkcheck)' pyproject.toml uv.lock; then
+            echo "ERROR: the docs site's dev dependencies were left in pyproject.toml or uv.lock"
+            exit 1
+          fi
+          uv lock --check
       - name: Verify AGENTS.md only points at things the new project has
         working-directory: ${{ env.BUILD_DIR }}
         # AGENTS.md is the first file an agent reads in a new project. It used to
@@ -105,6 +111,18 @@ jobs:
             [[ "${recipes}" == *" ${recipe} "* ]] || { echo "ERROR: AGENTS.md mentions 'just ${recipe}', which doesn't exist"; status=1; }
           done < <(grep -oE '`just [a-z0-9_-]+' AGENTS.md | sed 's/^`just //' | sort -u)
           exit ${status}
+      - name: Verify nothing else points at the template's deleted files
+        working-directory: ${{ env.BUILD_DIR }}
+        # clean_extra_files used to survive in new projects (failing on re-run
+        # because scripts/start_new_project was already gone), and comments and
+        # help text pointed at README.md and docs/*.md. Matches only bare paths:
+        # URLs such as https://bun.sh/docs/ are preceded by a slash and skipped.
+        run: |
+          if grep -rnIE '(^|[^[:alnum:]/._-])(docs/|README\.md|CHANGELOG\.md|LICENSE\.md|\.readthedocs\.yaml|zensical|mkdocs|start_new_project|clean_extra_files|template\.yml|template-only)' \
+              --exclude-dir=.git --exclude-dir=node_modules --exclude-dir=.venv .; then
+            echo "ERROR: the lines above refer to template-only files that new projects don't have"
+            exit 1
+          fi
       - name: Verify third-party compose images can still be pulled
         working-directory: ${{ env.BUILD_DIR }}
         # Guards against an upstream image vanishing from its registry, which
