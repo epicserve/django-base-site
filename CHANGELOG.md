@@ -1,6 +1,20 @@
 # CHANGELOG
 
 
+## 2026-10-15
+
+### Fixed
+
+* Projects created with `scripts/start_new_project` now keep their CI and Dependabot config (#1358). `just clean_extra_files` used to delete all of `.github/`, so every new project started with no CI and no dependency updates, and the shipped `/weekly-maintenance` skill had no Dependabot PRs to work on. It now deletes only the template-only workflow.
+* `AGENTS.md` in a new project no longer points at things the project doesn't have. It linked to `docs/debugging.md` (deleted with `docs/`; the links now go to the hosted debugging guide), documented the `just docs*` recipes, and said to run `just init` "after `scripts/start_new_project`". Template-only content now sits between `<!-- template-only:start -->` / `<!-- template-only:end -->` marker lines, which `clean_extra_files` strips.
+* The `just docs`, `docs-build`, `docs-lint`, and `lint_docs` recipes no longer linger, broken, in new projects. They moved from `config/base.just` to `config/docs.just`, which the justfile loads with `import?` and `clean_extra_files` deletes along with `zensical.toml`.
+
+### CI
+
+* The CI workflow is split. `.github/workflows/ci.yml` (Lint, Tests, E2E tests) is the project workflow that new projects keep; its new **Tests** job runs the pytest suite on the checkout. The install-script job moved to the template-only `.github/workflows/template.yml`.
+* The install-script job now tests the installer instead of re-running pytest. It checks the generated project (`ci.yml` and `dependabot.yml` exist and `template.yml` doesn't; `zensical.toml`, `config/docs.just`, and the `just docs*` recipes are gone; `AGENTS.md` has no template-only markers, no relative links to missing paths, and no mentions of `just` recipes that don't exist), then boots it the way a user does: `docker compose up` with the generated `.env`, followed by polling `/api/app-context/` until it responds. That catches a broken `.env.toml` schema, compose service, or startup command (`migrate`, `ensure_s3_bucket`), which pytest in that job couldn't: it ran with `READ_DOT_ENV_FILE=False` and without Silo or Redis. The job no longer needs its own Postgres service.
+
+
 ## 2026-09-22
 
 ### Changed

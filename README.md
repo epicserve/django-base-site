@@ -190,6 +190,11 @@ installed (see [Git hooks](#git-hooks)). Without it, `just init` prints a note, 
     $ git init                  # Optional, but lets `just init` install the Git hooks
     $ just init
 
+`just clean_extra_files` removes the template's own files: this README, the changelog, the license, the docs site and
+its tooling, the install script, the template-only CI workflow, and the template-only blocks in `AGENTS.md`. New
+projects keep the GitHub Actions CI workflow (`.github/workflows/ci.yml`: lint, tests, and Playwright e2e) and the
+Dependabot config, so they're covered from the first push.
+
 `epicenv create` reads the `[variables]` block in `.env.toml` and produces a `.env` with sensible defaults — `SECRET_KEY` and `POSTGRES_PASSWORD` are auto-generated, `SITE_DOMAIN=localhost:8000` (so passkeys work), and the Silo + Mailpit credentials are pre-wired.
 
 ## Usage

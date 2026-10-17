@@ -160,17 +160,6 @@ db_restore dump_file="":
     docker compose exec -T db psql -h db -U ${POSTGRES_DB} -d postgres -c "CREATE DATABASE ${POSTGRES_DB};" > /dev/null
     docker compose exec -T db pg_restore -d ${DATABASE_URL} --no-owner --no-privileges < "${DUMP_FILE}"
 
-# Serve documentation locally with Zensical (on port 4000)
-@docs:
-    uv run zensical serve -f zensical.toml
-
-# Build the documentation site (outputs to docs_site/)
-@docs-build:
-    uv run zensical build -f zensical.toml --clean --strict
-
-# Lint documentation links
-@docs-lint: lint_docs
-
 # Format all code natively via uvx/bunx (no Docker); versions come from uv.lock / package.json
 @format: _require_native_tools
     just _start_msg "Formatting Python code using ruff {{ ruff_version }}"
@@ -186,19 +175,6 @@ db_restore dump_file="":
 
 # Lint everything
 lint: lint_js lint_html lint_py lint_migrations lint_types
-
-# Lint docs links
-@lint_docs:
-    just _start_msg "Validate internal docs links (Zensical strict build)"
-    uv run zensical build -f zensical.toml --strict
-    just _start_msg "Check external documentation links"
-    # Zensical's strict build above owns internal links (it validates with the renderer's
-    # own resolution rules), so the first --exclude skips every non-http link —
-    # mkdocs-linkcheck resolves local links directory-URL style and false-positives
-    # source-relative .md links that Zensical renders correctly.
-    # Second --exclude: GitHub throttles the checker's rapid requests, randomly failing
-    # valid links to our own repo. Third-party URLs are still checked.
-    {{ python_cmd_prefix }} mkdocs-linkcheck ./docs --exclude '^(?!https?://)' --exclude 'github\.com/epicserve/django-base-site/blob/'
 
 # Lint HTML
 @lint_html: _require_native_tools
