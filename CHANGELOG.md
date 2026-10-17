@@ -1,6 +1,19 @@
 # CHANGELOG
 
 
+## 2026-10-17
+
+### Fixed
+
+* `just clean_extra_files` no longer lingers in new projects, where it was listed by `just -l` and failed when run (`rm: cannot remove 'scripts/start_new_project'`). It moved from the `justfile` to the template-only `config/template.just`, which the justfile loads with `import?` and the recipe deletes as its last step.
+* New projects no longer install the docs site's dev dependencies (`zensical`, `mkdocs-linkcheck`, and their transitive packages such as `aiohttp` and `pymdown-extensions`) into their dev image. `clean_extra_files` now removes them from `pyproject.toml` and `uv.lock` with `uv remove --dev --no-sync`, before deleting anything else, so a missing `uv` (already a documented prerequisite) leaves the tree untouched. `uv remove` re-locks under the project's rolling `exclude-newer = "P7D"`, so a package released in the last 7 days can resolve to its previous version in a brand-new project until Dependabot bumps it.
+* Comments and help text in new projects no longer point at files they don't have: the `DJANGO_SUPERUSER_PASSWORD` help text in `.env.toml` referred to `README.md` (it now points at the `create_superuser` recipe), and `PlanCard.vue` referred to `docs/billing.md` (it now links the hosted billing guide).
+
+### CI
+
+* The install-script job now checks that the generated project's `pyproject.toml` and `uv.lock` no longer list the docs dependencies, that `uv lock --check` passes, and that no file in the project refers to a template-only file (`README.md`, `docs/`, `clean_extra_files`, `scripts/start_new_project`, and so on).
+
+
 ## 2026-10-15
 
 ### Fixed

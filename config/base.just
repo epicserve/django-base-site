@@ -124,7 +124,7 @@ _require_native_tools:
     just start
 
 # Install Git hooks (pre-commit -> just format, pre-push -> just lint). Skips with a note when this
-# directory isn't the root of a Git repository yet (e.g. right after scripts/start_new_project).
+# directory isn't the root of a Git repository yet (e.g. a new project that hasn't been `git init`-ed).
 install_hooks:
     #!/usr/bin/env bash
     set -e
