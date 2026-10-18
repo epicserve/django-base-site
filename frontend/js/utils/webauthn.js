@@ -98,9 +98,12 @@ export async function createPasskeyCredential(creationOptionsJson) {
   return encodeCredential(credential);
 }
 
-export async function getPasskeyAssertion(requestOptionsJson) {
+// `mediation: 'conditional'` offers passkeys in the autofill list of an input with
+// `autocomplete="... webauthn"` instead of opening the browser's modal passkey dialog.
+// Pass an AbortSignal to cancel a pending request (only one can be in flight at a time).
+export async function getPasskeyAssertion(requestOptionsJson, { mediation, signal } = {}) {
   const publicKey = decodeRequestOptions(requestOptionsJson),
-    credential = await navigator.credentials.get({ publicKey });
+    credential = await navigator.credentials.get({ publicKey, mediation, signal });
 
   return encodeCredential(credential);
 }
@@ -112,4 +115,15 @@ export function isWebAuthnSupported() {
     typeof navigator.credentials?.create === 'function' &&
     typeof navigator.credentials?.get === 'function'
   );
+}
+
+export async function isConditionalMediationAvailable() {
+  if (!isWebAuthnSupported() || typeof PublicKeyCredential.isConditionalMediationAvailable !== 'function') {
+    return false;
+  }
+  try {
+    return await PublicKeyCredential.isConditionalMediationAvailable();
+  } catch {
+    return false;
+  }
 }

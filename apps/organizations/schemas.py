@@ -97,6 +97,7 @@ class InviteOut(Schema):
     invitee: int | None = None
     invitee_email: str = ""
     is_owner: bool
+    is_expired: bool
     key: str
     created: datetime
     modified: datetime

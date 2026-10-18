@@ -8,8 +8,10 @@ run unless DEBUG is on. It also refuses while migrations are pending, because
 the web container runs `migrate` on startup and `just seed` can race it.
 
 Rerunning is safe. Each run creates whatever seeded rows are missing and
-restores the seeded fields (names, roles, passwords) on the ones that exist,
-but never deletes anything created by hand:
+restores the seeded fields (names, roles, passwords) on the ones that exist.
+It also removes MFA authenticators (TOTP, passkeys, recovery codes) from the
+seeded users, so a seeded login always signs in with the password alone. Apart
+from that it never deletes anything created by hand:
 
 - Team members are only added, never removed.
 - `is_primary` (on memberships and email addresses) is only set when a row is
@@ -33,6 +35,7 @@ from django.db.migrations.executor import MigrationExecutor
 from django.utils import timezone
 
 from allauth.account.models import EmailAddress
+from allauth.mfa.models import Authenticator
 
 from apps.accounts.models import User
 from apps.organizations.models import Organization, OrganizationInvite, OrganizationMember
@@ -182,6 +185,10 @@ class Command(BaseCommand):
                 create_defaults={"verified": True, "primary": not has_primary},
             )
             users[login.email] = user
+        # Enrolling TOTP or a passkey turns on MFA, which would stop a known password from being enough.
+        removed, _ = Authenticator.objects.filter(user__in=users.values()).delete()
+        if removed:
+            self.stdout.write(f"Removed {removed} MFA authenticator(s) from seeded logins.")
         return users
 
     def _seed_organizations(self) -> dict[str, Organization]:
