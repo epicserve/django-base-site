@@ -1,11 +1,11 @@
 <script setup>
-import { ref, inject, onMounted } from 'vue';
+import { ref, inject, onBeforeUnmount, onMounted } from 'vue';
 import { useRoute, useRouter, RouterLink } from 'vue-router';
 import AuthLayout from '@/layouts/AuthLayout.vue';
 import FormField from '../components/FormField.vue';
 import FormErrors from '../components/FormErrors.vue';
 import { authApi, parseAllauthErrors } from '../api';
-import { getPasskeyAssertion, isWebAuthnSupported } from '../../utils/webauthn';
+import { getPasskeyAssertion, isConditionalMediationAvailable, isWebAuthnSupported } from '../../utils/webauthn';
 import { safeNextUrl } from '../../utils/redirect';
 
 const route = useRoute();
@@ -18,14 +18,26 @@ const errors = ref({});
 const loading = ref(false);
 const passkeyLoading = ref(false);
 const passkeySupported = ref(false);
-const passkeyInFlight = ref(false);
+let conditionalAvailable = false;
+// Aborts the pending autofill (conditional) passkey request.
+let conditionalRequest = null;
 
-onMounted(() => {
+onMounted(async () => {
   passkeySupported.value = isWebAuthnSupported();
-  if (passkeySupported.value) {
-    attemptPasskeyLogin(true);
+  // Offer passkeys in the email field's autofill list. A plain (modal) request here would open the
+  // browser's passkey dialog on every visit, which blocks the page until it's dismissed.
+  conditionalAvailable = await isConditionalMediationAvailable();
+  if (conditionalAvailable) {
+    attemptPasskeyLogin({ conditional: true });
   }
 });
+
+onBeforeUnmount(cancelConditionalRequest);
+
+function cancelConditionalRequest() {
+  conditionalRequest?.abort();
+  conditionalRequest = null;
+}
 
 function getRedirectUrl() {
   return safeNextUrl(route.query.next);
@@ -68,46 +80,58 @@ async function onSubmit() {
   }
 }
 
-async function attemptPasskeyLogin(isAuto = false) {
-  if (passkeyInFlight.value) return;
-  passkeyInFlight.value = true;
+async function attemptPasskeyLogin({ conditional = false } = {}) {
+  // Only one WebAuthn request can be pending, so the button cancels the autofill one first.
+  cancelConditionalRequest();
+  const controller = new AbortController();
 
-  if (!isAuto) {
+  if (conditional) {
+    conditionalRequest = controller;
+  } else {
     passkeyLoading.value = true;
+    errors.value = {};
   }
-  errors.value = {};
+
+  // The autofill request starts on its own, so it stays quiet until the user picks a passkey from it.
+  let userChosePasskey = !conditional;
 
   try {
     const optsResp = await authApi.beginPasskeyLogin();
     const options = optsResp.data?.request_options || optsResp.data;
-    const credential = await getPasskeyAssertion(options);
+    const credential = await getPasskeyAssertion(options, {
+      mediation: conditional ? 'conditional' : undefined,
+      signal: controller.signal,
+    });
+    userChosePasskey = true;
     const data = await authApi.completePasskeyLogin(credential);
 
     appStore.setUser(data.data?.user || null);
     await appStore.fetchContext();
     window.location.href = getRedirectUrl();
   } catch (err) {
-    if (err.name === 'NotAllowedError' || err.name === 'AbortError') {
-      if (!isAuto) passkeyLoading.value = false;
-      passkeyInFlight.value = false;
-      return;
-    }
     if (err.response?.status === 409) {
       window.location.href = getRedirectUrl();
       return;
     }
-    if (!isAuto) {
+    if (!userChosePasskey) return;
+    // Cancelling the passkey dialog isn't an error worth showing.
+    if (err.name !== 'NotAllowedError' && err.name !== 'AbortError') {
       errors.value = err.data
         ? parseAllauthErrors(err.data)
         : { non_field_errors: [err.message || 'Passkey sign-in failed.'] };
-      passkeyLoading.value = false;
     }
-    passkeyInFlight.value = false;
+    resumeAutofill();
   }
 }
 
+// After a passkey attempt fails or is cancelled, offer passkeys in autofill again.
+function resumeAutofill() {
+  passkeyLoading.value = false;
+  if (conditionalAvailable) attemptPasskeyLogin({ conditional: true });
+}
+
 async function passkeyLogin() {
-  attemptPasskeyLogin(false);
+  attemptPasskeyLogin();
 }
 </script>
 
@@ -117,7 +141,13 @@ async function passkeyLogin() {
     <p class="mt-2 text-center text-sm text-gray-500 dark:text-gray-400">Welcome back</p>
     <form class="mt-6 space-y-4" @submit.prevent="onSubmit">
       <FormErrors :errors="errors.non_field_errors || []" />
-      <FormField v-model="email" type="email" placeholder="Email" autocomplete="email" :errors="errors.email || []" />
+      <FormField
+        v-model="email"
+        type="email"
+        placeholder="Email"
+        autocomplete="username webauthn"
+        :errors="errors.email || []"
+      />
       <FormField
         v-model="password"
         type="password"

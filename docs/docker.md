@@ -47,7 +47,7 @@ It creates known logins that all use the password `dev-password`, then prints th
 
 Acme also gets 18 filler members, the Engineering and Design teams (Globex gets Sales), and three invites: pending for `user@example.com`, pending for `invitee@example.com` (no account), and expired for `expired@example.com`.
 
-The command (`seed_dev`) only runs with `DEBUG` on. It's safe to rerun: it restores the seeded rows and passwords but never deletes anything you created by hand, so an invite you've accepted stays accepted.
+The command (`seed_dev`) only runs with `DEBUG` on. It's safe to rerun: it restores the seeded rows and passwords, and removes any MFA (TOTP, passkeys) you enrolled on a seeded login so the password alone signs in again. Otherwise it never deletes anything you created by hand, so an invite you've accepted stays accepted.
 
 ## Debugging
 

@@ -1,7 +1,7 @@
 <script setup>
 import { ref, computed, onMounted } from 'vue';
 import { PlusIcon, PencilIcon, TrashIcon } from '@heroicons/vue/24/outline';
-import { get, post, patch, del, parseErrors } from '../utils/api';
+import { getAllResults, post, patch, del, parseErrors } from '../utils/api';
 import { showToast } from '../composables/useToast';
 import { userFullName } from '../utils/format';
 import AppModal from '../components/AppModal.vue';
@@ -36,8 +36,7 @@ const memberOptionsList = computed(() =>
 
 async function loadTeams() {
   try {
-    const data = await get(props.teamListUrl);
-    teams.value = data.results || data;
+    teams.value = await getAllResults(props.teamListUrl);
   } catch {
     showToast('Failed to load teams.', 'error');
   }
@@ -45,8 +44,7 @@ async function loadTeams() {
 
 async function loadMembers() {
   try {
-    const data = await get(props.organizationMemberListUrl);
-    const results = data.results || data;
+    const results = await getAllResults(props.organizationMemberListUrl);
     memberOptions.value = results.map((m) => m.user || m);
   } catch {
     memberOptions.value = [];

@@ -10,6 +10,7 @@ from django.db.migrations.executor import MigrationExecutor
 
 import pytest
 from allauth.account.models import EmailAddress
+from allauth.mfa.models import Authenticator
 
 from apps.accounts.models import User
 from apps.base.management.commands.seed_dev import FILLERS, LOGINS, SEED_PASSWORD
@@ -168,15 +169,33 @@ class TestSeedDevLogin:
         # The test runner defaults to ModelBackend (username-based); sign in by email the way the SPA does.
         settings.AUTHENTICATION_BACKENDS = ["allauth.account.auth_backends.AuthenticationBackend"]
 
-    @pytest.mark.parametrize("email", [login.email for login in LOGINS])
-    def test_seeded_login_can_sign_in(self, client, email):
-        resp = client.post(
+    @staticmethod
+    def _sign_in(client, email):
+        return client.post(
             "/_allauth/browser/v1/auth/login",
             data={"email": email, "password": SEED_PASSWORD},
             content_type="application/json",
         )
+
+    @pytest.mark.parametrize("email", [login.email for login in LOGINS])
+    def test_seeded_login_can_sign_in(self, client, email):
+        resp = self._sign_in(client, email)
         assert resp.status_code == 200, resp.content
         assert client.session.get("_auth_user_id") == str(User.objects.get(email=email).pk)
+
+    def test_rerun_removes_mfa_so_the_password_is_enough(self, client, settings):
+        # Enrolling TOTP (or a passkey) while testing MFA would otherwise leave the login asking for a code.
+        owner = User.objects.get(email="owner@example.com")
+        Authenticator.objects.create(user=owner, type=Authenticator.Type.TOTP, data={"secret": "JBSWY3DPEHPK3PXP"})
+        Authenticator.objects.create(user=owner, type=Authenticator.Type.RECOVERY_CODES, data={"seed": "00"})
+        assert self._sign_in(client, owner.email).status_code == 401
+
+        settings.DEBUG = True
+        _seed()
+        settings.DEBUG = False
+
+        assert not Authenticator.objects.filter(user=owner).exists()
+        assert self._sign_in(client, owner.email).status_code == 200
 
 
 class TestRunAppSkill:

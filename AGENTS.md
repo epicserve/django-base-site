@@ -31,7 +31,7 @@ Use Just for all development tasks. Common ones:
 - `just clean` - Remove caches, coverage, dist
 - `just create_env` - Generate `.env` from the schema in `.env.toml`
 - `just create_superuser` - Idempotent `epicenv create-superuser` (edit the recipe in the top-level `justfile` to pipe credentials from a secrets manager)
-- `just seed` - Known dev logins (password `dev-password`), two orgs, teams, and pending + expired invites. DEBUG only; safe to rerun, and never deletes what you created by hand. Prints the logins and invite accept URLs.
+- `just seed` - Known dev logins (password `dev-password`), two orgs, teams, and pending + expired invites. DEBUG only; safe to rerun. It resets the seeded logins' passwords and removes their MFA, but otherwise never deletes what you created by hand. Prints the logins and invite accept URLs.
 
 **Code Quality:**
 - `just format` - Format Python (ruff), JS (oxfmt + oxlint), HTML (djlint), justfile
@@ -69,7 +69,7 @@ Use Just for all development tasks. Common ones:
 - Model Bakery for fixtures.
 - Django Test Plus for additional helpers.
 - pyotp for the TOTP / MFA tests under `apps/accounts/tests/test_mfa_flows.py`.
-- Playwright e2e tests under `e2e/` (auth flow, invite flow); `--ignore=e2e` is on `pyproject.toml` `[tool.pytest.ini_options]` so the unit suite stays fast.
+- Playwright e2e tests under `e2e/` (auth flow incl. the passkey prompt, invite flow, org settings); `--ignore=e2e` is on `pyproject.toml` `[tool.pytest.ini_options]` so the unit suite stays fast.
 - Coverage configuration in `config/coverage.ini`.
 - Every `apps.*` management command must import cleanly; `apps/base/tests/test_management_commands.py` loads them all, since `ty` ignores unresolved imports.
 - To check a UI change in the browser, follow the `run-app` skill ([.agents/skills/run-app/SKILL.md](.agents/skills/run-app/SKILL.md)): start the stack, `just seed`, then sign in as a seeded login with Playwright.
