@@ -183,3 +183,23 @@ jobs:
           docker compose ps -a
           docker compose logs web
           exit 1
+      - name: Seed the new project and sign in as a seeded user
+        working-directory: ${{ env.BUILD_DIR }}
+        # `just seed` gives agents known logins to check UI changes with (#1365).
+        # pytest covers seed_dev itself; this covers what it can't: the recipe,
+        # the compose prefix, and DEBUG being on in the generated .env (the
+        # command refuses to run otherwise). The second run must succeed against
+        # the data the first one created.
+        run: |
+          just seed || { docker compose logs web; exit 1; }
+          just seed || { echo "ERROR: just seed failed when rerun"; docker compose logs web; exit 1; }
+          status=$(curl -s -o /tmp/login.json -w '%{http_code}' -X POST -H 'Content-Type: application/json' \
+            -d '{"email": "owner@example.com", "password": "dev-password"}' \
+            http://localhost:8000/_allauth/app/v1/auth/login)
+          if [ "${status}" != "200" ]; then
+            echo "ERROR: signing in as owner@example.com returned ${status}:"
+            cat /tmp/login.json
+            docker compose logs web
+            exit 1
+          fi
+          echo "Signed in as owner@example.com"

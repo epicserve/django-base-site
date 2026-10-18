@@ -1,6 +1,23 @@
 # CHANGELOG
 
 
+## 2026-10-18
+
+### Added
+
+* `just seed` (the new `seed_dev` management command) fills a dev database with known logins, so a developer or an agent can sign in and check a UI change without clicking through signup and invites first (#1365). Every login uses the password `dev-password`: `admin@example.com` (superuser and staff, owner of Globex), `owner@example.com` (owner of Acme, member of Globex), `member@example.com` (member of Acme), and `user@example.com` (no organization, with a pending invite to Acme). Acme also gets 18 filler members, there are three teams, and Acme has a pending invite for an email with no account and an expired one. The command prints the logins and each invite's accept URL, since seeded invites send no email. It refuses to run unless `DEBUG` is on, and while migrations are still pending (the web container runs `migrate` on startup, so `just seed` could otherwise race it). Rerunning it restores the seeded rows and resets their passwords but never deletes anything created by hand: team members are only added, a user's primary organization is only set when it's missing, and an invite whose invitee has since joined is skipped.
+* A `run-app` project skill (`.agents/skills/run-app/`) walks an agent through starting the stack, waiting for the API, running `just seed`, picking a login, and signing in with Playwright to check a change. It covers one trap: the login page asks for a passkey as soon as it loads, and in a headed Chrome the browser's passkey dialog swallows every click, so the skill adds a virtual WebAuthn authenticator over CDP first.
+
+### Removed
+
+* The `create_fake_users` and `add_random_members` management commands. `create_fake_users` imported `faker`, which was never a dependency, so it failed with `ModuleNotFoundError`; `ty` didn't flag it because unresolved imports are ignored. `add_random_members` picked random users without excluding existing members, so it raised `IntegrityError` on the organization/user unique constraint as soon as it picked someone twice, and on every rerun. `just seed` replaces both.
+
+### CI
+
+* A new test loads every `apps.*` management command, so a command that imports a package missing from the lockfile fails the Tests job instead of failing only when someone runs it.
+* The install-script job now runs `just seed` twice in the generated project and signs in as `owner@example.com` through allauth's headless API. That covers the recipe, the compose command prefix, and `DEBUG` being on in the generated `.env`.
+
+
 ## 2026-10-17
 
 ### Fixed
