@@ -28,6 +28,27 @@ docker compose run --no-deps --rm frontend bun run build
 
 `just build_frontend` does this plus `collectstatic`.
 
+## Seed Data
+
+A fresh database has no logins or organizations. Once the app answers at http://localhost:8000/, run:
+
+```bash
+just seed
+```
+
+It creates known logins that all use the password `dev-password`, then prints them along with each seeded invite's accept URL (seeded invites send no email):
+
+| Login                | Role                                              |
+|----------------------|---------------------------------------------------|
+| `admin@example.com`  | Superuser and staff; owner of Globex              |
+| `owner@example.com`  | Owner of Acme (primary org); member of Globex     |
+| `member@example.com` | Member of Acme, not an owner                      |
+| `user@example.com`   | No organization; pending invite to Acme           |
+
+Acme also gets 18 filler members, the Engineering and Design teams (Globex gets Sales), and three invites: pending for `user@example.com`, pending for `invitee@example.com` (no account), and expired for `expired@example.com`.
+
+The command (`seed_dev`) only runs with `DEBUG` on. It's safe to rerun: it restores the seeded rows and passwords, and removes any MFA (TOTP, passkeys) you enrolled on a seeded login so the password alone signs in again. Otherwise it never deletes anything you created by hand, so an invite you've accepted stays accepted.
+
 ## Debugging
 
 ### Localhost vs 127.0.0.1

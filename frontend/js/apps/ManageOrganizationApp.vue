@@ -1,7 +1,7 @@
 <script setup>
 import { ref, onMounted } from 'vue';
 import { ArrowPathIcon, UserMinusIcon, EnvelopeIcon, XMarkIcon } from '@heroicons/vue/24/outline';
-import { get, post, patch, del, parseErrors } from '../utils/api';
+import { get, getAllResults, post, patch, del, parseErrors } from '../utils/api';
 import { showToast } from '../composables/useToast';
 import { userFullName } from '../utils/format';
 import AppModal from '../components/AppModal.vue';
@@ -28,12 +28,11 @@ let searchTimeout = null;
 
 async function loadData() {
   try {
-    const [membersData, invitesData] = await Promise.all([
-      get(props.organizationMemberListUrl),
-      get(props.organizationInviteListUrl),
+    // Both lists are paginated; load every page so nothing past the first is silently dropped.
+    [members.value, invites.value] = await Promise.all([
+      getAllResults(props.organizationMemberListUrl),
+      getAllResults(props.organizationInviteListUrl),
     ]);
-    members.value = membersData.results || membersData;
-    invites.value = invitesData.results || invitesData;
   } catch {
     showToast('Failed to load data.', 'error');
   }
@@ -265,6 +264,13 @@ onMounted(loadData);
             </td>
             <td class="py-2">
               <span
+                v-if="invite.is_expired"
+                class="inline-flex items-center rounded-full bg-red-100 px-2.5 py-0.5 text-xs font-medium text-red-800 dark:bg-red-900/30 dark:text-red-300"
+              >
+                Expired
+              </span>
+              <span
+                v-else
                 class="inline-flex items-center rounded-full bg-yellow-100 px-2.5 py-0.5 text-xs font-medium text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-300"
               >
                 Pending

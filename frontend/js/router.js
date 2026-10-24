@@ -31,11 +31,11 @@ export function createRouter(appStore) {
         meta: { requiresAuth: true },
       },
 
-      // Organization Settings (nested tabs)
+      // Organization Settings (nested tabs). Every tab's API is owner-only, and only owners get the Settings link.
       {
         path: '/organizations/:slug/settings/',
         component: () => import('./layouts/OrgSettingsLayout.vue'),
-        meta: { requiresAuth: true },
+        meta: { requiresAuth: true, ownerOnly: true },
         children: [
           { path: '', redirect: (to) => ({ name: 'org-settings-general', params: to.params }) },
           {
@@ -226,6 +226,9 @@ export function createRouter(appStore) {
       return { name: 'home' };
     }
     if (to.meta.superuserOnly && !appStore.user?.is_superuser) {
+      return { name: 'home' };
+    }
+    if (to.meta.ownerOnly && !appStore.isOwner) {
       return { name: 'home' };
     }
     // When BILLING_ENABLED is false, hide pricing page + billing tab so users
