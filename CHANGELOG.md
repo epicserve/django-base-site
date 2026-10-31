@@ -11,6 +11,8 @@
 ### Changed
 
 * `.env.toml` fills `DJANGO_SUPERUSER_USERNAME` / `_EMAIL` / `_PASSWORD` when `just create_env` runs: from the 1Password item `op://Private/django-admin` (via epicenv's 1Password initializer) when the `op` CLI is signed in, and otherwise with the fallbacks `admin` / `admin@example.com` / `dev-password`, which is what CI gets. They used to be blank, so `just init` skipped creating a superuser until you set them.
+* The home page has a new design. It greets you by first name and pictures the stack as a tower of colored blocks: Services, Django & API, Sign-in & security, Teams & billing, and the Vue front end, with an empty "Your app" block on top. Below it, "What's in the box" says what each block includes, now covering notifications and Stripe billing too. The blocks drop into place once per page load (not at all when the browser asks for reduced motion), and pointing at a block or its row slides that block out of the stack. The page links to the docs, to the Django admin for staff, and names the file to replace, `frontend/js/views/HomeView.vue`.
+* The site uses one sans-serif typeface. The Fraunces serif is gone from the home and pricing page headings and from the Google Fonts request; headings use IBM Plex Sans, which now also loads weight 700.
 
 ### Fixed
 
