@@ -7,7 +7,7 @@ import AuthLayout from '@/layouts/AuthLayout.vue';
   <AuthLayout>
     <h1 class="text-center text-2xl font-semibold tracking-tight text-gray-900 dark:text-white">Check Your Email</h1>
     <p class="mt-4 text-center text-sm text-gray-500 dark:text-gray-400">
-      We have sent you an e-mail with a link to reset your password. Please check your inbox.
+      We have sent you an email with a link to reset your password. Please check your inbox.
     </p>
     <template #footer>
       <p class="mt-6 text-center text-sm text-gray-500 dark:text-gray-400">

@@ -33,7 +33,7 @@ async function onSubmit() {
   <AuthLayout>
     <h1 class="text-center text-2xl font-semibold tracking-tight text-gray-900 dark:text-white">Password Reset</h1>
     <p class="mt-2 text-center text-sm text-gray-500 dark:text-gray-400">
-      Enter your e-mail address and we'll send you a link to reset your password.
+      Enter your email address and we'll send you a link to reset your password.
     </p>
     <form class="mt-6 space-y-4" @submit.prevent="onSubmit">
       <FormErrors :errors="errors.non_field_errors || []" />

@@ -69,7 +69,7 @@ async function resendVerification() {
 
 async function removeEmail() {
   if (!selectedEmail.value) return;
-  if (!confirm('Do you really want to remove the selected e-mail address?')) return;
+  if (!confirm('Do you really want to remove the selected email address?')) return;
   loading.value = true;
   try {
     await authApi.removeEmail(selectedEmail.value);
@@ -163,7 +163,7 @@ async function addEmail() {
       </label>
     </div>
     <p v-else class="text-gray-700 dark:text-gray-300">
-      <strong>Warning:</strong> You currently do not have any e-mail address set up. You should really add an e-mail
+      <strong>Warning:</strong> You currently do not have any email address set up. You should really add an email
       address so you can receive notifications, reset your password, etc.
     </p>
 
@@ -195,10 +195,10 @@ async function addEmail() {
     </div>
 
     <div class="mt-8 border-t border-gray-200 dark:border-gray-700 pt-6">
-      <h2 class="text-sm font-medium text-gray-900 dark:text-white mb-3">Add E-mail Address</h2>
+      <h2 class="text-sm font-medium text-gray-900 dark:text-white mb-3">Add Email Address</h2>
       <form class="flex items-end gap-3" @submit.prevent="addEmail">
         <div class="flex-1">
-          <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1"> E-mail </label>
+          <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1"> Email </label>
           <input
             v-model="newEmail"
             type="email"
