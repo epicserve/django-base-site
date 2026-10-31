@@ -11,6 +11,7 @@ import TrialEndingBanner from '@/components/billing/TrialEndingBanner.vue';
 import PastDueBanner from '@/components/billing/PastDueBanner.vue';
 import { useNotifications } from '@/composables/useNotifications';
 import { stopImpersonating } from '@/utils/hijack';
+import { isDebugToolbarOn, toggleDebugToolbar } from '@/utils/debugToolbar';
 import {
   Cog6ToothIcon,
   ArrowsRightLeftIcon,
@@ -23,6 +24,7 @@ import {
   EnvelopeIcon,
   InboxIcon,
   CircleStackIcon,
+  BugAntIcon,
 } from '@heroicons/vue/24/outline';
 
 const appStore = inject('appStore');
@@ -34,6 +36,7 @@ const mobileMenuOpen = ref(false);
 const devToolHost = computed(() => window.location.hostname || 'localhost');
 const mailpitUrl = computed(() => `http://${devToolHost.value}:8025/`);
 const siloUrl = computed(() => `http://${devToolHost.value}:9001/`);
+const debugToolbarOn = isDebugToolbarOn();
 
 function closeAllDropdowns() {
   orgDropdownOpen.value = false;
@@ -262,6 +265,20 @@ onUnmounted(() => {
                     </a>
                   </template>
                 </template>
+                <template v-if="appStore.debug">
+                  <div class="my-1 border-t border-gray-100 dark:border-gray-700" />
+                  <button
+                    type="button"
+                    class="w-full text-left cursor-pointer flex items-center gap-2 px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-700"
+                    @click="toggleDebugToolbar"
+                  >
+                    <BugAntIcon class="h-4 w-4 text-gray-400 dark:text-gray-500" />
+                    Debug Toolbar
+                    <span class="ml-auto text-xs text-gray-400 dark:text-gray-500">{{
+                      debugToolbarOn ? 'On' : 'Off'
+                    }}</span>
+                  </button>
+                </template>
               </div>
             </div>
           </div>
@@ -465,6 +482,20 @@ onUnmounted(() => {
               Silo Admin
             </a>
           </template>
+        </template>
+
+        <!-- Dev tools -->
+        <template v-if="appStore.debug">
+          <div class="my-1 border-t border-gray-100 dark:border-gray-700" />
+          <button
+            type="button"
+            class="w-full text-left cursor-pointer flex items-center gap-2 rounded px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-700"
+            @click="toggleDebugToolbar"
+          >
+            <BugAntIcon class="h-4 w-4 text-gray-400 dark:text-gray-500" />
+            Debug Toolbar
+            <span class="ml-auto text-xs text-gray-400 dark:text-gray-500">{{ debugToolbarOn ? 'On' : 'Off' }}</span>
+          </button>
         </template>
       </div>
     </div>

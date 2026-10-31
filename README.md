@@ -89,7 +89,7 @@ These first-party apps under `apps/` are the foundation for any B2B SaaS built o
 * [Ruff](https://github.com/charliermarsh/ruff) - Python formatting and linting (replaces Black and friends, written in Rust).
 * [Ty](https://github.com/astral-sh/ty) - Python type checking
 * [dj Lint](https://djlint.com/) - Automatic Django HTML template formatting and linting
-* [Django Debug Toolbar](https://github.com/jazzband/django-debug-toolbar) - Inspect query counts, settings, and templates in DEBUG.
+* [Django Debug Toolbar](https://github.com/jazzband/django-debug-toolbar) - Inspect query counts, settings, and templates in DEBUG. Off until you turn it on from the user menu.
 * [Oxlint](https://oxc.rs/docs/guide/usage/linter) + [Oxfmt](https://oxc.rs/docs/guide/usage/formatter) (Rust-based, ESLint/Prettier-compatible) - JS/Vue linting and formatting
 
 ### 💄 Frontend

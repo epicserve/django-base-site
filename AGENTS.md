@@ -140,7 +140,7 @@ Key variables:
 - `DATABASE_URL` — Postgres connection string
 - `SITE_DOMAIN` — defaults to `localhost:8000`. **Use `localhost`, not `127.0.0.1`** — WebAuthn / passkey enrollment rejects bare IPs as Relying Party IDs.
 - `ALLOWED_HOSTS` — defaults to `localhost,127.0.0.1`
-- `INTERNAL_IPS` — for Django Debug Toolbar
+- `INTERNAL_IPS` — for Django Debug Toolbar, which is off until you turn it on with **Debug Toolbar** in the user menu (DEBUG only). The choice is a `debug_toolbar` cookie read by `apps/base/debug_toolbar.py`, not a setting.
 - `USE_DEBUGPY=true` — enable remote debugging
 - `MEDIA_S3_*` — Silo / S3 credentials (locally they are also Silo's root user and password). `MEDIA_S3_ENDPOINT_URL` is the Docker-internal hostname (`http://silo:9000`); `MEDIA_S3_URL_ENDPOINT_URL` is the browser-facing one (`http://localhost:9000`). The split is handled by `apps.base.storage.S3MediaStorage`.
 - `ACCOUNT_SIGNUP_OPEN` — bool, gates new registrations.
