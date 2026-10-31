@@ -7,6 +7,11 @@ database. Every seeded user shares `SEED_PASSWORD`, so the command refuses to
 run unless DEBUG is on. It also refuses while migrations are pending, because
 the web container runs `migrate` on startup and `just seed` can race it.
 
+The cast comes from The Office (Dunder Mifflin) and Parks and Recreation
+(Pawnee). The logins agents and docs refer to keep role emails such as
+`owner@example.com`; everyone else gets an email on a reserved `.example`
+domain, so nothing seeded can ever reach a real inbox.
+
 Rerunning is safe. Each run creates whatever seeded rows are missing and
 restores the seeded fields (names, roles, passwords) on the ones that exist.
 It also removes MFA authenticators (TOTP, passkeys, recovery codes) from the
@@ -50,68 +55,127 @@ class SeedLogin:
     email: str
     first_name: str
     last_name: str
-    role: str
+    role: str = ""
     is_superuser: bool = False
 
 
-LOGINS = (
-    SeedLogin("admin@example.com", "Ada", "Admin", "Superuser and staff; owner of Globex", is_superuser=True),
-    SeedLogin("owner@example.com", "Olivia", "Owner", "Owner of Acme; member of Globex"),
-    SeedLogin("member@example.com", "Max", "Member", "Member of Acme (not an owner)"),
-    SeedLogin("user@example.com", "Uma", "User", "No organization; pending invite to Acme"),
-)
-
-# Fillers give Acme a realistically long member list for layout and member-search checks.
-FILLER_NAMES = (
-    ("Alex", "Rivera"),
-    ("Blake", "Chen"),
-    ("Casey", "Okafor"),
-    ("Dana", "Kowalski"),
-    ("Eli", "Haddad"),
-    ("Frankie", "Novak"),
-    ("Gray", "Lindqvist"),
-    ("Harper", "Mensah"),
-    ("Indy", "Tanaka"),
-    ("Jordan", "Alvarez"),
-    ("Kai", "Brennan"),
-    ("Logan", "Petrov"),
-    ("Morgan", "Adeyemi"),
-    ("Noel", "Fischer"),
-    ("Parker", "Santos"),
-    ("Quinn", "Moreau"),
-    ("Reese", "Nakamura"),
-    ("Sage", "Oduya"),
-)
-FILLERS = tuple(
-    SeedLogin(f"{first}.{last}@example.com".lower(), first, last, "Member of Acme") for first, last in FILLER_NAMES
-)
-
 ORGANIZATIONS = (
-    ("acme", "Acme Inc."),
-    ("globex", "Globex Corporation"),
+    ("dunder-mifflin", "Dunder Mifflin Paper Company, Inc."),
+    ("pawnee-parks", "Pawnee Parks and Recreation"),
 )
+
+LOGINS = (
+    SeedLogin(
+        "admin@example.com",
+        "Leslie",
+        "Knope",
+        "Superuser and staff; owner of Pawnee Parks and Recreation",
+        is_superuser=True,
+    ),
+    SeedLogin(
+        "owner@example.com", "Michael", "Scott", "Owner of Dunder Mifflin; member of Pawnee Parks and Recreation"
+    ),
+    SeedLogin("member@example.com", "Dwight", "Schrute", "Member of Dunder Mifflin (not an owner)"),
+    SeedLogin("user@example.com", "Ryan", "Howard", "No organization; pending invite to Dunder Mifflin"),
+)
+
+
+def _cast(domain: str, names: tuple[tuple[str, str], ...]) -> tuple[SeedLogin, ...]:
+    return tuple(SeedLogin(f"{first}.{last}@{domain}".lower(), first, last) for first, last in names)
+
+
+# Everyone else in each organization. Dunder Mifflin's 18 make a 20-member list, long enough to check layout and
+# member search.
+DUNDER_MIFFLIN_CAST = _cast(
+    "dundermifflin.example",
+    (
+        ("Jim", "Halpert"),
+        ("Pam", "Beesly"),
+        ("Andy", "Bernard"),
+        ("Angela", "Martin"),
+        ("Kevin", "Malone"),
+        ("Oscar", "Martinez"),
+        ("Stanley", "Hudson"),
+        ("Phyllis", "Vance"),
+        ("Creed", "Bratton"),
+        ("Kelly", "Kapoor"),
+        ("Toby", "Flenderson"),
+        ("Meredith", "Palmer"),
+        ("Darryl", "Philbin"),
+        ("Erin", "Hannon"),
+        ("Gabe", "Lewis"),
+        ("Nellie", "Bertram"),
+        ("Pete", "Miller"),
+        ("Clark", "Green"),
+    ),
+)
+PAWNEE_CAST = _cast(
+    "pawnee.example",
+    (
+        ("Ron", "Swanson"),
+        ("Tom", "Haverford"),
+        ("April", "Ludgate"),
+        ("Andy", "Dwyer"),
+        ("Ann", "Perkins"),
+        ("Ben", "Wyatt"),
+        ("Chris", "Traeger"),
+        ("Donna", "Meagle"),
+        ("Jerry", "Gergich"),
+    ),
+)
+FILLERS = (*DUNDER_MIFFLIN_CAST, *PAWNEE_CAST)
 
 # (organization slug, user email, is_owner, is_primary)
 MEMBERSHIPS = (
-    ("globex", "admin@example.com", True, True),
-    ("acme", "owner@example.com", True, True),
-    ("globex", "owner@example.com", False, False),
-    ("acme", "member@example.com", False, True),
-    *(("acme", filler.email, False, True) for filler in FILLERS),
+    ("pawnee-parks", "admin@example.com", True, True),
+    ("dunder-mifflin", "owner@example.com", True, True),
+    ("pawnee-parks", "owner@example.com", False, False),
+    ("dunder-mifflin", "member@example.com", False, True),
+    *(("dunder-mifflin", member.email, False, True) for member in DUNDER_MIFFLIN_CAST),
+    *(("pawnee-parks", member.email, False, True) for member in PAWNEE_CAST),
 )
 
 # (organization slug, team name, member emails)
 TEAMS = (
-    ("acme", "Engineering", ("owner@example.com", "member@example.com", *(f.email for f in FILLERS[:4]))),
-    ("acme", "Design", ("member@example.com", *(f.email for f in FILLERS[4:7]))),
-    ("globex", "Sales", ("admin@example.com", "owner@example.com")),
+    (
+        "dunder-mifflin",
+        "Sales",
+        (
+            "member@example.com",
+            "jim.halpert@dundermifflin.example",
+            "andy.bernard@dundermifflin.example",
+            "stanley.hudson@dundermifflin.example",
+            "phyllis.vance@dundermifflin.example",
+        ),
+    ),
+    (
+        "dunder-mifflin",
+        "Party Planning Committee",
+        (
+            "angela.martin@dundermifflin.example",
+            "pam.beesly@dundermifflin.example",
+            "phyllis.vance@dundermifflin.example",
+            "meredith.palmer@dundermifflin.example",
+        ),
+    ),
+    (
+        "pawnee-parks",
+        "Harvest Festival",
+        (
+            "admin@example.com",
+            "ron.swanson@pawnee.example",
+            "tom.haverford@pawnee.example",
+            "april.ludgate@pawnee.example",
+            "ben.wyatt@pawnee.example",
+        ),
+    ),
 )
 
 # (organization slug, sender email, invitee email, is_expired). An invitee with a seeded login is linked to it.
 INVITES = (
-    ("acme", "owner@example.com", "user@example.com", False),
-    ("acme", "owner@example.com", "invitee@example.com", False),
-    ("acme", "owner@example.com", "expired@example.com", True),
+    ("dunder-mifflin", "owner@example.com", "user@example.com", False),
+    ("dunder-mifflin", "owner@example.com", "holly.flax@dundermifflin.example", False),
+    ("dunder-mifflin", "owner@example.com", "todd.packer@dundermifflin.example", True),
 )
 
 
@@ -140,12 +204,14 @@ class Command(BaseCommand):
         self.stdout.write("")
         self.stdout.write(f'Sign in at {settings.SITE_URL}/accounts/login/ with the password "{SEED_PASSWORD}":')
         self.stdout.write("")
-        width = max(len(login.email) for login in LOGINS)
+        email_width = max(len(login.email) for login in LOGINS)
+        name_width = max(len(f"{login.first_name} {login.last_name}") for login in LOGINS)
         for login in LOGINS:
-            self.stdout.write(f"    {login.email.ljust(width)}  {login.role}")
+            name = f"{login.first_name} {login.last_name}"
+            self.stdout.write(f"    {login.email.ljust(email_width)}  {name.ljust(name_width)}  {login.role}")
         self.stdout.write("")
         self.stdout.write(
-            f"Acme also has {len(FILLERS)} filler members (e.g. {FILLERS[0].email}) with the same password."
+            f"Everyone else at Dunder Mifflin and Pawnee (e.g. {DUNDER_MIFFLIN_CAST[0].email}) uses the same password."
         )
         if invites:
             # Seeded invites send no email, so print where to accept them.

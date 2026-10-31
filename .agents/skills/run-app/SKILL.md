@@ -33,33 +33,33 @@ It prints the logins and each seeded invite's accept URL. It's safe to rerun: it
 
 ## 3. Pick a login
 
-Every seeded login uses the password `dev-password`.
+The cast comes from The Office (Dunder Mifflin) and Parks and Recreation (Pawnee). Every seeded login uses the password `dev-password`.
 
 | Login | Who | Use it to check |
 |---|---|---|
-| `owner@example.com` | Owner of Acme (primary org); member of Globex | Org settings (General, Members, Teams), invites, the org switcher |
-| `member@example.com` | Member of Acme, not an owner | What non-owners see (org settings send them home) |
-| `user@example.com` | No organization; pending invite to Acme | The no-org state and accepting an invite |
-| `admin@example.com` | Superuser and staff; owner of Globex | `/admin/` (sign in with the email), `/impersonate/`, `/test-notifications/` |
+| `owner@example.com` | Michael Scott: owner of Dunder Mifflin (primary org); member of Pawnee | Org settings (General, Members, Teams), invites, the org switcher |
+| `member@example.com` | Dwight Schrute: member of Dunder Mifflin, not an owner | What non-owners see (org settings send them home) |
+| `user@example.com` | Ryan Howard: no organization; pending invite to Dunder Mifflin | The no-org state and accepting an invite |
+| `admin@example.com` | Leslie Knope: superuser and staff; owner of Pawnee | `/admin/` (sign in with the email), `/impersonate/`, `/test-notifications/` |
 
 The rest of the seeded data:
 
-- Acme (`acme`) has 20 members, for checking long lists and member search. The 18 extras are filler logins such as `alex.rivera@example.com`, with the same password.
-- Teams: Engineering and Design in Acme, Sales in Globex (`globex`).
-- Invites to Acme: `user@example.com` (pending), `invitee@example.com` (pending, no account), `expired@example.com` (expired). `just seed` prints their accept URLs because seeded invites send no email.
+- Dunder Mifflin (`dunder-mifflin`) has 20 members, for checking long lists and member search. The other 18 are logins such as `jim.halpert@dundermifflin.example`, with the same password. Pawnee Parks and Recreation (`pawnee-parks`) has the Parks crew, such as `ron.swanson@pawnee.example`.
+- Teams: Sales and Party Planning Committee at Dunder Mifflin, Harvest Festival at Pawnee.
+- Invites to Dunder Mifflin: `user@example.com` (pending), `holly.flax@dundermifflin.example` (pending, no account), `todd.packer@dundermifflin.example` (expired). `just seed` prints their accept URLs because seeded invites send no email.
 
 ## 4. Sign in
 
 Use the browser tool you have (the Playwright MCP, or a Playwright script):
 
-1. Open `http://localhost:8000/accounts/login/`. Add `?next=<path>` to land on the page under test, e.g. `?next=/organizations/acme/settings/members/`.
+1. Open `http://localhost:8000/accounts/login/`. Add `?next=<path>` to land on the page under test, e.g. `?next=/organizations/dunder-mifflin/settings/members/`.
 2. Fill the fields with the placeholders `Email` and `Password`.
 3. Click the button named exactly `Sign In`. The heading says "Sign In" too, so match the button by role and exact name.
 4. Wait for the URL to leave `/accounts/login/`.
 
 To switch users, open `/accounts/logout/` first: a signed-in user who opens the login page is sent home.
 
-Accepting a seeded invite (or making other changes) sticks, because `just seed` never removes memberships. To put `user@example.com` back in the no-org state, sign in as the owner, remove them from Acme in the Members tab, and run `just seed` again to recreate the invite.
+Accepting a seeded invite (or making other changes) sticks, because `just seed` never removes memberships. To put `user@example.com` back in the no-org state, sign in as the owner, remove them from Dunder Mifflin in the Members tab, and run `just seed` again to recreate the invite.
 
 ### Testing passkeys
 

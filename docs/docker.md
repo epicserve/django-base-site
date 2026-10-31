@@ -36,16 +36,16 @@ A fresh database has no logins or organizations. Once the app answers at http://
 just seed
 ```
 
-It creates known logins that all use the password `dev-password`, then prints them along with each seeded invite's accept URL (seeded invites send no email):
+It creates known logins, cast from The Office and Parks and Recreation, that all use the password `dev-password`, then prints them along with each seeded invite's accept URL (seeded invites send no email):
 
-| Login                | Role                                              |
-|----------------------|---------------------------------------------------|
-| `admin@example.com`  | Superuser and staff; owner of Globex              |
-| `owner@example.com`  | Owner of Acme (primary org); member of Globex     |
-| `member@example.com` | Member of Acme, not an owner                      |
-| `user@example.com`   | No organization; pending invite to Acme           |
+| Login                | Who                                                                    |
+|----------------------|------------------------------------------------------------------------|
+| `admin@example.com`  | Leslie Knope: superuser and staff; owner of Pawnee                     |
+| `owner@example.com`  | Michael Scott: owner of Dunder Mifflin (primary org); member of Pawnee |
+| `member@example.com` | Dwight Schrute: member of Dunder Mifflin, not an owner                 |
+| `user@example.com`   | Ryan Howard: no organization; pending invite to Dunder Mifflin         |
 
-Acme also gets 18 filler members, the Engineering and Design teams (Globex gets Sales), and three invites: pending for `user@example.com`, pending for `invitee@example.com` (no account), and expired for `expired@example.com`.
+Dunder Mifflin (`dunder-mifflin`) gets 18 more members such as `jim.halpert@dundermifflin.example`, and Pawnee Parks and Recreation (`pawnee-parks`) gets the Parks crew such as `ron.swanson@pawnee.example`. Teams: Sales and Party Planning Committee at Dunder Mifflin, Harvest Festival at Pawnee. Dunder Mifflin has three invites: pending for `user@example.com`, pending for `holly.flax@dundermifflin.example` (no account), and expired for `todd.packer@dundermifflin.example`. Everyone else gets an email on a reserved `.example` domain, so nothing seeded can reach a real inbox.
 
 The command (`seed`) only runs with `DEBUG` on. It's safe to rerun: it restores the seeded rows and passwords, and removes any MFA (TOTP, passkeys) you enrolled on a seeded login so the password alone signs in again. Otherwise it never deletes anything you created by hand, so an invite you've accepted stays accepted.
 

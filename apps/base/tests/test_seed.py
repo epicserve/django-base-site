@@ -13,7 +13,7 @@ from allauth.account.models import EmailAddress
 from allauth.mfa.models import Authenticator
 
 from apps.accounts.models import User
-from apps.base.management.commands.seed import FILLERS, LOGINS, SEED_PASSWORD
+from apps.base.management.commands.seed import DUNDER_MIFFLIN_CAST, FILLERS, LOGINS, PAWNEE_CAST, SEED_PASSWORD
 from apps.organizations.models import Organization, OrganizationInvite, OrganizationMember
 from apps.teams.models import Team
 
@@ -66,20 +66,29 @@ class TestSeedDevData:
             assert user.check_password(SEED_PASSWORD)
             assert EmailAddress.objects.filter(user=user, email=login.email, verified=True, primary=True).exists()
         admin = User.objects.get(email="admin@example.com")
-        assert admin.is_superuser
-        assert admin.is_staff
-        assert not User.objects.get(email="owner@example.com").is_staff
+        assert (admin.get_full_name(), admin.is_superuser, admin.is_staff) == ("Leslie Knope", True, True)
+        owner = User.objects.get(email="owner@example.com")
+        assert (owner.get_full_name(), owner.is_staff) == ("Michael Scott", False)
 
     def test_memberships(self):
         _seed()
-        acme = Organization.objects.get(slug="acme")
-        globex = Organization.objects.get(slug="globex")
-        assert acme.organizationmember_set.count() == 20
-        assert list(acme.owners.values_list("email", flat=True)) == ["owner@example.com"]
-        assert set(globex.members.values_list("email", flat=True)) == {"admin@example.com", "owner@example.com"}
-        assert list(globex.owners.values_list("email", flat=True)) == ["admin@example.com"]
+        dunder_mifflin = Organization.objects.get(slug="dunder-mifflin")
+        pawnee = Organization.objects.get(slug="pawnee-parks")
+        assert dunder_mifflin.organizationmember_set.count() == 20
+        assert set(dunder_mifflin.members.values_list("email", flat=True)) == {
+            "owner@example.com",
+            "member@example.com",
+            *(member.email for member in DUNDER_MIFFLIN_CAST),
+        }
+        assert list(dunder_mifflin.owners.values_list("email", flat=True)) == ["owner@example.com"]
+        assert set(pawnee.members.values_list("email", flat=True)) == {
+            "admin@example.com",
+            "owner@example.com",
+            *(member.email for member in PAWNEE_CAST),
+        }
+        assert list(pawnee.owners.values_list("email", flat=True)) == ["admin@example.com"]
         owner_primary = OrganizationMember.objects.filter(user__email="owner@example.com", is_primary=True)
-        assert list(owner_primary.values_list("organization__slug", flat=True)) == ["acme"]
+        assert list(owner_primary.values_list("organization__slug", flat=True)) == ["dunder-mifflin"]
         assert not OrganizationMember.objects.filter(user__email="user@example.com").exists()
 
     def test_teams_only_contain_org_members(self):
@@ -92,12 +101,16 @@ class TestSeedDevData:
     def test_invites(self):
         _seed()
         invites = {invite.invitee_email: invite for invite in OrganizationInvite.objects.all()}
-        assert set(invites) == {"user@example.com", "invitee@example.com", "expired@example.com"}
+        assert set(invites) == {
+            "user@example.com",
+            "holly.flax@dundermifflin.example",
+            "todd.packer@dundermifflin.example",
+        }
         assert invites["user@example.com"].invitee == User.objects.get(email="user@example.com")
-        assert invites["invitee@example.com"].invitee is None
-        assert invites["expired@example.com"].is_expired
+        assert invites["holly.flax@dundermifflin.example"].invitee is None
+        assert invites["todd.packer@dundermifflin.example"].is_expired
         assert not invites["user@example.com"].is_expired
-        assert not invites["invitee@example.com"].is_expired
+        assert not invites["holly.flax@dundermifflin.example"].is_expired
 
     def test_prints_the_logins_and_invite_urls(self):
         output = _seed()
@@ -136,26 +149,28 @@ class TestSeedDevRerun:
 
         output = _seed()
 
-        assert "user@example.com is already a member of Acme Inc., skipping" in output
+        assert "user@example.com is already a member of Dunder Mifflin Paper Company, Inc., skipping" in output
         assert not OrganizationInvite.objects.filter(invitee_email="user@example.com").exists()
-        assert OrganizationMember.objects.filter(user__email="user@example.com", organization__slug="acme").exists()
+        assert OrganizationMember.objects.filter(
+            user__email="user@example.com", organization__slug="dunder-mifflin"
+        ).exists()
 
     def test_keeps_hand_made_changes(self):
         _seed()
-        engineering = Team.objects.get(name="Engineering")
-        designer = User.objects.get(email=FILLERS[-1].email)
-        engineering.members.add(designer)
+        sales = Team.objects.get(name="Sales")
+        accountant = User.objects.get(email="kevin.malone@dundermifflin.example")
+        sales.members.add(accountant)
         # Users pick their primary org in the app; the seed must not move it back.
         OrganizationMember.objects.filter(user__email="owner@example.com").update(is_primary=False)
-        OrganizationMember.objects.filter(user__email="owner@example.com", organization__slug="globex").update(
+        OrganizationMember.objects.filter(user__email="owner@example.com", organization__slug="pawnee-parks").update(
             is_primary=True
         )
 
         _seed()
 
-        assert engineering.members.filter(pk=designer.pk).exists()
+        assert sales.members.filter(pk=accountant.pk).exists()
         owner_primary = OrganizationMember.objects.filter(user__email="owner@example.com", is_primary=True)
-        assert list(owner_primary.values_list("organization__slug", flat=True)) == ["globex"]
+        assert list(owner_primary.values_list("organization__slug", flat=True)) == ["pawnee-parks"]
 
 
 @pytest.mark.django_db
