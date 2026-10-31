@@ -15,6 +15,7 @@
 * Labels across the SPA are Title Case: headings, buttons, links, form labels, badges, and icon-button `aria-label`s, such as "Sign In with a Passkey", "Accept Invitation", "Mark All Read", and "Past Due". The example billing feature labels, the notification channel labels, and the timezone labels ("Arizona (No DST)") follow suit. Descriptions, help text, toasts, and error messages stay in sentence case. "Re-send Verification" on the email settings page is now "Resend Verification". AGENTS.md records the rule.
 * The SPA and the email confirmation message spell it "email", never "e-mail", so the email settings page now says "Add Email Address" and "Email".
 * The site uses one sans-serif typeface. The Fraunces serif is gone from the home and pricing page headings and from the Google Fonts request; headings use IBM Plex Sans, which now also loads weight 700.
+* Impersonating a user shows a slim banner above the main navigation instead of django-hijack's pop-up. It names the user with their avatar and email, in the same soft blue strip as the trial-ending banner, with the standard outlined gray "Stop Impersonating" button. Its × hides it until the next impersonation starts, even one of the same user: the choice is kept in the session, which Django flushes whenever impersonation switches users. The new `POST /api/impersonation/hide-banner/` endpoint records it, and `/api/app-context/` reports it as `user.impersonation_banner_hidden`. `HIJACK_INSERT_BEFORE = None` turns off django-hijack's injected notification.
 
 ### Fixed
 

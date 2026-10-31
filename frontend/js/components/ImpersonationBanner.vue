@@ -30,24 +30,21 @@ async function hide() {
       <div class="overflow-hidden">
         <div
           role="status"
-          class="impersonation-banner__strip border-b border-[#3a2a00]/15 bg-[#ffc23d] text-[#3a2a00] dark:border-black/40 dark:bg-[#f0b429]"
+          class="border-b border-blue-200 bg-blue-50 text-sm text-blue-900 dark:border-blue-700/40 dark:bg-blue-900/20 dark:text-blue-200"
         >
-          <div class="mx-auto flex h-11 w-full items-center gap-3 px-4 sm:px-6 lg:px-8">
-            <UserAvatar
-              :src="user.avatar_url || ''"
-              :name="displayName"
-              size="md"
-              class="shrink-0 ring-2 ring-[#3a2a00]/25"
-            />
-            <p class="min-w-0 flex-1 truncate text-sm">
-              You're impersonating <strong class="font-semibold">{{ displayName }}</strong>
-              <span v-if="fullName && user.email" class="ml-1.5 hidden text-[#3a2a00]/70 sm:inline">
-                {{ user.email }}
+          <div class="mx-auto flex h-10 w-full items-center gap-2.5 px-4 sm:px-6 lg:px-8">
+            <UserAvatar :src="user.avatar_url || ''" :name="displayName" size="md" class="shrink-0" />
+            <!-- Vue drops whitespace-only text next to tags, so the &nbsp; keeps a space before the email. -->
+            <p class="min-w-0 flex-1 truncate">
+              Impersonating
+              <strong class="font-semibold">{{ displayName }}</strong>
+              <span v-if="fullName && user.email" class="hidden text-blue-800/70 sm:inline dark:text-blue-300/70">
+                &nbsp;{{ user.email }}
               </span>
             </p>
             <button
               type="button"
-              class="shrink-0 cursor-pointer rounded-full bg-[#3a2a00] px-3 py-1 text-xs font-semibold text-[#ffd873] shadow-sm transition-colors hover:bg-[#1f1600] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#3a2a00]"
+              class="shrink-0 cursor-pointer rounded-md border border-gray-300 bg-white px-2.5 py-0.5 text-xs font-medium text-gray-700 hover:bg-gray-50 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-600 dark:border-gray-600 dark:bg-gray-800 dark:text-gray-200 dark:hover:bg-gray-700"
               @click="stopImpersonating"
             >
               <span class="sm:hidden">Stop</span>
@@ -55,7 +52,7 @@ async function hide() {
             </button>
             <button
               type="button"
-              class="-mr-1.5 shrink-0 cursor-pointer rounded-full p-1.5 text-[#3a2a00]/70 transition-colors hover:bg-[#3a2a00]/10 hover:text-[#3a2a00] focus-visible:outline-2 focus-visible:outline-[#3a2a00]"
+              class="-mr-1 shrink-0 cursor-pointer rounded p-1 hover:bg-blue-100 focus-visible:outline-2 focus-visible:outline-blue-600 dark:hover:bg-blue-900/40"
               aria-label="Hide Banner"
               title="Hide until you impersonate someone again"
               @click="hide"
@@ -70,11 +67,6 @@ async function hide() {
 </template>
 
 <style scoped>
-/* A faint hazard-tape hatch, so the strip reads as "not your normal session" at a glance. */
-.impersonation-banner__strip {
-  background-image: repeating-linear-gradient(-45deg, rgb(58 42 0 / 0.06) 0 10px, transparent 10px 20px);
-}
-
 /* Collapse the row when it's hidden instead of letting the nav jump up. */
 .impersonation-banner {
   grid-template-rows: 1fr;
