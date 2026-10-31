@@ -362,7 +362,11 @@ if env.bool("BILLING_USE_EXAMPLE_PLANS", default=False):
 if DEBUG is True:
     INSTALLED_APPS += ["debug_toolbar"]
     MIDDLEWARE += ["debug_toolbar.middleware.DebugToolbarMiddleware"]
-    DEBUG_TOOLBAR_CONFIG = {"INTERCEPT_REDIRECTS": False}
+    DEBUG_TOOLBAR_CONFIG = {
+        "INTERCEPT_REDIRECTS": False,
+        # Off until turned on from the user menu (see apps/base/debug_toolbar.py).
+        "SHOW_TOOLBAR_CALLBACK": "apps.base.debug_toolbar.show_toolbar",
+    }
 
 # ALLAUTH SETTINGS (https://django-allauth.readthedocs.io/en/latest/configuration.html)
 AUTHENTICATION_BACKENDS = ["allauth.account.auth_backends.AuthenticationBackend"]

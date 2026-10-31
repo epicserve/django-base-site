@@ -12,6 +12,7 @@ export function initAppStore() {
     orgOwnerCount: 0,
     siteName: '',
     instance: '',
+    debug: false,
     signupOpen: true,
     loading: true,
     version: null,
@@ -62,6 +63,7 @@ export function initAppStore() {
         store.orgOwnerCount = data.orgOwnerCount;
         store.siteName = data.siteName;
         store.instance = data.instance;
+        store.debug = !!data.debug;
         store.signupOpen = data.signupOpen;
         if (data.billing) {
           store.billing = {

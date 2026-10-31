@@ -87,6 +87,7 @@ def app_context(request):
         "orgOwnerCount": get_owner_count(request),
         "siteName": getattr(settings, "SITE_NAME", ""),
         "instance": getattr(settings, "INSTANCE", ""),
+        "debug": settings.DEBUG,
         "signupOpen": getattr(settings, "ACCOUNT_SIGNUP_OPEN", False),
         "version": _get_app_version(),
         "billing": org_billing_summary(org_instance),
