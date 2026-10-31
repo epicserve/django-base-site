@@ -8,6 +8,7 @@ invoked for each event type.
 """
 
 import json
+import re
 
 from django.test import RequestFactory
 
@@ -217,3 +218,32 @@ class TestSubscriptionDeletedHandler:
         sub.refresh_from_db()
         assert sub.status == SubscriptionStatus.CANCELED
         assert sub.canceled_at is not None
+
+
+@pytest.mark.django_db
+class TestPaymentFailedHandler:
+    @pytest.mark.parametrize(("org_name", "period"), [("Acme", "."), ("Acme Inc.", "")])
+    def test_email_ends_the_sentence_once(
+        self, billing_settings, patch_construct_event, monkeypatch, mailoutbox, org_name, period
+    ):
+        # A name that already ends in a period ("Inc.") used to get a second one.
+        org = baker.make("organizations.Organization", name=org_name)
+        owner = baker.make("accounts.User", email="owner@example.com")
+        baker.make("organizations.OrganizationMember", organization=org, user=owner, is_owner=True)
+        BillingCustomer.objects.create(organization=org, stripe_customer_id="cus_failed")
+        monkeypatch.setattr("apps.notifications.services.notify", lambda *a, **kw: [])
+        event = {
+            "id": "evt_failed",
+            "type": "invoice.payment_failed",
+            "data": {"object": {"customer": "cus_failed", "amount_due": 1000}},
+        }
+        patch_construct_event(event)
+
+        from apps.billing.webhooks import stripe_webhook
+
+        assert stripe_webhook(_post(event)).status_code == 200
+
+        [email] = mailoutbox
+        html, _ = email.alternatives[0]
+        assert f"We weren't able to process the latest payment for {org_name}{period}" in email.body.splitlines()
+        assert re.search(rf"<strong>{re.escape(org_name)}</strong>{re.escape(period)}\s*</p>", html)

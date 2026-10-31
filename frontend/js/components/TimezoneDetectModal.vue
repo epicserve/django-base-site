@@ -26,6 +26,7 @@ async function updateTimezone() {
 }
 
 let onVisibilityChange = null;
+let cancelDetection = null;
 
 onMounted(() => {
   if (!appStore.user) return;
@@ -52,9 +53,11 @@ onMounted(() => {
   };
 
   if (typeof window.requestIdleCallback === 'function') {
-    window.requestIdleCallback(runDetection, { timeout: 1000 });
+    const handle = window.requestIdleCallback(runDetection, { timeout: 1000 });
+    cancelDetection = () => window.cancelIdleCallback(handle);
   } else {
-    setTimeout(runDetection, 300);
+    const handle = setTimeout(runDetection, 300);
+    cancelDetection = () => clearTimeout(handle);
   }
 
   onVisibilityChange = () => {
@@ -66,6 +69,11 @@ onMounted(() => {
 });
 
 onUnmounted(() => {
+  // Logging out unmounts the layout before the browser is idle; don't leave the check scheduled.
+  if (cancelDetection) {
+    cancelDetection();
+    cancelDetection = null;
+  }
   if (onVisibilityChange) {
     document.removeEventListener('visibilitychange', onVisibilityChange);
     onVisibilityChange = null;

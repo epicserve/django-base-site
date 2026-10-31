@@ -3,12 +3,17 @@ import re
 import pytest
 from playwright.sync_api import Page, expect
 
-# Holds requestIdleCallback callbacks until the page unloads, the latest a busy browser could run them, and records
-# what they did in sessionStorage, which outlives the navigation.
+# Holds requestIdleCallback callbacks until the page unloads, the latest a busy browser could run them. It then
+# records how many were requested and cancelled, and runs every one, cancelled or not, recording any error. Results
+# go to sessionStorage, which outlives the navigation.
 DEFERRED_IDLE_CALLBACKS = """
 const idleCallbacks = [];
+const cancelled = new Set();
 window.requestIdleCallback = (callback) => idleCallbacks.push(callback);
+window.cancelIdleCallback = (handle) => cancelled.add(handle);
 window.addEventListener('pagehide', () => {
+  sessionStorage.setItem('idleCallbacksRequested', String(idleCallbacks.length));
+  sessionStorage.setItem('idleCallbacksCancelled', String(cancelled.size));
   for (const callback of idleCallbacks) {
     try {
       callback();
@@ -16,7 +21,6 @@ window.addEventListener('pagehide', () => {
       sessionStorage.setItem('idleCallbackError', String(error));
     }
   }
-  sessionStorage.setItem('idleCallbacksRun', String(idleCallbacks.length));
 });
 """
 
@@ -70,15 +74,18 @@ class TestLogout:
         expect(page.get_by_role("button", name="Sign In", exact=True)).to_be_visible()
 
     @pytest.mark.usefixtures("_login")
-    def test_idle_work_survives_logout(self, page: Page, live_server):
-        # The timezone check runs in an idle callback, which used to throw if logging out cleared the user first.
+    def test_logout_cancels_the_timezone_check(self, page: Page, live_server):
+        # The timezone check waits for an idle moment. It used to stay scheduled after logging out, then throw because
+        # the user was gone. The stub runs it at unload even though it's cancelled, so the check's own guard is covered.
         page.add_init_script(DEFERRED_IDLE_CALLBACKS)
 
         page.goto(f"{live_server.url}/accounts/logout/")
         page.wait_for_url(re.compile(r"/accounts/login"), timeout=10000)
 
-        assert page.evaluate("Number(sessionStorage.getItem('idleCallbacksRun'))") > 0
-        assert page.evaluate("sessionStorage.getItem('idleCallbackError')") is None
+        stored = page.evaluate("Object.fromEntries(Object.entries(sessionStorage))")
+        assert int(stored["idleCallbacksRequested"]) > 0
+        assert stored["idleCallbacksCancelled"] == stored["idleCallbacksRequested"]
+        assert "idleCallbackError" not in stored
 
 
 class TestAuthRedirects:
