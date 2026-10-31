@@ -222,8 +222,8 @@ class TestOrganizationSettingsViewSet(OrganizationAPITestBase):
 
 
 @pytest.mark.django_db
-class TestInviteListExpiry:
-    """The Members tab badges expired invites, so the list has to say which ones are expired."""
+class TestInviteList:
+    """What the Members tab's invite list needs from the API."""
 
     @pytest.fixture()
     def owner_client(self, client):
@@ -252,3 +252,26 @@ class TestInviteListExpiry:
         assert resp.status_code == 200
         is_expired = {invite["pk"]: invite["is_expired"] for invite in resp.json()["results"]}
         assert is_expired == {pending.pk: False, expired.pk: True}
+
+    def test_list_includes_the_invitee(self, owner_client):
+        # The tab shows an invitee's name and avatar; it used to get only the user id and showed a blank name.
+        org, owner = owner_client.org, owner_client.owner
+        invitee = baker.make(User, email="jim@example.com", first_name="Jim", last_name="Halpert")
+        OrganizationInvite.objects.create(organization=org, sender=owner, invitee=invitee)
+        OrganizationInvite.objects.create(organization=org, sender=owner, invitee_email="new@example.com")
+
+        resp = owner_client.get("/api/organization-invites/")
+
+        assert resp.status_code == 200
+        invitees = {invite["invitee_email"]: invite["invitee"] for invite in resp.json()["results"]}
+        assert invitees == {
+            "jim@example.com": {
+                "id": invitee.pk,
+                "username": invitee.username,
+                "first_name": "Jim",
+                "last_name": "Halpert",
+                "email": "jim@example.com",
+                "avatar_url": None,
+            },
+            "new@example.com": None,
+        }

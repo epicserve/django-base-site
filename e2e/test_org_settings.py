@@ -93,6 +93,18 @@ class TestMembersTab:
         expect(expired_row.get_by_text("Expired", exact=True)).to_be_visible()
         expect(expired_row.get_by_text("Pending", exact=True)).to_have_count(0)
 
+    def test_names_invitees_who_have_an_account(self, page: Page, live_server, org, user):
+        from apps.accounts.models import User
+        from apps.organizations.models import OrganizationInvite
+
+        invitee = baker.make(User, email="dwight.schrute@dundermifflin.com", first_name="Dwight", last_name="Schrute")
+        OrganizationInvite.objects.create(organization=org, sender=user, invitee=invitee)
+
+        _sign_in(page, live_server, "michael.scott@dundermifflin.com", self.MEMBERS_PATH)
+
+        invite_row = page.get_by_role("row").filter(has_text="dwight.schrute@dundermifflin.com")
+        expect(invite_row.get_by_text("Dwight Schrute", exact=True)).to_be_visible()
+
 
 class TestTeamsTab:
     def test_lists_teams_past_the_first_page(self, page: Page, live_server, org, more_than_a_page):

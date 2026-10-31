@@ -14,6 +14,9 @@
 * The Members and Teams settings tabs now list everything. The API pages these lists (`DEFAULT_PAGE_SIZE`, 50 rows), but the tabs read only the first page, so members, invites, and teams past the 50th were silently missing, as were members in the team editor's member picker. They now load every page with the existing `getAllResults` helper.
 * Expired invites are labelled "Expired" in the Members tab instead of "Pending". The invite list API now includes `is_expired`.
 * Non-owners who open an organization's settings URL are sent home. Every settings tab's API is owner-only and only owners get the Settings link, but typing the URL showed a member an empty "No members." table and an invite form. The settings routes are now `ownerOnly`, alongside the router's existing `staffOnly` and `superuserOnly` guards.
+* The Members tab names invitees who already have an account. The invite list API returned `invitee` as a user id, but the tab rendered it as a user, so those invites showed an avatar with a blank name. `invitee` is now the user (`id`, `username`, names, `email`, `avatar_url`), like a member's `user`; creating an invite still takes the id.
+* The accept-invite page no longer doubles the period after an organization name that ends in one ("invited you to join Acme Inc..").
+* Logging out no longer logs a `TypeError` from the timezone check. The check runs when the browser is idle, which can be after logging out has cleared the user, so it now returns early when there's no user.
 
 ### Removed
 
@@ -23,7 +26,7 @@
 
 * A new test loads every `apps.*` management command, so a command that imports a package missing from the lockfile fails the Tests job instead of failing only when someone runs it.
 * The install-script job now runs `just seed` twice in the generated project and signs in as `owner@example.com` through allauth's headless API. That covers the recipe, the compose command prefix, and `DEBUG` being on in the generated `.env`.
-* New e2e tests cover the fixes above: the settings tabs list more than a page of members, invites, and teams; expired invites show the Expired badge; non-owners are redirected from settings; and the login page requests passkeys through autofill (checked with a stand-in for the WebAuthn API that records each request).
+* New e2e tests cover the fixes above: the settings tabs list more than a page of members, invites, and teams; expired invites show the Expired badge; non-owners are redirected from settings; invitees with an account are named; an organization name ending in a period isn't given a second one; logging out with the timezone check still pending throws nothing (idle callbacks are held until the page unloads); and the login page requests passkeys through autofill (checked with a stand-in for the WebAuthn API that records each request).
 
 
 ## 2026-10-17

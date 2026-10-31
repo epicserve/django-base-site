@@ -3,6 +3,23 @@ import re
 import pytest
 from playwright.sync_api import Page, expect
 
+# Holds requestIdleCallback callbacks until the page unloads, the latest a busy browser could run them, and records
+# what they did in sessionStorage, which outlives the navigation.
+DEFERRED_IDLE_CALLBACKS = """
+const idleCallbacks = [];
+window.requestIdleCallback = (callback) => idleCallbacks.push(callback);
+window.addEventListener('pagehide', () => {
+  for (const callback of idleCallbacks) {
+    try {
+      callback();
+    } catch (error) {
+      sessionStorage.setItem('idleCallbackError', String(error));
+    }
+  }
+  sessionStorage.setItem('idleCallbacksRun', String(idleCallbacks.length));
+});
+"""
+
 
 @pytest.fixture()
 def _login(page: Page, live_server, user):
@@ -51,6 +68,17 @@ class TestLogout:
         page.wait_for_url(re.compile(r"/accounts/login"), timeout=10000)
         expect(page.get_by_placeholder("Email")).to_be_visible()
         expect(page.get_by_role("button", name="Sign In", exact=True)).to_be_visible()
+
+    @pytest.mark.usefixtures("_login")
+    def test_idle_work_survives_logout(self, page: Page, live_server):
+        # The timezone check runs in an idle callback, which used to throw if logging out cleared the user first.
+        page.add_init_script(DEFERRED_IDLE_CALLBACKS)
+
+        page.goto(f"{live_server.url}/accounts/logout/")
+        page.wait_for_url(re.compile(r"/accounts/login"), timeout=10000)
+
+        assert page.evaluate("Number(sessionStorage.getItem('idleCallbacksRun'))") > 0
+        assert page.evaluate("sessionStorage.getItem('idleCallbackError')") is None
 
 
 class TestAuthRedirects:

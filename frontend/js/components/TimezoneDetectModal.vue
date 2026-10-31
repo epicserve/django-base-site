@@ -32,7 +32,8 @@ onMounted(() => {
   if (appStore.user.is_hijacked) return;
 
   const runDetection = () => {
-    if (route.meta.guest || AUTH_FLOW_ROUTES.has(route.name)) return;
+    // Runs later (idle callback, tab refocus), by which time logging out may have cleared the user.
+    if (!appStore.user || route.meta.guest || AUTH_FLOW_ROUTES.has(route.name)) return;
     let detected;
     try {
       detected = Intl.DateTimeFormat().resolvedOptions().timeZone;
