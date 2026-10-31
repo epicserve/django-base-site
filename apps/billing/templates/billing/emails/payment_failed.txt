@@ -1,5 +1,5 @@
-{% extends 'emails/base_email.txt' %}{% block content %}Hi,
+{% extends 'emails/base_email.txt' %}{% load site %}{% block content %}Hi,
 
-We weren't able to process the latest payment for {{ organization }}.
+We weren't able to process the latest payment for {{ organization }}{{ organization|sentence_period }}
 
 To keep your subscription active, please update your payment method in the billing portal.{% endblock content %}

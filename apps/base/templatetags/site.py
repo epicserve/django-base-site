@@ -10,6 +10,12 @@ def get_site_name():
 
 
 @register.filter
+def sentence_period(text):
+    """Return the period for a sentence ending in `text`, or "" if `text` already ends with one (e.g. "Acme Inc.")."""
+    return "" if str(text).endswith(".") else "."
+
+
+@register.filter
 def human_duration(seconds):
     if not seconds:
         return "0 min"

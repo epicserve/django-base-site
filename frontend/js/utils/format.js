@@ -9,6 +9,11 @@ export function userFullName(user) {
   return name || user.username || '';
 }
 
+// The period for a sentence ending in `text`, unless `text` already ends with one (e.g. "Acme Inc.").
+export function sentencePeriod(text) {
+  return text?.endsWith('.') ? '' : '.';
+}
+
 export function humanDateTime(isoString) {
   if (!isoString) return '';
   const d = new Date(isoString);

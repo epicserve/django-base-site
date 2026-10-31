@@ -14,11 +14,12 @@ project_slug := 'django-base-site'
     uvx epicenv@1.6.2 create
 
 # Create a Django superuser via epicenv (idempotent). Default: reads credentials
-# from DJANGO_SUPERUSER_USERNAME / _EMAIL / _PASSWORD in .env, and skips when
-# they're blank so `just init` is safe to run before you've decided on a
-# superuser strategy. To source from a secrets manager instead, replace the
-# body with a pipeline that pipes JSON credentials into `epicenv create-superuser`.
-# Example for 1Password — replace the recipe body below with:
+# from DJANGO_SUPERUSER_USERNAME / _EMAIL / _PASSWORD in .env, which
+# `just create_env` fills from 1Password or with fallbacks (see .env.toml), and
+# skips when they're blank. `just seed` makes the same account the superuser.
+# To read from a secrets manager at run time instead (e.g. in production),
+# replace the body with a pipeline that pipes JSON credentials into
+# `epicenv create-superuser`. Example for 1Password — replace the recipe body below with:
 #
 # #!/usr/bin/env bash
 # docker compose up --wait -d web

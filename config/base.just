@@ -206,6 +206,11 @@ lint: lint_js lint_html lint_py lint_migrations lint_types
 # Run pre-commit checks
 pre_commit: format lint test test_e2e
 
+# Create known dev logins, organizations, teams and invites (DEBUG only; safe to rerun)
+@seed: _ensure_web
+    just _start_msg "Seeding development data"
+    {{ python_cmd_prefix }} ./manage.py seed
+
 # Start docker compose
 @start:
     docker compose up

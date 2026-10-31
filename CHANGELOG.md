@@ -1,6 +1,38 @@
 # CHANGELOG
 
 
+## 2026-10-31
+
+### Added
+
+* `just seed` (the new `seed` management command) fills a dev database with known logins, so a developer or an agent can sign in and check a UI change without clicking through signup and invites first (#1365). The cast comes from The Office and Parks and Recreation: the superuser (Leslie Knope: superuser and staff, owner of Pawnee Parks and Recreation), `owner@example.com` (Michael Scott: owner of Dunder Mifflin, member of Pawnee), `member@example.com` (Dwight Schrute: member of Dunder Mifflin), and `user@example.com` (Ryan Howard: no organization, with a pending invite to Dunder Mifflin). Everyone but the superuser uses the password `dev-password`. The superuser is the `DJANGO_SUPERUSER_*` account in `.env`, the same one `just create_superuser` makes, so its password is never the shared one, and the command prints its email but never its password. Dunder Mifflin gets 18 more members and Pawnee the Parks crew, on reserved `.example` email domains; there are three teams; and Dunder Mifflin has a pending invite for Holly Flax (no account) and an expired one for Todd Packer. The command prints the logins and each invite's accept URL, since seeded invites send no email. It refuses to run unless `DEBUG` is on, against a database that isn't local (so a `.env` pointed at a shared, staging or production database can't get a superuser and logins with a well-known password), when the `DJANGO_SUPERUSER_*` values are blank or their email belongs to another user, and while migrations are still pending (the web container runs `migrate` on startup, so `just seed` could otherwise race it). Rerunning it restores the seeded rows, resets their passwords and the superuser's flags, and removes any MFA authenticators (TOTP, passkeys, recovery codes) from the seeded logins, so the password alone always signs in. Otherwise it never deletes anything created by hand: team members are only added, a user's primary organization is only set when it's missing, and an invite whose invitee has since joined is skipped.
+* A `run-app` project skill (`.agents/skills/run-app/`) walks an agent through starting the stack, waiting for the API, running `just seed`, picking a login, and signing in with Playwright to check a change. It also shows how to test passkeys with a virtual WebAuthn authenticator.
+
+### Changed
+
+* `.env.toml` fills `DJANGO_SUPERUSER_USERNAME` / `_EMAIL` / `_PASSWORD` when `just create_env` runs: from the 1Password item `op://Private/django-admin` (via epicenv's 1Password initializer) when the `op` CLI is signed in, and otherwise with the fallbacks `admin` / `admin@example.com` / `dev-password`, which is what CI gets. They used to be blank, so `just init` skipped creating a superuser until you set them.
+
+### Fixed
+
+* The login page no longer opens the browser's passkey dialog on every visit. It called `navigator.credentials.get()` with no mediation as soon as it loaded, which in Chrome shows a modal dialog that blocks the page, so the password form couldn't be used until the dialog was dismissed. Passkeys are now offered through the email field's autofill (`mediation: 'conditional'`, `autocomplete="username webauthn"`) where the browser supports it. The "Sign in with a passkey" button cancels that request and opens the dialog, and the autofill offer comes back if the dialog is cancelled.
+* The Members and Teams settings tabs now list everything. The API pages these lists (`DEFAULT_PAGE_SIZE`, 50 rows), but the tabs read only the first page, so members, invites, and teams past the 50th were silently missing, as were members in the team editor's member picker. They now load every page with the existing `getAllResults` helper.
+* Expired invites are labelled "Expired" in the Members tab instead of "Pending". The invite list API now includes `is_expired`.
+* Non-owners who open an organization's settings URL are sent home. Every settings tab's API is owner-only and only owners get the Settings link, but typing the URL showed a member an empty "No members." table and an invite form. The settings routes are now `ownerOnly`, alongside the router's existing `staffOnly` and `superuserOnly` guards.
+* The Members tab names invitees who already have an account. The invite list API returned `invitee` as a user id, but the tab rendered it as a user, so those invites showed an avatar with a blank name. `invitee` is now the user (`id`, `username`, names, `email`, `avatar_url`), like a member's `user`; creating an invite still takes the id.
+* The accept-invite page and the payment-failed email no longer double the period after an organization name that ends in one ("invited you to join Acme Inc.."). The email uses a new `sentence_period` template filter, the counterpart of the frontend's `sentencePeriod` helper.
+* Logging out no longer logs a `TypeError` from the timezone check. The check waits until the browser is idle, which can be after logging out has cleared the user. It's now cancelled when the layout unmounts, and returns early if there's no user.
+
+### Removed
+
+* The `create_fake_users` and `add_random_members` management commands. `create_fake_users` imported `faker`, which was never a dependency, so it failed with `ModuleNotFoundError`; `ty` didn't flag it because unresolved imports are ignored. `add_random_members` picked random users without excluding existing members, so it raised `IntegrityError` on the organization/user unique constraint as soon as it picked someone twice, and on every rerun. `just seed` replaces both.
+
+### CI
+
+* A new test loads every `apps.*` management command, so a command that imports a package missing from the lockfile fails the Tests job instead of failing only when someone runs it.
+* The install-script job now runs `just seed` twice in the generated project and signs in through allauth's headless API as `owner@example.com` and as the superuser from the generated `.env`. That covers the recipe, the compose command prefix, `DEBUG` being on in the generated `.env`, and the superuser fallbacks reaching the seed.
+* New e2e tests cover the fixes above: the settings tabs list more than a page of members, invites, and teams; expired invites show the Expired badge; non-owners are redirected from settings; invitees with an account are named; an organization name ending in a period isn't given a second one; logging out cancels the pending timezone check, which throws nothing even if it runs anyway (idle callbacks are held until the page unloads); and the login page requests passkeys through autofill (checked with a stand-in for the WebAuthn API that records each request).
+
+
 ## 2026-10-17
 
 ### Fixed

@@ -133,6 +133,12 @@ DATABASES = {
 # https://docs.djangoproject.com/en/6.1/topics/auth/customizing/#substituting-a-custom-user-model
 AUTH_USER_MODEL = "accounts.User"
 
+# The superuser that `just create_superuser` and `just seed` make (see .env.toml). The `seed` command reads these;
+# `epicenv create-superuser` reads the same variables from its environment.
+DJANGO_SUPERUSER_USERNAME = env("DJANGO_SUPERUSER_USERNAME", default="")
+DJANGO_SUPERUSER_EMAIL = env("DJANGO_SUPERUSER_EMAIL", default="")
+DJANGO_SUPERUSER_PASSWORD = env("DJANGO_SUPERUSER_PASSWORD", default="")
+
 # Password validation
 # https://docs.djangoproject.com/en/6.1/ref/settings/#auth-password-validators
 

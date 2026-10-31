@@ -46,6 +46,17 @@ class OrgUserOut(Schema):
     email: str = ""
     avatar_url: str | None = None
 
+    @classmethod
+    def from_user(cls, u) -> "OrgUserOut":
+        return cls(
+            id=u.pk,
+            username=u.username,
+            first_name=u.first_name,
+            last_name=u.last_name,
+            email=u.email,
+            avatar_url=u.avatar_url,
+        )
+
 
 class MemberOut(Schema):
     pk: int
@@ -61,15 +72,7 @@ class MemberOut(Schema):
 
     @staticmethod
     def resolve_user(obj) -> OrgUserOut:
-        u = obj.user
-        return OrgUserOut(
-            id=u.pk,
-            username=u.username,
-            first_name=u.first_name,
-            last_name=u.last_name,
-            email=u.email,
-            avatar_url=u.avatar_url,
-        )
+        return OrgUserOut.from_user(obj.user)
 
 
 class MemberIn(Schema):
@@ -94,9 +97,10 @@ class InviteOut(Schema):
     pk: int
     organization: int
     sender: int
-    invitee: int | None = None
+    invitee: OrgUserOut | None = None
     invitee_email: str = ""
     is_owner: bool
+    is_expired: bool
     key: str
     created: datetime
     modified: datetime
@@ -110,8 +114,9 @@ class InviteOut(Schema):
         return obj.sender_id
 
     @staticmethod
-    def resolve_invitee(obj) -> int | None:
-        return obj.invitee_id
+    def resolve_invitee(obj) -> OrgUserOut | None:
+        # The Members tab shows the invitee's name and avatar, so return the user, not just its id.
+        return OrgUserOut.from_user(obj.invitee) if obj.invitee else None
 
 
 class InviteIn(Schema):

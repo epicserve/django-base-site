@@ -8,7 +8,7 @@ Django Base Site is an opinionated Django starter template with a production-rea
 
 ## Architecture
 
-- **Apps**: Under `apps/` — `accounts/` (custom user with timezone + avatar fields), `base/` (utilities, ninja error handlers, storage backends, the SPA shell view, the `qr_svg` view, etc.), `organizations/` (Organization, OrganizationMember, OrganizationInvite + the public invite ninja API), `teams/` (Team model + ninja API), `notifications/` (Notification + NotificationPreference, ninja API at `/api/notifications/`, `notify()` producer helper, retention purge via celery beat, GenericForeignKey post_delete cleanup driven by `settings.NOTIFICATIONS_TARGET_MODELS`, per-user category prefs declared in `settings.NOTIFICATIONS_CATEGORIES`), `billing/` (opt-in Stripe subscriptions tied to Organizations — see Billing section below).
+- **Apps**: Under `apps/` — `accounts/` (custom user with timezone + avatar fields), `base/` (utilities, ninja error handlers, storage backends, the SPA shell view, the `qr_svg` view, the `seed` command behind `just seed`, etc.), `organizations/` (Organization, OrganizationMember, OrganizationInvite + the public invite ninja API), `teams/` (Team model + ninja API), `notifications/` (Notification + NotificationPreference, ninja API at `/api/notifications/`, `notify()` producer helper, retention purge via celery beat, GenericForeignKey post_delete cleanup driven by `settings.NOTIFICATIONS_TARGET_MODELS`, per-user category prefs declared in `settings.NOTIFICATIONS_CATEGORIES`), `billing/` (opt-in Stripe subscriptions tied to Organizations — see Billing section below).
 - **Billing app** (`apps/billing/`, opt-in via `BILLING_ENABLED`): models are `BillingCustomer` + `Subscription` + `WebhookEvent`. Plans + features are declared in `settings.BILLING_PLANS` / `settings.BILLING_FEATURES` and loaded into `apps/billing/plans.py` and `apps/billing/features.py` dataclasses (mirrors the notifications-categories pattern). New subscriptions go through Stripe Checkout (full-page redirect); upgrades/cancels/payment-methods/invoices go through the Stripe Customer Portal. The webhook lives at `/webhooks/stripe/` (registered in `config/urls.py` outside the ninja API because it uses HMAC, not session+CSRF) and dedupes Stripe retries via `WebhookEvent`. Feature gating: `apps.billing.access.org_has_feature(org, key)` and the `requires_feature` decorator return `True`/pass through when `BILLING_ENABLED=False` so the starter template runs out of the box without Stripe credentials. Per-seat sync runs as a `transaction.on_commit` hook from `OrganizationMember` `post_save`/`post_delete`. Trial reminders + drift recovery run as celery beat tasks.
 - **Settings**: `config/settings/` — `_base.py` (main, env-driven via epicenv), `__init__.py` (re-exports `_base`), `test_runner.py` (overrides for pytest), `e2e.py` (overrides for Playwright with pre-built Vite assets).
 - **API**: A single `NinjaAPI` instance in `config/api.py` mounted at `/api/`. Routers come from each app's `api.py` (`apps.base.api`, `apps.accounts.api`, `apps.organizations.api`, `apps.teams.api`, `apps.notifications.api`).
@@ -31,6 +31,7 @@ Use Just for all development tasks. Common ones:
 - `just clean` - Remove caches, coverage, dist
 - `just create_env` - Generate `.env` from the schema in `.env.toml`
 - `just create_superuser` - Idempotent `epicenv create-superuser` (edit the recipe in the top-level `justfile` to pipe credentials from a secrets manager)
+- `just seed` - Known dev logins cast from The Office and Parks and Rec (password `dev-password`; the superuser is the `DJANGO_SUPERUSER_*` account in `.env`), two orgs, teams, and pending + expired invites. DEBUG and a local database only; safe to rerun. It resets the seeded logins' passwords and removes their MFA, but otherwise never deletes what you created by hand. Prints the logins and invite accept URLs.
 
 **Code Quality:**
 - `just format` - Format Python (ruff), JS (oxfmt + oxlint), HTML (djlint), justfile
@@ -68,8 +69,10 @@ Use Just for all development tasks. Common ones:
 - Model Bakery for fixtures.
 - Django Test Plus for additional helpers.
 - pyotp for the TOTP / MFA tests under `apps/accounts/tests/test_mfa_flows.py`.
-- Playwright e2e tests under `e2e/` (auth flow, invite flow); `--ignore=e2e` is on `pyproject.toml` `[tool.pytest.ini_options]` so the unit suite stays fast.
+- Playwright e2e tests under `e2e/` (auth flow incl. the passkey prompt, invite flow, org settings); `--ignore=e2e` is on `pyproject.toml` `[tool.pytest.ini_options]` so the unit suite stays fast.
 - Coverage configuration in `config/coverage.ini`.
+- Every `apps.*` management command must import cleanly; `apps/base/tests/test_management_commands.py` loads them all, since `ty` ignores unresolved imports.
+- To check a UI change in the browser, follow the `run-app` skill ([.agents/skills/run-app/SKILL.md](.agents/skills/run-app/SKILL.md)): start the stack, `just seed`, then sign in as a seeded login with Playwright.
 - CI (`.github/workflows/ci.yml`) runs `just lint`, the pytest suite, and the Playwright e2e suite on pushes to `main` and on pull requests. Dependabot (`.github/dependabot.yml`) opens weekly dependency PRs; the `/weekly-maintenance` skill reviews and merges them.
 
 <!-- template-only:start -->
@@ -81,7 +84,7 @@ These exist only in the Django Base Site template. `scripts/start_new_project` r
 - `README.md`, `CHANGELOG.md`, `LICENSE.md`, `docs/`, `zensical.toml`, `config/docs.just`, `.readthedocs.yaml`, `scripts/start_new_project`.
 - `config/template.just`, which holds `clean_extra_files` itself, so the recipe doesn't linger in new projects.
 - The docs site's dev dependencies (`zensical`, `mkdocs-linkcheck`), removed from `pyproject.toml` and `uv.lock` with `uv remove`.
-- `.github/workflows/template.yml` — the "Tests install script" job: runs `scripts/start_new_project` and checks the generated project (CI and Dependabot kept, docs tooling and its dependencies gone, no dead links or `just` recipes in its AGENTS.md, nothing else pointing at the deleted files, images pullable), then boots it with `docker compose up` and checks `/api/app-context/` responds. It doesn't run pytest; `ci.yml`'s Tests job covers the code.
+- `.github/workflows/template.yml` — the "Tests install script" job: runs `scripts/start_new_project` and checks the generated project (CI and Dependabot kept, docs tooling and its dependencies gone, no dead links or `just` recipes in its AGENTS.md, nothing else pointing at the deleted files, images pullable), then boots it with `docker compose up`, checks `/api/app-context/` responds, runs `just seed` twice, and signs in as a seeded login and as the superuser from the generated `.env`. It doesn't run pytest; `ci.yml`'s Tests job covers the code.
 - Blocks of this file wrapped in `<!-- template-only:start -->` / `<!-- template-only:end -->` markers, each on a line of its own. Put anything that only applies to the template (docs site, release notes, the install script) inside such a block, and don't link to the files above from outside one.
 
 <!-- template-only:end -->
@@ -140,7 +143,7 @@ Key variables:
 - `USE_DEBUGPY=true` — enable remote debugging
 - `MEDIA_S3_*` — Silo / S3 credentials (locally they are also Silo's root user and password). `MEDIA_S3_ENDPOINT_URL` is the Docker-internal hostname (`http://silo:9000`); `MEDIA_S3_URL_ENDPOINT_URL` is the browser-facing one (`http://localhost:9000`). The split is handled by `apps.base.storage.S3MediaStorage`.
 - `ACCOUNT_SIGNUP_OPEN` — bool, gates new registrations.
-- `DJANGO_SUPERUSER_USERNAME` / `_EMAIL` / `_PASSWORD` — optional; consumed by `just create_superuser` (which `just init` runs on first boot) via the idempotent `epicenv create-superuser`. Leave blank to skip, or edit the `just create_superuser` recipe in the top-level `justfile` to pipe credentials from a secrets manager (1Password, Vault, etc.) instead of putting them in `.env`.
+- `DJANGO_SUPERUSER_USERNAME` / `_EMAIL` / `_PASSWORD` — the superuser. `just create_env` fills them from the 1Password item `op://Private/django-admin` when the `op` CLI is signed in, and otherwise with fallbacks (`admin` / `admin@example.com` / `dev-password`; see `.env.toml`). `just create_superuser` (which `just init` runs on first boot) creates the account via the idempotent `epicenv create-superuser` and skips when they're blank; `just seed` makes the same account its superuser and refuses when they're blank. For production, edit the `just create_superuser` recipe in the top-level `justfile` to pipe credentials from a secrets manager instead of putting them in `.env`.
 
 ## SPA Auth Flow
 

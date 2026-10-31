@@ -1,9 +1,12 @@
 import json
+from datetime import timedelta
 
 from django.contrib.auth import user_logged_in
 from django.core import mail
 from django.test import TestCase
+from django.utils import timezone
 
+import pytest
 from model_bakery import baker
 
 from apps.accounts.models import User
@@ -216,3 +219,59 @@ class TestOrganizationSettingsViewSet(OrganizationAPITestBase):
         self.assertEqual(resp.status_code, 200)
         self.org.refresh_from_db()
         self.assertEqual(self.org.billing_email, "billing@example.com")
+
+
+@pytest.mark.django_db
+class TestInviteList:
+    """What the Members tab's invite list needs from the API."""
+
+    @pytest.fixture()
+    def owner_client(self, client):
+        owner = baker.make(User, email="owner@example.com")
+        org = baker.make(Organization, name="Acme")
+        baker.make(OrganizationMember, organization=org, user=owner, is_owner=True)
+        client.force_login(owner)
+        session = client.session
+        session["organization_data"] = json.dumps(
+            {"pk": org.pk, "id": org.pk, "name": org.name, "slug": org.slug, "is_owner": True}
+        )
+        session.save()
+        client.org, client.owner = org, owner
+        return client
+
+    def test_list_reports_expired_invites(self, owner_client):
+        org, owner = owner_client.org, owner_client.owner
+        pending = OrganizationInvite.objects.create(organization=org, sender=owner, invitee_email="new@example.com")
+        expired = OrganizationInvite.objects.create(organization=org, sender=owner, invitee_email="old@example.com")
+        OrganizationInvite.objects.filter(pk=expired.pk).update(
+            created=timezone.now() - timedelta(days=OrganizationInvite.expired_in_days + 1)
+        )
+
+        resp = owner_client.get("/api/organization-invites/")
+
+        assert resp.status_code == 200
+        is_expired = {invite["pk"]: invite["is_expired"] for invite in resp.json()["results"]}
+        assert is_expired == {pending.pk: False, expired.pk: True}
+
+    def test_list_includes_the_invitee(self, owner_client):
+        # The tab shows an invitee's name and avatar; it used to get only the user id and showed a blank name.
+        org, owner = owner_client.org, owner_client.owner
+        invitee = baker.make(User, email="jim@example.com", first_name="Jim", last_name="Halpert")
+        OrganizationInvite.objects.create(organization=org, sender=owner, invitee=invitee)
+        OrganizationInvite.objects.create(organization=org, sender=owner, invitee_email="new@example.com")
+
+        resp = owner_client.get("/api/organization-invites/")
+
+        assert resp.status_code == 200
+        invitees = {invite["invitee_email"]: invite["invitee"] for invite in resp.json()["results"]}
+        assert invitees == {
+            "jim@example.com": {
+                "id": invitee.pk,
+                "username": invitee.username,
+                "first_name": "Jim",
+                "last_name": "Halpert",
+                "email": "jim@example.com",
+                "avatar_url": None,
+            },
+            "new@example.com": None,
+        }

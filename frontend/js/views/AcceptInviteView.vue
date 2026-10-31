@@ -2,6 +2,7 @@
 import { ref, inject, onMounted } from 'vue';
 import { useRoute, useRouter, RouterLink } from 'vue-router';
 import { get, post } from '@/utils/api';
+import { sentencePeriod } from '@/utils/format';
 import AuthLayout from '@/layouts/AuthLayout.vue';
 
 const route = useRoute();
@@ -100,7 +101,7 @@ onMounted(loadInvite);
     <div v-else-if="invite.is_already_member" class="text-center">
       <h1 class="text-xl font-semibold text-gray-900 dark:text-white">Already a member</h1>
       <p class="mt-2 text-sm text-gray-500 dark:text-gray-400">
-        You're already a member of {{ invite.organization_name }}.
+        You're already a member of {{ invite.organization_name }}{{ sentencePeriod(invite.organization_name) }}
       </p>
       <RouterLink
         class="mt-4 inline-block rounded-md bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700"
@@ -114,7 +115,7 @@ onMounted(loadInvite);
       <h1 class="text-center text-2xl font-semibold tracking-tight text-gray-900 dark:text-white">You're invited!</h1>
       <p class="mt-2 text-center text-sm text-gray-500 dark:text-gray-400">
         <strong>{{ invite.sender_name }}</strong> invited you to join <strong>{{ invite.organization_name }}</strong
-        >.
+        >{{ sentencePeriod(invite.organization_name) }}
       </p>
 
       <div v-if="appStore.isAuthenticated" class="mt-6 space-y-2">

@@ -84,6 +84,21 @@ class TestInviteFlow:
         expect(page.get_by_role("button", name="Create an account to join")).to_be_visible()
         expect(page.get_by_role("button", name="I already have an account")).to_be_visible()
 
+    @pytest.mark.parametrize(
+        ("org_name", "sentence_end"),
+        [("Dunder Mifflin", "Dunder Mifflin."), ("Dunder Mifflin Inc.", "Dunder Mifflin Inc.")],
+    )
+    def test_org_name_ends_the_sentence_once(self, page: Page, live_server, invite, org_name, sentence_end):
+        # A name that already ends in a period ("Inc.") used to get a second one.
+        invite.organization.name = org_name
+        invite.organization.save()
+
+        page.goto(f"{live_server.url}/organizations/invite/{invite.key}/accept/")
+
+        expect(page.get_by_text("invited you to join")).to_have_text(
+            f"Michael Scott invited you to join {sentence_end}"
+        )
+
     def test_invalid_key_shows_unavailable(self, page: Page, live_server, db):
         page.goto(f"{live_server.url}/organizations/invite/abc123notarealkey/accept/")
 

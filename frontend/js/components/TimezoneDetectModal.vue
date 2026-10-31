@@ -26,13 +26,15 @@ async function updateTimezone() {
 }
 
 let onVisibilityChange = null;
+let cancelDetection = null;
 
 onMounted(() => {
   if (!appStore.user) return;
   if (appStore.user.is_hijacked) return;
 
   const runDetection = () => {
-    if (route.meta.guest || AUTH_FLOW_ROUTES.has(route.name)) return;
+    // Runs later (idle callback, tab refocus), by which time logging out may have cleared the user.
+    if (!appStore.user || route.meta.guest || AUTH_FLOW_ROUTES.has(route.name)) return;
     let detected;
     try {
       detected = Intl.DateTimeFormat().resolvedOptions().timeZone;
@@ -51,9 +53,11 @@ onMounted(() => {
   };
 
   if (typeof window.requestIdleCallback === 'function') {
-    window.requestIdleCallback(runDetection, { timeout: 1000 });
+    const handle = window.requestIdleCallback(runDetection, { timeout: 1000 });
+    cancelDetection = () => window.cancelIdleCallback(handle);
   } else {
-    setTimeout(runDetection, 300);
+    const handle = setTimeout(runDetection, 300);
+    cancelDetection = () => clearTimeout(handle);
   }
 
   onVisibilityChange = () => {
@@ -65,6 +69,11 @@ onMounted(() => {
 });
 
 onUnmounted(() => {
+  // Logging out unmounts the layout before the browser is idle; don't leave the check scheduled.
+  if (cancelDetection) {
+    cancelDetection();
+    cancelDetection = null;
+  }
   if (onVisibilityChange) {
     document.removeEventListener('visibilitychange', onVisibilityChange);
     onVisibilityChange = null;
