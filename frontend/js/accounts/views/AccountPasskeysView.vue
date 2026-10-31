@@ -124,7 +124,7 @@ onMounted(() => {
           </div>
           <div class="text-xs text-gray-500 dark:text-gray-400">
             <span v-if="pk.is_passwordless">Passwordless</span>
-            <span v-else>Two-factor</span>
+            <span v-else>Two-Factor</span>
             · Added {{ new Date(pk.created_at * 1000).toLocaleDateString() }}
           </div>
         </div>
@@ -152,7 +152,7 @@ onMounted(() => {
       class="space-y-3 max-w-md rounded-lg border border-gray-200 dark:border-gray-700 p-4"
       @submit.prevent="add"
     >
-      <h3 class="text-sm font-semibold text-gray-900 dark:text-white">Add a passkey</h3>
+      <h3 class="text-sm font-semibold text-gray-900 dark:text-white">Add a Passkey</h3>
       <FormField v-model="newName" label="Name" placeholder="MacBook, YubiKey, iPhone…" :errors="errors.name || []" />
       <label class="flex items-start gap-2 cursor-pointer">
         <input v-model="passwordless" type="checkbox" class="mt-0.5 cursor-pointer text-blue-600 focus:ring-blue-500" />
@@ -168,7 +168,7 @@ onMounted(() => {
         :disabled="loading"
         class="cursor-pointer rounded-md bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700 disabled:opacity-50"
       >
-        {{ loading ? 'Adding…' : 'Add passkey' }}
+        {{ loading ? 'Adding…' : 'Add Passkey' }}
       </button>
     </form>
   </AccountLayout>

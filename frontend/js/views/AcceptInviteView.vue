@@ -70,14 +70,14 @@ onMounted(loadInvite);
     <div v-if="loading" class="text-center text-sm text-gray-400">Loading invitation...</div>
 
     <div v-else-if="error" class="text-center">
-      <h1 class="text-xl font-semibold text-gray-900 dark:text-white">Invitation unavailable</h1>
+      <h1 class="text-xl font-semibold text-gray-900 dark:text-white">Invitation Unavailable</h1>
       <p class="mt-2 text-sm text-gray-500 dark:text-gray-400">
         {{ error }}
       </p>
     </div>
 
     <div v-else-if="result === 'accepted'" class="text-center">
-      <h1 class="text-xl font-semibold text-gray-900 dark:text-white">You've joined {{ invite.organization_name }}!</h1>
+      <h1 class="text-xl font-semibold text-gray-900 dark:text-white">You've Joined {{ invite.organization_name }}!</h1>
       <RouterLink
         class="mt-4 inline-block rounded-md bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700"
         :to="{ name: 'home' }"
@@ -87,19 +87,19 @@ onMounted(loadInvite);
     </div>
 
     <div v-else-if="result === 'declined'" class="text-center">
-      <h1 class="text-xl font-semibold text-gray-900 dark:text-white">Invitation declined</h1>
+      <h1 class="text-xl font-semibold text-gray-900 dark:text-white">Invitation Declined</h1>
       <p class="mt-2 text-sm text-gray-500 dark:text-gray-400">You can close this page.</p>
     </div>
 
     <div v-else-if="invite.is_expired" class="text-center">
-      <h1 class="text-xl font-semibold text-gray-900 dark:text-white">Invitation expired</h1>
+      <h1 class="text-xl font-semibold text-gray-900 dark:text-white">Invitation Expired</h1>
       <p class="mt-2 text-sm text-gray-500 dark:text-gray-400">
         Ask {{ invite.sender_name }} to send you a new invitation.
       </p>
     </div>
 
     <div v-else-if="invite.is_already_member" class="text-center">
-      <h1 class="text-xl font-semibold text-gray-900 dark:text-white">Already a member</h1>
+      <h1 class="text-xl font-semibold text-gray-900 dark:text-white">Already a Member</h1>
       <p class="mt-2 text-sm text-gray-500 dark:text-gray-400">
         You're already a member of {{ invite.organization_name }}{{ sentencePeriod(invite.organization_name) }}
       </p>
@@ -112,7 +112,7 @@ onMounted(loadInvite);
     </div>
 
     <div v-else>
-      <h1 class="text-center text-2xl font-semibold tracking-tight text-gray-900 dark:text-white">You're invited!</h1>
+      <h1 class="text-center text-2xl font-semibold tracking-tight text-gray-900 dark:text-white">You're Invited!</h1>
       <p class="mt-2 text-center text-sm text-gray-500 dark:text-gray-400">
         <strong>{{ invite.sender_name }}</strong> invited you to join <strong>{{ invite.organization_name }}</strong
         >{{ sentencePeriod(invite.organization_name) }}
@@ -125,7 +125,7 @@ onMounted(loadInvite);
           :disabled="submitting"
           @click="accept"
         >
-          Accept invitation
+          Accept Invitation
         </button>
         <button
           type="button"
@@ -143,14 +143,14 @@ onMounted(loadInvite);
           class="w-full cursor-pointer rounded-md bg-blue-600 px-4 py-2.5 text-sm font-medium text-white hover:bg-blue-700"
           @click="goToSignup"
         >
-          Create an account to join
+          Create an Account to Join
         </button>
         <button
           type="button"
           class="w-full cursor-pointer rounded-md border border-gray-300 px-4 py-2.5 text-sm font-medium text-gray-700 hover:bg-gray-50 dark:border-gray-600 dark:text-gray-300 dark:hover:bg-gray-700"
           @click="goToLogin"
         >
-          I already have an account
+          I Already Have an Account
         </button>
       </div>
     </div>

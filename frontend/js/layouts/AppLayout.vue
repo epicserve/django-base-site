@@ -5,10 +5,12 @@ import ThemeToggle from '@/components/ThemeToggle.vue';
 import AppToast from '@/components/AppToast.vue';
 import AppNotificationBell from '@/components/AppNotificationBell.vue';
 import TimezoneDetectModal from '@/components/TimezoneDetectModal.vue';
+import ImpersonationBanner from '@/components/ImpersonationBanner.vue';
 import UserAvatar from '@/components/UserAvatar.vue';
 import TrialEndingBanner from '@/components/billing/TrialEndingBanner.vue';
 import PastDueBanner from '@/components/billing/PastDueBanner.vue';
 import { useNotifications } from '@/composables/useNotifications';
+import { stopImpersonating } from '@/utils/hijack';
 import {
   Cog6ToothIcon,
   ArrowsRightLeftIcon,
@@ -32,29 +34,6 @@ const mobileMenuOpen = ref(false);
 const devToolHost = computed(() => window.location.hostname || 'localhost');
 const mailpitUrl = computed(() => `http://${devToolHost.value}:8025/`);
 const siloUrl = computed(() => `http://${devToolHost.value}:9001/`);
-
-function getCookie(name) {
-  const match = document.cookie.match(new RegExp(`(^|;\\s*)${name}=([^;]+)`));
-  return match ? decodeURIComponent(match[2]) : null;
-}
-
-function releaseHijack() {
-  const form = document.createElement('form');
-  form.method = 'POST';
-  form.action = '/hijack/release/';
-  const csrf = document.createElement('input');
-  csrf.type = 'hidden';
-  csrf.name = 'csrfmiddlewaretoken';
-  csrf.value = getCookie('csrftoken') || '';
-  form.appendChild(csrf);
-  const next = document.createElement('input');
-  next.type = 'hidden';
-  next.name = 'next';
-  next.value = '/';
-  form.appendChild(next);
-  document.body.appendChild(form);
-  form.submit();
-}
 
 function closeAllDropdowns() {
   orgDropdownOpen.value = false;
@@ -96,6 +75,7 @@ onUnmounted(() => {
 </script>
 
 <template>
+  <ImpersonationBanner />
   <PastDueBanner />
   <TrialEndingBanner />
   <nav class="border-b border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900">
@@ -238,7 +218,7 @@ onUnmounted(() => {
                     v-if="appStore.user.is_hijacked"
                     type="button"
                     class="w-full text-left cursor-pointer flex items-center gap-2 px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-700"
-                    @click="releaseHijack"
+                    @click="stopImpersonating"
                   >
                     <XCircleIcon class="h-4 w-4 text-gray-400 dark:text-gray-500" />
                     Stop Impersonating
@@ -290,7 +270,7 @@ onUnmounted(() => {
           <div class="lg:hidden" data-dropdown="nav">
             <button
               class="cursor-pointer rounded-md p-1.5 text-gray-500 hover:bg-gray-100 dark:text-gray-400 dark:hover:bg-gray-800"
-              :aria-label="mobileMenuOpen ? 'Close menu' : 'Open menu'"
+              :aria-label="mobileMenuOpen ? 'Close Menu' : 'Open Menu'"
               :aria-expanded="mobileMenuOpen"
               @click.stop="toggleMobileMenu"
             >
@@ -442,7 +422,7 @@ onUnmounted(() => {
             v-if="appStore.user.is_hijacked"
             type="button"
             class="w-full text-left cursor-pointer flex items-center gap-2 rounded px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-700"
-            @click="releaseHijack"
+            @click="stopImpersonating"
           >
             <XCircleIcon class="h-4 w-4 text-gray-400 dark:text-gray-500" />
             Stop Impersonating

@@ -124,7 +124,7 @@ onMounted(load);
 
 <template>
   <AccountLayout>
-    <h2 class="text-lg font-semibold text-gray-900 dark:text-white mb-4">Authenticator app (TOTP)</h2>
+    <h2 class="text-lg font-semibold text-gray-900 dark:text-white mb-4">Authenticator App (TOTP)</h2>
 
     <div v-if="loading" class="text-sm text-gray-500 dark:text-gray-400">Loading…</div>
 
@@ -136,7 +136,7 @@ onMounted(load);
         class="cursor-pointer rounded-md px-3.5 py-2 text-sm font-medium text-red-600 hover:bg-red-50 dark:text-red-400 dark:hover:bg-red-950/30 disabled:opacity-50"
         @click="deactivate"
       >
-        Disable authenticator app
+        Disable Authenticator App
       </button>
     </div>
 
@@ -161,7 +161,7 @@ onMounted(load);
         <FormErrors :errors="errors.non_field_errors || []" />
         <FormField
           v-model="code"
-          label="6-digit code"
+          label="6-Digit Code"
           autocomplete="one-time-code"
           inputmode="numeric"
           :errors="errors.code || []"
@@ -178,7 +178,7 @@ onMounted(load);
 
     <div v-if="needsReauth" class="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
       <div class="w-full max-w-sm rounded-lg bg-white p-6 shadow-xl dark:bg-gray-800">
-        <h3 class="text-base font-semibold text-gray-900 dark:text-white">Confirm your password</h3>
+        <h3 class="text-base font-semibold text-gray-900 dark:text-white">Confirm Your Password</h3>
         <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">Re-enter your password to continue.</p>
         <form class="mt-4 space-y-3" @submit.prevent="submitReauth">
           <FormErrors :errors="reauthErrors.non_field_errors || []" />

@@ -218,7 +218,7 @@ onMounted(load);
             class="cursor-pointer rounded px-2 py-1 text-xs font-medium text-gray-600 hover:text-gray-900 dark:text-gray-400 dark:hover:text-gray-200"
             @click="handleMarkAllRead"
           >
-            Mark all read
+            Mark All Read
           </button>
         </div>
       </div>
@@ -233,7 +233,7 @@ onMounted(load);
           class="cursor-pointer font-medium text-gray-700 hover:text-gray-900 dark:text-gray-200"
           @click="toggleSelectAll"
         >
-          {{ allSelected ? 'Clear' : 'Select all' }} ({{ selectedIds.size }})
+          {{ allSelected ? 'Clear' : 'Select All' }} ({{ selectedIds.size }})
         </button>
         <div class="flex items-center gap-1">
           <button
@@ -242,7 +242,7 @@ onMounted(load);
             :disabled="selectedIds.size === 0"
             @click="handleBulk('mark_read')"
           >
-            Mark read
+            Mark Read
           </button>
           <button
             type="button"
@@ -250,7 +250,7 @@ onMounted(load);
             :disabled="selectedIds.size === 0"
             @click="handleBulk('mark_unread')"
           >
-            Mark unread
+            Mark Unread
           </button>
           <button
             type="button"
@@ -263,7 +263,7 @@ onMounted(load);
           <button
             type="button"
             class="cursor-pointer rounded p-1 text-gray-500 hover:bg-white dark:hover:bg-gray-700"
-            aria-label="Cancel selection"
+            aria-label="Cancel Selection"
             @click="exitSelectMode"
           >
             <XMarkIcon class="h-4 w-4" />
@@ -332,7 +332,7 @@ onMounted(load);
               v-if="!selectMode"
               type="button"
               class="cursor-pointer shrink-0 rounded p-1 text-gray-400 opacity-0 transition group-hover:opacity-100 group-focus-within:opacity-100 hover:bg-gray-200 hover:text-gray-700 dark:hover:bg-gray-600 dark:hover:text-gray-200"
-              aria-label="Delete notification"
+              aria-label="Delete Notification"
               @click.stop="handleDelete(n.id)"
             >
               <TrashIcon class="h-4 w-4" />
@@ -352,7 +352,7 @@ onMounted(load);
             type="button"
             class="cursor-pointer rounded p-1 hover:bg-white disabled:cursor-not-allowed disabled:opacity-40 dark:hover:bg-gray-700"
             :disabled="page <= 1"
-            aria-label="Previous page"
+            aria-label="Previous Page"
             @click="gotoPage(page - 1)"
           >
             <ChevronLeftIcon class="h-4 w-4" />
@@ -362,7 +362,7 @@ onMounted(load);
             type="button"
             class="cursor-pointer rounded p-1 hover:bg-white disabled:cursor-not-allowed disabled:opacity-40 dark:hover:bg-gray-700"
             :disabled="page >= numPages"
-            aria-label="Next page"
+            aria-label="Next Page"
             @click="gotoPage(page + 1)"
           >
             <ChevronRightIcon class="h-4 w-4" />

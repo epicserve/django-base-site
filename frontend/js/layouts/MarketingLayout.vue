@@ -27,14 +27,14 @@ const appStore = inject('appStore');
               class="text-gray-700 hover:text-gray-900 dark:text-gray-300 dark:hover:text-white"
               :to="{ name: 'login' }"
             >
-              Sign in
+              Sign In
             </RouterLink>
             <RouterLink
               v-if="appStore.signupOpen"
               class="rounded-md bg-indigo-600 px-3 py-1.5 font-medium text-white hover:bg-indigo-500"
               :to="{ name: 'signup' }"
             >
-              Sign up
+              Sign Up
             </RouterLink>
           </template>
           <RouterLink v-else class="text-gray-700 hover:text-gray-900 dark:text-gray-300 dark:hover:text-white" to="/">

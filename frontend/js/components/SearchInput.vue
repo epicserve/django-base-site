@@ -29,7 +29,7 @@ function clear() {
     <button
       v-if="modelValue"
       type="button"
-      aria-label="Clear search"
+      aria-label="Clear Search"
       class="absolute inset-y-0 right-0 flex items-center pr-2 text-gray-400 hover:text-gray-600 dark:hover:text-gray-200 cursor-pointer"
       @click="clear"
     >

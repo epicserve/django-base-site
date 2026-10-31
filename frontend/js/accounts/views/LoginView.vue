@@ -138,7 +138,7 @@ async function passkeyLogin() {
 <template>
   <AuthLayout>
     <h1 class="text-center text-2xl font-semibold tracking-tight text-gray-900 dark:text-white">Sign In</h1>
-    <p class="mt-2 text-center text-sm text-gray-500 dark:text-gray-400">Welcome back</p>
+    <p class="mt-2 text-center text-sm text-gray-500 dark:text-gray-400">Welcome Back</p>
     <form class="mt-6 space-y-4" @submit.prevent="onSubmit">
       <FormErrors :errors="errors.non_field_errors || []" />
       <FormField
@@ -160,7 +160,7 @@ async function passkeyLogin() {
           :to="{ name: 'password-reset' }"
           class="text-sm font-medium text-blue-600 hover:text-blue-500 dark:text-blue-400"
         >
-          Forgot password?
+          Forgot Password?
         </RouterLink>
       </div>
       <button
@@ -168,7 +168,7 @@ async function passkeyLogin() {
         :disabled="loading"
         class="w-full cursor-pointer rounded-lg bg-blue-600 px-4 py-2.5 text-sm font-semibold text-white shadow-sm transition hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:opacity-50 dark:focus:ring-offset-gray-800"
       >
-        {{ loading ? 'Signing in...' : 'Sign In' }}
+        {{ loading ? 'Signing In...' : 'Sign In' }}
       </button>
     </form>
     <div v-if="passkeySupported" class="mt-4">
@@ -186,14 +186,14 @@ async function passkeyLogin() {
         class="w-full cursor-pointer rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-sm font-semibold text-gray-700 shadow-sm transition hover:bg-gray-50 dark:border-gray-600 dark:bg-gray-800 dark:text-gray-200 dark:hover:bg-gray-700 disabled:opacity-50"
         @click="passkeyLogin"
       >
-        {{ passkeyLoading ? 'Waiting for passkey…' : 'Sign in with a passkey' }}
+        {{ passkeyLoading ? 'Waiting for Passkey…' : 'Sign In with a Passkey' }}
       </button>
     </div>
     <template #footer>
       <p class="mt-6 text-center text-sm text-gray-500 dark:text-gray-400">
         Not a member?
         <RouterLink :to="{ name: 'signup' }" class="font-medium text-blue-600 hover:text-blue-500 dark:text-blue-400">
-          Create an account
+          Create an Account
         </RouterLink>
       </p>
     </template>

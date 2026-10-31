@@ -8,7 +8,7 @@ const TIMEZONE_CHOICES = [
   { value: 'Pacific/Honolulu', label: 'Hawaii (HST)', region: 'North America' },
   { value: 'America/Anchorage', label: 'Alaska (AKST)', region: 'North America' },
   { value: 'America/Los_Angeles', label: 'Pacific Time (US & Canada)', region: 'North America' },
-  { value: 'America/Phoenix', label: 'Arizona (no DST)', region: 'North America' },
+  { value: 'America/Phoenix', label: 'Arizona (No DST)', region: 'North America' },
   { value: 'America/Denver', label: 'Mountain Time (US & Canada)', region: 'North America' },
   { value: 'America/Chicago', label: 'Central Time (US & Canada)', region: 'North America' },
   { value: 'America/New_York', label: 'Eastern Time (US & Canada)', region: 'North America' },
@@ -25,7 +25,7 @@ const TIMEZONE_CHOICES = [
   { value: 'America/Argentina/Buenos_Aires', label: 'Buenos Aires', region: 'South America' },
 
   // Europe
-  { value: 'Atlantic/Reykjavik', label: 'Reykjavik (no DST)', region: 'Europe' },
+  { value: 'Atlantic/Reykjavik', label: 'Reykjavik (No DST)', region: 'Europe' },
   { value: 'Europe/London', label: 'London, Dublin, Edinburgh', region: 'Europe' },
   { value: 'Europe/Paris', label: 'Paris, Berlin, Amsterdam', region: 'Europe' },
   { value: 'Europe/Helsinki', label: 'Helsinki, Kyiv, Bucharest', region: 'Europe' },

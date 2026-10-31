@@ -24,7 +24,7 @@ const greeting = computed(() => {
 const layers = [
   {
     key: 'frontend',
-    name: 'Vue front end',
+    name: 'Vue Front End',
     color: '#2bd19e',
     labelColor: '#0f2e24',
     description: 'A single-page app styled with Tailwind and hot-reloaded by Vite while you work.',
@@ -32,7 +32,7 @@ const layers = [
   },
   {
     key: 'teams',
-    name: 'Teams & billing',
+    name: 'Teams & Billing',
     color: '#ffc23d',
     labelColor: '#3a2a00',
     description:
@@ -41,11 +41,11 @@ const layers = [
   },
   {
     key: 'auth',
-    name: 'Sign-in & security',
+    name: 'Sign-In & Security',
     color: '#ff6f9a',
     labelColor: '#3d0618',
     description: 'Sign-up, email verification, and password reset, with two-factor codes and passkeys.',
-    parts: ['django-allauth', 'Two-factor codes', 'Passkeys', 'Recovery codes'],
+    parts: ['django-allauth', 'Two-Factor Codes', 'Passkeys', 'Recovery Codes'],
   },
   {
     key: 'django',
@@ -225,7 +225,7 @@ const activeKey = ref(null);
                 :transform="ghost.labelTransform"
                 dominant-baseline="central"
               >
-                Your app
+                Your App
               </text>
             </g>
           </g>
@@ -266,7 +266,7 @@ const activeKey = ref(null);
             rel="noopener"
             class="inline-flex items-center gap-2 rounded-lg bg-blue-600 px-4 py-2.5 text-sm font-semibold text-white shadow-sm transition hover:bg-blue-700 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-600"
           >
-            Read the docs
+            Read the Docs
             <ArrowTopRightOnSquareIcon class="h-4 w-4 opacity-80" aria-hidden="true" />
           </a>
           <a
@@ -274,7 +274,7 @@ const activeKey = ref(null);
             href="/admin/"
             class="inline-flex items-center rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-sm font-semibold text-gray-700 shadow-sm transition hover:bg-gray-50 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-600 dark:border-gray-600 dark:bg-gray-800 dark:text-gray-200 dark:hover:bg-gray-700"
           >
-            Open Django admin
+            Open Django Admin
           </a>
         </div>
 
@@ -294,7 +294,7 @@ const activeKey = ref(null);
     <!-- what's included -->
     <section class="mt-16 lg:mt-14" aria-labelledby="home-included">
       <h2 id="home-included" class="text-2xl font-semibold tracking-tight text-gray-900 dark:text-white">
-        What's in the box
+        What's in the Box
       </h2>
 
       <ul class="mt-4">

@@ -81,7 +81,7 @@ async function setPrimary(slug) {
             class="relative z-10 cursor-pointer rounded-md px-2 py-0.5 text-xs text-gray-500 hover:bg-gray-100 hover:text-gray-700 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-gray-300"
             @click.stop="setPrimary(org.slug)"
           >
-            Make primary
+            Make Primary
           </button>
         </div>
       </div>

@@ -96,6 +96,7 @@ These exist only in the Django Base Site template. `scripts/start_new_project` r
 - **HTML / Django templates**: djLint for formatting and linting.
 - **CSS**: Tailwind v4 utilities (no separate Sass/Stylelint pipeline anymore — both were dropped during the SPA conversion).
 - **Line Length**: 120 characters for Python and HTML.
+- **UI copy**: Labels are Title Case. That covers headings, page and modal titles, buttons (including an icon button's `aria-label` and its loading text), action links, nav and tab items, form labels, table headers, chips, badges, and select options. Keep articles, coordinating conjunctions, and prepositions of four letters or fewer (a, an, the, and, but, or, of, in, on, to, for, at, by, with, from) lowercase unless they come first or last. Capitalize the particle of a phrasal verb ("Sign In", "Set Up") and both halves of a hyphenated compound ("Two-Factor", "In-App"). Package and product names keep their own casing (`django-allauth`, `bun`, `Tailwind v4`). Examples: "Sign In with a Passkey", "Read the Docs", "Teams Aren't Included on Your Current Plan". Sentence case is for sentences and hints: descriptions, subtitles, help text, placeholders, tooltips, empty states, toasts, confirmations, error messages, greetings, and checkbox labels that read as a sentence. Django admin strings (model `verbose_name`s and choice labels) follow Django's own sentence-case convention.
 
 ## Debugging
 

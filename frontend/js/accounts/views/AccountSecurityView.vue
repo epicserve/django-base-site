@@ -32,7 +32,7 @@ onMounted(load);
       <section class="rounded-lg border border-gray-200 dark:border-gray-700 p-4">
         <div class="flex items-center justify-between">
           <div>
-            <h2 class="text-sm font-semibold text-gray-900 dark:text-white">Authenticator app (TOTP)</h2>
+            <h2 class="text-sm font-semibold text-gray-900 dark:text-white">Authenticator App (TOTP)</h2>
             <p class="text-sm text-gray-500 dark:text-gray-400 mt-1">
               <span v-if="totp">Enabled. Use your authenticator app to generate codes when signing in.</span>
               <span v-else>Use Google Authenticator, 1Password, Authy, or similar to add a second factor.</span>
@@ -42,7 +42,7 @@ onMounted(load);
             :to="{ name: 'account-totp' }"
             class="cursor-pointer rounded-md bg-blue-600 px-3.5 py-2 text-sm font-medium text-white hover:bg-blue-700"
           >
-            {{ totp ? 'Manage' : 'Set up' }}
+            {{ totp ? 'Manage' : 'Set Up' }}
           </RouterLink>
         </div>
       </section>
@@ -50,7 +50,7 @@ onMounted(load);
       <section class="rounded-lg border border-gray-200 dark:border-gray-700 p-4">
         <div class="flex items-center justify-between">
           <div>
-            <h2 class="text-sm font-semibold text-gray-900 dark:text-white">Recovery codes</h2>
+            <h2 class="text-sm font-semibold text-gray-900 dark:text-white">Recovery Codes</h2>
             <p class="text-sm text-gray-500 dark:text-gray-400 mt-1">
               <span v-if="recoveryCodes">
                 {{ recoveryCodes.unused_code_count }} of {{ recoveryCodes.total_code_count }} unused.

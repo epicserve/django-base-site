@@ -87,7 +87,7 @@ onUnmounted(() => {
       class="fixed left-1/2 top-1/2 z-[101] w-full max-w-md -translate-x-1/2 -translate-y-1/2 rounded-lg bg-white shadow-xl dark:bg-gray-800"
     >
       <div class="border-b border-gray-200 px-6 py-4 dark:border-gray-700">
-        <h3 class="text-lg font-semibold text-gray-900 dark:text-white">Your timezone has changed</h3>
+        <h3 class="text-lg font-semibold text-gray-900 dark:text-white">Your Timezone Has Changed</h3>
       </div>
       <div class="px-6 py-4">
         <p class="mb-4 text-sm text-gray-600 dark:text-gray-400">
@@ -114,13 +114,13 @@ onUnmounted(() => {
           class="cursor-pointer px-4 py-2 text-sm font-medium text-gray-600 hover:text-gray-800 dark:text-gray-400 dark:hover:text-gray-200"
           @click="dismiss"
         >
-          Keep current
+          Keep Current
         </button>
         <button
           class="cursor-pointer rounded-md bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700"
           @click="updateTimezone"
         >
-          Update timezone
+          Update Timezone
         </button>
       </div>
     </div>

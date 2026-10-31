@@ -134,7 +134,7 @@ async function removeAvatar() {
         class="cursor-pointer rounded-md border border-gray-300 px-3 py-1.5 text-sm font-medium text-gray-700 hover:bg-gray-50 dark:border-gray-600 dark:text-gray-300 dark:hover:bg-gray-700"
         @click="openModal"
       >
-        Change photo
+        Change Photo
       </button>
       <button
         v-if="hasAvatar"
@@ -148,7 +148,7 @@ async function removeAvatar() {
     </div>
   </div>
 
-  <AppModal :open="showModal" title="Change profile photo" size="lg" @close="closeModal">
+  <AppModal :open="showModal" title="Change Profile Photo" size="lg" @close="closeModal">
     <div v-if="!imageSrc" class="text-center py-8">
       <label
         class="cursor-pointer inline-flex items-center gap-2 rounded-md bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700"
@@ -160,7 +160,7 @@ async function removeAvatar() {
             d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5m-13.5-9L12 3m0 0l4.5 4.5M12 3v13.5"
           />
         </svg>
-        Choose an image
+        Choose an Image
         <input type="file" accept="image/jpeg,image/png,image/webp" class="hidden" @change="onFileSelect" />
       </label>
       <p class="mt-2 text-sm text-gray-500 dark:text-gray-400">JPEG, PNG, or WebP up to 10 MB</p>

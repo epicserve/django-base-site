@@ -68,7 +68,7 @@ onMounted(load);
               scope="col"
               class="px-4 py-2 text-center text-xs font-semibold uppercase tracking-wide text-gray-500 dark:text-gray-400"
             >
-              In-app
+              In-App
             </th>
             <th
               scope="col"

@@ -14,7 +14,7 @@ const AMBER = 'bg-amber-50 text-amber-700 ring-amber-600/20 dark:bg-amber-900/30
 const STYLE = {
   trialing: { label: 'Trial', class: BLUE },
   active: { label: 'Active', class: GREEN },
-  past_due: { label: 'Past due', class: RED },
+  past_due: { label: 'Past Due', class: RED },
   canceled: { label: 'Canceled', class: GRAY },
   incomplete: { label: 'Pending', class: AMBER },
   incomplete_expired: { label: 'Expired', class: GRAY },

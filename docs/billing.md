@@ -110,7 +110,7 @@ Restart with `just stop && just start`, then forward webhooks with `stripe liste
 
 ## Plan switching is disabled by default
 
-When an org is already subscribed and visits `/pricing/`, the other plan cards show **"Already subscribed"** as a disabled state instead of inviting them to switch. The "Open billing portal" button on the billing settings page still works — it just doesn't expose a plan-switch flow.
+When an org is already subscribed and visits `/pricing/`, the other plan cards show **"Already Subscribed"** as a disabled state instead of inviting them to switch. The "Open Billing Portal" button on the billing settings page still works — it just doesn't expose a plan-switch flow.
 
 Self-service plan switching is gated behind two things the starter can't decide for you:
 
@@ -129,12 +129,12 @@ Self-service plan switching is gated behind two things the starter can't decide 
 
 #### 2. Restore the SPA CTA
 
-In [frontend/js/components/billing/PlanCard.vue](https://github.com/epicserve/django-base-site/blob/main/frontend/js/components/billing/PlanCard.vue), the `if (props.hasSubscription)` branch in `ctaState` is currently a disabled "Already subscribed" state. Replace it with the original switch-plan CTA:
+In [frontend/js/components/billing/PlanCard.vue](https://github.com/epicserve/django-base-site/blob/main/frontend/js/components/billing/PlanCard.vue), the `if (props.hasSubscription)` branch in `ctaState` is currently a disabled "Already Subscribed" state. Replace it with the original switch-plan CTA:
 
 ```js
 if (props.hasSubscription) {
   return {
-    label: props.plan.is_free ? 'Downgrade to Free' : 'Switch to this plan',
+    label: props.plan.is_free ? 'Downgrade to Free' : 'Switch to This Plan',
     action: () => billing.manageBilling(),
     disabled: false,
     hint: '',
@@ -142,14 +142,14 @@ if (props.hasSubscription) {
 }
 ```
 
-#### 3. Restore the "Change plan" section on the billing settings page
+#### 3. Restore the "Change Plan" section on the billing settings page
 
 In [frontend/js/views/settings/BillingView.vue](https://github.com/epicserve/django-base-site/blob/main/frontend/js/views/settings/BillingView.vue), add this section back near the bottom of the subscribed-state block (right after the seats section, inside the `<template>` for the subscribed state):
 
 ```html
 <section class="rounded-lg border border-gray-200 bg-white p-6 dark:border-gray-700 dark:bg-gray-800">
   <h2 class="text-lg font-semibold text-gray-900 dark:text-white">
-    Change plan
+    Change Plan
   </h2>
   <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">
     Compare available plans and switch from the pricing page.
@@ -158,12 +158,12 @@ In [frontend/js/views/settings/BillingView.vue](https://github.com/epicserve/dja
     :to="{ name: 'pricing' }"
     class="mt-3 inline-block text-sm font-medium text-indigo-600 hover:text-indigo-500 dark:text-indigo-400"
   >
-    View all plans →
+    View All Plans →
   </RouterLink>
 </section>
 ```
 
-Optionally also update the "Manage billing" description to mention "change plans" again.
+Optionally also update the "Manage Billing" description to mention "change plans" again.
 
 #### 4. Handle feature loss on downgrade
 

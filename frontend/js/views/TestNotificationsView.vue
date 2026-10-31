@@ -79,7 +79,7 @@ async function submit() {
           type="checkbox"
           class="h-4 w-4 cursor-pointer rounded border-gray-300 text-blue-600 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700"
         />
-        Send email notification
+        Send Email Notification
       </label>
 
       <label class="mt-2 flex items-center gap-2 text-sm text-gray-700 dark:text-gray-300">
@@ -88,7 +88,7 @@ async function submit() {
           type="checkbox"
           class="h-4 w-4 cursor-pointer rounded border-gray-300 text-blue-600 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700"
         />
-        Send in app notification
+        Send In-App Notification
       </label>
 
       <div class="mt-6 flex justify-end">

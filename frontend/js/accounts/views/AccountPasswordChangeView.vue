@@ -57,7 +57,7 @@ async function onSubmit() {
         />
         <FormField
           v-model="newPassword2"
-          label="New Password (again)"
+          label="New Password (Again)"
           type="password"
           autocomplete="new-password"
           :errors="errors.new_password2 || errors.password2 || []"

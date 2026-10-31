@@ -49,7 +49,7 @@ const annualSavingsPct = computed(() => {
 const ctaState = computed(() => {
   if (!appStore.isAuthenticated) {
     return {
-      label: props.plan.is_free ? 'Get started' : 'Sign up',
+      label: props.plan.is_free ? 'Get Started' : 'Sign Up',
       action: () => router.push({ name: 'signup', query: { next: '/pricing/' } }),
       disabled: false,
       hint: '',
@@ -57,7 +57,7 @@ const ctaState = computed(() => {
   }
   if (!appStore.isOrg) {
     return {
-      label: 'Create an organization',
+      label: 'Create an Organization',
       action: () => router.push({ name: 'org-create' }),
       disabled: false,
       hint: '',
@@ -65,27 +65,27 @@ const ctaState = computed(() => {
   }
   if (!appStore.isOwner) {
     return {
-      label: 'Owner-only',
+      label: 'Owner-Only',
       action: null,
       disabled: true,
       hint: 'Only org owners can change billing.',
     };
   }
   if (props.currentPlanKey && props.currentPlanKey === props.plan.key) {
-    return { label: 'Current plan', action: null, disabled: true, hint: '' };
+    return { label: 'Current Plan', action: null, disabled: true, hint: '' };
   }
   if (props.hasSubscription) {
     // Plan switching is disabled by default. To enable it, see
     // https://django-base-site.readthedocs.io/en/latest/billing/#enabling-plan-switching
     return {
-      label: 'Already subscribed',
+      label: 'Already Subscribed',
       action: null,
       disabled: true,
       hint: 'To change plans, cancel your current subscription from billing settings, then pick a new plan.',
     };
   }
   if (props.plan.is_free) {
-    return { label: 'Use free plan', action: null, disabled: true, hint: "You're already on the free plan." };
+    return { label: 'Use Free Plan', action: null, disabled: true, hint: "You're already on the free plan." };
   }
   return {
     label: 'Subscribe',

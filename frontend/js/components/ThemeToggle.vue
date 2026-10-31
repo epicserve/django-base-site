@@ -36,7 +36,7 @@ onMounted(() => {
         type="button"
         class="cursor-pointer rounded-l-full p-1.5 text-gray-700 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-700"
         :class="{ 'bg-gray-200 dark:bg-gray-600': currentTheme === 'light' }"
-        aria-label="Light theme"
+        aria-label="Light Theme"
         :aria-pressed="currentTheme === 'light'"
         @click="setTheme('light')"
       >
@@ -50,7 +50,7 @@ onMounted(() => {
         type="button"
         class="cursor-pointer border-x border-gray-200 p-1.5 text-gray-700 hover:bg-gray-100 dark:border-gray-600 dark:text-gray-300 dark:hover:bg-gray-700"
         :class="{ 'bg-gray-200 dark:bg-gray-600': currentTheme === 'dark' }"
-        aria-label="Dark theme"
+        aria-label="Dark Theme"
         :aria-pressed="currentTheme === 'dark'"
         @click="setTheme('dark')"
       >
@@ -66,7 +66,7 @@ onMounted(() => {
         type="button"
         class="cursor-pointer rounded-r-full p-1.5 text-gray-700 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-700"
         :class="{ 'bg-gray-200 dark:bg-gray-600': currentTheme === 'auto' }"
-        aria-label="Auto theme"
+        aria-label="Auto Theme"
         :aria-pressed="currentTheme === 'auto'"
         @click="setTheme('auto')"
       >

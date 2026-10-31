@@ -55,7 +55,7 @@ onMounted(load);
 
 <template>
   <AccountLayout>
-    <h2 class="text-lg font-semibold text-gray-900 dark:text-white mb-2">Recovery codes</h2>
+    <h2 class="text-lg font-semibold text-gray-900 dark:text-white mb-2">Recovery Codes</h2>
     <p class="text-sm text-gray-500 dark:text-gray-400 mb-4">
       Each code can be used once if you lose access to your authenticator app. Store them somewhere safe.
     </p>
@@ -79,7 +79,7 @@ onMounted(load);
           class="cursor-pointer rounded-md border border-gray-300 bg-white px-3.5 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 dark:border-gray-600 dark:bg-gray-800 dark:text-gray-200 dark:hover:bg-gray-700 disabled:opacity-50"
           @click="copyAll"
         >
-          Copy all
+          Copy All
         </button>
         <button
           type="button"

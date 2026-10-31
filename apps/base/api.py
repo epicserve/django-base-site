@@ -2,7 +2,7 @@ from django.conf import settings
 from django.utils import dateformat
 from django.utils.timezone import now
 
-from ninja import Router, Schema
+from ninja import Router, Schema, Status
 from ninja.errors import HttpError
 
 from apps.accounts.models import User
@@ -16,6 +16,10 @@ from apps.organizations.models import Organization, OrganizationMember
 from apps.organizations.session import get_member_count, get_owner_count
 
 router = Router(tags=["app"])
+
+# Starting or stopping an impersonation logs in a different user, and Django's login() flushes the
+# session when the user changes, so this flag clears itself on every new impersonation.
+IMPERSONATION_BANNER_HIDDEN_KEY = "impersonation_banner_hidden"
 
 
 def _get_app_version() -> str:
@@ -74,6 +78,7 @@ def app_context(request):
             "is_staff": user.is_staff,
             "is_superuser": user.is_superuser,
             "is_hijacked": getattr(user, "is_hijacked", False),
+            "impersonation_banner_hidden": request.session.get(IMPERSONATION_BANNER_HIDDEN_KEY, False),
             "organizations": user_orgs,
         },
         "org": org_data,
@@ -86,6 +91,14 @@ def app_context(request):
         "version": _get_app_version(),
         "billing": org_billing_summary(org_instance),
     }
+
+
+@router.post("/impersonation/hide-banner/", response={204: None})
+def hide_impersonation_banner(request):
+    if not getattr(request.user, "is_hijacked", False):
+        raise HttpError(403, "You aren't impersonating anyone.")
+    request.session[IMPERSONATION_BANNER_HIDDEN_KEY] = True
+    return Status(204, None)
 
 
 @router.get("/test-notifications/staff-users/")

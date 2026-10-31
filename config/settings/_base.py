@@ -79,6 +79,9 @@ INSTALLED_APPS = [
 HIJACK_PERMISSION_CHECK = "apps.base.hijack_permissions.superuser_only"
 HIJACK_LOGIN_REDIRECT_URL = "/"
 HIJACK_LOGOUT_REDIRECT_URL = "/"
+# The SPA renders its own impersonation banner (frontend/js/components/ImpersonationBanner.vue),
+# so turn off the notification django-hijack injects into every HTML response.
+HIJACK_INSERT_BEFORE = None
 
 MIDDLEWARE = [
     "allauth.account.middleware.AccountMiddleware",

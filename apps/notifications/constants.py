@@ -20,5 +20,5 @@ class NotificationChannel(models.TextChoices):
         ]
     """
 
-    IN_APP = "in_app", "In-app"
+    IN_APP = "in_app", "In-App"
     EMAIL = "email", "Email"

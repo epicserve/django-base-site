@@ -78,11 +78,11 @@ class TestInviteFlow:
     def test_invite_page_shows_org_and_sender(self, page: Page, live_server, invite):
         page.goto(f"{live_server.url}/organizations/invite/{invite.key}/accept/")
 
-        expect(page.get_by_text("You're invited!")).to_be_visible()
+        expect(page.get_by_text("You're Invited!")).to_be_visible()
         expect(page.get_by_text("Dunder Mifflin")).to_be_visible()
         # Anonymous visitor sees the create-account / sign-in CTAs
-        expect(page.get_by_role("button", name="Create an account to join")).to_be_visible()
-        expect(page.get_by_role("button", name="I already have an account")).to_be_visible()
+        expect(page.get_by_role("button", name="Create an Account to Join")).to_be_visible()
+        expect(page.get_by_role("button", name="I Already Have an Account")).to_be_visible()
 
     @pytest.mark.parametrize(
         ("org_name", "sentence_end"),
@@ -102,12 +102,12 @@ class TestInviteFlow:
     def test_invalid_key_shows_unavailable(self, page: Page, live_server, db):
         page.goto(f"{live_server.url}/organizations/invite/abc123notarealkey/accept/")
 
-        expect(page.get_by_text("Invitation unavailable")).to_be_visible()
+        expect(page.get_by_text("Invitation Unavailable")).to_be_visible()
 
     def test_expired_invite_shown_as_expired(self, page: Page, live_server, expired_invite):
         page.goto(f"{live_server.url}/organizations/invite/{expired_invite.key}/accept/")
 
-        expect(page.get_by_text("Invitation expired")).to_be_visible()
+        expect(page.get_by_text("Invitation Expired")).to_be_visible()
 
     def test_existing_user_can_accept(self, page: Page, live_server, invite, invitee):
         # Sign in as the invitee, then visit the accept link.
@@ -118,11 +118,11 @@ class TestInviteFlow:
         page.wait_for_url(f"{live_server.url}/", timeout=10000)
 
         page.goto(f"{live_server.url}/organizations/invite/{invite.key}/accept/")
-        expect(page.get_by_text("You're invited!")).to_be_visible()
+        expect(page.get_by_text("You're Invited!")).to_be_visible()
 
-        page.get_by_role("button", name="Accept invitation").click()
+        page.get_by_role("button", name="Accept Invitation").click()
 
-        expect(page.get_by_text(re.compile(r"You've joined Dunder Mifflin"))).to_be_visible(timeout=10000)
+        expect(page.get_by_text(re.compile(r"You've Joined Dunder Mifflin"))).to_be_visible(timeout=10000)
 
         # The invite is consumed and the user is now a member.
         from apps.organizations.models import OrganizationInvite, OrganizationMember
@@ -139,11 +139,11 @@ class TestInviteFlow:
         page.wait_for_url(f"{live_server.url}/", timeout=10000)
 
         page.goto(f"{live_server.url}/organizations/invite/{invite.key}/accept/")
-        expect(page.get_by_text("You're invited!")).to_be_visible()
+        expect(page.get_by_text("You're Invited!")).to_be_visible()
 
         page.get_by_role("button", name="Decline").click()
 
-        expect(page.get_by_text("Invitation declined")).to_be_visible(timeout=10000)
+        expect(page.get_by_text("Invitation Declined")).to_be_visible(timeout=10000)
 
         from apps.organizations.models import OrganizationInvite
 
@@ -155,9 +155,9 @@ class TestInviteFlow:
         expect(page.get_by_placeholder("Email")).to_be_visible()
 
         # Visit the invite page as an anonymous visitor and click the
-        # "I already have an account" path; we expect to land on login with
+        # "I Already Have an Account" path; we expect to land on login with
         # the invite URL preserved as ?next=.
         page.goto(f"{live_server.url}/organizations/invite/{invite.key}/accept/")
-        page.get_by_role("button", name="I already have an account").click()
+        page.get_by_role("button", name="I Already Have an Account").click()
 
         expect(page).to_have_url(re.compile(rf"/accounts/login/.*next=.*{re.escape(invite.key)}"))

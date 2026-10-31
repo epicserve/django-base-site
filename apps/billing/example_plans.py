@@ -92,14 +92,14 @@ BILLING_FEATURES: list[dict] = [
     },
     {
         "key": "max_team_count",
-        "label": "Team count",
+        "label": "Team Count",
         "description": "Maximum number of teams.",
         "type": "limit",
         "default": 0,
     },
     {
         "key": "advanced_reporting",
-        "label": "Advanced reporting",
+        "label": "Advanced Reporting",
         "description": "PDF exports and scheduled reports.",
         "type": "bool",
         "default": False,

@@ -20,7 +20,7 @@ const backLink = computed(() => {
   if (appStore.isAuthenticated) {
     return { label: 'Back to Dashboard', to: { name: 'home' } };
   }
-  return { label: 'Back to sign in', to: { name: 'login' } };
+  return { label: 'Back to Sign In', to: { name: 'login' } };
 });
 
 onMounted(async () => {
@@ -76,7 +76,7 @@ const hasSubscription = computed(() => !!billing.subscription.value?.status);
   <main class="mx-auto w-full max-w-7xl px-4 pb-16 sm:px-6 lg:px-8 mt-12">
     <header class="mx-auto max-w-2xl text-center">
       <h1 class="text-4xl font-bold tracking-tight text-gray-900 dark:text-white sm:text-5xl">
-        Simple, transparent pricing
+        Simple, Transparent Pricing
       </h1>
       <p class="mt-3 text-lg text-gray-500 dark:text-gray-400">
         Pick a plan that fits your team. Switch or cancel anytime.

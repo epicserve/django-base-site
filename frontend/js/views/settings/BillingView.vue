@@ -85,7 +85,7 @@ async function onManageBilling() {
           :disabled="portalBusy"
           @click="onManageBilling"
         >
-          Update payment method
+          Update Payment Method
         </button>
       </div>
 
@@ -116,13 +116,13 @@ async function onManageBilling() {
         v-else-if="!hasSubscription"
         class="rounded-lg border border-gray-200 bg-white p-6 dark:border-gray-700 dark:bg-gray-800"
       >
-        <h2 class="text-lg font-semibold text-gray-900 dark:text-white">No active subscription</h2>
+        <h2 class="text-lg font-semibold text-gray-900 dark:text-white">No Active Subscription</h2>
         <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">Choose a plan to upgrade your organization.</p>
         <RouterLink
           :to="{ name: 'pricing' }"
           class="mt-4 inline-flex cursor-pointer rounded-md bg-indigo-600 px-4 py-2 text-sm font-medium text-white hover:bg-indigo-500"
         >
-          View plans
+          View Plans
         </RouterLink>
       </div>
 
@@ -130,7 +130,7 @@ async function onManageBilling() {
       <template v-else>
         <section class="rounded-lg border border-gray-200 bg-white p-6 dark:border-gray-700 dark:bg-gray-800">
           <header class="flex items-center justify-between gap-3">
-            <h2 class="text-lg font-semibold text-gray-900 dark:text-white">Current plan</h2>
+            <h2 class="text-lg font-semibold text-gray-900 dark:text-white">Current Plan</h2>
             <SubscriptionStatusBadge :status="sub.status" />
           </header>
           <p class="mt-2 text-sm text-gray-600 dark:text-gray-300">
@@ -157,7 +157,7 @@ async function onManageBilling() {
         </section>
 
         <section class="rounded-lg border border-gray-200 bg-white p-6 dark:border-gray-700 dark:bg-gray-800">
-          <h2 class="text-lg font-semibold text-gray-900 dark:text-white">Manage billing</h2>
+          <h2 class="text-lg font-semibold text-gray-900 dark:text-white">Manage Billing</h2>
           <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">
             Open the Stripe billing portal to update payment methods, cancel your subscription, or download invoices.
           </p>
@@ -168,7 +168,7 @@ async function onManageBilling() {
             @click="onManageBilling"
           >
             <span v-if="portalBusy">Opening…</span>
-            <span v-else>Open billing portal</span>
+            <span v-else>Open Billing Portal</span>
           </button>
         </section>
 
@@ -184,7 +184,7 @@ async function onManageBilling() {
             :to="{ name: 'org-settings-members' }"
             class="mt-3 inline-block text-sm font-medium text-indigo-600 hover:text-indigo-500 dark:text-indigo-400"
           >
-            Manage members →
+            Manage Members →
           </RouterLink>
         </section>
       </template>

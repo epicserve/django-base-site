@@ -182,7 +182,7 @@ async function addEmail() {
         class="cursor-pointer rounded-md border border-gray-300 bg-white px-3.5 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 dark:border-gray-600 dark:bg-gray-800 dark:text-gray-300 dark:hover:bg-gray-700 transition disabled:opacity-50"
         @click="resendVerification"
       >
-        Re-send Verification
+        Resend Verification
       </button>
       <button
         type="button"

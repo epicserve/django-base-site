@@ -53,7 +53,7 @@ function dismiss() {
         :to="{ name: 'org-settings-billing', params: { slug: appStore.org.slug } }"
         class="ml-2 font-medium underline hover:no-underline"
       >
-        Add a payment method
+        Add a Payment Method
       </RouterLink>
     </p>
     <button

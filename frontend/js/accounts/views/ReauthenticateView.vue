@@ -34,7 +34,7 @@ async function onSubmit() {
 <template>
   <AuthLayout>
     <h1 class="text-center text-2xl font-semibold tracking-tight text-gray-900 dark:text-white">
-      Confirm your password
+      Confirm Your Password
     </h1>
     <p class="mt-2 text-center text-sm text-gray-500 dark:text-gray-400">
       For your security, please re-enter your password to continue.

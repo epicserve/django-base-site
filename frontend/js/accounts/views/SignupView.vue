@@ -49,13 +49,13 @@ async function onSubmit() {
       <p class="mt-4 text-center text-sm text-gray-500 dark:text-gray-400">Sign up is currently closed.</p>
       <p class="mt-4 text-center text-sm text-gray-500 dark:text-gray-400">
         <RouterLink :to="{ name: 'login' }" class="font-medium text-blue-600 hover:text-blue-500 dark:text-blue-400">
-          Sign in
+          Sign In
         </RouterLink>
       </p>
     </template>
     <template v-else>
       <h1 class="text-center text-2xl font-semibold tracking-tight text-gray-900 dark:text-white">Sign Up</h1>
-      <p class="mt-2 text-center text-sm text-gray-500 dark:text-gray-400">Create your account</p>
+      <p class="mt-2 text-center text-sm text-gray-500 dark:text-gray-400">Create Your Account</p>
       <form class="mt-6 space-y-4" @submit.prevent="onSubmit">
         <FormErrors :errors="errors.non_field_errors || []" />
         <FormField
@@ -79,7 +79,7 @@ async function onSubmit() {
           :disabled="loading"
           class="w-full cursor-pointer rounded-lg bg-blue-600 px-4 py-2.5 text-sm font-semibold text-white shadow-sm transition hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:opacity-50 dark:focus:ring-offset-gray-800"
         >
-          {{ loading ? 'Creating account...' : 'Sign Up' }}
+          {{ loading ? 'Creating Account...' : 'Sign Up' }}
         </button>
       </form>
     </template>
@@ -87,7 +87,7 @@ async function onSubmit() {
       <p class="mt-6 text-center text-sm text-gray-500 dark:text-gray-400">
         Already have an account?
         <RouterLink :to="{ name: 'login' }" class="font-medium text-blue-600 hover:text-blue-500 dark:text-blue-400">
-          Sign in
+          Sign In
         </RouterLink>
       </p>
     </template>

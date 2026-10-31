@@ -140,7 +140,7 @@ class TestPasskeyPrompt:
         page.goto(f"{live_server.url}/accounts/login/")
         self._requests(page, 1)
 
-        page.get_by_role("button", name="Sign in with a passkey").click()
+        page.get_by_role("button", name="Sign In with a Passkey").click()
 
         assert self._requests(page, 2) == [
             {"mediation": "conditional", "aborted": True},

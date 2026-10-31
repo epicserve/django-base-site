@@ -23,7 +23,7 @@ const visible = computed(() => {
         :to="{ name: 'org-settings-billing', params: { slug: appStore.org.slug } }"
         class="ml-2 font-medium underline hover:no-underline"
       >
-        Update billing →
+        Update Billing →
       </RouterLink>
     </p>
   </div>

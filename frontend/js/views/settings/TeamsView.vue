@@ -14,7 +14,7 @@ const appStore = inject('appStore');
       <div
         class="rounded-lg border border-dashed border-gray-300 bg-white p-8 text-center dark:border-gray-700 dark:bg-gray-800"
       >
-        <h2 class="text-lg font-semibold text-gray-900 dark:text-white">Teams aren't included on your current plan</h2>
+        <h2 class="text-lg font-semibold text-gray-900 dark:text-white">Teams Aren't Included on Your Current Plan</h2>
         <p class="mt-2 text-sm text-gray-500 dark:text-gray-400">
           Upgrade to unlock teams and team-based access controls.
         </p>
@@ -23,7 +23,7 @@ const appStore = inject('appStore');
           :to="{ name: 'org-settings-billing', params: { slug: appStore.org.slug } }"
           class="mt-4 inline-flex cursor-pointer rounded-md bg-indigo-600 px-4 py-2 text-sm font-medium text-white hover:bg-indigo-500"
         >
-          Upgrade plan
+          Upgrade Plan
         </RouterLink>
         <p v-else class="mt-4 text-sm text-gray-500 dark:text-gray-400">Contact your org owner to upgrade.</p>
       </div>

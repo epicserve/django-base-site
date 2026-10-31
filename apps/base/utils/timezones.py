@@ -6,7 +6,7 @@ TIMEZONE_LABELS = {
     "Pacific/Honolulu": "Hawaii (HST)",
     "America/Anchorage": "Alaska (AKST)",
     "America/Los_Angeles": "Pacific Time (US & Canada)",
-    "America/Phoenix": "Arizona (no DST)",
+    "America/Phoenix": "Arizona (No DST)",
     "America/Denver": "Mountain Time (US & Canada)",
     "America/Chicago": "Central Time (US & Canada)",
     "America/New_York": "Eastern Time (US & Canada)",
@@ -21,7 +21,7 @@ TIMEZONE_LABELS = {
     "America/Sao_Paulo": "Brasilia, Sao Paulo",
     "America/Argentina/Buenos_Aires": "Buenos Aires",
     # Europe
-    "Atlantic/Reykjavik": "Reykjavik (no DST)",
+    "Atlantic/Reykjavik": "Reykjavik (No DST)",
     "Europe/London": "London, Dublin, Edinburgh",
     "Europe/Paris": "Paris, Berlin, Amsterdam",
     "Europe/Helsinki": "Helsinki, Kyiv, Bucharest",

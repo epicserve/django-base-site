@@ -9,7 +9,7 @@ plain dict (the cheapest thing to type by hand in `_base.py`):
     NOTIFICATIONS_CATEGORIES = [
         {
             "key": "comments",
-            "label": "Comments on your posts",
+            "label": "Comments on Your Posts",
             "description": "When someone replies to a post you authored.",
             "default_channels": (NotificationChannel.IN_APP, NotificationChannel.EMAIL),
         },

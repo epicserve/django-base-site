@@ -1,6 +1,7 @@
 <script setup>
 import { nextTick, ref, watch } from 'vue';
 import { get } from '@/utils/api';
+import { startImpersonating } from '@/utils/hijack';
 import UserAvatar from '@/components/UserAvatar.vue';
 
 const query = ref('');
@@ -9,11 +10,6 @@ const loading = ref(false);
 const selectedIndex = ref(-1);
 const rowRefs = ref([]);
 let debounceTimer = null;
-
-function getCookie(name) {
-  const match = document.cookie.match(new RegExp(`(^|;\\s*)${name}=([^;]+)`));
-  return match ? decodeURIComponent(match[2]) : null;
-}
 
 watch(query, (q) => {
   clearTimeout(debounceTimer);
@@ -53,7 +49,7 @@ function onSearchKeydown(e) {
     focusRow(0);
   } else if (e.key === 'Enter' && selectedIndex.value >= 0) {
     e.preventDefault();
-    impersonate(results.value[selectedIndex.value].id);
+    startImpersonating(results.value[selectedIndex.value].id);
   }
 }
 
@@ -73,35 +69,8 @@ function onRowKeydown(e, index) {
     }
   } else if (e.key === 'Enter' || e.key === ' ') {
     e.preventDefault();
-    impersonate(results.value[index].id);
+    startImpersonating(results.value[index].id);
   }
-}
-
-function impersonate(userId) {
-  const form = document.createElement('form');
-  form.method = 'POST';
-  form.action = '/hijack/acquire/';
-
-  const csrf = document.createElement('input');
-  csrf.type = 'hidden';
-  csrf.name = 'csrfmiddlewaretoken';
-  csrf.value = getCookie('csrftoken') || '';
-  form.appendChild(csrf);
-
-  const pk = document.createElement('input');
-  pk.type = 'hidden';
-  pk.name = 'user_pk';
-  pk.value = String(userId);
-  form.appendChild(pk);
-
-  const next = document.createElement('input');
-  next.type = 'hidden';
-  next.name = 'next';
-  next.value = '/';
-  form.appendChild(next);
-
-  document.body.appendChild(form);
-  form.submit();
 }
 </script>
 
@@ -151,7 +120,7 @@ function impersonate(userId) {
               tabindex="0"
               class="cursor-pointer transition hover:bg-gray-50 focus:bg-blue-50 focus:outline-none dark:hover:bg-gray-700/50 dark:focus:bg-blue-900/30"
               :class="{ 'bg-blue-50 dark:bg-blue-900/30': selectedIndex === index }"
-              @click="impersonate(user.id)"
+              @click="startImpersonating(user.id)"
               @focus="selectedIndex = index"
               @keydown="onRowKeydown($event, index)"
             >

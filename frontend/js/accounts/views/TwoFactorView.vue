@@ -51,7 +51,7 @@ async function onSubmit() {
 <template>
   <AuthLayout>
     <h1 class="text-center text-2xl font-semibold tracking-tight text-gray-900 dark:text-white">
-      Two-factor authentication
+      Two-Factor Authentication
     </h1>
     <p class="mt-2 text-center text-sm text-gray-500 dark:text-gray-400">
       Enter the 6-digit code from your authenticator app, or one of your recovery codes.

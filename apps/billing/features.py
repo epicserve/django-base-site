@@ -16,7 +16,7 @@ Example:
         },
         {
             "key": "advanced_reporting",
-            "label": "Advanced reporting",
+            "label": "Advanced Reporting",
             "description": "PDF exports and scheduled reports.",
             "type": "bool",
             "default": False,
