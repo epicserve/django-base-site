@@ -1,7 +1,7 @@
 # ------------------------------------------------------------
 # STAGE 1: Build Python requirements layer
 # ------------------------------------------------------------
-FROM python:3.14-bookworm AS python-requirements
+FROM python:3.15-bookworm AS python-requirements
 
 ARG ENV_NAME=dev
 
@@ -35,7 +35,7 @@ RUN --mount=type=cache,target=/root/.cache/uv,id=django-base-site-uv \
 # are needed for Pillow (avatar uploads). mime-support gives gunicorn the
 # correct mime types when serving static files.
 # ------------------------------------------------------------
-FROM python:3.14-slim-bookworm AS base
+FROM python:3.15-slim-bookworm AS base
 
 RUN --mount=type=cache,target=/var/cache/apt,id=django-base-site-apt \
     --mount=type=cache,target=/var/lib/apt,id=django-base-site-apt \
