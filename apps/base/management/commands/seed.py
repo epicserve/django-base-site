@@ -3,9 +3,15 @@ Seed the local database with known logins, organizations, teams and invites (ide
 
 Gives a developer, or an agent checking a UI change, a fixed set of accounts to
 sign in as instead of clicking through signup and invites on every fresh
-database. Every seeded user shares `SEED_PASSWORD`, so the command refuses to
-run unless DEBUG is on. It also refuses while migrations are pending, because
+database. Every seeded user except the superuser shares `SEED_PASSWORD`, so the
+command refuses to run unless DEBUG is on, and against any database that isn't
+local (`LOCAL_DB_HOSTS`). It also refuses while migrations are pending, because
 the web container runs `migrate` on startup and `just seed` can race it.
+
+The superuser is the account in DJANGO_SUPERUSER_USERNAME / _EMAIL / _PASSWORD
+(.env), the same one `just create_superuser` makes, so its password is never
+the well-known one. `just create_env` fills those from 1Password, or with
+fallbacks (see .env.toml).
 
 The cast comes from The Office (Dunder Mifflin) and Parks and Recreation
 (Pawnee). The logins agents and docs refer to keep role emails such as
@@ -13,9 +19,10 @@ The cast comes from The Office (Dunder Mifflin) and Parks and Recreation
 domain, so nothing seeded can ever reach a real inbox.
 
 Rerunning is safe. Each run creates whatever seeded rows are missing and
-restores the seeded fields (names, roles, passwords) on the ones that exist.
-It also removes MFA authenticators (TOTP, passkeys, recovery codes) from the
-seeded users, so a seeded login always signs in with the password alone. Apart
+restores the seeded fields (names, roles, passwords, the superuser's flags) on
+the ones that exist. It also removes MFA authenticators (TOTP, passkeys,
+recovery codes) from the seeded users, so a seeded login always signs in with
+the password alone. Apart
 from that it never deletes anything created by hand:
 
 - Team members are only added, never removed.
@@ -37,6 +44,7 @@ from django.contrib.auth.hashers import make_password
 from django.core.management.base import BaseCommand, CommandError
 from django.db import DEFAULT_DB_ALIAS, connections, transaction
 from django.db.migrations.executor import MigrationExecutor
+from django.db.models import Q
 from django.utils import timezone
 
 from allauth.account.models import EmailAddress
@@ -46,8 +54,16 @@ from apps.accounts.models import User
 from apps.organizations.models import Organization, OrganizationInvite, OrganizationMember
 from apps.teams.models import Team
 
-# Deliberately well-known: the command only runs with DEBUG on, and agents need it to sign in.
+# Deliberately well-known: the command only runs with DEBUG on against a local database, and agents need it to
+# sign in. The superuser doesn't use it.
 SEED_PASSWORD = "dev-password"  # noqa: S105
+
+# Settings read from .env (see config/settings/_base.py).
+SUPERUSER_SETTINGS = ("DJANGO_SUPERUSER_USERNAME", "DJANGO_SUPERUSER_EMAIL", "DJANGO_SUPERUSER_PASSWORD")
+
+# Database hosts that count as local: this machine, the compose `db` service, and the Docker host. A blank host or a
+# path (a Unix socket) counts too. Add yours if your local database lives somewhere else.
+LOCAL_DB_HOSTS = frozenset({"localhost", "127.0.0.1", "::1", "db", "host.docker.internal"})
 
 
 @dataclass(frozen=True)
@@ -56,7 +72,6 @@ class SeedLogin:
     first_name: str
     last_name: str
     role: str = ""
-    is_superuser: bool = False
 
 
 ORGANIZATIONS = (
@@ -64,14 +79,11 @@ ORGANIZATIONS = (
     ("pawnee-parks", "Pawnee Parks and Recreation"),
 )
 
+# Its email comes from .env, so `SUPERUSER` stands in for it in the tables below.
+SUPERUSER = "superuser"
+SUPERUSER_LOGIN = SeedLogin(SUPERUSER, "Leslie", "Knope", "Superuser and staff; owner of Pawnee Parks and Recreation")
+
 LOGINS = (
-    SeedLogin(
-        "admin@example.com",
-        "Leslie",
-        "Knope",
-        "Superuser and staff; owner of Pawnee Parks and Recreation",
-        is_superuser=True,
-    ),
     SeedLogin(
         "owner@example.com", "Michael", "Scott", "Owner of Dunder Mifflin; member of Pawnee Parks and Recreation"
     ),
@@ -127,7 +139,7 @@ FILLERS = (*DUNDER_MIFFLIN_CAST, *PAWNEE_CAST)
 
 # (organization slug, user email, is_owner, is_primary)
 MEMBERSHIPS = (
-    ("pawnee-parks", "admin@example.com", True, True),
+    ("pawnee-parks", SUPERUSER, True, True),
     ("dunder-mifflin", "owner@example.com", True, True),
     ("pawnee-parks", "owner@example.com", False, False),
     ("dunder-mifflin", "member@example.com", False, True),
@@ -162,7 +174,7 @@ TEAMS = (
         "pawnee-parks",
         "Harvest Festival",
         (
-            "admin@example.com",
+            SUPERUSER,
             "ron.swanson@pawnee.example",
             "tom.haverford@pawnee.example",
             "april.ludgate@pawnee.example",
@@ -185,12 +197,26 @@ class Command(BaseCommand):
     def handle(self, *args, **options):
         if not settings.DEBUG:
             raise CommandError(f"seed only runs with DEBUG on: every seeded login uses the password {SEED_PASSWORD!r}.")
+        # Checked before the first query, so a remote database is never touched.
+        host = connections[DEFAULT_DB_ALIAS].settings_dict.get("HOST") or ""
+        if host and not host.startswith("/") and host not in LOCAL_DB_HOSTS:
+            raise CommandError(
+                f"seed only runs against a local database, not {host!r}: it creates a superuser and logins with a "
+                "well-known password. If that host is local, add it to LOCAL_DB_HOSTS in "
+                "apps/base/management/commands/seed.py."
+            )
+        credentials = tuple(getattr(settings, name, "") for name in SUPERUSER_SETTINGS)
+        if not all(credentials):
+            raise CommandError(
+                f"Set {', '.join(SUPERUSER_SETTINGS)} in .env; seed makes that account the superuser. A new project's "
+                "`just create_env` fills them in (see .env.toml)."
+            )
         executor = MigrationExecutor(connections[DEFAULT_DB_ALIAS])
         if executor.migration_plan(executor.loader.graph.leaf_nodes()):
             raise CommandError("Migrations are still pending; retry once /api/app-context/ answers.")
 
         with transaction.atomic():
-            users = self._seed_users()
+            users = self._seed_users(*credentials)
             orgs = self._seed_organizations()
             self._seed_memberships(users, orgs)
             self._seed_teams(users, orgs)
@@ -202,17 +228,27 @@ class Command(BaseCommand):
             )
         )
         self.stdout.write("")
+        rows = [(login.email, f"{login.first_name} {login.last_name}", login.role) for login in LOGINS]
+        superuser = users[SUPERUSER]
+        superuser_row = (superuser.email, superuser.get_full_name(), SUPERUSER_LOGIN.role)
+        widths = [max(len(row[i]) for row in (*rows, superuser_row)) for i in range(2)]
+
+        def write_row(email, name, role):
+            self.stdout.write(f"    {email.ljust(widths[0])}  {name.ljust(widths[1])}  {role}")
+
         self.stdout.write(f'Sign in at {settings.SITE_URL}/accounts/login/ with the password "{SEED_PASSWORD}":')
         self.stdout.write("")
-        email_width = max(len(login.email) for login in LOGINS)
-        name_width = max(len(f"{login.first_name} {login.last_name}") for login in LOGINS)
-        for login in LOGINS:
-            name = f"{login.first_name} {login.last_name}"
-            self.stdout.write(f"    {login.email.ljust(email_width)}  {name.ljust(name_width)}  {login.role}")
+        for row in rows:
+            write_row(*row)
         self.stdout.write("")
         self.stdout.write(
             f"Everyone else at Dunder Mifflin and Pawnee (e.g. {DUNDER_MIFFLIN_CAST[0].email}) uses the same password."
         )
+        self.stdout.write("")
+        # Never print the superuser's password: it may come from 1Password.
+        self.stdout.write("The superuser signs in with DJANGO_SUPERUSER_PASSWORD from .env:")
+        self.stdout.write("")
+        write_row(*superuser_row)
         if invites:
             # Seeded invites send no email, so print where to accept them.
             self.stdout.write("")
@@ -224,36 +260,60 @@ class Command(BaseCommand):
                 url = f"{settings.SITE_URL}{invite.accept_invite_url}"
                 self.stdout.write(f"    {invite.invitee_email.ljust(width)}  {state:<7}  {url}")
 
-    def _seed_users(self) -> dict[str, User]:
-        # Hash once: the default hasher is deliberately slow, and every seeded user shares the password.
+    def _seed_users(self, superuser_username: str, superuser_email: str, superuser_password: str) -> dict[str, User]:
+        # Hash once: the default hasher is deliberately slow, and every seeded user but the superuser shares it.
         password = make_password(SEED_PASSWORD)
         users = {}
         for login in (*LOGINS, *FILLERS):
-            user, _ = User.objects.update_or_create(
-                username=login.email,
-                defaults={
-                    "email": login.email,
-                    "first_name": login.first_name,
-                    "last_name": login.last_name,
-                    "is_active": True,
-                    "is_staff": login.is_superuser,
-                    "is_superuser": login.is_superuser,
-                    "password": password,
-                },
+            users[login.email] = self._seed_user(login.email, login, password=password, is_superuser=False)
+
+        # Matching on the username alone would create a second account with the same email.
+        taken = (
+            User.objects.filter(Q(email__iexact=superuser_email) | Q(emailaddress__email__iexact=superuser_email))
+            .exclude(username=superuser_username)
+            .first()
+        )
+        if taken:
+            raise CommandError(
+                f"DJANGO_SUPERUSER_EMAIL ({superuser_email}) already belongs to the user {taken.username!r}. "
+                "Use another email in .env, or delete that user."
             )
-            has_primary = EmailAddress.objects.filter(user=user, primary=True).exclude(email=login.email).exists()
-            EmailAddress.objects.update_or_create(
-                user=user,
-                email=login.email,
-                defaults={"verified": True},
-                create_defaults={"verified": True, "primary": not has_primary},
-            )
-            users[login.email] = user
+        users[SUPERUSER] = self._seed_user(
+            superuser_email,
+            SUPERUSER_LOGIN,
+            username=superuser_username,
+            password=make_password(superuser_password),
+            is_superuser=True,
+        )
+
         # Enrolling TOTP or a passkey turns on MFA, which would stop a known password from being enough.
         removed, _ = Authenticator.objects.filter(user__in=users.values()).delete()
         if removed:
             self.stdout.write(f"Removed {removed} MFA authenticator(s) from seeded logins.")
         return users
+
+    @staticmethod
+    def _seed_user(email: str, login: SeedLogin, *, password: str, is_superuser: bool, username: str = "") -> User:
+        user, _ = User.objects.update_or_create(
+            username=username or email,
+            defaults={
+                "email": email,
+                "first_name": login.first_name,
+                "last_name": login.last_name,
+                "is_active": True,
+                "is_staff": is_superuser,
+                "is_superuser": is_superuser,
+                "password": password,
+            },
+        )
+        has_primary = EmailAddress.objects.filter(user=user, primary=True).exclude(email=email).exists()
+        EmailAddress.objects.update_or_create(
+            user=user,
+            email=email,
+            defaults={"verified": True},
+            create_defaults={"verified": True, "primary": not has_primary},
+        )
+        return user
 
     def _seed_organizations(self) -> dict[str, Organization]:
         orgs = {}

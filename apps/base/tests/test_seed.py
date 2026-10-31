@@ -6,6 +6,7 @@ from unittest.mock import patch
 
 from django.conf import settings as django_settings
 from django.core.management import CommandError, call_command
+from django.db import connections
 from django.db.migrations.executor import MigrationExecutor
 
 import pytest
@@ -13,12 +14,14 @@ from allauth.account.models import EmailAddress
 from allauth.mfa.models import Authenticator
 
 from apps.accounts.models import User
+from apps.base.management.commands import seed
 from apps.base.management.commands.seed import DUNDER_MIFFLIN_CAST, FILLERS, LOGINS, PAWNEE_CAST, SEED_PASSWORD
 from apps.organizations.models import Organization, OrganizationInvite, OrganizationMember
 from apps.teams.models import Team
 
 RUN_APP_SKILL = Path(django_settings.BASE_DIR) / ".agents" / "skills" / "run-app" / "SKILL.md"
 SEEDED_MODELS = (User, EmailAddress, Organization, OrganizationMember, Team, OrganizationInvite)
+SUPERUSER_PASSWORD = "waffles-and-binders"  # noqa: S105
 
 
 def _seed():
@@ -31,6 +34,17 @@ def _counts():
     return {model.__name__: model.objects.count() for model in SEEDED_MODELS} | {
         "team members": Team.members.through.objects.count()
     }
+
+
+@pytest.fixture(autouse=True)
+def superuser_credentials(settings, monkeypatch):
+    """Set the DJANGO_SUPERUSER_* settings seed reads from .env, and let seed use the test database's host."""
+    credentials = {"username": "leslie", "email": "leslie.knope@pawnee.example", "password": SUPERUSER_PASSWORD}
+    for field, value in credentials.items():
+        setattr(settings, f"DJANGO_SUPERUSER_{field.upper()}", value)
+    # seed refuses hosts it doesn't know are local, and CI's test database is on the Docker host (172.17.0.1).
+    monkeypatch.setattr(seed, "LOCAL_DB_HOSTS", seed.LOCAL_DB_HOSTS | {connections["default"].settings_dict["HOST"]})
+    return credentials
 
 
 @pytest.fixture()
@@ -55,6 +69,29 @@ class TestSeedDevGuards:
             _seed()
         assert not User.objects.exists()
 
+    @pytest.mark.usefixtures("debug")
+    def test_refuses_a_remote_database(self, monkeypatch):
+        # The guard runs before the first query, so changing the host of the open test connection is harmless.
+        monkeypatch.setitem(connections["default"].settings_dict, "HOST", "db.production.example")
+        with pytest.raises(CommandError, match="local database, not 'db.production.example'"):
+            _seed()
+        assert not User.objects.exists()
+
+    @pytest.mark.usefixtures("debug")
+    @pytest.mark.parametrize("name", seed.SUPERUSER_SETTINGS)
+    def test_refuses_without_superuser_credentials(self, settings, name):
+        setattr(settings, name, "")
+        with pytest.raises(CommandError, match="DJANGO_SUPERUSER_USERNAME, DJANGO_SUPERUSER_EMAIL"):
+            _seed()
+        assert not User.objects.exists()
+
+    @pytest.mark.usefixtures("debug")
+    def test_refuses_a_superuser_email_another_user_has(self, superuser_credentials):
+        User.objects.create_user(username="ann.perkins", email=superuser_credentials["email"])
+        with pytest.raises(CommandError, match="already belongs to the user 'ann.perkins'"):
+            _seed()
+        assert not User.objects.filter(username="leslie").exists()
+
 
 @pytest.mark.django_db
 @pytest.mark.usefixtures("debug")
@@ -65,10 +102,19 @@ class TestSeedDevData:
             user = User.objects.get(username=login.email)
             assert user.check_password(SEED_PASSWORD)
             assert EmailAddress.objects.filter(user=user, email=login.email, verified=True, primary=True).exists()
-        admin = User.objects.get(email="admin@example.com")
-        assert (admin.get_full_name(), admin.is_superuser, admin.is_staff) == ("Leslie Knope", True, True)
-        owner = User.objects.get(email="owner@example.com")
-        assert (owner.get_full_name(), owner.is_staff) == ("Michael Scott", False)
+            assert not user.is_staff
+            assert not user.is_superuser
+        assert User.objects.get(email="owner@example.com").get_full_name() == "Michael Scott"
+
+    def test_superuser_comes_from_env(self, superuser_credentials):
+        _seed()
+        superuser = User.objects.get(username="leslie")
+        assert superuser.email == superuser_credentials["email"]
+        assert (superuser.get_full_name(), superuser.is_superuser, superuser.is_staff) == ("Leslie Knope", True, True)
+        assert superuser.check_password(SUPERUSER_PASSWORD)
+        assert EmailAddress.objects.filter(
+            user=superuser, email=superuser_credentials["email"], verified=True, primary=True
+        ).exists()
 
     def test_memberships(self):
         _seed()
@@ -81,12 +127,12 @@ class TestSeedDevData:
             *(member.email for member in DUNDER_MIFFLIN_CAST),
         }
         assert list(dunder_mifflin.owners.values_list("email", flat=True)) == ["owner@example.com"]
-        assert set(pawnee.members.values_list("email", flat=True)) == {
-            "admin@example.com",
+        assert set(pawnee.members.values_list("username", flat=True)) == {
+            "leslie",
             "owner@example.com",
             *(member.email for member in PAWNEE_CAST),
         }
-        assert list(pawnee.owners.values_list("email", flat=True)) == ["admin@example.com"]
+        assert list(pawnee.owners.values_list("username", flat=True)) == ["leslie"]
         owner_primary = OrganizationMember.objects.filter(user__email="owner@example.com", is_primary=True)
         assert list(owner_primary.values_list("organization__slug", flat=True)) == ["dunder-mifflin"]
         assert not OrganizationMember.objects.filter(user__email="user@example.com").exists()
@@ -112,11 +158,15 @@ class TestSeedDevData:
         assert not invites["user@example.com"].is_expired
         assert not invites["holly.flax@dundermifflin.example"].is_expired
 
-    def test_prints_the_logins_and_invite_urls(self):
+    def test_prints_the_logins_and_invite_urls(self, superuser_credentials):
         output = _seed()
         assert SEED_PASSWORD in output
         for login in LOGINS:
             assert login.email in output
+        assert superuser_credentials["email"] in output
+        # The superuser's password may come from 1Password, so it stays out of the terminal.
+        assert "DJANGO_SUPERUSER_PASSWORD from .env" in output
+        assert SUPERUSER_PASSWORD not in output
         # Seeded invites send no email, so the output is the only place to find their accept URLs.
         for invite in OrganizationInvite.objects.all():
             assert invite.accept_invite_url in output
@@ -139,6 +189,19 @@ class TestSeedDevRerun:
         _seed()
         user.refresh_from_db()
         assert user.check_password(SEED_PASSWORD)
+
+    def test_restores_the_superuser(self):
+        _seed()
+        User.objects.filter(username="leslie").update(is_superuser=False, is_staff=False, first_name="Knope")
+        superuser = User.objects.get(username="leslie")
+        superuser.set_password("something-else")
+        superuser.save()
+
+        _seed()
+
+        superuser.refresh_from_db()
+        assert (superuser.get_full_name(), superuser.is_superuser, superuser.is_staff) == ("Leslie Knope", True, True)
+        assert superuser.check_password(SUPERUSER_PASSWORD)
 
     def test_skips_an_accepted_invite(self):
         _seed()
@@ -185,10 +248,10 @@ class TestSeedDevLogin:
         settings.AUTHENTICATION_BACKENDS = ["allauth.account.auth_backends.AuthenticationBackend"]
 
     @staticmethod
-    def _sign_in(client, email):
+    def _sign_in(client, email, password=SEED_PASSWORD):
         return client.post(
             "/_allauth/browser/v1/auth/login",
-            data={"email": email, "password": SEED_PASSWORD},
+            data={"email": email, "password": password},
             content_type="application/json",
         )
 
@@ -198,19 +261,27 @@ class TestSeedDevLogin:
         assert resp.status_code == 200, resp.content
         assert client.session.get("_auth_user_id") == str(User.objects.get(email=email).pk)
 
-    def test_rerun_removes_mfa_so_the_password_is_enough(self, client, settings):
+    def test_superuser_signs_in_with_the_env_password(self, client, superuser_credentials):
+        assert self._sign_in(client, superuser_credentials["email"]).status_code == 400
+        resp = self._sign_in(client, superuser_credentials["email"], SUPERUSER_PASSWORD)
+        assert resp.status_code == 200, resp.content
+
+    @pytest.mark.parametrize(
+        ("username", "password"), [("owner@example.com", SEED_PASSWORD), ("leslie", SUPERUSER_PASSWORD)]
+    )
+    def test_rerun_removes_mfa_so_the_password_is_enough(self, client, settings, username, password):
         # Enrolling TOTP (or a passkey) while testing MFA would otherwise leave the login asking for a code.
-        owner = User.objects.get(email="owner@example.com")
-        Authenticator.objects.create(user=owner, type=Authenticator.Type.TOTP, data={"secret": "JBSWY3DPEHPK3PXP"})
-        Authenticator.objects.create(user=owner, type=Authenticator.Type.RECOVERY_CODES, data={"seed": "00"})
-        assert self._sign_in(client, owner.email).status_code == 401
+        user = User.objects.get(username=username)
+        Authenticator.objects.create(user=user, type=Authenticator.Type.TOTP, data={"secret": "JBSWY3DPEHPK3PXP"})
+        Authenticator.objects.create(user=user, type=Authenticator.Type.RECOVERY_CODES, data={"seed": "00"})
+        assert self._sign_in(client, user.email, password).status_code == 401
 
         settings.DEBUG = True
         _seed()
         settings.DEBUG = False
 
-        assert not Authenticator.objects.filter(user=owner).exists()
-        assert self._sign_in(client, owner.email).status_code == 200
+        assert not Authenticator.objects.filter(user=user).exists()
+        assert self._sign_in(client, user.email, password).status_code == 200
 
 
 class TestRunAppSkill:
@@ -220,3 +291,5 @@ class TestRunAppSkill:
         assert SEED_PASSWORD in skill
         for login in LOGINS:
             assert login.email in skill
+        assert "DJANGO_SUPERUSER_EMAIL" in skill
+        assert "DJANGO_SUPERUSER_PASSWORD" in skill

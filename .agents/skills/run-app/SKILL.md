@@ -29,18 +29,20 @@ If it never answers, read `docker compose logs web`.
 just seed
 ```
 
-It prints the logins and each seeded invite's accept URL. It's safe to rerun: it restores the seeded rows, resets the seeded passwords, and removes any MFA (TOTP, passkeys) from the seeded logins so the password alone signs in. Apart from that it never deletes anything created by hand. It refuses unless `DEBUG` is on in `.env`, and while migrations are still running (wait for step 1, then retry).
+It prints the logins and each seeded invite's accept URL. It's safe to rerun: it restores the seeded rows, resets the seeded passwords, and removes any MFA (TOTP, passkeys) from the seeded logins so the password alone signs in. Apart from that it never deletes anything created by hand. It refuses unless `DEBUG` is on in `.env`, against a database that isn't local, when `DJANGO_SUPERUSER_USERNAME` / `_EMAIL` / `_PASSWORD` aren't set in `.env`, and while migrations are still running (wait for step 1, then retry). Its error says which.
 
 ## 3. Pick a login
 
-The cast comes from The Office (Dunder Mifflin) and Parks and Recreation (Pawnee). Every seeded login uses the password `dev-password`.
+The cast comes from The Office (Dunder Mifflin) and Parks and Recreation (Pawnee). Every seeded login uses the password `dev-password`, except the superuser.
 
 | Login | Who | Use it to check |
 |---|---|---|
 | `owner@example.com` | Michael Scott: owner of Dunder Mifflin (primary org); member of Pawnee | Org settings (General, Members, Teams), invites, the org switcher |
 | `member@example.com` | Dwight Schrute: member of Dunder Mifflin, not an owner | What non-owners see (org settings send them home) |
 | `user@example.com` | Ryan Howard: no organization; pending invite to Dunder Mifflin | The no-org state and accepting an invite |
-| `admin@example.com` | Leslie Knope: superuser and staff; owner of Pawnee | `/admin/` (sign in with the email), `/impersonate/`, `/test-notifications/` |
+| `DJANGO_SUPERUSER_EMAIL` from `.env` | Leslie Knope: superuser and staff; owner of Pawnee | `/admin/` (sign in with the email), `/impersonate/`, `/test-notifications/` |
+
+The superuser is the account in `.env` (`just create_env` fills it from 1Password, or with fallbacks), so its password is `DJANGO_SUPERUSER_PASSWORD` there, not `dev-password`. Read both with `grep '^DJANGO_SUPERUSER_' .env`; `just seed` prints the email but never the password.
 
 The rest of the seeded data:
 

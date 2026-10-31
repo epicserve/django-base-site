@@ -36,18 +36,20 @@ A fresh database has no logins or organizations. Once the app answers at http://
 just seed
 ```
 
-It creates known logins, cast from The Office and Parks and Recreation, that all use the password `dev-password`, then prints them along with each seeded invite's accept URL (seeded invites send no email):
+It creates known logins, cast from The Office and Parks and Recreation, then prints them along with each seeded invite's accept URL (seeded invites send no email). All but the superuser use the password `dev-password`:
 
-| Login                | Who                                                                    |
-|----------------------|------------------------------------------------------------------------|
-| `admin@example.com`  | Leslie Knope: superuser and staff; owner of Pawnee                     |
-| `owner@example.com`  | Michael Scott: owner of Dunder Mifflin (primary org); member of Pawnee |
-| `member@example.com` | Dwight Schrute: member of Dunder Mifflin, not an owner                 |
-| `user@example.com`   | Ryan Howard: no organization; pending invite to Dunder Mifflin         |
+| Login                                | Who                                                                    |
+|--------------------------------------|------------------------------------------------------------------------|
+| `DJANGO_SUPERUSER_EMAIL` from `.env` | Leslie Knope: superuser and staff; owner of Pawnee                     |
+| `owner@example.com`                  | Michael Scott: owner of Dunder Mifflin (primary org); member of Pawnee |
+| `member@example.com`                 | Dwight Schrute: member of Dunder Mifflin, not an owner                 |
+| `user@example.com`                   | Ryan Howard: no organization; pending invite to Dunder Mifflin         |
+
+The superuser is the account in `DJANGO_SUPERUSER_USERNAME` / `_EMAIL` / `_PASSWORD` in `.env`, the same one `just create_superuser` makes, so its password is never the shared one. `just create_env` fills those from the 1Password item `op://Private/django-admin` when the [`op` CLI](https://developer.1password.com/docs/cli/get-started/) is signed in, and otherwise with the fallbacks in `.env.toml` (`admin` / `admin@example.com` / `dev-password`, which is what CI uses). To use your own item, change the `op://` references in `.env.toml`; the item needs `username`, `email` and `password` fields. Agents read the password from `.env` to sign in as the superuser, so make it a dev-only credential. `just seed` prints the superuser's email, never its password.
 
 Dunder Mifflin (`dunder-mifflin`) gets 18 more members such as `jim.halpert@dundermifflin.example`, and Pawnee Parks and Recreation (`pawnee-parks`) gets the Parks crew such as `ron.swanson@pawnee.example`. Teams: Sales and Party Planning Committee at Dunder Mifflin, Harvest Festival at Pawnee. Dunder Mifflin has three invites: pending for `user@example.com`, pending for `holly.flax@dundermifflin.example` (no account), and expired for `todd.packer@dundermifflin.example`. Everyone else gets an email on a reserved `.example` domain, so nothing seeded can reach a real inbox.
 
-The command (`seed`) only runs with `DEBUG` on. It's safe to rerun: it restores the seeded rows and passwords, and removes any MFA (TOTP, passkeys) you enrolled on a seeded login so the password alone signs in again. Otherwise it never deletes anything you created by hand, so an invite you've accepted stays accepted.
+The command (`seed`) only runs with `DEBUG` on, against a local database (localhost, a Unix socket, or the compose `db` service; see `LOCAL_DB_HOSTS` in `apps/base/management/commands/seed.py`), and with the `DJANGO_SUPERUSER_*` values set. It's safe to rerun: it restores the seeded rows, passwords and the superuser's flags, and removes any MFA (TOTP, passkeys) you enrolled on a seeded login so the password alone signs in again. Otherwise it never deletes anything you created by hand, so an invite you've accepted stays accepted.
 
 ## Debugging
 

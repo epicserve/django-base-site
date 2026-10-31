@@ -31,7 +31,7 @@ Use Just for all development tasks. Common ones:
 - `just clean` - Remove caches, coverage, dist
 - `just create_env` - Generate `.env` from the schema in `.env.toml`
 - `just create_superuser` - Idempotent `epicenv create-superuser` (edit the recipe in the top-level `justfile` to pipe credentials from a secrets manager)
-- `just seed` - Known dev logins (password `dev-password`), two orgs, teams, and pending + expired invites. DEBUG only; safe to rerun. It resets the seeded logins' passwords and removes their MFA, but otherwise never deletes what you created by hand. Prints the logins and invite accept URLs.
+- `just seed` - Known dev logins cast from The Office and Parks and Rec (password `dev-password`; the superuser is the `DJANGO_SUPERUSER_*` account in `.env`), two orgs, teams, and pending + expired invites. DEBUG and a local database only; safe to rerun. It resets the seeded logins' passwords and removes their MFA, but otherwise never deletes what you created by hand. Prints the logins and invite accept URLs.
 
 **Code Quality:**
 - `just format` - Format Python (ruff), JS (oxfmt + oxlint), HTML (djlint), justfile
@@ -84,7 +84,7 @@ These exist only in the Django Base Site template. `scripts/start_new_project` r
 - `README.md`, `CHANGELOG.md`, `LICENSE.md`, `docs/`, `zensical.toml`, `config/docs.just`, `.readthedocs.yaml`, `scripts/start_new_project`.
 - `config/template.just`, which holds `clean_extra_files` itself, so the recipe doesn't linger in new projects.
 - The docs site's dev dependencies (`zensical`, `mkdocs-linkcheck`), removed from `pyproject.toml` and `uv.lock` with `uv remove`.
-- `.github/workflows/template.yml` — the "Tests install script" job: runs `scripts/start_new_project` and checks the generated project (CI and Dependabot kept, docs tooling and its dependencies gone, no dead links or `just` recipes in its AGENTS.md, nothing else pointing at the deleted files, images pullable), then boots it with `docker compose up`, checks `/api/app-context/` responds, runs `just seed` twice, and signs in as a seeded login. It doesn't run pytest; `ci.yml`'s Tests job covers the code.
+- `.github/workflows/template.yml` — the "Tests install script" job: runs `scripts/start_new_project` and checks the generated project (CI and Dependabot kept, docs tooling and its dependencies gone, no dead links or `just` recipes in its AGENTS.md, nothing else pointing at the deleted files, images pullable), then boots it with `docker compose up`, checks `/api/app-context/` responds, runs `just seed` twice, and signs in as a seeded login and as the superuser from the generated `.env`. It doesn't run pytest; `ci.yml`'s Tests job covers the code.
 - Blocks of this file wrapped in `<!-- template-only:start -->` / `<!-- template-only:end -->` markers, each on a line of its own. Put anything that only applies to the template (docs site, release notes, the install script) inside such a block, and don't link to the files above from outside one.
 
 <!-- template-only:end -->
@@ -143,7 +143,7 @@ Key variables:
 - `USE_DEBUGPY=true` — enable remote debugging
 - `MEDIA_S3_*` — Silo / S3 credentials (locally they are also Silo's root user and password). `MEDIA_S3_ENDPOINT_URL` is the Docker-internal hostname (`http://silo:9000`); `MEDIA_S3_URL_ENDPOINT_URL` is the browser-facing one (`http://localhost:9000`). The split is handled by `apps.base.storage.S3MediaStorage`.
 - `ACCOUNT_SIGNUP_OPEN` — bool, gates new registrations.
-- `DJANGO_SUPERUSER_USERNAME` / `_EMAIL` / `_PASSWORD` — optional; consumed by `just create_superuser` (which `just init` runs on first boot) via the idempotent `epicenv create-superuser`. Leave blank to skip, or edit the `just create_superuser` recipe in the top-level `justfile` to pipe credentials from a secrets manager (1Password, Vault, etc.) instead of putting them in `.env`.
+- `DJANGO_SUPERUSER_USERNAME` / `_EMAIL` / `_PASSWORD` — the superuser. `just create_env` fills them from the 1Password item `op://Private/django-admin` when the `op` CLI is signed in, and otherwise with fallbacks (`admin` / `admin@example.com` / `dev-password`; see `.env.toml`). `just create_superuser` (which `just init` runs on first boot) creates the account via the idempotent `epicenv create-superuser` and skips when they're blank; `just seed` makes the same account its superuser and refuses when they're blank. For production, edit the `just create_superuser` recipe in the top-level `justfile` to pipe credentials from a secrets manager instead of putting them in `.env`.
 
 ## SPA Auth Flow
 

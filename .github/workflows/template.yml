@@ -183,23 +183,28 @@ jobs:
           docker compose ps -a
           docker compose logs web
           exit 1
-      - name: Seed the new project and sign in as a seeded user
+      - name: Seed the new project and sign in as seeded users
         working-directory: ${{ env.BUILD_DIR }}
         # `just seed` gives agents known logins to check UI changes with (#1365).
         # pytest covers the seed command itself; this covers what it can't: the recipe,
-        # the compose prefix, and DEBUG being on in the generated .env (the
-        # command refuses to run otherwise). The second run must succeed against
-        # the data the first one created.
+        # the compose prefix, DEBUG being on in the generated .env (the command
+        # refuses to run otherwise), and the superuser fallbacks epicenv writes to
+        # .env when there's no 1Password (the command refuses blank ones). The
+        # second run must succeed against the data the first one created.
         run: |
           just seed || { docker compose logs web; exit 1; }
           just seed || { echo "ERROR: just seed failed when rerun"; docker compose logs web; exit 1; }
-          status=$(curl -s -o /tmp/login.json -w '%{http_code}' -X POST -H 'Content-Type: application/json' \
-            -d '{"email": "owner@example.com", "password": "dev-password"}' \
-            http://localhost:8000/_allauth/app/v1/auth/login)
-          if [ "${status}" != "200" ]; then
-            echo "ERROR: signing in as owner@example.com returned ${status}:"
-            cat /tmp/login.json
-            docker compose logs web
-            exit 1
-          fi
-          echo "Signed in as owner@example.com"
+          sign_in() {
+            status=$(curl -s -o /tmp/login.json -w '%{http_code}' -X POST -H 'Content-Type: application/json' \
+              -d "$(jq -n --arg email "$1" --arg password "$2" '{email: $email, password: $password}')" \
+              http://localhost:8000/_allauth/app/v1/auth/login)
+            if [ "${status}" != "200" ]; then
+              echo "ERROR: signing in as $1 returned ${status}:"
+              cat /tmp/login.json
+              docker compose logs web
+              exit 1
+            fi
+            echo "Signed in as $1"
+          }
+          sign_in owner@example.com dev-password
+          sign_in "$(sed -n 's/^DJANGO_SUPERUSER_EMAIL=//p' .env)" "$(sed -n 's/^DJANGO_SUPERUSER_PASSWORD=//p' .env)"
