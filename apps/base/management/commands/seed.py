@@ -120,9 +120,7 @@ class Command(BaseCommand):
 
     def handle(self, *args, **options):
         if not settings.DEBUG:
-            raise CommandError(
-                f"seed_dev only runs with DEBUG on: every seeded login uses the password {SEED_PASSWORD!r}."
-            )
+            raise CommandError(f"seed only runs with DEBUG on: every seeded login uses the password {SEED_PASSWORD!r}.")
         executor = MigrationExecutor(connections[DEFAULT_DB_ALIAS])
         if executor.migration_plan(executor.loader.graph.leaf_nodes()):
             raise CommandError("Migrations are still pending; retry once /api/app-context/ answers.")

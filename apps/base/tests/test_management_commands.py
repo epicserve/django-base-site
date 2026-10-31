@@ -17,7 +17,7 @@ PROJECT_COMMANDS = sorted((name, app) for name, app in get_commands().items() if
 class TestManagementCommandsImport:
     def test_project_commands_are_discovered(self):
         names = {name for name, _app in PROJECT_COMMANDS}
-        assert {"ensure_s3_bucket", "purge_notifications", "seed_dev"} <= names
+        assert {"ensure_s3_bucket", "purge_notifications", "seed"} <= names
 
     @pytest.mark.parametrize(("name", "app"), PROJECT_COMMANDS, ids=[name for name, _app in PROJECT_COMMANDS])
     def test_command_imports(self, name, app):

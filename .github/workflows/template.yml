@@ -186,7 +186,7 @@ jobs:
       - name: Seed the new project and sign in as a seeded user
         working-directory: ${{ env.BUILD_DIR }}
         # `just seed` gives agents known logins to check UI changes with (#1365).
-        # pytest covers seed_dev itself; this covers what it can't: the recipe,
+        # pytest covers the seed command itself; this covers what it can't: the recipe,
         # the compose prefix, and DEBUG being on in the generated .env (the
         # command refuses to run otherwise). The second run must succeed against
         # the data the first one created.

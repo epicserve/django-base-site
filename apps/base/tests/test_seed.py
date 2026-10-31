@@ -1,4 +1,4 @@
-"""Tests for the `seed_dev` management command behind `just seed`."""
+"""Tests for the `seed` management command behind `just seed`."""
 
 from io import StringIO
 from pathlib import Path
@@ -13,7 +13,7 @@ from allauth.account.models import EmailAddress
 from allauth.mfa.models import Authenticator
 
 from apps.accounts.models import User
-from apps.base.management.commands.seed_dev import FILLERS, LOGINS, SEED_PASSWORD
+from apps.base.management.commands.seed import FILLERS, LOGINS, SEED_PASSWORD
 from apps.organizations.models import Organization, OrganizationInvite, OrganizationMember
 from apps.teams.models import Team
 
@@ -23,7 +23,7 @@ SEEDED_MODELS = (User, EmailAddress, Organization, OrganizationMember, Team, Org
 
 def _seed():
     out = StringIO()
-    call_command("seed_dev", stdout=out)
+    call_command("seed", stdout=out)
     return out.getvalue()
 
 

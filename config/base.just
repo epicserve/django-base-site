@@ -209,7 +209,7 @@ pre_commit: format lint test test_e2e
 # Create known dev logins, organizations, teams and invites (DEBUG only; safe to rerun)
 @seed: _ensure_web
     just _start_msg "Seeding development data"
-    {{ python_cmd_prefix }} ./manage.py seed_dev
+    {{ python_cmd_prefix }} ./manage.py seed
 
 # Start docker compose
 @start:
