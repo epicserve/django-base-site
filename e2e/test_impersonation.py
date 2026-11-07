@@ -62,7 +62,10 @@ class TestImpersonationBanner:
         _sign_in(page, live_server, superuser.email)
         _impersonate(page, live_server, "Michael Scott")
 
-        _banner(page).get_by_role("button", name="Hide Banner").click()
+        # The banner hides at once, before the POST that saves it in the session finishes;
+        # reloading before then can cancel the request, and the banner comes back.
+        with page.expect_response("**/api/impersonation/hide-banner/"):
+            _banner(page).get_by_role("button", name="Hide Banner").click()
         expect(_banner(page)).to_have_count(0)
         page.reload()
         expect(page.get_by_role("heading", level=1)).to_be_visible()
