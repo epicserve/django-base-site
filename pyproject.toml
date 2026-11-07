@@ -42,7 +42,7 @@ dev = [
     "pytest~=9.0",
     "pytest-cov~=7.0",
     "pytest-django~=4.5",
-    "pytest-playwright",
+    "pytest-playwright[base-url]",
     "ty",
     "readable-log-formatter",
     "ruff",
