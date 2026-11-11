@@ -23,3 +23,6 @@ public/media/*
 !.claude/skills
 CLAUDE.local.md
 .playwright-mcp/
+
+# Generated OpenAPI specs and the `just lint` drift check for the API types
+.cache/

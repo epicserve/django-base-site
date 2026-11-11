@@ -7,6 +7,7 @@ from ninja.errors import HttpError
 
 from apps.accounts.models import User
 from apps.base.permissions import require_superuser
+from apps.base.schemas import AppContextOut, MessageOut, StaffUserOut, VersionOut
 from apps.base.templatetags.vite import _get_manifest, vite_settings
 from apps.base.utils.email import send_email
 from apps.base.utils.timezones import get_timezone_label
@@ -33,12 +34,12 @@ def _get_app_version() -> str:
     return entry.get("file", "unknown")
 
 
-@router.get("/version/", auth=None)
+@router.get("/version/", auth=None, response=VersionOut)
 def get_version(request):
     return {"version": _get_app_version()}
 
 
-@router.get("/app-context/", auth=None)
+@router.get("/app-context/", auth=None, response=AppContextOut)
 def app_context(request):
     if not request.user.is_authenticated:
         return {
@@ -102,7 +103,7 @@ def hide_impersonation_banner(request):
     return Status(204, None)
 
 
-@router.get("/test-notifications/staff-users/")
+@router.get("/test-notifications/staff-users/", response=list[StaffUserOut])
 def test_notifications_staff_users(request):
     require_superuser(request)
     users = User.objects.filter(is_staff=True).order_by("first_name", "last_name", "email")
@@ -115,7 +116,7 @@ class TestNotificationIn(Schema):
     send_in_app: bool = True
 
 
-@router.post("/test-notifications/")
+@router.post("/test-notifications/", response=MessageOut)
 def send_test_notification(request, payload: TestNotificationIn):
     require_superuser(request)
     if not payload.send_email and not payload.send_in_app:

@@ -8,10 +8,11 @@
     "browser": true,
     "builtin": true
   },
-  "ignorePatterns": ["public/static/", "collected_static/", "htmlcov/", "frontend/config/"],
+  "ignorePatterns": ["public/static/", "collected_static/", "htmlcov/", "frontend/config/", "frontend/js/api/"],
   "rules": {
     "no-console": ["error", { "allow": ["warn", "error"] }],
     "no-debugger": "error",
-    "no-param-reassign": ["error", { "props": false }]
+    "no-param-reassign": ["error", { "props": false }],
+    "typescript/no-explicit-any": "error"
   }
 }
