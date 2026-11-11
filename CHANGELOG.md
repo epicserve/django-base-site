@@ -1,6 +1,21 @@
 # CHANGELOG
 
 
+## 2026-11-11
+
+### Added
+
+* The SPA has a typed API contract, so a wrong API call fails `just lint` instead of showing up at runtime (#1377, the first of two PRs). `just generate_api_types` exports the django-ninja and django-allauth OpenAPI specs and writes TypeScript types to `frontend/js/api/`, which are checked in. It runs under `config.settings.api_types`, which turns billing on and pins allauth to its browser client, so the types don't depend on anyone's `.env`, and it needs no server or database. `just lint` now fails when the checked-in types don't match the backend, then type-checks the SPA with `vue-tsc`, so removing a field from a ninja schema breaks lint where the SPA reads it.
+* `frontend/js/utils/api.ts` is the new API client: openapi-fetch over the generated types, with `unwrap()` for the response body and an `ApiError` (with `response` and `data`) for non-2xx responses. openapi-fetch accepts request bodies with keys the endpoint doesn't take, so a stricter type layer on top rejects them; that's what catches c571d009, which sent the mark-as-primary body with PUT. `frontend/js/utils/api.type-test.ts` pins c571d009 and f3a484a1 (reading `err.status` instead of `err.response.status`) as `@ts-expect-error` lines that `vue-tsc` checks. The app store, the allauth calls, the invite page, and the profile photo uploader are TypeScript now; the rest of the SPA keeps the old untyped helpers until the second PR converts it. Oxlint bans `any`.
+* `/api/app-context/`, `/api/version/`, and the two test-notification routes declare response schemas, and a test fails for any ninja route without one. A signed-out `/api/app-context/` now includes `debug: false`.
+* An e2e test uploads and removes a profile photo.
+
+### Changed
+
+* `AvatarCropper` no longer takes an `upload-url` prop; it posts to `/api/avatar/` itself.
+* After pulling, run `just build` so the frontend container gets TypeScript, `vue-tsc`, and `openapi-typescript`, which `just lint` now uses.
+
+
 ## 2026-10-31
 
 ### Added

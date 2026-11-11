@@ -130,7 +130,8 @@ used for common project commands.
 
 `just format` and `just lint` run the formatters and source linters (ruff, djLint, oxfmt, oxlint) natively, so you also
 need [uv](https://docs.astral.sh/uv/) (for `uvx`) and [bun](https://bun.sh/) (for `bunx`) on your PATH — `uv` is already
-needed for `uvx epicenv` below. (Only `ty` and the migration check still run in Docker.)
+needed for `uvx epicenv` below. (Only the checks that need the project's installed dependencies run in Docker: `ty`, the
+migration check, the generated API types check, and `vue-tsc`.)
 
 ### Quickstart Install Script
 
@@ -250,7 +251,8 @@ build_frontend               # bun run build + collectstatic
 clean                        # Remove build files, caches, coverage data
 collectstatic                # Run Django's collectstatic
 format                       # Format ruff + djLint + oxfmt + oxlint + justfile, natively via uvx/bunx (no Docker)
-lint                         # Lint ruff/djLint/oxlint natively; ty + missing-migration check via Docker
+lint                         # Lint ruff/djLint/oxlint natively; ty, migrations, API types + vue-tsc via Docker
+generate_api_types           # Regenerate the SPA's TypeScript API types from the ninja + allauth OpenAPI specs
 test                         # pytest (Django + ninja API tests)
 test_with_coverage           # pytest --cov, then open the HTML report
 test_e2e [args]              # Build the frontend, then run the Playwright e2e suite
@@ -267,7 +269,7 @@ create_superuser             # Idempotent epicenv create-superuser (override to 
 Two Git hooks live in the version-controlled `.githooks/` directory and are enabled via `git config core.hooksPath` (no copying into `.git/hooks/`, so they're reviewable and update with the repo):
 
 * **pre-commit** runs `just format`, which formats the whole working tree with **ruff, djLint, oxfmt, and oxlint run natively** through [`uvx`](https://docs.astral.sh/uv/) and [`bunx`](https://bun.sh/) — no Docker, so a commit takes about a second. The hook then re-stages just the files you'd already staged so the fixes land in your commit. If a file is only *partially* staged (e.g. via `git add -p`), the hook aborts instead — it won't sneak the unstaged hunks into your commit.
-* **pre-push** runs `just lint`. The source checks (ruff, oxfmt/oxlint, djLint) run natively too, but `ty` and the missing-migration check need the project's installed dependencies, so those two run over Docker — the hook starts the `web` service (`docker compose up --wait -d web`) if it isn't already running.
+* **pre-push** runs `just lint`. The source checks (ruff, oxfmt/oxlint, djLint) run natively too, but `ty`, the missing-migration check, the check that the generated API types in `frontend/js/api/` match the backend, and `vue-tsc` need the project's installed dependencies, so those run over Docker — the hook starts the `web` service (`docker compose up --wait -d web`) if it isn't already running.
 
 **Tool versions are not hand-managed.** `just format`/`just lint` read the exact ruff/djLint versions from `uv.lock` and the oxfmt/oxlint versions from `package.json` at runtime, so native formatting/linting always matches what Docker and CI use — even after Dependabot bumps them. `uv` and `bun` themselves don't need pinning (they're just the runners), but they must be on your PATH; if they aren't, the recipe tells you what to install.
 

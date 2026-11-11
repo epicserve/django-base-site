@@ -1,25 +1,34 @@
-<script setup>
-import { ref, inject, onMounted } from 'vue';
+<script setup lang="ts">
+import { ref, onMounted } from 'vue';
 import { useRoute, useRouter, RouterLink } from 'vue-router';
-import { get, post } from '@/utils/api';
+import type { components } from '@/api/schema';
+import { useAppStore } from '@/stores/app';
+import { api, ApiError, unwrap } from '@/utils/api';
 import { sentencePeriod } from '@/utils/format';
 import AuthLayout from '@/layouts/AuthLayout.vue';
 
 const route = useRoute();
 const router = useRouter();
-const appStore = inject('appStore');
+const appStore = useAppStore();
 
 const loading = ref(true);
 const submitting = ref(false);
-const invite = ref(null);
+const invite = ref<components['schemas']['PublicInviteOut'] | null>(null);
 const error = ref('');
-const result = ref(''); // 'accepted' | 'declined' | ''
+const result = ref<'accepted' | 'declined' | ''>('');
+
+function inviteKeyParams() {
+  return { params: { path: { key: String(route.params.key) } } };
+}
 
 async function loadInvite() {
   try {
-    invite.value = await get(`/api/invite-by-key/${route.params.key}/`);
+    invite.value = await unwrap(api.GET('/api/invite-by-key/{key}/', inviteKeyParams()));
   } catch (e) {
-    error.value = e.response?.status === 404 ? 'This invitation link is invalid.' : 'Could not load this invitation.';
+    error.value =
+      e instanceof ApiError && e.response.status === 404
+        ? 'This invitation link is invalid.'
+        : 'Could not load this invitation.';
   } finally {
     loading.value = false;
   }
@@ -32,11 +41,11 @@ async function accept() {
   }
   submitting.value = true;
   try {
-    await post(`/api/invite-by-key/${route.params.key}/accept/`);
+    await unwrap(api.POST('/api/invite-by-key/{key}/accept/', inviteKeyParams()));
     await appStore.fetchContext();
     result.value = 'accepted';
   } catch (e) {
-    error.value = e.message || 'Failed to accept the invitation.';
+    error.value = (e instanceof Error && e.message) || 'Failed to accept the invitation.';
   } finally {
     submitting.value = false;
   }
@@ -45,10 +54,10 @@ async function accept() {
 async function decline() {
   submitting.value = true;
   try {
-    await post(`/api/invite-by-key/${route.params.key}/decline/`);
+    await unwrap(api.POST('/api/invite-by-key/{key}/decline/', inviteKeyParams()));
     result.value = 'declined';
   } catch (e) {
-    error.value = e.message || 'Failed to decline the invitation.';
+    error.value = (e instanceof Error && e.message) || 'Failed to decline the invitation.';
   } finally {
     submitting.value = false;
   }
@@ -69,7 +78,7 @@ onMounted(loadInvite);
   <AuthLayout>
     <div v-if="loading" class="text-center text-sm text-gray-400">Loading invitation...</div>
 
-    <div v-else-if="error" class="text-center">
+    <div v-else-if="error || !invite" class="text-center">
       <h1 class="text-xl font-semibold text-gray-900 dark:text-white">Invitation Unavailable</h1>
       <p class="mt-2 text-sm text-gray-500 dark:text-gray-400">
         {{ error }}

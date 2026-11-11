@@ -49,11 +49,7 @@ async function onSubmit() {
   <AccountLayout>
     <div class="mb-6">
       <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Profile Photo</label>
-      <AvatarCropper
-        :current-avatar-url="appStore.user?.avatar_url || ''"
-        :user-name="userDisplayName"
-        upload-url="/api/avatar/"
-      />
+      <AvatarCropper :current-avatar-url="appStore.user?.avatar_url || ''" :user-name="userDisplayName" />
     </div>
     <form @submit.prevent="onSubmit">
       <FormErrors :errors="errors.non_field_errors || []" />
