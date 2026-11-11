@@ -1,32 +1,32 @@
-<script setup>
+<script setup lang="ts">
 import { ref, computed, inject } from 'vue';
 import { Cropper } from 'vue-advanced-cropper';
 import 'vue-advanced-cropper/dist/style.css';
 import AppModal from './AppModal.vue';
 import UserAvatar from './UserAvatar.vue';
-import { postFormData, deleteRequest } from '../utils/api.js';
+import type { AppStore } from '@/stores/app';
+import { api, formDataBody, parseErrors, unwrap } from '@/utils/api';
 
-const props = defineProps({
-  currentAvatarUrl: { type: String, default: '' },
-  userName: { type: String, default: '' },
-  uploadUrl: { type: String, required: true },
+const props = withDefaults(defineProps<{ currentAvatarUrl?: string; userName?: string }>(), {
+  currentAvatarUrl: '',
+  userName: '',
 });
 
-const appStore = inject('appStore', null);
+const appStore = inject<AppStore | null>('appStore', null);
 
 const avatarUrl = ref(props.currentAvatarUrl);
 const showModal = ref(false);
-const imageFile = ref(null);
-const imageSrc = ref(null);
-const cropperRef = ref(null);
+const imageFile = ref<File | null>(null);
+const imageSrc = ref<string | null>(null);
+const cropperRef = ref<InstanceType<typeof Cropper> | null>(null);
 const loading = ref(false);
 const error = ref('');
-let activeReader = null;
+let activeReader: FileReader | null = null;
 
 const hasAvatar = computed(() => Boolean(avatarUrl.value));
 
-function onFileSelect(event) {
-  const file = event.target.files[0];
+function onFileSelect(event: Event) {
+  const file = (event.target as HTMLInputElement).files?.[0];
   if (!file) return;
 
   const allowed = ['image/jpeg', 'image/png', 'image/webp'];
@@ -48,9 +48,9 @@ function onFileSelect(event) {
   const reader = new FileReader();
   activeReader = reader;
 
-  reader.onload = (e) => {
+  reader.onload = () => {
     if (activeReader === reader) {
-      imageSrc.value = e.target.result;
+      imageSrc.value = typeof reader.result === 'string' ? reader.result : null;
       activeReader = null;
     }
   };
@@ -79,28 +79,26 @@ async function save() {
 
   try {
     const { coordinates } = cropperRef.value.getResult();
-    const formData = new FormData();
-
-    formData.append('image', imageFile.value);
-    formData.append(
-      'crop_data',
-      JSON.stringify({
-        left: Math.round(coordinates.left),
-        top: Math.round(coordinates.top),
-        width: Math.round(coordinates.width),
-        height: Math.round(coordinates.height),
+    const cropData = {
+      left: Math.round(coordinates.left),
+      top: Math.round(coordinates.top),
+      width: Math.round(coordinates.width),
+      height: Math.round(coordinates.height),
+    };
+    const data = await unwrap(
+      api.POST('/api/avatar/', {
+        body: { image: imageFile.value, crop_data: JSON.stringify(cropData) },
+        bodySerializer: formDataBody,
       }),
     );
 
-    const data = await postFormData(props.uploadUrl, formData);
-
-    avatarUrl.value = data.avatar_url;
+    avatarUrl.value = data.avatar_url ?? '';
     if (appStore?.user) {
       appStore.setUser({ ...appStore.user, avatar_url: data.avatar_url });
     }
     closeModal();
   } catch (err) {
-    error.value = err.data?.image?.[0] || 'Upload failed. Please try again.';
+    error.value = parseErrors(err).image?.[0] || 'Upload failed. Please try again.';
   } finally {
     loading.value = false;
   }
@@ -111,7 +109,7 @@ async function removeAvatar() {
   error.value = '';
 
   try {
-    await deleteRequest(props.uploadUrl);
+    await unwrap(api.DELETE('/api/avatar/'));
     avatarUrl.value = '';
     if (appStore?.user) {
       appStore.setUser({ ...appStore.user, avatar_url: null });

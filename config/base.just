@@ -51,6 +51,18 @@ _require_native_tools:
         exit 1
     fi
 
+# vue-tsc and openapi-typescript need the project's node_modules. With the default Docker prefix they run in the
+# frontend container, which has them; natively (BUN_CMD_PREFIX="", as in CI) they need a local `bun install`.
+_require_node_modules:
+    #!/usr/bin/env bash
+    if [ -n "{{ bun_cmd_prefix }}" ]; then
+        exit 0
+    fi
+    if [ ! -x node_modules/.bin/vue-tsc ] || [ ! -d node_modules/openapi-typescript ]; then
+        echo "node_modules is missing or out of date; run \`bun install\` first." >&2
+        exit 1
+    fi
+
 # Build Docker images
 @build:
     just _start_msg "Building docker project"
@@ -68,6 +80,7 @@ _require_native_tools:
     rm -rf .ty_cache/
     rm -rf .pytest_cache/
     rm -rf .ruff_cache/
+    rm -rf .cache/
     rm -rf collected_static/
     rm -rf docs_site/
     rm -rf public/static/dist/
@@ -173,8 +186,41 @@ db_restore dump_file="":
     just _start_msg "Formatting the justfile"
     just --fmt --unstable
 
+# Regenerate the SPA's API types in frontend/js/api/ from the ninja and allauth OpenAPI specs
+@generate_api_types: _require_native_tools _require_node_modules _ensure_web
+    just _start_msg "Generating API types in frontend/js/api/"
+    just _generate_api_types frontend/js/api
+
+# Export both OpenAPI specs and write their TypeScript types to `out_dir`. The specs go under .cache/ in the repo,
+# which the web and frontend containers both mount, so this works with the Docker prefixes too.
+_generate_api_types out_dir:
+    #!/usr/bin/env bash
+    set -euo pipefail
+    spec_dir=.cache/api-types/specs
+    mkdir -p "$spec_dir" "{{ out_dir }}"
+    {{ python_cmd_prefix_with_deps }} ./manage.py export_openapi_schema --settings=config.settings.api_types \
+        --api config.api.api --sorted --indent 2 --output "$spec_dir/api.json"
+    {{ python_cmd_prefix_with_deps }} ./manage.py export_allauth_openapi_schema --settings=config.settings.api_types \
+        --output "$spec_dir/allauth.json"
+    {{ bun_cmd_prefix }} bun frontend/config/generate-api-types.mjs "$spec_dir/api.json" "{{ out_dir }}/schema.d.ts"
+    {{ bun_cmd_prefix }} bun frontend/config/generate-api-types.mjs "$spec_dir/allauth.json" "{{ out_dir }}/allauth.d.ts"
+
 # Lint everything
-lint: lint_js lint_html lint_py lint_migrations lint_types
+lint: lint_js lint_html lint_py lint_migrations lint_types lint_api_types lint_ts
+
+# Fail if the checked-in API types in frontend/js/api/ don't match the backend's schemas
+lint_api_types: _require_native_tools _require_node_modules
+    #!/usr/bin/env bash
+    set -euo pipefail
+    just _start_msg "Checking the API types in frontend/js/api/ match the backend"
+    check_dir=.cache/api-types/check
+    rm -rf "$check_dir"
+    just _generate_api_types "$check_dir"
+    if ! diff -r -q frontend/js/api "$check_dir" >/dev/null; then
+        diff -r -u frontend/js/api "$check_dir" | head -n 40 || true
+        echo "The API types in frontend/js/api/ are stale. Run \`just generate_api_types\` and commit the result." >&2
+        exit 1
+    fi
 
 # Lint HTML
 @lint_html: _require_native_tools
@@ -197,6 +243,11 @@ lint: lint_js lint_html lint_py lint_migrations lint_types
     just _start_msg "Checking code using ruff {{ ruff_version }}"
     uvx "ruff@{{ ruff_version }}" check
     uvx "ruff@{{ ruff_version }}" format --check
+
+# Type-check the SPA's TypeScript and Vue files with vue-tsc
+@lint_ts: _require_native_tools _require_node_modules
+    just _start_msg "Checking TypeScript using vue-tsc"
+    {{ bun_cmd_prefix }} node_modules/.bin/vue-tsc --noEmit -p frontend/tsconfig.json
 
 # Lint Python types
 @lint_types:

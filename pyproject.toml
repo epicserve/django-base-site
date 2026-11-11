@@ -43,6 +43,8 @@ dev = [
     "pytest-cov~=7.0",
     "pytest-django~=4.5",
     "pytest-playwright[base-url]",
+    # Read by django-allauth when `just generate_api_types` exports its OpenAPI spec
+    "pyyaml~=6.0",
     "ty",
     "readable-log-formatter",
     "ruff",

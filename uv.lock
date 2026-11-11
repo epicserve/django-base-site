@@ -11,8 +11,8 @@ exclude-newer = "0001-01-01T00:00:00Z" # This has no effect and is included for 
 exclude-newer-span = "P7D"
 
 [options.exclude-newer-package]
-django-ninja = "2026-08-18T00:00:00Z"
-epicenv = "2026-05-24T00:00:00Z"
+django-ninja = "2026-08-18T05:00:00Z"
+epicenv = "2026-05-24T05:00:00Z"
 
 [[package]]
 name = "aiohappyeyeballs"
@@ -792,6 +792,7 @@ dev = [
     { name = "pytest-cov" },
     { name = "pytest-django" },
     { name = "pytest-playwright", extra = ["base-url"] },
+    { name = "pyyaml" },
     { name = "readable-log-formatter" },
     { name = "ruff" },
     { name = "ruff-lsp" },
@@ -838,6 +839,7 @@ dev = [
     { name = "pytest-cov", specifier = "~=7.0" },
     { name = "pytest-django", specifier = "~=4.5" },
     { name = "pytest-playwright", extras = ["base-url"] },
+    { name = "pyyaml", specifier = "~=6.0" },
     { name = "readable-log-formatter" },
     { name = "ruff" },
     { name = "ruff-lsp" },

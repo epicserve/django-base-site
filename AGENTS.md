@@ -13,7 +13,8 @@ Django Base Site is an opinionated Django starter template with a production-rea
 - **Settings**: `config/settings/` — `_base.py` (main, env-driven via epicenv), `__init__.py` (re-exports `_base`), `test_runner.py` (overrides for pytest), `e2e.py` (overrides for Playwright with pre-built Vite assets).
 - **API**: A single `NinjaAPI` instance in `config/api.py` mounted at `/api/`. Routers come from each app's `api.py` (`apps.base.api`, `apps.accounts.api`, `apps.organizations.api`, `apps.teams.api`, `apps.notifications.api`).
 - **URLs** (`config/urls.py`): A re_path catch-all serves the Vue SPA shell for every non-API path. `/_allauth/` mounts allauth's headless API, `/hijack/` mounts django-hijack, `/admin/` is the Django admin, `/api/` is the ninja API. A `_public_not_found` shim before the catch-all keeps stale `/public/static/*` chunks from being answered with HTML.
-- **Frontend**: Vue 3 SPA in `frontend/` (was `src/` pre-conversion). `frontend/js/app.js` mounts `App.vue`, `frontend/js/router.js` defines all SPA routes (lazy-loaded). `frontend/js/stores/app.js` is the reactive app store; `appStore.fetchContext()` hits `/api/app-context/` to populate user, org, organizations, version, etc. `frontend/css/app.css` is Tailwind v4 with IBM Plex Sans (for all UI text) and JetBrains Mono (for code) via Google Fonts. Built with bun + Vite.
+- **Frontend**: Vue 3 SPA in `frontend/` (was `src/` pre-conversion). `frontend/js/app.js` mounts `App.vue`, `frontend/js/router.js` defines all SPA routes (lazy-loaded). `frontend/js/stores/app.ts` is the reactive app store; `appStore.fetchContext()` hits `/api/app-context/` to populate user, org, organizations, version, etc. `frontend/css/app.css` is Tailwind v4 with IBM Plex Sans (for all UI text) and JetBrains Mono (for code) via Google Fonts. Built with bun + Vite.
+- **Typed API contract**: The SPA is moving to TypeScript (`frontend/tsconfig.json`, `strict`, `allowJs` until every file is converted). `just generate_api_types` exports the ninja and allauth OpenAPI specs under `config.settings.api_types` (no server or database needed) and writes `frontend/js/api/schema.d.ts` and `allauth.d.ts`. Those files are generated and checked in: never edit them, and regenerate them in the same change as any ninja schema change. `frontend/js/utils/api.ts` exports `api` (openapi-fetch over the generated types, plus a stricter type layer that rejects unknown top-level body keys), `unwrap()`, `ApiError`, and `formDataBody` for multipart uploads. Every ninja route needs a `response=` schema, or its type has no body; `apps/base/tests/test_app_context_api.py` fails on any route without one. The old untyped helpers (`get`, `post`, `patch`, `put`, `del`, `getAllResults`) stay only for files not yet converted.
 - **Docker**: `compose.yml` services: `db` (postgres 17), `redis` (7), `mailpit`, `silo`, `web`, `worker` (celery), `frontend` (bun running Vite). All but `web` and `worker` have healthchecks. The web container runs `migrate` and `ensure_s3_bucket` on startup. Multi-stage production image at `config/docker/Dockerfile.web` (python-requirements → base → dev / js_assets → prod with gunicorn).
 - **Static / media**: WhiteNoise serves Vite-hashed assets in production with `Cache-Control: max-age=31536000, immutable` (regex defined in settings). Media uploads use `apps/base/storage.py:S3MediaStorage` which handles the Docker-internal vs. browser endpoint URL split for Silo.
 
@@ -35,7 +36,8 @@ Use Just for all development tasks. Common ones:
 
 **Code Quality:**
 - `just format` - Format Python (ruff), JS (oxfmt + oxlint), HTML (djlint), justfile
-- `just lint` - Run all linters + ty type check + check for missing migrations
+- `just lint` - Run all linters + ty type check + check for missing migrations + check the generated API types are current + vue-tsc
+- `just generate_api_types` - Regenerate `frontend/js/api/*.d.ts` from the ninja and allauth OpenAPI specs; run it after changing a ninja schema and commit the result
 - `just pre_commit` - format + lint + test + test_e2e
 
 **Testing:**
@@ -69,8 +71,9 @@ Use Just for all development tasks. Common ones:
 - Model Bakery for fixtures.
 - Django Test Plus for additional helpers.
 - pyotp for the TOTP / MFA tests under `apps/accounts/tests/test_mfa_flows.py`.
-- Playwright e2e tests under `e2e/` (auth flow incl. the passkey prompt, invite flow, org settings); `--ignore=e2e` is on `pyproject.toml` `[tool.pytest.ini_options]` so the unit suite stays fast.
+- Playwright e2e tests under `e2e/` (auth flow incl. the passkey prompt, invite flow, org settings, avatar upload); `--ignore=e2e` is on `pyproject.toml` `[tool.pytest.ini_options]` so the unit suite stays fast.
 - Coverage configuration in `config/coverage.ini`.
+- `frontend/js/utils/api.type-test.ts` holds type-level regression tests: `@ts-expect-error` lines for API bugs that shipped before the types existed, next to the same calls written correctly. `vue-tsc` fails if one stops being an error. Add one when the types should have caught a bug.
 - Every `apps.*` management command must import cleanly; `apps/base/tests/test_management_commands.py` loads them all, since `ty` ignores unresolved imports.
 - To check a UI change in the browser, follow the `run-app` skill ([.agents/skills/run-app/SKILL.md](.agents/skills/run-app/SKILL.md)): start the stack, `just seed`, then sign in as a seeded login with Playwright.
 - CI (`.github/workflows/ci.yml`) runs `just lint`, the pytest suite, and the Playwright e2e suite on pushes to `main` and on pull requests. Dependabot (`.github/dependabot.yml`) opens weekly dependency PRs; the `/weekly-maintenance` skill reviews and merges them.
@@ -93,6 +96,7 @@ These exist only in the Django Base Site template. `scripts/start_new_project` r
 - **Python**: Ruff for formatting + linting (replaces Black/isort). Ty for type checking. Django conventions throughout. Bandit (S) ruleset enabled in Ruff.
 - **Ninja**: `[tool.ruff.lint.flake8-bugbear] extend-immutable-calls` includes `ninja.Query/File/Form/Body/Path` so default-arg-with-call patterns don't trip B008.
 - **JavaScript / Vue**: Oxlint (`.oxlintrc.json`) for linting + Oxfmt (`.oxfmtrc.json`, Prettier-compatible) for formatting. Both run via `bun run lint-js` / `format-js`. Vue SFC `<script>` blocks are linted; `<template>` blocks are formatted but not linted. 120-char line length.
+- **TypeScript**: Write new modules as `.ts` and new or changed components with `<script setup lang="ts">`. `vue-tsc` checks both, templates included. Oxlint bans `any` (`typescript/no-explicit-any`); use `unknown` and narrow it. Call the API with `api` and `unwrap()`, passing the path template and its params (`api.GET('/api/teams/{team_id}/', { params: { path: { team_id } } })`), never a URL built with a template literal, and pass request bodies inline so unknown keys are caught. A caught error is `unknown`: check `err instanceof ApiError` before reading `err.response.status` or `err.data`. Take types from `components['schemas']` in `@/api/schema` rather than redeclaring them.
 - **HTML / Django templates**: djLint for formatting and linting.
 - **CSS**: Tailwind v4 utilities (no separate Sass/Stylelint pipeline anymore — both were dropped during the SPA conversion).
 - **Line Length**: 120 characters for Python and HTML.
@@ -167,5 +171,5 @@ Key variables:
 ## Key Dependencies
 
 - **Backend**: Django 6, django-allauth[mfa] (with fido2 for WebAuthn), django-ninja, django-hijack, Pillow, Celery, Redis, PostgreSQL 17, gunicorn, WhiteNoise, django-storages + boto3, django-ses, django-alive, django-maintenance-mode.
-- **Frontend**: Vue 3, Vue Router 5, Tailwind v4, Vite 8, bun, @heroicons/vue, vue-advanced-cropper, reka-ui (modal/toast primitives).
-- **Development**: Docker, pytest, pytest-playwright, pyotp, Ruff, Ty, Oxlint, Oxfmt, djLint, model-bakery.
+- **Frontend**: Vue 3, Vue Router 5, Tailwind v4, Vite 8, bun, openapi-fetch, @heroicons/vue, vue-advanced-cropper, reka-ui (modal/toast primitives).
+- **Development**: Docker, pytest, pytest-playwright, pyotp, Ruff, Ty, Oxlint, Oxfmt, djLint, model-bakery, TypeScript, vue-tsc, openapi-typescript.
