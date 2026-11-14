@@ -35,6 +35,7 @@ features.
 
 * [Epicenv](https://github.com/epicserve/epicenv) - A delightful environment variable manager with schema validation, type coercion, and CLI tools for generating `.env` files. See the [epicenv documentation](https://github.com/epicserve/epicenv#readme) for more details.
 * [Docker](https://www.docker.com/) - Docker Compose for development with healthchecks on every service, plus a multi-stage Dockerfile for a production-ready image.
+* [Worktrunk](https://worktrunk.dev) - `wt switch --create <branch>` gives each git worktree its own Docker stack, on its own ports, with a copy of the main checkout's database and media, and `wt remove` tears it down. Handy for running several branches, or several coding agents, side by side.
 * [Mailpit](https://mailpit.axllent.org/) - Local SMTP capture with a web UI at http://localhost:8025
 * [Silo](https://github.com/pgsty/silo) - S3-compatible object storage for local media uploads (avatars, etc.) with a console at http://localhost:9001. Silo is a maintained drop-in fork of the MinIO server, which removed its Docker Hub images in 2026.
 * [UV](https://github.com/astral-sh/uv) - Used to maintain Python requirements

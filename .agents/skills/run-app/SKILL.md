@@ -7,6 +7,12 @@ description: Start this project's Docker stack, seed known dev logins with `just
 
 ## 1. Start the stack
 
+In a git worktree the stack runs on its own ports, listed by `scripts/worktree urls` (the `HOST_PORT_*` values in its `.env`). The main checkout uses the defaults: the app on 8000, Vite on 3000, Mailpit on 8025. Set the app's base URL once and use it below:
+
+```bash
+APP="http://localhost:$(sed -n 's/^HOST_PORT_WEB=//p' .env 2>/dev/null | tail -n 1 | grep . || echo 8000)"
+```
+
 ```bash
 docker compose up --wait -d
 ```
@@ -14,13 +20,13 @@ docker compose up --wait -d
 `just start` runs the same stack in the foreground and blocks, so use the detached form. `web` has no healthcheck and runs `migrate` on startup, so wait until the API answers:
 
 ```bash
-for i in $(seq 1 60); do curl -fs -o /dev/null http://localhost:8000/api/app-context/ && break; sleep 2; done
+for i in $(seq 1 60); do curl -fs -o /dev/null "$APP/api/app-context/" && break; sleep 2; done
 ```
 
 If it never answers, read `docker compose logs web`.
 
-- Always use `http://localhost:8000`, never `127.0.0.1`: passkeys reject bare IPs as the Relying Party ID.
-- In development the page loads its JS and CSS from the Vite dev server in the `frontend` service (port 3000). A blank page usually means that service is down: `docker compose logs frontend`.
+- Always use `localhost`, never `127.0.0.1`: passkeys reject bare IPs as the Relying Party ID.
+- In development the page loads its JS and CSS from the Vite dev server in the `frontend` service (`HOST_PORT_VITE`, port 3000 by default). A blank page usually means that service is down: `docker compose logs frontend`.
 - Vite hot-reloads frontend changes and `runserver` reloads Python changes, so there's no need to restart after an edit.
 
 ## 2. Seed known logins
@@ -54,7 +60,7 @@ The rest of the seeded data:
 
 Use the browser tool you have (the Playwright MCP, or a Playwright script):
 
-1. Open `http://localhost:8000/accounts/login/`. Add `?next=<path>` to land on the page under test, e.g. `?next=/organizations/dunder-mifflin/settings/members/`.
+1. Open `$APP/accounts/login/`. Add `?next=<path>` to land on the page under test, e.g. `?next=/organizations/dunder-mifflin/settings/members/`.
 2. Fill the fields with the placeholders `Email` and `Password`.
 3. Click the button named exactly `Sign In`. The heading says "Sign In" too, so match the button by role and exact name.
 4. Wait for the URL to leave `/accounts/login/`.
@@ -83,7 +89,7 @@ It lasts for the life of the tab. Enroll under `/accounts/security/passkeys/`. O
 
 - Open the changed route, take a screenshot, and read the console for errors and the network log for failed requests. The SPA's routes are in `frontend/js/router.js`.
 - Common pages: `/`, `/organizations/<slug>/settings/{general,members,teams}/`, `/accounts/general/`, `/accounts/security/`, `/notifications/`.
-- Emails (invites sent from the app, password reset, email verification) land in Mailpit at `http://localhost:8025`.
+- Emails (invites sent from the app, password reset, email verification) land in Mailpit at `http://localhost:8025` (`HOST_PORT_MAILPIT` in a worktree).
 
 ## 6. Keep it
 

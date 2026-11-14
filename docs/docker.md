@@ -18,6 +18,8 @@ The Django Base Site uses Docker Compose for local development. Install [Docker]
 
 The `web` and `frontend` containers run as `${HOST_UID:-1000}:${HOST_GID:-1000}` so bind-mount writes don't end up root-owned.
 
+The ports above are the main checkout's. A worktree's stack runs on its own ports; see [Worktrees](#worktrees).
+
 ## Frontend Asset Build
 
 `docker compose up` starts the `frontend` service, which runs `bun run dev` (Vite + HMR on port 3000). The Django SPA shell template injects the Vite client; assets reload on save. To build production assets manually:
@@ -74,6 +76,8 @@ Follow [JetBrains' Docker Compose interpreter guide](https://www.jetbrains.com/h
 | `django-base-site_silo_data`        | Silo bucket storage                                     |
 | `django-base-site_node_modules`     | bun-managed `node_modules` for the frontend container   |
 
+A worktree's volumes start with its own Compose project name instead, such as `django-base-site-my-branch_postgres_data`.
+
 Checkouts from before 2026-09-22 still have the old `minio` service, container, and `django-base-site_minio_data` volume. To move over: set `MEDIA_S3_ENDPOINT_URL=http://silo:9000` in `.env` (`uvx epicenv diff` lists the drift, and the `MINIO_ROOT_*` lines can be deleted), run `docker compose up -d --remove-orphans` to drop the old `minio` container, then either start with an empty bucket (`docker volume rm django-base-site_minio_data`) or copy the old data across:
 
 ```bash
@@ -94,6 +98,43 @@ If you change `pyproject.toml`, rebuild the web image:
 docker compose build web
 docker compose up -d --force-recreate web
 ```
+
+## Worktrees
+
+Each git worktree can run its own stack beside the main checkout's, with its own ports, database, and media. [Worktrunk](https://worktrunk.dev) runs the setup and teardown from `.config/wt.toml`:
+
+```bash
+wt switch --create my-branch   # creates ../django-base-site.my-branch and gives it its own stack
+cd ../django-base-site.my-branch
+just start
+wt remove my-branch            # deletes the worktree's containers, volumes, and network, then the worktree
+```
+
+The first time, Worktrunk asks you to approve the project's hooks, and it remembers the answer until they change. In a shell that can't prompt, such as a coding agent's, `wt` stops without creating the worktree, so approve them beforehand with `wt config approvals add`.
+
+`scripts/worktree setup` is the pre-start hook. It:
+
+- copies the main checkout's `.env` and adds the worktree's own `COMPOSE_PROJECT_NAME` (`<main project>-<branch>`) and a port for every `HOST_PORT_*` variable in `compose.yml`. Each gets the first port above its default that no other worktree's `.env` uses, no Docker container publishes, and nothing is listening on. `SITE_DOMAIN` and `MEDIA_S3_URL_ENDPOINT_URL` follow those ports, and the session cookie gets its own name, since browsers share cookies across every port on `localhost`.
+- copies the main checkout's `postgres_data` and `silo_data` volumes into the worktree's, so it starts with the same logins, organizations, and uploads. If the main checkout's `db` and `silo` are running, they stop for the few seconds the copy takes.
+- prints the worktree's URLs. `scripts/worktree urls` prints them again.
+
+| Variable                 | Main checkout | First worktree |
+|--------------------------|---------------|----------------|
+| `HOST_PORT_WEB`          | 8000          | 8001           |
+| `HOST_PORT_VITE`         | 3000          | 3001           |
+| `HOST_PORT_DB`           | 5432          | 5433           |
+| `HOST_PORT_SILO`         | 9000          | 9002           |
+| `HOST_PORT_SILO_CONSOLE` | 9001          | 9003           |
+| `HOST_PORT_MAILPIT`      | 8025          | 8026           |
+| `HOST_PORT_MAILPIT_SMTP` | 1025          | 1026           |
+| `HOST_PORT_DEBUGPY`      | 5678          | 5679           |
+
+`scripts/worktree teardown` is the pre-remove hook, which `wt merge` runs too. It removes every container, volume, and network in the worktree's Compose project, and refuses to touch the main checkout's. To replace a worktree's data with a fresh copy of the main checkout's, run `scripts/worktree teardown && scripts/worktree copy-data` in it.
+
+- **Where worktrees go.** Worktrunk's default `worktree-path` is a sibling directory, `../<repo>.<branch>`. Keep worktrees outside the main checkout: anything that walks its tree, such as your editor's index, searches, and the Docker build context, would otherwise see every worktree's files as well. To change it, set `worktree-path` in `~/.config/worktrunk/config.toml`.
+- **Older branches.** A branch made before worktrees got their own stacks has fixed container names and ports in its `compose.yml`, so `setup` skips it. Rebase it onto `main` first.
+- **Shared images.** The images are tagged `epicserve/django-base-site:python` and `:bun`, so a new worktree starts without a build. Rebuilding in one worktree retags them for every checkout, so rebuild in the main checkout after a worktree changes the Python or JS dependencies.
+- **Without Worktrunk.** Run `git worktree add ../django-base-site.my-branch -b my-branch`, then `scripts/worktree setup` in the new worktree. Before `git worktree remove`, run `scripts/worktree teardown` in it.
 
 ## Common Commands
 

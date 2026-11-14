@@ -14,7 +14,8 @@ Django Base Site is an opinionated Django starter template with a production-rea
 - **API**: A single `NinjaAPI` instance in `config/api.py` mounted at `/api/`. Routers come from each app's `api.py` (`apps.base.api`, `apps.accounts.api`, `apps.organizations.api`, `apps.teams.api`, `apps.notifications.api`).
 - **URLs** (`config/urls.py`): A re_path catch-all serves the Vue SPA shell for every non-API path. `/_allauth/` mounts allauth's headless API, `/hijack/` mounts django-hijack, `/admin/` is the Django admin, `/api/` is the ninja API. A `_public_not_found` shim before the catch-all keeps stale `/public/static/*` chunks from being answered with HTML.
 - **Frontend**: Vue 3 SPA in `frontend/` (was `src/` pre-conversion). `frontend/js/app.js` mounts `App.vue`, `frontend/js/router.js` defines all SPA routes (lazy-loaded). `frontend/js/stores/app.js` is the reactive app store; `appStore.fetchContext()` hits `/api/app-context/` to populate user, org, organizations, version, etc. `frontend/css/app.css` is Tailwind v4 with IBM Plex Sans (for all UI text) and JetBrains Mono (for code) via Google Fonts. Built with bun + Vite.
-- **Docker**: `compose.yml` services: `db` (postgres 17), `redis` (7), `mailpit`, `silo`, `web`, `worker` (celery), `frontend` (bun running Vite). All but `web` and `worker` have healthchecks. The web container runs `migrate` and `ensure_s3_bucket` on startup. Multi-stage production image at `config/docker/Dockerfile.web` (python-requirements → base → dev / js_assets → prod with gunicorn).
+- **Docker**: `compose.yml` services: `db` (postgres 17), `redis` (7), `mailpit`, `silo`, `web`, `worker` (celery), `frontend` (bun running Vite). All but `web` and `worker` have healthchecks. The web container runs `migrate` and `ensure_s3_bucket` on startup. Multi-stage production image at `config/docker/Dockerfile.web` (python-requirements → base → dev / js_assets → prod with gunicorn). Services have no fixed `container_name`, and every port published on the host is a `${HOST_PORT_*:-default}` variable, so a second copy of the stack can run beside the first (see Worktrees); `apps/base/tests/test_compose_file.py` keeps it that way. Use `docker compose` with service names (`docker compose exec web ...`), not container names.
+- **Worktrees**: [Worktrunk](https://worktrunk.dev) hooks in `.config/wt.toml` run `scripts/worktree`, so every git worktree gets its own stack: `setup` (pre-start) writes the worktree's `.env` from the main checkout's with its own `COMPOSE_PROJECT_NAME`, free `HOST_PORT_*` ports, and the `SITE_DOMAIN`, `MEDIA_S3_URL_ENDPOINT_URL`, and `SESSION_COOKIE_NAME` that go with them, then copies the main checkout's Postgres and Silo volumes. `teardown` (pre-remove) deletes the worktree's containers, volumes, and network. A worktree of a branch made before this has the old fixed ports and container names, so `setup` skips it until it's rebased onto `main`.
 - **Static / media**: WhiteNoise serves Vite-hashed assets in production with `Cache-Control: max-age=31536000, immutable` (regex defined in settings). Media uploads use `apps/base/storage.py:S3MediaStorage` which handles the Docker-internal vs. browser endpoint URL split for Silo.
 
 ## Development Commands
@@ -62,6 +63,14 @@ Use Just for all development tasks. Common ones:
 - The old `docker compose --profile docs` service has been removed.
 
 <!-- template-only:end -->
+**Worktrees** (needs [Worktrunk](https://worktrunk.dev), `wt`):
+- `wt switch --create <branch>` - New worktree with its own `.env`, ports, and a copy of the main checkout's database and media. Then `just start` there. Worktrunk's default puts it beside the main checkout, at `../<repo>.<branch>`.
+- `wt remove <branch>` - Remove the worktree's containers, volumes, and network, then the worktree. `wt merge` does the same.
+- `scripts/worktree urls` - This worktree's URLs and ports. Read them from here or from `HOST_PORT_*` in its `.env`; never assume `localhost:8000` in a worktree.
+- `scripts/worktree teardown && scripts/worktree copy-data` - Replace the worktree's database and media with a fresh copy of the main checkout's.
+- Create worktrees with `wt`, not `git worktree add` or a Claude Code worktree, so the hooks run. For one made another way, run `scripts/worktree setup` inside it.
+- The hooks need approving once per machine: `wt config approvals add` in the main checkout (it prompts), or answer the prompt on the first `wt switch --create`. In a shell that can't prompt, `wt` stops with "Cannot prompt for approval" and creates nothing. Ask the user to approve them rather than passing `--yes` for them.
+
 ## Testing
 
 - pytest with pytest-django.
@@ -121,7 +130,7 @@ The project supports remote debugging with VS Code, PyCharm, LazyVim/Neovim, or 
 4. See the [debugging guide](https://django-base-site.readthedocs.io/en/latest/debugging/) for detailed setup
 
 **LazyVim/Neovim:**
-- Configure nvim-dap to connect to `localhost:5678`
+- Configure nvim-dap to connect to `localhost:5678` (`HOST_PORT_DEBUGPY` in a worktree's `.env`)
 - The debugger uses the standard Debug Adapter Protocol (DAP)
 - See the [debugging guide](https://django-base-site.readthedocs.io/en/latest/debugging/)
 
@@ -139,6 +148,7 @@ Key variables:
 - `SECRET_KEY` — auto-generated by epicenv's `url_safe_password` initializer
 - `DATABASE_URL` — Postgres connection string
 - `SITE_DOMAIN` — defaults to `localhost:8000`. **Use `localhost`, not `127.0.0.1`** — WebAuthn / passkey enrollment rejects bare IPs as Relying Party IDs.
+- `HOST_PORT_WEB` / `_VITE` / `_DB` / `_SILO` / `_SILO_CONSOLE` / `_MAILPIT` / `_MAILPIT_SMTP` / `_DEBUGPY` — the host ports `compose.yml` publishes (defaults 8000, 3000, 5432, 9000, 9001, 8025, 1025, 5678). Unset in the main checkout; `scripts/worktree setup` sets them in a worktree's `.env`, with `COMPOSE_PROJECT_NAME`, a matching `SITE_DOMAIN` and `MEDIA_S3_URL_ENDPOINT_URL`, and `SESSION_COOKIE_NAME` (browsers share cookies across ports, so each stack needs its own session cookie). Django reads `HOST_PORT_VITE` as `VITE_SERVER_PORT`.
 - `ALLOWED_HOSTS` — defaults to `localhost,127.0.0.1`
 - `INTERNAL_IPS` — for Django Debug Toolbar, which is off until you turn it on with **Debug Toolbar** in the user menu (DEBUG only). The choice is a `debug_toolbar` cookie read by `apps/base/debug_toolbar.py`, not a setting.
 - `USE_DEBUGPY=true` — enable remote debugging

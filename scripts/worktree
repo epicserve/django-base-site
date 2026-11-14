@@ -1,0 +1,279 @@
+#!/usr/bin/env bash
+#
+# Give a git worktree of this project its own Docker stack: its own .env, host ports, database, and media.
+#
+# Worktrunk (https://worktrunk.dev) runs it from .config/wt.toml, so `wt switch --create <branch>` sets a worktree up
+# and `wt remove <branch>` tears it down. You can also run it yourself from inside a worktree:
+#
+#   scripts/worktree setup       Write .env from the main checkout's with free ports, then run copy-data
+#   scripts/worktree copy-data   Copy the main checkout's database and media volumes into this worktree's
+#   scripts/worktree teardown    Remove this worktree's containers, volumes, and network (keeps .env)
+#   scripts/worktree urls        Print this worktree's URLs and ports
+#
+# Every `${HOST_PORT_*:-default}` in compose.yml gets the first free port above its default. A port is taken when
+# another worktree's .env uses it, a Docker container publishes it (running or not), or something listens on it.
+#
+# Written for bash 3.2, so it runs on stock macOS.
+
+set -euo pipefail
+
+if [ -t 1 ]; then
+    GREEN=$'\033[32m' YELLOW=$'\033[33m' RED=$'\033[31m' RESET=$'\033[0m'
+else
+    GREEN='' YELLOW='' RED='' RESET=''
+fi
+info() { printf '%s%s%s\n' "$GREEN" "$*" "$RESET"; }
+warn() { printf '%s%s%s\n' "$YELLOW" "$*" "$RESET" >&2; }
+die() {
+    printf '%s%s%s\n' "$RED" "$*" "$RESET" >&2
+    exit 1
+}
+usage() { sed -n '3,14p' "$0" | sed 's/^# \{0,1\}//'; }
+
+root=$(git rev-parse --show-toplevel)
+primary=$(git worktree list --porcelain | sed -n '1s/^worktree //p')
+
+require_worktree() {
+    [ "$root" != "$primary" ] || die "Run this in a worktree, not in the main checkout ($primary)."
+}
+
+# KEY's value in a .env file (the last assignment wins), without surrounding quotes. Empty when unset.
+env_read() {
+    [ -f "$1" ] || return 0
+    sed -n "s/^$2=//p" "$1" | tail -n 1 | sed -e 's/^"\(.*\)"$/\1/' -e "s/^'\(.*\)'$/\1/"
+}
+
+# Docker Compose's default project name for a directory: its name, lowercased, keeping only [a-z0-9_-].
+dir_project_name() { basename "$1" | tr '[:upper:]' '[:lower:]' | tr -cd 'a-z0-9_-' | sed 's/^[-_]*//'; }
+
+# The Compose project a checkout's containers and volumes belong to.
+project_name() {
+    local name
+    name=$(env_read "$1/.env" COMPOSE_PROJECT_NAME)
+    echo "${name:-$(dir_project_name "$1")}"
+}
+
+# "VAR DEFAULT" for each host port compose.yml publishes, e.g. "HOST_PORT_WEB 8000", in file order.
+port_defaults() {
+    { grep -oE '\$\{HOST_PORT_[A-Z0-9_]+:-[0-9]+\}' "$root/compose.yml" || true; } |
+        sed -E 's/^\$\{(HOST_PORT_[A-Z0-9_]+):-([0-9]+)\}$/\1 \2/' | awk '!seen[$1]++'
+}
+
+docker_running() { command -v docker >/dev/null 2>&1 && docker info >/dev/null 2>&1; }
+
+# docker compose for this worktree's project. It names the project and drops the Compose and port variables a caller
+# may export (a `just` recipe exports its checkout's .env), so it can't act on, or publish the ports of, another
+# checkout's stack.
+compose() {
+    local unset_vars="-u COMPOSE_PROJECT_NAME -u COMPOSE_FILE" var _
+    while read -r var _; do unset_vars="$unset_vars -u $var"; done <<EOF
+$(port_defaults)
+EOF
+    # shellcheck disable=SC2086 # $unset_vars is a list of flags
+    (cd "$root" && env $unset_vars docker compose -p "$(project_name "$root")" "$@")
+}
+
+# Ports that are taken: every other worktree's (from its .env, else the defaults, which the main checkout uses), and
+# every port a Docker container publishes, running or not.
+taken_ports() {
+    local path var default value ids
+    git worktree list --porcelain | sed -n 's/^worktree //p' | while IFS= read -r path; do
+        [ "$path" != "$root" ] || continue
+        while read -r var default; do
+            value=$(env_read "$path/.env" "$var")
+            echo "${value:-$default}"
+        done <<EOF
+$(port_defaults)
+EOF
+    done
+    if docker_running; then
+        ids=$(docker ps -aq)
+        # shellcheck disable=SC2086 # one argument per container ID
+        [ -z "$ids" ] || docker inspect --format \
+            '{{range $port, $bindings := .HostConfig.PortBindings}}{{range $bindings}}{{.HostPort}} {{end}}{{end}}' $ids
+    fi
+}
+
+is_listening() { (exec 3<>"/dev/tcp/127.0.0.1/$1") 2>/dev/null; }
+
+# "VAR PORT" for each host port: the first port above its default that isn't taken.
+allocate_ports() {
+    local taken var default port
+    taken=" $(taken_ports | tr -s ' \n' '  ') "
+    while read -r var default; do
+        port=$((default + 1))
+        while case "$taken" in *" $port "*) true ;; *) is_listening "$port" ;; esac; do
+            port=$((port + 1))
+        done
+        taken="$taken$port "
+        echo "$var $port"
+    done <<EOF
+$(port_defaults)
+EOF
+}
+
+# The branch name as a Compose project suffix: "feature/Auth" -> "feature-auth".
+branch_slug() {
+    local branch
+    branch=$(git symbolic-ref --short -q HEAD || basename "$root")
+    echo "$branch" | tr '[:upper:]' '[:lower:]' | tr -cs 'a-z0-9' '-' | sed -e 's/^-*//' -e 's/-*$//'
+}
+
+# This worktree's .env: the main checkout's, with its own Compose project, ports, and the settings built from them.
+write_env() {
+    local project="$1" ports="$2" source="$primary/.env" web silo media keys var port
+    web=$(echo "$ports" | awk '$1 == "HOST_PORT_WEB" { print $2 }')
+    silo=$(echo "$ports" | awk '$1 == "HOST_PORT_SILO" { print $2 }')
+    keys="COMPOSE_PROJECT_NAME|HOST_PORT_[A-Z0-9_]+|SITE_DOMAIN|SESSION_COOKIE_NAME"
+    # Point media URLs at this worktree's Silo, unless the main checkout uses a real S3 endpoint.
+    media=$(env_read "$source" MEDIA_S3_URL_ENDPOINT_URL)
+    case "$media" in '' | http://localhost:* | http://127.0.0.1:*) keys="$keys|MEDIA_S3_URL_ENDPOINT_URL" ;; *) silo='' ;; esac
+    {
+        grep -vE "^($keys)=" "$source" || true
+        echo
+        echo "# This worktree's own Docker stack, from scripts/worktree setup."
+        echo "COMPOSE_PROJECT_NAME=$project"
+        while read -r var port; do echo "$var=$port"; done <<EOF
+$ports
+EOF
+        echo "SITE_DOMAIN=localhost:$web"
+        if [ -n "$silo" ]; then echo "MEDIA_S3_URL_ENDPOINT_URL=http://localhost:$silo"; fi
+        echo "SESSION_COOKIE_NAME=sessionid_$web"
+    } >"$root/.env"
+}
+
+# Copy the main checkout's Postgres and Silo volumes into this worktree's. If they're running, the main checkout's
+# db and silo stop during the copy, so it's consistent, and start again afterwards.
+copy_data() {
+    local source_project target_project volume service id stopped='' image failed=''
+    source_project=$(project_name "$primary")
+    target_project=$(project_name "$root")
+    docker_running || die "Docker isn't running. Start it, then run scripts/worktree copy-data."
+    for volume in postgres_data silo_data; do
+        if docker volume inspect "${target_project}_$volume" >/dev/null 2>&1; then
+            die "${target_project}_$volume already exists. Run scripts/worktree teardown first to replace it."
+        fi
+    done
+
+    # Let Compose create the volumes, so they carry its labels and teardown can find them.
+    compose create db silo
+    image=$(docker inspect --format '{{.Config.Image}}' "$(compose ps -aq db)")
+
+    for service in db silo; do
+        id=$(docker ps -q --filter "label=com.docker.compose.project=$source_project" \
+            --filter "label=com.docker.compose.service=$service")
+        stopped="$stopped $id"
+    done
+    stopped=$(echo "$stopped" | xargs)
+    if [ -n "$stopped" ]; then
+        info "Stopping db and silo in the main checkout during the copy"
+        # shellcheck disable=SC2086 # one argument per container ID
+        docker stop $stopped >/dev/null
+    fi
+    for volume in postgres_data silo_data; do
+        if docker volume inspect "${source_project}_$volume" >/dev/null 2>&1; then
+            info "Copying ${source_project}_$volume to ${target_project}_$volume"
+            docker run --rm --entrypoint sh -v "${source_project}_$volume:/from:ro" \
+                -v "${target_project}_$volume:/to" "$image" -c 'cp -a /from/. /to/' || failed=1
+        else
+            warn "The main checkout has no ${source_project}_$volume volume, so this worktree's starts empty."
+        fi
+    done
+    if [ -n "$stopped" ]; then
+        # shellcheck disable=SC2086 # one argument per container ID
+        docker start $stopped >/dev/null
+    fi
+    [ -z "$failed" ] || die "Copying the volumes failed. Run scripts/worktree teardown, then scripts/worktree copy-data."
+}
+
+urls() {
+    local env="$root/.env" var default value
+    while read -r var default; do
+        value=$(env_read "$env" "$var")
+        printf -v "$var" '%s' "${value:-$default}"
+    done <<EOF
+$(port_defaults)
+EOF
+    cat <<EOF
+App:            http://localhost:${HOST_PORT_WEB:-}/
+Vite:           http://localhost:${HOST_PORT_VITE:-}/
+Mailpit:        http://localhost:${HOST_PORT_MAILPIT:-}/
+Silo console:   http://localhost:${HOST_PORT_SILO_CONSOLE:-}/
+Postgres:       localhost:${HOST_PORT_DB:-}
+debugpy:        localhost:${HOST_PORT_DEBUGPY:-}
+Compose project: $(project_name "$root")
+EOF
+}
+
+setup() {
+    require_worktree
+    [ -f "$primary/.env" ] || die "The main checkout has no .env to copy. Run just create_env there first."
+    [ ! -e "$root/.env" ] || die "$root/.env already exists. Run scripts/worktree teardown and delete it to start over."
+    if [ -z "$(port_defaults)" ]; then
+        warn "This branch's compose.yml publishes fixed ports, so its worktree can't run a stack of its own." \
+            "Rebase it onto main, then run scripts/worktree setup."
+        return 0
+    fi
+
+    write_env "$(project_name "$primary")-$(branch_slug)" "$(allocate_ports)"
+    info "Wrote .env for this worktree's own stack"
+    # WhiteNoise warns when STATIC_ROOT is missing, and pytest makes warnings errors. `just build` fills it in the main
+    # checkout; with DEBUG on, Vite serves the assets, so an empty one will do here.
+    mkdir -p "$root/collected_static"
+    if docker_running; then
+        copy_data
+    else
+        warn "Docker isn't running, so the database and media weren't copied. Start it, then run scripts/worktree copy-data."
+    fi
+    urls
+    info "Run just start here to start this worktree's stack."
+}
+
+teardown() {
+    require_worktree
+    local project kind ids
+    if [ -n "$(env_read "$root/.env" COMPOSE_PROJECT_NAME)" ]; then
+        project=$(project_name "$root")
+    else
+        # Not set up by this script, e.g. a worktree made before it existed. Compose named the project after the
+        # directory, which other directories can share, so only remove it if its containers came from this one.
+        project=$(dir_project_name "$root")
+        if ! docker_running || [ -z "$(docker ps -aq --filter "label=com.docker.compose.project=$project" \
+            --filter "label=com.docker.compose.project.working_dir=$root")" ]; then
+            info "No Docker stack to remove for this worktree"
+            return 0
+        fi
+    fi
+    [ "$project" != "$(project_name "$primary")" ] || die "Refusing to remove $project: it's the main checkout's stack."
+    if ! command -v docker >/dev/null 2>&1; then
+        info "Docker isn't installed, so there's no stack to remove"
+        return 0
+    fi
+    docker info >/dev/null 2>&1 || die "Docker isn't running, so the $project containers and volumes can't be" \
+        "removed. Start it and try again, or run wt remove --no-hooks to leave them."
+
+    info "Removing the $project containers, volumes, and network"
+    for kind in container volume network; do
+        case "$kind" in
+            container) ids=$(docker ps -aq --filter "label=com.docker.compose.project=$project") ;;
+            *) ids=$(docker "$kind" ls -q --filter "label=com.docker.compose.project=$project") ;;
+        esac
+        # shellcheck disable=SC2086 # one argument per ID
+        if [ -n "$ids" ]; then docker "$kind" rm --force $ids >/dev/null; fi
+    done
+}
+
+case "${1:-}" in
+    setup) setup ;;
+    copy-data)
+        require_worktree
+        copy_data
+        ;;
+    teardown) teardown ;;
+    urls) urls ;;
+    -h | --help | help) usage ;;
+    *)
+        usage >&2
+        exit 1
+        ;;
+esac

@@ -10,7 +10,9 @@ export default defineConfig({
   server: {
     host: '0.0.0.0',
     port: 3000,
-    origin: 'http://localhost:3000',
+    // The port the browser reaches this server on. compose.yml publishes container port 3000 on HOST_PORT_VITE, which
+    // differs per git worktree (scripts/worktree).
+    origin: `http://localhost:${process.env.HOST_PORT_VITE || 3000}`,
     open: false,
     watch: {
       usePolling: true,
