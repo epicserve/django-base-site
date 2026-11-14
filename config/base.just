@@ -54,9 +54,12 @@ _require_native_tools:
 # Build Docker images
 @build:
     just _start_msg "Building docker project"
-    docker volume rm {{ project_slug }}_node_modules || true
+    # Remove the frontend container, running or not, so the node_modules volume can go; the new image refills it
+    docker compose rm --stop --force frontend
+    docker volume rm --force {{ project_slug }}_node_modules
     docker compose build
-    just collectstatic
+    # A one-off container from the new image: `exec web` would need web running, and would use the old image
+    PYTHON_CMD_PREFIX="docker compose run --rm --no-deps -T web" just collectstatic
 
 # Build frontend assets
 @build_frontend:

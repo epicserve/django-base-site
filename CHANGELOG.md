@@ -1,6 +1,13 @@
 # CHANGELOG
 
 
+## 2026-11-14
+
+### Fixed
+
+* `just build` works whether the stack is up or down, and collects static files from the image it just built. It ran `collectstatic` with `docker compose exec web`, which fails when `web` isn't running, and otherwise runs in the container started from the previous image, so the static files came from the old package versions. It now runs it in a one-off container from the new image. It also removes the `frontend` container first, so the `node_modules` volume can always be deleted and refilled from the new image. Before, a `frontend` container, even a stopped one, kept the volume in use, and `|| true` hid that, leaving the old packages in place.
+
+
 ## 2026-10-31
 
 ### Added
