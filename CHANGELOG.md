@@ -6,6 +6,8 @@
 ### Fixed
 
 * `just build` works whether the stack is up or down, and collects static files from the image it just built. It ran `collectstatic` with `docker compose exec web`, which fails when `web` isn't running, and otherwise runs in the container started from the previous image, so the static files came from the old package versions. It now runs it in a one-off container from the new image. It also removes the `frontend` container first, so the `node_modules` volume can always be deleted and refilled from the new image. Before, a `frontend` container, even a stopped one, kept the volume in use, and `|| true` hid that, leaving the old packages in place.
+* `just upgrade_all_packages` stops only this project's containers, with `docker compose down`. It used to stop and delete every container on the machine, other projects' included.
+* `just upgrade_python_packages` upgrades again. It runs `uv lock --upgrade`, or `--upgrade-package` for each package named, in a one-off web container with a writable uv cache, so the stack doesn't need to be up, and the next `just build` installs the new versions. It ran `uv sync` with `docker compose exec web`, which hasn't worked since the containers began running as your user (uv couldn't create its cache or write to the root-owned `/opt/venv`). Even before that, `uv sync` only installs what `uv.lock` already pins, so it upgraded nothing, and packages named on the command line were upgraded with `uv pip install --upgrade` and then rolled back by the `uv sync` after it.
 
 
 ## 2026-10-31

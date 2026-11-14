@@ -42,10 +42,9 @@ create_superuser:
 
 # Upgrade both Python and Node
 @upgrade_all_packages:
-    # kill all running containers
-    docker stop $(docker ps -a -q) || true
-    # remove all stopped containers
-    docker rm $(docker ps -a -q) || true
+    # Stop and remove this project's containers (not every container on the machine), so pre_commit starts fresh
+    # ones from the rebuilt images
+    docker compose down
     just upgrade_python_packages
     just upgrade_node_packages
     just build

@@ -250,17 +250,18 @@ pre_commit: format lint test test_e2e
     just _start_msg "Upgrading frontend requirements"
     {{ bun_cmd_prefix }} bun update
 
-# Upgrade python requirements
+# Upgrade Python packages in uv.lock: all of them, or only the ones named (the next `just build` installs them)
 upgrade_python_packages +packages="":
     #!/usr/bin/env bash
-    export VIRTUAL_ENV=/opt/venv
+    set -euo pipefail
     if [ -z "{{ packages }}" ]; then
-        echo "Upgrading all requirements from pyproject.toml...";
-        {{ python_cmd_prefix }} $VIRTUAL_ENV/bin/uv sync --all-packages --all-extras;
+        echo "Upgrading all Python packages in uv.lock..."
+        upgrade=(--upgrade)
     else
-        echo "Upgrading specified packages: {{ packages }}";
-        # First install the package with --upgrade
-        {{ python_cmd_prefix }} $VIRTUAL_ENV/bin/uv pip install --upgrade {{ packages }};
-        # Then sync to ensure dependencies are consistent
-        {{ python_cmd_prefix }} $VIRTUAL_ENV/bin/uv sync --all-extras;
+        echo "Upgrading in uv.lock: {{ packages }}"
+        upgrade=()
+        for package in {{ packages }}; do upgrade+=(--upgrade-package "$package"); done
     fi
+    # A one-off web container, so this works whether or not the stack is up. It runs as your user with HOME=/ and a
+    # root-owned /opt/venv, so uv gets a writable cache and only updates uv.lock; `just build` rebuilds the venv.
+    docker compose run --rm --no-deps -T -e UV_CACHE_DIR=/tmp/uv-cache web /opt/venv/bin/uv lock "${upgrade[@]}"
