@@ -3,6 +3,14 @@
 
 ## 2026-11-14
 
+### Added
+
+* Each git worktree can run its own Docker stack beside the main checkout's. [Worktrunk](https://worktrunk.dev) hooks in `.config/wt.toml` run the new `scripts/worktree`. `wt switch --create <branch>` copies the main checkout's `.env` into the new worktree with its own `COMPOSE_PROJECT_NAME` and the first free port above each default (8001, 3001, 5433, and so on), plus a `SITE_DOMAIN`, `MEDIA_S3_URL_ENDPOINT_URL`, and session cookie name to match. A port counts as taken when another worktree's `.env` uses it, a Docker container publishes it, or something listens on it. It then copies the main checkout's Postgres and Silo volumes, so the worktree starts with the same logins, organizations, and uploads. `wt remove` (and `wt merge`) deletes the worktree's containers, volumes, and network before the worktree itself. `scripts/worktree copy-data` refreshes a worktree's data from the main checkout, and `scripts/worktree urls` lists its ports. Worktrunk puts worktrees beside the main checkout (`../<repo>.<branch>`), so editors, searches, and the Docker build context in the main checkout never see them. A worktree of a branch made before this change is skipped until the branch is rebased onto `main`.
+
+### Changed
+
+* `compose.yml` services no longer set `container_name`, so Compose names the containers (`django-base-site-web-1` rather than `web`); use `docker compose exec web ...` rather than `docker exec web ...`. Every port published on the host is now a `HOST_PORT_*` variable that defaults to the old port (`HOST_PORT_WEB`, `_VITE`, `_DB`, `_SILO`, `_SILO_CONSOLE`, `_MAILPIT`, `_MAILPIT_SMTP`, `_DEBUGPY`), so the main checkout's stack runs exactly as before. The Vite dev server's origin and Django's `VITE_SERVER_PORT` follow `HOST_PORT_VITE`, and `.env` can set `SESSION_COOKIE_NAME`. The test settings pin both, so tests don't depend on a worktree's ports.
+
 ### Fixed
 
 * `just build` works whether the stack is up or down, and collects static files from the image it just built. It ran `collectstatic` with `docker compose exec web`, which fails when `web` isn't running, and otherwise runs in the container started from the previous image, so the static files came from the old package versions. It now runs it in a one-off container from the new image. It also removes the `frontend` container first, so the `node_modules` volume can always be deleted and refilled from the new image. Before, a `frontend` container, even a stopped one, kept the volume in use, and `|| true` hid that, leaving the old packages in place.

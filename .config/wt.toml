@@ -1,0 +1,22 @@
+# Worktrunk (https://worktrunk.dev) project hooks: each worktree runs its own Docker stack.
+#
+#   wt switch --create my-branch   new worktree with its own .env, ports, database, and media (scripts/worktree setup)
+#   wt remove my-branch            removes the worktree's containers, volumes, and network first (scripts/worktree teardown)
+#
+# The hooks run the main checkout's scripts/worktree, so they also clean up worktrees of branches made before it
+# existed, and fall back to the worktree's own copy when the main checkout doesn't have one. Worktrunk asks you to
+# approve these commands the first time they run, and again whenever they change.
+#
+# Where worktrees go is user config, not project config. Worktrunk's default, a sibling directory such as
+# ../<repo>.my-branch, keeps them out of the main checkout.
+
+[pre-start]
+setup = 's={{ primary_worktree_path }}/scripts/worktree; [ -x "$s" ] || s=scripts/worktree; "$s" setup'
+
+# Host-side dependencies for linting, type checking, and your editor. The Docker images have their own.
+[post-start]
+bun = "bun install --frozen-lockfile"
+uv = "uv sync --frozen"
+
+[pre-remove]
+teardown = 's={{ primary_worktree_path }}/scripts/worktree; [ -x "$s" ] || s=scripts/worktree; "$s" teardown'

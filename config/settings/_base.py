@@ -290,6 +290,9 @@ CELERY_BEAT_SCHEDULE = {
 }
 
 SESSION_ENGINE = "django.contrib.sessions.backends.cache"
+# Browsers share cookies across every port on localhost, so each git worktree's stack names its own session cookie
+# (scripts/worktree sets it). Otherwise signing in to one stack signs you out of the others.
+SESSION_COOKIE_NAME = env("SESSION_COOKIE_NAME", default="sessionid")
 
 SITE_ID = 1
 SITE_NAME = "Django Base Site"
@@ -511,3 +514,5 @@ MAINTENANCE_MODE_STATE_BACKEND = "maintenance_mode.backends.CacheBackend"
 MAINTENANCE_MODE_STATE_BACKEND_FALLBACK_VALUE = True
 
 VITE_DEV_MODE = env.bool("VITE_DEV_MODE", default=DEBUG)
+# The host port of the Vite dev server (the `frontend` service), which differs per git worktree (scripts/worktree).
+VITE_SERVER_PORT = env("HOST_PORT_VITE", default="3000")

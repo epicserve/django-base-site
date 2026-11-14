@@ -15,3 +15,7 @@ CACHES = {
 }
 
 SESSION_ENGINE: str = "django.contrib.sessions.backends.cached_db"
+
+# A git worktree's .env moves these to its own ports (scripts/worktree). Tests expect the defaults.
+SESSION_COOKIE_NAME = "sessionid"
+VITE_SERVER_PORT = "3000"

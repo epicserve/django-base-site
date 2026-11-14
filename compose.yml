@@ -1,15 +1,19 @@
 # Reference docs: https://docs.docker.com/compose/compose-file/compose-file-v3/
+#
+# Each git worktree can run its own copy of this stack (see scripts/worktree), so services
+# have no fixed `container_name`, and every port published on the host is a
+# `${HOST_PORT_*:-default}` variable. A worktree's .env sets its own ports and
+# COMPOSE_PROJECT_NAME. scripts/worktree reads the defaults from this file.
 
 services:
 
   db:
-    container_name: db
     image: postgres:17
     init: true
     volumes:
       - postgres_data:/var/lib/postgresql/data/
     ports:
-      - "127.0.0.1:5432:5432"
+      - "127.0.0.1:${HOST_PORT_DB:-5432}:5432"
     env_file:
       - .env
     healthcheck:
@@ -20,7 +24,6 @@ services:
       start_period: 30s
 
   redis:
-    container_name: redis
     image: redis:7.4
     init: true
     command: ["redis-server", "--appendonly", "yes"]
@@ -34,12 +37,11 @@ services:
       start_period: 10s
 
   mailpit:
-    container_name: mailpit
     image: axllent/mailpit
     init: true
     ports:
-      - "127.0.0.1:8025:8025"
-      - "127.0.0.1:1025:1025"
+      - "127.0.0.1:${HOST_PORT_MAILPIT:-8025}:8025"
+      - "127.0.0.1:${HOST_PORT_MAILPIT_SMTP:-1025}:1025"
     healthcheck:
       test: ["CMD", "wget", "--spider", "-q", "http://localhost:8025/livez"]
       interval: 10s
@@ -48,7 +50,6 @@ services:
       start_period: 10s
 
   silo:
-    container_name: silo
     # Silo is a maintained drop-in fork of the MinIO server: same `server` CLI,
     # web console, on-disk format, and S3 API. MinIO archived its community
     # edition and removed minio/minio from Docker Hub in 2026, which broke
@@ -65,8 +66,8 @@ services:
     volumes:
       - silo_data:/data
     ports:
-      - "127.0.0.1:9000:9000"
-      - "127.0.0.1:9001:9001"
+      - "127.0.0.1:${HOST_PORT_SILO:-9000}:9000"
+      - "127.0.0.1:${HOST_PORT_SILO_CONSOLE:-9001}:9001"
     healthcheck:
       # /minio/* routes are part of the S3-compatible API surface Silo preserves.
       test: ["CMD", "curl", "-f", "http://localhost:9000/minio/health/live"]
@@ -76,7 +77,6 @@ services:
       start_period: 30s
 
   web:
-    container_name: web
     image: epicserve/django-base-site:python
     init: true
     build:
@@ -106,8 +106,8 @@ services:
       - .:/srv/app:cached
 
     ports:
-      - "127.0.0.1:8000:8000"
-      - "127.0.0.1:5678:5678"  # debugpy port for VS Code/LazyVim debugging
+      - "127.0.0.1:${HOST_PORT_WEB:-8000}:8000"
+      - "127.0.0.1:${HOST_PORT_DEBUGPY:-5678}:5678"  # debugpy port for VS Code/LazyVim debugging
 
     depends_on:
       db:
@@ -126,7 +126,6 @@ services:
       USE_DEBUGPY: ${USE_DEBUGPY:-}
 
   worker:
-    container_name: worker
     image: epicserve/django-base-site:python
     init: true
 
@@ -148,7 +147,6 @@ services:
       DJANGO_SETTINGS_MODULE: config.settings
 
   frontend:
-    container_name: frontend
     image: epicserve/django-base-site:bun
     build:
       context: .
@@ -165,7 +163,11 @@ services:
       - node_modules:/srv/app/node_modules
 
     ports:
-      - "127.0.0.1:3000:3000"
+      - "127.0.0.1:${HOST_PORT_VITE:-3000}:3000"
+
+    environment:
+      # frontend/config/vite.config.mjs builds the browser-facing origin from it.
+      HOST_PORT_VITE: ${HOST_PORT_VITE:-3000}
 
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:3000"]
