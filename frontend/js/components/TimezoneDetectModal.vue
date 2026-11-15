@@ -1,11 +1,12 @@
-<script setup>
-import { ref, onMounted, onUnmounted, inject } from 'vue';
+<script setup lang="ts">
+import { ref, onMounted, onUnmounted } from 'vue';
 import { useRoute } from 'vue-router';
-import { patch } from '@/utils/api';
+import { useAppStore } from '@/stores/app';
+import { api, unwrap } from '@/utils/api';
 
 const AUTH_FLOW_ROUTES = new Set(['two-factor', 'account-reauthenticate']);
 
-const appStore = inject('appStore');
+const appStore = useAppStore();
 const route = useRoute();
 const visible = ref(false);
 const browserTz = ref('');
@@ -13,20 +14,27 @@ const browserTzDisplay = ref('');
 const userTzDisplay = ref('');
 
 function dismiss() {
+  if (!appStore.user) return;
   const dismissKey = `tz-dismissed-${appStore.user.timezone}-${browserTz.value}`;
   sessionStorage.setItem(dismissKey, '1');
   visible.value = false;
 }
 
 async function updateTimezone() {
-  await patch(`/api/users/${appStore.user.id}/`, { timezone: browserTz.value });
+  if (!appStore.user) return;
+  await unwrap(
+    api.PATCH('/api/users/{user_id}/', {
+      params: { path: { user_id: appStore.user.id } },
+      body: { timezone: browserTz.value },
+    }),
+  );
   appStore.user.timezone = browserTz.value;
   appStore.user.timezone_display = browserTzDisplay.value;
   visible.value = false;
 }
 
-let onVisibilityChange = null;
-let cancelDetection = null;
+let onVisibilityChange: (() => void) | null = null;
+let cancelDetection: (() => void) | null = null;
 
 onMounted(() => {
   if (!appStore.user) return;
@@ -34,8 +42,9 @@ onMounted(() => {
 
   const runDetection = () => {
     // Runs later (idle callback, tab refocus), by which time logging out may have cleared the user.
-    if (!appStore.user || route.meta.guest || AUTH_FLOW_ROUTES.has(route.name)) return;
-    let detected;
+    if (!appStore.user || route.meta.guest || (typeof route.name === 'string' && AUTH_FLOW_ROUTES.has(route.name)))
+      return;
+    let detected: string;
     try {
       detected = Intl.DateTimeFormat().resolvedOptions().timeZone;
     } catch {

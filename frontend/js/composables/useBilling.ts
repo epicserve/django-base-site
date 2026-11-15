@@ -1,18 +1,25 @@
 import { ref } from 'vue';
-import { get, post } from '@/utils/api';
+import type { components } from '@/api/schema';
+import { api, unwrap } from '@/utils/api';
 
-const subscription = ref(null),
-  plans = ref([]),
-  features = ref([]),
+type Schemas = components['schemas'];
+export type Subscription = Schemas['SubscriptionOut'];
+export type Plan = Schemas['PlanOut'];
+export type Feature = Schemas['FeatureOut'];
+export type BillingCycle = Schemas['CheckoutIn']['billing_cycle'];
+
+const subscription = ref<Subscription | null>(null),
+  plans = ref<Plan[]>([]),
+  features = ref<Feature[]>([]),
   subscriptionLoading = ref(false),
   plansLoading = ref(false);
 
-let pollHandle = null;
+let pollHandle: ReturnType<typeof setTimeout> | null = null;
 
 async function fetchSubscription() {
   subscriptionLoading.value = true;
   try {
-    subscription.value = await get('/api/billing/subscription/');
+    subscription.value = await unwrap(api.GET('/api/billing/subscription/'));
   } finally {
     subscriptionLoading.value = false;
   }
@@ -21,7 +28,10 @@ async function fetchSubscription() {
 async function fetchPlans() {
   plansLoading.value = true;
   try {
-    const [planList, featureList] = await Promise.all([get('/api/billing/plans/'), get('/api/billing/features/')]);
+    const [planList, featureList] = await Promise.all([
+      unwrap(api.GET('/api/billing/plans/')),
+      unwrap(api.GET('/api/billing/features/')),
+    ]);
     plans.value = planList;
     features.value = featureList;
   } finally {
@@ -29,22 +39,21 @@ async function fetchPlans() {
   }
 }
 
-async function subscribe(planKey, billingCycle) {
+async function subscribe(planKey: string, billingCycle: BillingCycle) {
   // Full-page redirect — Stripe-recommended for hosted Checkout. New tabs / popups
   // are blocked by Safari and confuse password managers.
-  const { checkout_url } = await post('/api/billing/checkout/', {
-    plan_key: planKey,
-    billing_cycle: billingCycle,
-  });
+  const { checkout_url } = await unwrap(
+    api.POST('/api/billing/checkout/', { body: { plan_key: planKey, billing_cycle: billingCycle } }),
+  );
   window.location.href = checkout_url;
 }
 
 async function manageBilling() {
-  const { portal_url } = await post('/api/billing/portal/');
+  const { portal_url } = await unwrap(api.POST('/api/billing/portal/'));
   window.location.href = portal_url;
 }
 
-async function pollUntilActive({ timeoutMs = 30000, intervalMs = 2000 } = {}) {
+async function pollUntilActive({ timeoutMs = 30000, intervalMs = 2000 } = {}): Promise<boolean> {
   const start = Date.now();
   return new Promise((resolve) => {
     const tick = async () => {
@@ -53,10 +62,10 @@ async function pollUntilActive({ timeoutMs = 30000, intervalMs = 2000 } = {}) {
       } catch {
         // keep trying
       }
-      const s = subscription.value,
-        ready = s && s.status && ['trialing', 'active'].includes(s.status);
+      const status = subscription.value?.status,
+        ready = !!status && ['trialing', 'active'].includes(status);
       if (ready || Date.now() - start > timeoutMs) {
-        resolve(!!ready);
+        resolve(ready);
         return;
       }
       pollHandle = setTimeout(tick, intervalMs);

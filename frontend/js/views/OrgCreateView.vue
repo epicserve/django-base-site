@@ -1,16 +1,17 @@
-<script setup>
-import { ref, inject, watch } from 'vue';
+<script setup lang="ts">
+import { ref, watch } from 'vue';
 import { useRouter } from 'vue-router';
-import { post, parseErrors } from '@/utils/api';
+import { useAppStore } from '@/stores/app';
+import { api, parseErrors, unwrap } from '@/utils/api';
 import { showToast } from '@/composables/useToast';
 
-const appStore = inject('appStore');
+const appStore = useAppStore();
 const router = useRouter();
 
 const name = ref('');
 const slug = ref('');
 const slugManuallyEdited = ref(false);
-const errors = ref({});
+const errors = ref<Record<string, string[]>>({});
 const submitting = ref(false);
 
 watch(name, (val) => {
@@ -27,7 +28,7 @@ async function submit() {
   submitting.value = true;
   errors.value = {};
   try {
-    const org = await post('/api/organizations/', { name: name.value, slug: slug.value });
+    const org = await unwrap(api.POST('/api/organizations/', { body: { name: name.value, slug: slug.value } }));
     await appStore.fetchContext();
     showToast(`${org.name} created successfully.`);
     router.push({ name: 'org-settings-general', params: { slug: org.slug } });

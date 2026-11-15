@@ -2704,7 +2704,7 @@ export interface components {
         };
         /** @description The session is expired or invalid. */
         SessionGoneResponse: {
-            data: Record<string, never>;
+            data: Record<string, unknown>;
             meta: components["schemas"]["AuthenticationMeta"];
             /** @enum {integer} */
             status: 410;
@@ -2806,7 +2806,7 @@ export interface components {
          *       }
          *     }
          */
-        WebAuthnCredential: Record<string, never>;
+        WebAuthnCredential: Record<string, unknown>;
         WebAuthnCredentialCreationOptions: {
             /**
              * @example {
@@ -2823,7 +2823,7 @@ export interface components {
              *       "status": 200
              *     }
              */
-            creation_options: Record<string, never>;
+            creation_options: Record<string, unknown>;
         };
         WebAuthnCredentialRequestOptions: {
             /**
@@ -2841,7 +2841,7 @@ export interface components {
              *       "status": 200
              *     }
              */
-            request_options: Record<string, never>;
+            request_options: Record<string, unknown>;
         };
     };
     responses: {

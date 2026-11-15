@@ -1,15 +1,16 @@
-<script setup>
+<script setup lang="ts">
 import { ref } from 'vue';
 import AccountLayout from '@/layouts/AccountLayout.vue';
 import FormField from '../components/FormField.vue';
 import FormErrors from '../components/FormErrors.vue';
 import { authApi, parseAllauthErrors } from '../api';
+import { ApiError } from '../../utils/api';
 import { showToast } from '../../composables/useToast';
 
 const oldPassword = ref('');
 const newPassword1 = ref('');
 const newPassword2 = ref('');
-const errors = ref({});
+const errors = ref<Record<string, string[]>>({});
 const loading = ref(false);
 
 async function onSubmit() {
@@ -25,7 +26,7 @@ async function onSubmit() {
     newPassword1.value = '';
     newPassword2.value = '';
   } catch (err) {
-    if (err.data) {
+    if (err instanceof ApiError && err.data) {
       errors.value = parseAllauthErrors(err.data);
     } else {
       errors.value = { non_field_errors: ['An unexpected error occurred.'] };

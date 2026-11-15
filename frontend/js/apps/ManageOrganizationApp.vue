@@ -1,7 +1,8 @@
-<script setup>
+<script setup lang="ts">
 import { ref, onMounted } from 'vue';
 import { ArrowPathIcon, UserMinusIcon, EnvelopeIcon, XMarkIcon } from '@heroicons/vue/24/outline';
-import { get, getAllResults, post, patch, del, parseErrors } from '../utils/api';
+import type { components } from '../api/schema';
+import { api, getAllResults, parseErrors, unwrap } from '../utils/api';
 import { showToast } from '../composables/useToast';
 import { userFullName } from '../utils/format';
 import AppModal from '../components/AppModal.vue';
@@ -9,47 +10,47 @@ import ConfirmModal from '../components/ConfirmModal.vue';
 import UserAvatar from '../components/UserAvatar.vue';
 import UserBadge from '../components/UserBadge.vue';
 
-const props = defineProps({
-  orgName: { type: String, required: true },
-  organizationMemberListUrl: { type: String, required: true },
-  organizationInviteListUrl: { type: String, required: true },
-  currentUserId: { type: Number, required: true },
-});
+type Member = components['schemas']['MemberOut'];
+type Invite = components['schemas']['InviteOut'];
+type SearchResult = components['schemas']['MemberSearchOut'];
 
-const members = ref([]);
-const invites = ref([]);
+const props = defineProps<{ orgName: string; currentUserId: number }>();
+
+const members = ref<Member[]>([]);
+const invites = ref<Invite[]>([]);
 const searchQuery = ref('');
-const searchResults = ref([]);
+const searchResults = ref<SearchResult[]>([]);
 const inviteEmailModalOpen = ref(false);
 const inviteEmail = ref('');
 const inviteEmailError = ref('');
-const confirmRef = ref(null);
-let searchTimeout = null;
+const confirmRef = ref<InstanceType<typeof ConfirmModal> | null>(null);
+let searchTimeout: ReturnType<typeof setTimeout> | undefined;
 
 async function loadData() {
   try {
     // Both lists are paginated; load every page so nothing past the first is silently dropped.
     [members.value, invites.value] = await Promise.all([
-      getAllResults(props.organizationMemberListUrl),
-      getAllResults(props.organizationInviteListUrl),
+      getAllResults((page) => unwrap(api.GET('/api/organization-members/', { params: { query: { page } } }))),
+      getAllResults((page) => unwrap(api.GET('/api/organization-invites/', { params: { query: { page } } }))),
     ]);
   } catch {
     showToast('Failed to load data.', 'error');
   }
 }
 
-async function searchUsers(query) {
+async function searchUsers(query: string) {
   try {
-    const data = await get(`${props.organizationMemberListUrl}search/`, { q: query });
-    searchResults.value = data || [];
+    searchResults.value = await unwrap(
+      api.GET('/api/organization-members/search/', { params: { query: { q: query } } }),
+    );
   } catch {
     showToast('Search failed.', 'error');
   }
 }
 
-function onSearchInput(e) {
+function onSearchInput(e: Event) {
   clearTimeout(searchTimeout);
-  const query = e.target.value.trim();
+  const query = (e.target as HTMLInputElement).value.trim();
   if (query.length < 3) {
     searchResults.value = [];
     return;
@@ -57,9 +58,9 @@ function onSearchInput(e) {
   searchTimeout = setTimeout(() => searchUsers(query), 300);
 }
 
-async function inviteUser(userId) {
+async function inviteUser(userId: number) {
   try {
-    await post(props.organizationInviteListUrl, { invitee: userId });
+    await unwrap(api.POST('/api/organization-invites/', { body: { invitee: userId } }));
     showToast('Invitation sent.');
     searchQuery.value = '';
     searchResults.value = [];
@@ -83,7 +84,7 @@ async function sendEmailInvite() {
     return;
   }
   try {
-    await post(props.organizationInviteListUrl, { invitee_email: email });
+    await unwrap(api.POST('/api/organization-invites/', { body: { invitee_email: email } }));
     inviteEmailModalOpen.value = false;
     showToast('Invitation sent.');
     await loadData();
@@ -93,17 +94,21 @@ async function sendEmailInvite() {
   }
 }
 
-async function changeRole(member) {
-  const user = member.user || member;
+async function changeRole(member: Member) {
   const currentRole = member.is_owner ? 'owner' : 'member';
   const newRole = member.is_owner ? 'member' : 'owner';
-  const confirmed = await confirmRef.value.confirm(
-    `Change ${userFullName(user)}'s role from ${currentRole} to ${newRole}?`,
+  const confirmed = await confirmRef.value?.confirm(
+    `Change ${userFullName(member.user)}'s role from ${currentRole} to ${newRole}?`,
     'Change Role',
   );
   if (!confirmed) return;
   try {
-    await patch(`${props.organizationMemberListUrl}${member.pk}/`, { is_owner: !member.is_owner });
+    await unwrap(
+      api.PATCH('/api/organization-members/{member_id}/', {
+        params: { path: { member_id: member.pk } },
+        body: { is_owner: !member.is_owner },
+      }),
+    );
     showToast('Role updated.');
     await loadData();
   } catch {
@@ -111,15 +116,14 @@ async function changeRole(member) {
   }
 }
 
-async function removeMember(member) {
-  const user = member.user || member;
-  const confirmed = await confirmRef.value.confirm(
-    `Remove ${userFullName(user)} from ${props.orgName}?`,
+async function removeMember(member: Member) {
+  const confirmed = await confirmRef.value?.confirm(
+    `Remove ${userFullName(member.user)} from ${props.orgName}?`,
     'Remove Member',
   );
   if (!confirmed) return;
   try {
-    await del(`${props.organizationMemberListUrl}${member.pk}/`);
+    await unwrap(api.DELETE('/api/organization-members/{member_id}/', { params: { path: { member_id: member.pk } } }));
     showToast('Member removed.');
     await loadData();
   } catch {
@@ -127,11 +131,11 @@ async function removeMember(member) {
   }
 }
 
-async function cancelInvite(invite) {
-  const confirmed = await confirmRef.value.confirm('Cancel this invitation?', 'Cancel Invite');
+async function cancelInvite(invite: Invite) {
+  const confirmed = await confirmRef.value?.confirm('Cancel this invitation?', 'Cancel Invite');
   if (!confirmed) return;
   try {
-    await del(`${props.organizationInviteListUrl}${invite.pk}/`);
+    await unwrap(api.DELETE('/api/organization-invites/{invite_id}/', { params: { path: { invite_id: invite.pk } } }));
     showToast('Invitation cancelled.');
     await loadData();
   } catch {
@@ -158,10 +162,10 @@ onMounted(loadData);
         <tbody>
           <tr v-for="member in members" :key="member.pk" class="border-b border-gray-100 dark:border-gray-700">
             <td class="py-2 text-gray-900 dark:text-white">
-              <UserBadge :user="member.user || member" fallback="icon" />
+              <UserBadge :user="member.user" fallback="icon" />
             </td>
             <td class="py-2 text-gray-700 dark:text-gray-300">
-              {{ (member.user || member).email || (member.user || member).username || '' }}
+              {{ member.user.email || member.user.username }}
             </td>
             <td class="py-2">
               <span
@@ -177,7 +181,7 @@ onMounted(loadData);
             </td>
             <td class="py-2 text-right">
               <button
-                :disabled="(member.user || member).id === currentUserId"
+                :disabled="member.user.id === currentUserId"
                 class="cursor-pointer inline-flex items-center gap-1 rounded p-1.5 text-sm text-gray-500 hover:bg-gray-100 hover:text-gray-700 disabled:opacity-50 disabled:cursor-not-allowed dark:hover:bg-gray-700 dark:hover:text-gray-300"
                 title="Change Role"
                 @click="changeRole(member)"
@@ -186,7 +190,7 @@ onMounted(loadData);
                 Change Role
               </button>
               <button
-                :disabled="(member.user || member).id === currentUserId"
+                :disabled="member.user.id === currentUserId"
                 class="cursor-pointer inline-flex items-center rounded p-1.5 text-gray-500 hover:bg-red-50 hover:text-red-600 disabled:opacity-50 disabled:cursor-not-allowed dark:hover:bg-red-900/20 dark:hover:text-red-400"
                 title="Remove"
                 @click="removeMember(member)"

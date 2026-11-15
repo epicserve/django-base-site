@@ -1,10 +1,10 @@
-<script setup>
-import { inject } from 'vue';
+<script setup lang="ts">
 import { RouterLink } from 'vue-router';
 import ThemeToggle from '@/components/ThemeToggle.vue';
 import AppToast from '@/components/AppToast.vue';
+import { useAppStore } from '@/stores/app';
 
-const appStore = inject('appStore');
+const appStore = useAppStore();
 </script>
 
 <template>

@@ -1,4 +1,4 @@
-<script setup>
+<script setup lang="ts">
 import { RouterLink, useRoute } from 'vue-router';
 
 const route = useRoute();
@@ -27,7 +27,7 @@ const tabs = [
           :to="tab.to"
           :class="[
             'inline-block cursor-pointer pb-3 text-sm font-medium border-b-2',
-            tab.activeNames.includes(route.name)
+            typeof route.name === 'string' && tab.activeNames.includes(route.name)
               ? 'border-blue-500 text-blue-600 dark:text-blue-400'
               : [
                   'border-transparent text-gray-500',

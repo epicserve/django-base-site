@@ -1,9 +1,7 @@
-<script setup>
+<script setup lang="ts">
 import { computed } from 'vue';
 
-const props = defineProps({
-  status: { type: String, default: null },
-});
+const props = withDefaults(defineProps<{ status?: string | null }>(), { status: null });
 
 const BLUE = 'bg-blue-50 text-blue-700 ring-blue-600/20 dark:bg-blue-900/30 dark:text-blue-300';
 const GREEN = 'bg-green-50 text-green-700 ring-green-600/20 dark:bg-green-900/30 dark:text-green-300';
@@ -11,7 +9,7 @@ const RED = 'bg-red-50 text-red-700 ring-red-600/20 dark:bg-red-900/30 dark:text
 const GRAY = 'bg-gray-100 text-gray-700 ring-gray-500/20 dark:bg-gray-700 dark:text-gray-300';
 const AMBER = 'bg-amber-50 text-amber-700 ring-amber-600/20 dark:bg-amber-900/30 dark:text-amber-300';
 
-const STYLE = {
+const STYLE: Record<string, { label: string; class: string }> = {
   trialing: { label: 'Trial', class: BLUE },
   active: { label: 'Active', class: GREEN },
   past_due: { label: 'Past Due', class: RED },
@@ -22,7 +20,7 @@ const STYLE = {
   paused: { label: 'Paused', class: GRAY },
 };
 
-const style = computed(() => STYLE[props.status] || null);
+const style = computed(() => (props.status && STYLE[props.status]) || null);
 </script>
 
 <template>

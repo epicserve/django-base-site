@@ -1,17 +1,18 @@
-<script setup>
+<script setup lang="ts">
 import { ref } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import AuthLayout from '@/layouts/AuthLayout.vue';
 import FormField from '../components/FormField.vue';
 import FormErrors from '../components/FormErrors.vue';
 import { authApi, parseAllauthErrors } from '../api';
+import { ApiError } from '../../utils/api';
 import { safeNextUrl } from '../../utils/redirect';
 
 const route = useRoute();
 const router = useRouter();
 
 const password = ref('');
-const errors = ref({});
+const errors = ref<Record<string, string[]>>({});
 const loading = ref(false);
 
 async function onSubmit() {
@@ -21,11 +22,12 @@ async function onSubmit() {
     await authApi.reauthenticate(password.value);
     router.push(safeNextUrl(route.query.next, '/accounts/security/', { allowAccounts: true }));
   } catch (err) {
-    errors.value = err.data
-      ? parseAllauthErrors(err.data)
-      : {
-          non_field_errors: ['Could not verify password.'],
-        };
+    errors.value =
+      err instanceof ApiError && err.data
+        ? parseAllauthErrors(err.data)
+        : {
+            non_field_errors: ['Could not verify password.'],
+          };
     loading.value = false;
   }
 }

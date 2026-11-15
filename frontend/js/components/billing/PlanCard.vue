@@ -1,19 +1,39 @@
-<script setup>
-import { computed, inject, ref } from 'vue';
+<script setup lang="ts">
+import { computed, ref } from 'vue';
 import { useRouter } from 'vue-router';
 import { CheckIcon } from '@heroicons/vue/20/solid';
-import { useBilling } from '@/composables/useBilling';
+import { useBilling, type BillingCycle, type Feature, type Plan } from '@/composables/useBilling';
 import { showToast } from '@/composables/useToast';
+import { useAppStore } from '@/stores/app';
+import { parseErrors } from '@/utils/api';
 
-const props = defineProps({
-  plan: { type: Object, required: true },
-  features: { type: Array, default: () => [] },
-  billingCycle: { type: String, required: true },
-  currentPlanKey: { type: String, default: null },
-  hasSubscription: { type: Boolean, default: false },
-});
+interface CtaState {
+  label: string;
+  action: (() => Promise<unknown>) | null;
+  disabled: boolean;
+  hint: string;
+}
 
-const appStore = inject('appStore');
+interface FeatureRow {
+  key: string;
+  label: string;
+  description?: string;
+  type: string;
+  value: unknown;
+}
+
+const props = withDefaults(
+  defineProps<{
+    plan: Plan;
+    features?: Feature[];
+    billingCycle: BillingCycle;
+    currentPlanKey?: string | null;
+    hasSubscription?: boolean;
+  }>(),
+  { features: () => [], currentPlanKey: null, hasSubscription: false },
+);
+
+const appStore = useAppStore();
 const router = useRouter();
 const billing = useBilling();
 const busy = ref(false);
@@ -46,7 +66,7 @@ const annualSavingsPct = computed(() => {
   return Math.round(((yearlyAtMonthly - annual) / yearlyAtMonthly) * 100);
 });
 
-const ctaState = computed(() => {
+const ctaState = computed<CtaState>(() => {
   if (!appStore.isAuthenticated) {
     return {
       label: props.plan.is_free ? 'Get Started' : 'Sign Up',
@@ -101,15 +121,15 @@ async function onClick() {
   try {
     await ctaState.value.action();
   } catch (err) {
-    showToast(err?.data?.detail || 'Something went wrong. Please try again.', 'error');
+    showToast(parseErrors(err).detail?.[0] || 'Something went wrong. Please try again.', 'error');
   } finally {
     busy.value = false;
   }
 }
 
-const featureRows = computed(() => {
-  if (!props.features || props.features.length === 0) {
-    return Object.entries(props.plan.features || {}).map(([key, value]) => ({
+const featureRows = computed<FeatureRow[]>(() => {
+  if (props.features.length === 0) {
+    return Object.entries(props.plan.features).map(([key, value]) => ({
       key,
       label: key,
       value,
@@ -121,16 +141,16 @@ const featureRows = computed(() => {
     label: f.label || f.key,
     description: f.description,
     type: f.type,
-    value: props.plan.features?.[f.key] ?? f.default,
+    value: props.plan.features[f.key] ?? f.default,
   }));
 });
 
-function describeFeature(row) {
+function describeFeature(row: FeatureRow) {
   if (row.type === 'bool') return row.label;
   return `${row.value} ${row.label.toLowerCase()}`;
 }
 
-function showCheck(row) {
+function showCheck(row: FeatureRow) {
   if (row.type === 'bool') return Boolean(row.value);
   if (typeof row.value === 'number') return row.value > 0;
   return row.value != null;

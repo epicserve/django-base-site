@@ -1,18 +1,15 @@
-<script setup>
+<script setup lang="ts">
 import { computed } from 'vue';
 
-const props = defineProps({
-  currentPage: { type: Number, required: true },
-  totalPages: { type: Number, required: true },
-});
+const props = defineProps<{ currentPage: number; totalPages: number }>();
 
-const emit = defineEmits(['page']);
+const emit = defineEmits<{ page: [page: number] }>();
 
 const pages = computed(() => {
   const current = props.currentPage;
   const total = props.totalPages;
   const delta = 2;
-  const items = [];
+  const items: (number | '...')[] = [];
 
   items.push(1);
 

@@ -1,16 +1,22 @@
-<script setup>
+<script setup lang="ts">
 import { computed } from 'vue';
-import { userFullName } from '../utils/format';
+import { userFullName, type NamedUser } from '../utils/format';
 import UserAvatar from './UserAvatar.vue';
 
-const props = defineProps({
-  user: { type: Object, default: null },
-  size: { type: String, default: 'sm' },
-  fallback: { type: String, default: 'initials' },
-  truncate: { type: Boolean, default: false },
-});
+/** Any user-shaped API object, e.g. `OrgUserOut` or `MemberDetailOut`. */
+type BadgeUser = NamedUser & { avatar_url?: string | null };
 
-const fullName = computed(() => userFullName(props.user || {}));
+const props = withDefaults(
+  defineProps<{
+    user?: BadgeUser | null;
+    size?: 'sm' | 'md' | 'rail';
+    fallback?: 'initials' | 'icon';
+    truncate?: boolean;
+  }>(),
+  { user: null, size: 'sm', fallback: 'initials', truncate: false },
+);
+
+const fullName = computed(() => userFullName(props.user));
 const avatarUrl = computed(() => props.user?.avatar_url || '');
 </script>
 

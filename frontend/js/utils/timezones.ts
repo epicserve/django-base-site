@@ -3,7 +3,13 @@
  * Stored value is always the IANA timezone key.
  * Searchable by label, IANA key, or abbreviation.
  */
-const TIMEZONE_CHOICES = [
+export interface TimezoneChoice {
+  value: string;
+  label: string;
+  region: string;
+}
+
+const TIMEZONE_CHOICES: TimezoneChoice[] = [
   // North America
   { value: 'Pacific/Honolulu', label: 'Hawaii (HST)', region: 'North America' },
   { value: 'America/Anchorage', label: 'Alaska (AKST)', region: 'North America' },
@@ -71,7 +77,7 @@ const TIMEZONE_CHOICES = [
  * Look up the friendly label for an IANA timezone key.
  * Returns the IANA key itself if no friendly label exists.
  */
-export function getTimezoneLabel(ianaKey) {
+export function getTimezoneLabel(ianaKey: string): string {
   const entry = TIMEZONE_CHOICES.find((tz) => tz.value === ianaKey);
   return entry ? entry.label : ianaKey;
 }

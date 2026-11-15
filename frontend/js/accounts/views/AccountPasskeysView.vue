@@ -1,17 +1,21 @@
-<script setup>
+<script setup lang="ts">
 import { ref, onMounted } from 'vue';
 import { useRouter } from 'vue-router';
+import type { components } from '@/api/allauth';
 import AccountLayout from '@/layouts/AccountLayout.vue';
 import FormField from '../components/FormField.vue';
 import { authApi, parseAllauthErrors } from '../api';
+import { ApiError } from '../../utils/api';
 import { showToast } from '../../composables/useToast';
-import { createPasskeyCredential, isWebAuthnSupported } from '../../utils/webauthn';
+import { createPasskeyCredential, decodeCreationOptions, isWebAuthnSupported } from '../../utils/webauthn';
+
+type Passkey = components['schemas']['WebAuthnAuthenticator'];
 
 const router = useRouter();
-const passkeys = ref([]);
+const passkeys = ref<Passkey[]>([]);
 const newName = ref('');
 const passwordless = ref(true);
-const errors = ref({});
+const errors = ref<Record<string, string[]>>({});
 const loading = ref(true);
 const supported = ref(true);
 
@@ -20,9 +24,9 @@ async function load() {
   try {
     const data = await authApi.listAuthenticators();
 
-    passkeys.value = (data.data || []).filter((a) => a.type === 'webauthn');
+    passkeys.value = data.data.filter((a): a is Passkey => a.type === 'webauthn');
   } catch (err) {
-    if (err.response?.status === 401) {
+    if (err instanceof ApiError && err.response.status === 401) {
       router.push({ name: 'account-reauthenticate', query: { next: '/accounts/security/passkeys/' } });
     }
   } finally {
@@ -35,8 +39,8 @@ async function add() {
   loading.value = true;
   try {
     const optsResp = await authApi.beginAddPasskey(passwordless.value);
-    const options = optsResp.data?.creation_options || optsResp.data;
-    const rpId = options?.publicKey?.rp?.id || options?.rp?.id;
+    const options = optsResp.data.creation_options;
+    const rpId = decodeCreationOptions(options).rp.id;
     // oxlint-disable-next-line no-console
     console.info('[passkey enroll] page origin:', window.location.origin, '/ rp.id:', rpId);
     const credential = await createPasskeyCredential(options);
@@ -46,25 +50,26 @@ async function add() {
     newName.value = '';
     await load();
   } catch (err) {
-    if (err.name === 'NotAllowedError' || err.name === 'AbortError') {
+    if (err instanceof Error && (err.name === 'NotAllowedError' || err.name === 'AbortError')) {
       // user cancelled
       return;
     }
-    if (err.response?.status === 401) {
+    if (err instanceof ApiError && err.response.status === 401) {
       router.push({ name: 'account-reauthenticate', query: { next: '/accounts/security/passkeys/' } });
       return;
     }
-    errors.value = err.data
-      ? parseAllauthErrors(err.data)
-      : {
-          non_field_errors: [err.message || 'Failed to add passkey.'],
-        };
+    errors.value =
+      err instanceof ApiError && err.data
+        ? parseAllauthErrors(err.data)
+        : {
+            non_field_errors: [(err instanceof Error && err.message) || 'Failed to add passkey.'],
+          };
   } finally {
     loading.value = false;
   }
 }
 
-async function rename(pk) {
+async function rename(pk: Passkey) {
   const name = prompt('New name for this passkey?', pk.name);
 
   if (!name || name === pk.name) return;
@@ -73,20 +78,20 @@ async function rename(pk) {
     showToast('Passkey renamed.');
     await load();
   } catch (err) {
-    if (err.response?.status === 401) {
+    if (err instanceof ApiError && err.response.status === 401) {
       router.push({ name: 'account-reauthenticate', query: { next: '/accounts/security/passkeys/' } });
     }
   }
 }
 
-async function remove(pk) {
+async function remove(pk: Passkey) {
   if (!confirm(`Remove the passkey "${pk.name}"?`)) return;
   try {
     await authApi.removePasskey(pk.id);
     showToast('Passkey removed.');
     await load();
   } catch (err) {
-    if (err.response?.status === 401) {
+    if (err instanceof ApiError && err.response.status === 401) {
       router.push({ name: 'account-reauthenticate', query: { next: '/accounts/security/passkeys/' } });
     }
   }

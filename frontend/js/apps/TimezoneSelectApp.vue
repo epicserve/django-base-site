@@ -1,14 +1,13 @@
-<script setup>
+<script setup lang="ts">
 import { ref, computed } from 'vue';
-import TIMEZONE_CHOICES, { getTimezoneLabel } from '../utils/timezones';
+import TIMEZONE_CHOICES, { getTimezoneLabel, type TimezoneChoice } from '../utils/timezones';
 
-const props = defineProps({
-  currentTimezone: { type: String, required: true },
-  fieldName: { type: String, default: 'timezone' },
-  modelValue: { type: String, default: '' },
+const props = withDefaults(defineProps<{ currentTimezone: string; fieldName?: string; modelValue?: string }>(), {
+  fieldName: 'timezone',
+  modelValue: '',
 });
 
-const emit = defineEmits(['update:modelValue']);
+const emit = defineEmits<{ 'update:modelValue': [value: string] }>();
 
 const search = ref('');
 const isOpen = ref(false);
@@ -27,7 +26,7 @@ const grouped = computed(() => {
       )
     : TIMEZONE_CHOICES;
 
-  return matches.reduce((groups, tz) => {
+  return matches.reduce<Record<string, TimezoneChoice[]>>((groups, tz) => {
     if (!groups[tz.region]) groups[tz.region] = [];
     groups[tz.region].push(tz);
     return groups;
@@ -36,7 +35,7 @@ const grouped = computed(() => {
 
 const hasResults = computed(() => Object.keys(grouped.value).length > 0);
 
-function select(tz) {
+function select(tz: TimezoneChoice) {
   selected.value = tz.value;
   emit('update:modelValue', tz.value);
   search.value = '';
@@ -66,7 +65,7 @@ function onBlur() {
       "
       @blur="onBlur"
       @input="
-        search = $event.target.value;
+        search = ($event.target as HTMLInputElement).value;
         isOpen = true;
       "
     />

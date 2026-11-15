@@ -1,14 +1,24 @@
-<script setup>
-defineProps({
-  label: { type: String, default: '' },
-  modelValue: { type: String, default: '' },
-  type: { type: String, default: 'text' },
-  errors: { type: Array, default: () => [] },
-  placeholder: { type: String, default: '' },
-  autocomplete: { type: String, default: '' },
-});
+<script setup lang="ts">
+withDefaults(
+  defineProps<{
+    label?: string;
+    modelValue?: string;
+    type?: string;
+    errors?: string[];
+    placeholder?: string;
+    autocomplete?: string;
+  }>(),
+  {
+    label: '',
+    modelValue: '',
+    type: 'text',
+    errors: () => [],
+    placeholder: '',
+    autocomplete: '',
+  },
+);
 
-defineEmits(['update:modelValue']);
+defineEmits<{ 'update:modelValue': [value: string] }>();
 </script>
 
 <template>
@@ -22,7 +32,7 @@ defineEmits(['update:modelValue']);
       :placeholder="placeholder"
       :autocomplete="autocomplete"
       class="block w-full rounded-lg border border-gray-300 px-3 py-2.5 text-sm shadow-sm placeholder:text-gray-400 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:placeholder:text-gray-500"
-      @input="$emit('update:modelValue', $event.target.value)"
+      @input="$emit('update:modelValue', ($event.target as HTMLInputElement).value)"
     />
     <p v-for="err in errors" :key="err" class="mt-1 text-sm text-red-600 dark:text-red-400">
       {{ err }}

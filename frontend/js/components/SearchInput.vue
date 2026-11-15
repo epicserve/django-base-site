@@ -1,15 +1,15 @@
-<script setup>
+<script setup lang="ts">
 import { XMarkIcon } from '@heroicons/vue/24/outline';
 
-defineProps({
-  modelValue: { type: String, default: '' },
-  placeholder: { type: String, default: 'Search...' },
+withDefaults(defineProps<{ modelValue?: string; placeholder?: string }>(), {
+  modelValue: '',
+  placeholder: 'Search...',
 });
 
-const emit = defineEmits(['update:modelValue']);
+const emit = defineEmits<{ 'update:modelValue': [value: string] }>();
 
-function onInput(e) {
-  emit('update:modelValue', e.target.value);
+function onInput(e: Event) {
+  emit('update:modelValue', (e.target as HTMLInputElement).value);
 }
 
 function clear() {

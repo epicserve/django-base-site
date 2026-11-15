@@ -1,4 +1,4 @@
-<script setup>
+<script setup lang="ts">
 import {
   DialogRoot,
   DialogPortal,
@@ -10,19 +10,19 @@ import {
   VisuallyHidden,
 } from 'reka-ui';
 
-const props = defineProps({
-  open: { type: Boolean, default: false },
-  title: { type: String, default: '' },
-  size: { type: String, default: '' },
+const props = withDefaults(defineProps<{ open?: boolean; title?: string; size?: '' | 'lg' | 'xl' }>(), {
+  open: false,
+  title: '',
+  size: '',
 });
 
-const emit = defineEmits(['close', 'openAutoFocus']);
+const emit = defineEmits<{ close: []; openAutoFocus: [event: Event] }>();
 
-function onOpenChange(val) {
+function onOpenChange(val: boolean) {
   if (!val) emit('close');
 }
 
-function onOpenAutoFocus(event) {
+function onOpenAutoFocus(event: Event) {
   emit('openAutoFocus', event);
 }
 </script>

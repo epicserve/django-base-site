@@ -1,13 +1,11 @@
-<script setup>
+<script setup lang="ts">
 import { computed, ref, watch } from 'vue';
 import { UserIcon } from '@heroicons/vue/24/solid';
 
-const props = defineProps({
-  src: { type: String, default: '' },
-  name: { type: String, default: '' },
-  size: { type: String, default: 'sm', validator: (v) => ['sm', 'md', 'rail'].includes(v) },
-  fallback: { type: String, default: 'initials', validator: (v) => ['initials', 'icon'].includes(v) },
-});
+const props = withDefaults(
+  defineProps<{ src?: string; name?: string; size?: 'sm' | 'md' | 'rail'; fallback?: 'initials' | 'icon' }>(),
+  { src: '', name: '', size: 'sm', fallback: 'initials' },
+);
 
 const sizes = {
   sm: 'h-5 w-5 text-[10px]',

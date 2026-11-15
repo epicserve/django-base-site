@@ -17,10 +17,27 @@
 
 ## 2026-11-16
 
+### Changed
+
+* The whole SPA is TypeScript, which finishes the typed API contract (#1377). Every module under `frontend/js/` is `.ts`, every component is `<script setup lang="ts">`, and `frontend/tsconfig.json` no longer allows JavaScript, so `vue-tsc` in `just lint` checks every API call and template against the backend's types. A test fails on a `.js` module or a component without `lang="ts"`. A project made from this template has to convert its own `.js` and untyped `.vue` files before it takes this change.
+* The SPA's entry is `frontend/js/app.ts` (it was `app.js`) in the Vite config, `layouts/spa_shell.html`, and the manifest lookup behind `/api/version/`. A test keeps the three in step; a mismatch would quietly stop the "new version available" check.
+* Components read the app store with `useAppStore()`. The app no longer provides it, so `inject('appStore')` returns `undefined`.
+* `getAllResults()` takes a function that fetches one page, such as `(page) => unwrap(api.GET('/api/teams/', { params: { query: { page } } }))`, instead of a URL. `ManageTeamsApp` and `ManageOrganizationApp` no longer take URL props (`team-list-url`, `organization-member-list-url`, `organization-invite-list-url`); they call the API themselves.
+* `ComboboxTagsInput` and `SearchableSelect` take a `create` function in place of a `create-url`. `SearchableSelect` loads options asynchronously only through `loader`; its `url`, `value-field`, and `label-field` props are gone.
+* `just generate_api_types` leaves a request-body field optional when the backend gives it a default (`TeamIn`'s `members`, `InviteIn`'s `is_owner`). openapi-typescript made every such field required. An object schema that lists no properties, such as allauth's WebAuthn options and credentials, is now `Record<string, unknown>` rather than `Record<string, never>`, which nothing could be assigned to.
+
+### Removed
+
+* The untyped API helpers `get`, `post`, `patch`, `put`, and `del` in `frontend/js/utils/api.ts`. Use `api` with `unwrap()`.
+
 ### Fixed
 
 * Playwright's headless Chromium no longer crashes at launch in the dev image, which failed the e2e run it was part of. Playwright is upgraded from 1.59.0 to 1.64.1. Its old Chromium 147 added `DBUS_SESSION_BUS_ADDRESS` and then `FC_FONTATIONS` to its own environment, the second after its threads had started, and on the image's glibc 2.36 adding it freed the old environment while another thread could still be reading it: 36 of 2,000 launches segfaulted in a stress test. Chromium 156, in Playwright 1.64.1, sets `FC_FONTATIONS` before its threads start, and none of 2,000 launches crashed. `e2e/conftest.py` also sets both variables before Playwright starts, so Chromium only overwrites them, which keeps a stack still on the old image from crashing; an e2e test checks that the Playwright driver, which hands its environment to Chromium, starts with them. Run `just build` after pulling to get the new Playwright and Chromium.
 * certifi is upgraded from 2026.4.22 to 2026.10.23, past 2026.10.18, the first release that no longer bundles the emSign root CAs whose intermediate CA keys were compromised.
+* The notification bell and the notifications page name the person who triggered a notification by their full name. They showed the username, because they read first and last names that a notification's actor doesn't have. `userFullName()` now requires both names, so the type check rejects an object without them.
+* Unchecking "Allow this passkey to sign me in without a password" adds a two-factor passkey. It added a passwordless one anyway: the SPA sent `passwordless=false`, and allauth treats the parameter as on whenever it's present. An e2e test adds a passkey each way with Chromium's virtual authenticator.
+* Creating an organization makes it primary only if you have no primary organization. It always made the new one primary without clearing the old, so you had two, and sign-in picked one of them.
+* `docs/billing.md` names `appStore.featureValue()`; it named a `featureLimit()` that doesn't exist.
 
 
 ## 2026-11-14

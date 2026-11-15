@@ -49,7 +49,11 @@ def create_organization(request, payload: OrganizationCreateIn):
     require_authenticated(request)
     with transaction.atomic():
         org = Organization.objects.create(name=payload.name, slug=payload.slug)
-        OrganizationMember.objects.create(organization=org, user=request.user, is_owner=True, is_primary=True)
+        # Sign-in opens the primary organization, so a new one only becomes primary if the user has none.
+        has_primary = OrganizationMember.objects.filter(user=request.user, is_primary=True).exists()
+        OrganizationMember.objects.create(
+            organization=org, user=request.user, is_owner=True, is_primary=not has_primary
+        )
     save_org_data(request, org)
     return Status(201, {"id": org.pk, "name": org.name, "slug": org.slug})
 

@@ -1,4 +1,4 @@
-<script setup>
+<script setup lang="ts">
 import { ref, computed, watch } from 'vue';
 import {
   ComboboxRoot,
@@ -15,32 +15,53 @@ import {
   TagsInputItemDelete,
   TagsInputInput,
 } from 'reka-ui';
-import { post } from '../utils/api';
+import { ApiError, parseErrors } from '../utils/api';
 import { showToast } from '../composables/useToast';
 
-const props = defineProps({
-  options: { type: Array, default: () => [] },
-  modelValue: { type: Array, default: () => [] },
-  placeholder: { type: String, default: '' },
-  tagClass: { type: Function, default: null },
-  createUrl: { type: String, default: '' },
-  createLabel: { type: String, default: 'item' },
-});
+interface TagOption {
+  value: string;
+  label: string;
+}
 
-const emit = defineEmits(['update:modelValue', 'created']);
+/** What `create` resolves to: the new item, which becomes an option and is passed on with `created`. */
+interface CreatedItem {
+  id: number;
+  name: string;
+}
+
+const props = withDefaults(
+  defineProps<{
+    options?: TagOption[];
+    modelValue?: string[];
+    placeholder?: string;
+    tagClass?: ((value: string) => string) | null;
+    /** Creates an item named after the search text; the option to create one only shows when it's set. */
+    create?: (name: string) => Promise<CreatedItem>;
+    createLabel?: string;
+  }>(),
+  {
+    options: () => [],
+    modelValue: () => [],
+    placeholder: '',
+    tagClass: null,
+    createLabel: 'item',
+  },
+);
+
+const emit = defineEmits<{ 'update:modelValue': [value: string[]]; created: [item: CreatedItem] }>();
 
 const query = ref('');
-const localOptions = ref([]);
+const localOptions = ref<TagOption[]>([]);
 
 const CREATE_SENTINEL = '__create_new__';
 
 const mergedOptions = computed(() => [...props.options, ...localOptions.value]);
 
-const selectedValues = computed({
+const selectedValues = computed<string[]>({
   get() {
     return props.modelValue
       .map((v) => mergedOptions.value.find((o) => String(o.value) === String(v))?.label)
-      .filter(Boolean);
+      .filter((label): label is string => Boolean(label));
   },
   set(val) {
     if (val.includes(CREATE_SENTINEL)) {
@@ -56,7 +77,7 @@ const selectedValues = computed({
 });
 
 const creatableOption = computed(() => {
-  if (!props.createUrl) return null;
+  if (!props.create) return null;
   const q = query.value.trim();
   if (!q) return null;
   const lower = q.toLowerCase();
@@ -72,9 +93,10 @@ const filteredOptions = computed(() => {
     .filter((o) => !q || o.label.toLowerCase().includes(q));
 });
 
-async function createItem(name) {
+async function createItem(name: string) {
+  if (!props.create) return;
   try {
-    const newItem = await post(props.createUrl, { name });
+    const newItem = await props.create(name);
     const mapped = { value: String(newItem.id), label: newItem.name };
     localOptions.value = [...localOptions.value, mapped];
     emit('update:modelValue', [...props.modelValue, mapped.value]);
@@ -82,15 +104,15 @@ async function createItem(name) {
     query.value = '';
     showToast(`${props.createLabel} created.`);
   } catch (err) {
+    const errors: Record<string, string[] | undefined> =
+      err instanceof ApiError && err.data && typeof err.data === 'object' ? parseErrors(err) : {};
     const msg =
-      err?.data?.name?.[0] ||
-      err?.data?.non_field_errors?.[0] ||
-      `Failed to create ${props.createLabel.toLowerCase()}.`;
+      errors.name?.[0] || errors.non_field_errors?.[0] || `Failed to create ${props.createLabel.toLowerCase()}.`;
     showToast(msg, 'error');
   }
 }
 
-function tagClassFor(label) {
+function tagClassFor(label: string) {
   if (!props.tagClass) return 'bg-blue-100 text-blue-800 dark:bg-blue-900/40 dark:text-blue-300';
   const opt = mergedOptions.value.find((o) => o.label === label);
   return opt ? props.tagClass(opt.value) : props.tagClass('');

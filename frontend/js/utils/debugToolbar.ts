@@ -3,11 +3,11 @@
 const COOKIE = 'debug_toolbar';
 const ONE_YEAR = 60 * 60 * 24 * 365;
 
-export function isDebugToolbarOn() {
+export function isDebugToolbarOn(): boolean {
   return document.cookie.split('; ').includes(`${COOKIE}=1`);
 }
 
-export function toggleDebugToolbar() {
+export function toggleDebugToolbar(): void {
   const turnOn = !isDebugToolbarOn();
   document.cookie = `${COOKIE}=${turnOn ? '1' : '0'}; path=/; max-age=${ONE_YEAR}; SameSite=Lax`;
   if (turnOn) {

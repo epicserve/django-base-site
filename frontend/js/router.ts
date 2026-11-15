@@ -1,6 +1,19 @@
-import { createRouter as createVueRouter, createWebHistory } from 'vue-router';
+import { createRouter as createVueRouter, createWebHistory, type Router } from 'vue-router';
+import type { AppStore } from './stores/app';
 
-export function createRouter(appStore) {
+declare module 'vue-router' {
+  interface RouteMeta {
+    requiresAuth?: boolean;
+    guest?: boolean;
+    staffOnly?: boolean;
+    superuserOnly?: boolean;
+    ownerOnly?: boolean;
+    public?: boolean;
+    publicChrome?: boolean;
+  }
+}
+
+export function createRouter(appStore: AppStore): Router {
   const router = createVueRouter({
     history: createWebHistory(),
     routes: [
@@ -233,23 +246,23 @@ export function createRouter(appStore) {
     }
     // When BILLING_ENABLED is false, hide pricing page + billing tab so users
     // don't land on dead routes when the feature isn't configured.
-    if (to.name === 'pricing' && !appStore.billing?.enabled) {
+    if (to.name === 'pricing' && !appStore.billing.enabled) {
       return appStore.isAuthenticated ? { name: 'home' } : { name: 'login' };
     }
-    if (to.name === 'org-settings-billing' && !appStore.billing?.enabled) {
+    if (to.name === 'org-settings-billing' && !appStore.billing.enabled) {
       return { name: 'org-settings-general', params: to.params };
     }
     return true;
   });
 
-  router.onError((err, to) => {
-    const msg = err?.message ?? '',
+  router.onError((err: unknown, to) => {
+    const msg = err instanceof Error ? err.message : '',
       isChunkError =
-        err?.name === 'ChunkLoadError' ||
+        (err instanceof Error && err.name === 'ChunkLoadError') ||
         /Loading chunk \S+ failed/i.test(msg) ||
         /Failed to fetch dynamically imported module/i.test(msg) ||
         /Importing a module script failed/i.test(msg);
-    if (isChunkError && to?.fullPath) {
+    if (isChunkError && to.fullPath) {
       window.location.assign(to.fullPath);
     }
   });
