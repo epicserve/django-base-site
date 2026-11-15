@@ -1,10 +1,10 @@
 <script setup lang="ts">
-import { ref, computed, inject } from 'vue';
+import { ref, computed } from 'vue';
 import { Cropper } from 'vue-advanced-cropper';
 import 'vue-advanced-cropper/dist/style.css';
 import AppModal from './AppModal.vue';
 import UserAvatar from './UserAvatar.vue';
-import type { AppStore } from '@/stores/app';
+import { useAppStore } from '@/stores/app';
 import { api, formDataBody, parseErrors, unwrap } from '@/utils/api';
 
 const props = withDefaults(defineProps<{ currentAvatarUrl?: string; userName?: string }>(), {
@@ -12,7 +12,7 @@ const props = withDefaults(defineProps<{ currentAvatarUrl?: string; userName?: s
   userName: '',
 });
 
-const appStore = inject<AppStore | null>('appStore', null);
+const appStore = useAppStore();
 
 const avatarUrl = ref(props.currentAvatarUrl);
 const showModal = ref(false);
@@ -93,7 +93,7 @@ async function save() {
     );
 
     avatarUrl.value = data.avatar_url ?? '';
-    if (appStore?.user) {
+    if (appStore.user) {
       appStore.setUser({ ...appStore.user, avatar_url: data.avatar_url });
     }
     closeModal();
@@ -111,7 +111,7 @@ async function removeAvatar() {
   try {
     await unwrap(api.DELETE('/api/avatar/'));
     avatarUrl.value = '';
-    if (appStore?.user) {
+    if (appStore.user) {
       appStore.setUser({ ...appStore.user, avatar_url: null });
     }
   } catch {

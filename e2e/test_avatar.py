@@ -24,7 +24,13 @@ class TestAvatar:
         page.goto(f"{live_server.url}/accounts/general/")
 
     def test_upload_and_remove(self, page: Page, live_server, user):
+        # The e2e settings keep uploads in memory, which nothing serves, and UserAvatar falls back to initials when its
+        # image fails to load. So answer requests for the uploaded thumbnail with an image.
+        page.route("**/avatars/thumbnails/**", lambda route: route.fulfill(body=_png(), content_type="image/png"))
         self._sign_in(page, live_server)
+        # The avatar on the user menu button reads the app store, which the cropper updates after a save or remove.
+        header_photo = page.locator('[data-dropdown="nav"] > button img')
+        expect(header_photo).to_have_count(0)
 
         page.get_by_role("button", name="Change Photo").click()
         page.locator('input[type="file"]').set_input_files(
@@ -34,11 +40,13 @@ class TestAvatar:
         page.get_by_role("button", name="Save", exact=True).click()
 
         expect(page.get_by_alt_text("Profile photo")).to_be_visible()
+        expect(header_photo).to_be_visible()
         user.refresh_from_db()
         assert user.avatar_thumbnail
 
         page.get_by_role("button", name="Remove").click()
 
         expect(page.get_by_alt_text("Profile photo")).to_have_count(0)
+        expect(header_photo).to_have_count(0)
         user.refresh_from_db()
         assert not user.avatar_thumbnail

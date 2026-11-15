@@ -2,7 +2,17 @@
  * Formatting utility functions.
  */
 
-export function userFullName(user) {
+/**
+ * A user from the API with first and last names (`OrgUserOut`, `MemberDetailOut`, ...). The names are required so that
+ * an object without them can't be passed by mistake: a notification's actor has a ready-made `full_name` instead.
+ */
+export interface NamedUser {
+  first_name: string;
+  last_name: string;
+  username?: string | null;
+}
+
+export function userFullName(user: NamedUser | null | undefined): string {
   if (!user) return '';
   const name = `${user.first_name || ''} ${user.last_name || ''}`.trim();
 
@@ -10,11 +20,11 @@ export function userFullName(user) {
 }
 
 // The period for a sentence ending in `text`, unless `text` already ends with one (e.g. "Acme Inc.").
-export function sentencePeriod(text) {
+export function sentencePeriod(text: string | null | undefined): string {
   return text?.endsWith('.') ? '' : '.';
 }
 
-export function humanDateTime(isoString) {
+export function humanDateTime(isoString: string | null | undefined): string {
   if (!isoString) return '';
   const d = new Date(isoString);
 
@@ -28,7 +38,7 @@ export function humanDateTime(isoString) {
   });
 }
 
-export function relativeTime(isoString) {
+export function relativeTime(isoString: string | null | undefined): string {
   if (!isoString) return '';
   const d = new Date(isoString),
     diffMs = Date.now() - d.getTime(),
@@ -49,7 +59,7 @@ export function relativeTime(isoString) {
   });
 }
 
-export function fullDateTime(isoString) {
+export function fullDateTime(isoString: string | null | undefined): string {
   if (!isoString) return '';
   const d = new Date(isoString);
   return d.toLocaleString('en-US', {
@@ -63,7 +73,7 @@ export function fullDateTime(isoString) {
   });
 }
 
-export function friendlyDate(isoString) {
+export function friendlyDate(isoString: string | null | undefined): string {
   if (!isoString) return '';
   const d = new Date(isoString);
 
@@ -74,7 +84,7 @@ export function friendlyDate(isoString) {
   });
 }
 
-export function humanDate(isoString) {
+export function humanDate(isoString: string | null | undefined): string {
   if (!isoString) return '';
   const d = new Date(isoString);
 
@@ -85,7 +95,7 @@ export function humanDate(isoString) {
   });
 }
 
-export function humanTime(isoString) {
+export function humanTime(isoString: string | null | undefined): string {
   if (!isoString) return '';
   const d = new Date(isoString);
 
@@ -96,7 +106,7 @@ export function humanTime(isoString) {
   });
 }
 
-export function humanDuration(seconds) {
+export function humanDuration(seconds: number | null | undefined): string {
   if (!seconds && seconds !== 0) return '';
   const h = Math.floor(seconds / 3600),
     m = Math.floor((seconds % 3600) / 60);
@@ -106,17 +116,19 @@ export function humanDuration(seconds) {
   return `${h} h ${m} min`;
 }
 
-export function groupBy(array, keyFn) {
-  return array.reduce((acc, item) => {
-    const key = keyFn(item);
+export function groupBy<Item, Key extends PropertyKey>(
+  array: Item[],
+  keyFn: (item: Item) => Key,
+): Partial<Record<Key, Item[]>> {
+  const groups: Partial<Record<Key, Item[]>> = {};
 
-    if (!acc[key]) acc[key] = [];
-    acc[key].push(item);
-    return acc;
-  }, {});
+  for (const item of array) {
+    (groups[keyFn(item)] ??= []).push(item);
+  }
+  return groups;
 }
 
-export function toApiDateTime(date) {
+export function toApiDateTime(date: Date): string {
   const yyyy = date.getFullYear(),
     mm = String(date.getMonth() + 1).padStart(2, '0'),
     dd = String(date.getDate()).padStart(2, '0'),
@@ -126,7 +138,7 @@ export function toApiDateTime(date) {
   return `${yyyy}-${mm}-${dd}T${hh}:${min}:${ss}`;
 }
 
-export function escapeHtml(text) {
+export function escapeHtml(text: string): string {
   const div = document.createElement('div');
 
   div.textContent = text;

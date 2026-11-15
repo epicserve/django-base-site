@@ -1,20 +1,29 @@
 import { ref, computed } from 'vue';
-import { get, post, patch, del } from '@/utils/api';
+import type { components } from '@/api/schema';
+import { api, unwrap } from '@/utils/api';
 import { showToast } from './useToast';
+
+export type Notification = components['schemas']['NotificationOut'];
+export type NotificationFilter = 'unread' | 'all';
+export type BulkAction = components['schemas']['BulkActionIn']['action'];
 
 const POLL_INTERVAL_MS = 20_000,
   unreadCount = ref(0),
-  notifications = ref([]),
+  notifications = ref<Notification[]>([]),
   loading = ref(false),
-  currentFilter = ref('unread'), // 'unread' | 'all'
+  currentFilter = ref<NotificationFilter>('unread'),
   dropdownOpen = ref(false),
-  seenUnreadIds = new Set(),
+  seenUnreadIds = new Set<number>(),
   seeded = ref(false);
 
-let pollHandle = null,
-  visibilityHandler = null;
+let pollHandle: ReturnType<typeof setInterval> | null = null,
+  visibilityHandler: (() => void) | null = null;
 
-function toastForNew(results) {
+function listNotifications(query: { is_read?: string; page_size: number }) {
+  return unwrap(api.GET('/api/notifications/', { params: { query } }));
+}
+
+function toastForNew(results: Notification[]) {
   if (!seeded.value) {
     results.forEach((n) => seenUnreadIds.add(n.id));
     seeded.value = true;
@@ -30,13 +39,13 @@ function toastForNew(results) {
 
 async function refreshUnread() {
   try {
-    const data = await get('/api/notifications/', { is_read: 'false', page_size: 20 });
+    const data = await listNotifications({ is_read: 'false', page_size: 20 });
     unreadCount.value = data.count;
     if (currentFilter.value === 'unread') {
       notifications.value = data.results;
     } else if (dropdownOpen.value) {
       // Keep the "All" list fresh while the user is looking at it
-      const all = await get('/api/notifications/', { page_size: 30 });
+      const all = await listNotifications({ page_size: 30 });
       notifications.value = all.results;
     }
     toastForNew(data.results);
@@ -45,13 +54,11 @@ async function refreshUnread() {
   }
 }
 
-async function fetchList({ filter = currentFilter.value } = {}) {
+async function fetchList({ filter = currentFilter.value }: { filter?: NotificationFilter } = {}) {
   currentFilter.value = filter;
   loading.value = true;
   try {
-    const params = { page_size: 30 };
-    if (filter === 'unread') params.is_read = 'false';
-    const data = await get('/api/notifications/', params);
+    const data = await listNotifications(filter === 'unread' ? { is_read: 'false', page_size: 30 } : { page_size: 30 });
     notifications.value = data.results;
     if (filter === 'unread') {
       unreadCount.value = data.count;
@@ -62,26 +69,36 @@ async function fetchList({ filter = currentFilter.value } = {}) {
   }
 }
 
-async function markRead(id) {
-  await patch(`/api/notifications/${id}/`, { is_read: true });
+async function markRead(id: number) {
+  await unwrap(
+    api.PATCH('/api/notifications/{notification_id}/', {
+      params: { path: { notification_id: id } },
+      body: { is_read: true },
+    }),
+  );
   applyLocalRead(id, true);
 }
 
-async function markUnread(id) {
-  await patch(`/api/notifications/${id}/`, { is_read: false });
+async function markUnread(id: number) {
+  await unwrap(
+    api.PATCH('/api/notifications/{notification_id}/', {
+      params: { path: { notification_id: id } },
+      body: { is_read: false },
+    }),
+  );
   applyLocalRead(id, false);
 }
 
-async function deleteOne(id) {
-  await del(`/api/notifications/${id}/`);
+async function deleteOne(id: number) {
+  await unwrap(api.DELETE('/api/notifications/{notification_id}/', { params: { path: { notification_id: id } } }));
   notifications.value = notifications.value.filter((n) => n.id !== id);
   seenUnreadIds.delete(id);
   await refreshUnread();
 }
 
-async function bulkAction(action, ids) {
+async function bulkAction(action: BulkAction, ids: number[]) {
   if (!ids.length) return;
-  await post('/api/notifications/bulk/', { action, ids });
+  await unwrap(api.POST('/api/notifications/bulk/', { body: { action, ids } }));
   if (action === 'delete') {
     notifications.value = notifications.value.filter((n) => !ids.includes(n.id));
     ids.forEach((id) => seenUnreadIds.delete(id));
@@ -96,7 +113,7 @@ async function bulkAction(action, ids) {
 }
 
 async function markAllRead() {
-  await post('/api/notifications/bulk/', { action: 'mark_read', all_unread: true });
+  await unwrap(api.POST('/api/notifications/bulk/', { body: { action: 'mark_read', all_unread: true } }));
   notifications.value.forEach((n) => {
     n.is_read = true;
   });
@@ -106,7 +123,7 @@ async function markAllRead() {
   }
 }
 
-function applyLocalRead(id, isRead) {
+function applyLocalRead(id: number, isRead: boolean) {
   const n = notifications.value.find((item) => item.id === id);
   if (n) n.is_read = isRead;
   if (isRead) unreadCount.value = Math.max(0, unreadCount.value - 1);
@@ -141,7 +158,7 @@ function stopPolling() {
   seeded.value = false;
 }
 
-function setDropdownOpen(open) {
+function setDropdownOpen(open: boolean) {
   dropdownOpen.value = open;
 }
 

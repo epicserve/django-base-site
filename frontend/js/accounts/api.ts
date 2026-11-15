@@ -1,6 +1,38 @@
+import type { components } from '@/api/allauth';
 import { api, unwrap, type RequestBody } from '@/utils/api';
 
 type AllauthError = { param?: string; message: string };
+type Flow = components['schemas']['Flow'];
+
+function isRecord(value: unknown): value is Record<string, unknown> {
+  return typeof value === 'object' && value !== null;
+}
+
+// allauth's 401 bodies (`AuthenticationResponse`, `ReauthenticationResponse`) put the pending steps in `data.flows`.
+function hasFlows(data: unknown): data is { flows: Flow[] } {
+  return isRecord(data) && Array.isArray(data.flows);
+}
+
+/**
+ * The `data.flows` of an allauth error body: the steps sign-in or reauthentication still needs, such as
+ * `mfa_authenticate`, `verify_email`, or `reauthenticate`. Empty for a body without them.
+ */
+export function pendingFlows(responseData: unknown): Flow[] {
+  return isRecord(responseData) && hasFlows(responseData.data) ? responseData.data.flows : [];
+}
+
+/**
+ * The `meta` of an allauth error body, or `{}`. What it holds depends on the response (a 401's `is_authenticated`, the
+ * TOTP 404's setup `secret` and `totp_url`), so check each value before using it.
+ */
+export function responseMeta(responseData: unknown): Record<string, unknown> {
+  return isRecord(responseData) && isRecord(responseData.meta) ? responseData.meta : {};
+}
+
+/** Whether an allauth error body lists `errors`, as a 400 does. */
+export function hasAllauthErrors(responseData: unknown): boolean {
+  return isRecord(responseData) && Boolean(responseData.errors);
+}
 
 export function parseAllauthErrors(responseData: unknown): Record<string, string[]> {
   const errors: Record<string, string[]> = {};
@@ -73,8 +105,14 @@ const authApi = {
 
   regenerateRecoveryCodes: () => unwrap(api.POST('/_allauth/browser/v1/account/authenticators/recovery-codes')),
 
+  // allauth makes the passkey passwordless when the query has `passwordless` at all, whatever its value, so leave it out
+  // (openapi-fetch drops `undefined`) rather than send `passwordless=false`.
   beginAddPasskey: (passwordless: boolean) =>
-    unwrap(api.GET('/_allauth/browser/v1/account/authenticators/webauthn', { params: { query: { passwordless } } })),
+    unwrap(
+      api.GET('/_allauth/browser/v1/account/authenticators/webauthn', {
+        params: { query: { passwordless: passwordless || undefined } },
+      }),
+    ),
 
   addPasskey: (name: string, credential: WebAuthnCredential) =>
     unwrap(api.POST('/_allauth/browser/v1/account/authenticators/webauthn', { body: { name, credential } })),

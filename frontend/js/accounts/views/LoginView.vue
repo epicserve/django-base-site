@@ -1,26 +1,28 @@
-<script setup>
-import { ref, inject, onBeforeUnmount, onMounted } from 'vue';
+<script setup lang="ts">
+import { ref, onBeforeUnmount, onMounted } from 'vue';
 import { useRoute, useRouter, RouterLink } from 'vue-router';
 import AuthLayout from '@/layouts/AuthLayout.vue';
+import { useAppStore } from '@/stores/app';
 import FormField from '../components/FormField.vue';
 import FormErrors from '../components/FormErrors.vue';
-import { authApi, parseAllauthErrors } from '../api';
+import { authApi, parseAllauthErrors, pendingFlows } from '../api';
+import { ApiError } from '../../utils/api';
 import { getPasskeyAssertion, isConditionalMediationAvailable, isWebAuthnSupported } from '../../utils/webauthn';
 import { safeNextUrl } from '../../utils/redirect';
 
 const route = useRoute();
 const router = useRouter();
-const appStore = inject('appStore');
+const appStore = useAppStore();
 
 const email = ref('');
 const password = ref('');
-const errors = ref({});
+const errors = ref<Record<string, string[]>>({});
 const loading = ref(false);
 const passkeyLoading = ref(false);
 const passkeySupported = ref(false);
 let conditionalAvailable = false;
 // Aborts the pending autofill (conditional) passkey request.
-let conditionalRequest = null;
+let conditionalRequest: AbortController | null = null;
 
 onMounted(async () => {
   passkeySupported.value = isWebAuthnSupported();
@@ -43,9 +45,9 @@ function getRedirectUrl() {
   return safeNextUrl(route.query.next);
 }
 
-function handleFlows(err) {
+function handleFlows(err: unknown) {
   // 401 + flows array means allauth is asking for another step
-  const flows = err.data?.data?.flows || [];
+  const flows = err instanceof ApiError ? pendingFlows(err.data) : [];
   const pendingVerify = flows.some((f) => f.id === 'verify_email' && f.is_pending);
   const mfaRequired = flows.some((f) => f.id === 'mfa_authenticate');
 
@@ -64,23 +66,24 @@ async function onSubmit() {
   loading.value = true;
   errors.value = {};
   try {
-    const data = await authApi.login(email.value, password.value);
-
-    appStore.setUser(data.data?.user || null);
+    await authApi.login(email.value, password.value);
     await appStore.fetchContext();
     window.location.href = getRedirectUrl();
   } catch (err) {
-    if (err.response?.status === 409) {
+    if (err instanceof ApiError && err.response.status === 409) {
       window.location.href = getRedirectUrl();
       return;
     }
     if (handleFlows(err)) return;
-    errors.value = err.data ? parseAllauthErrors(err.data) : { non_field_errors: ['An unexpected error occurred.'] };
+    errors.value =
+      err instanceof ApiError && err.data
+        ? parseAllauthErrors(err.data)
+        : { non_field_errors: ['An unexpected error occurred.'] };
     loading.value = false;
   }
 }
 
-async function attemptPasskeyLogin({ conditional = false } = {}) {
+async function attemptPasskeyLogin({ conditional = false }: { conditional?: boolean } = {}) {
   // Only one WebAuthn request can be pending, so the button cancels the autofill one first.
   cancelConditionalRequest();
   const controller = new AbortController();
@@ -97,28 +100,27 @@ async function attemptPasskeyLogin({ conditional = false } = {}) {
 
   try {
     const optsResp = await authApi.beginPasskeyLogin();
-    const options = optsResp.data?.request_options || optsResp.data;
+    const options = optsResp.data.request_options;
     const credential = await getPasskeyAssertion(options, {
       mediation: conditional ? 'conditional' : undefined,
       signal: controller.signal,
     });
     userChosePasskey = true;
-    const data = await authApi.completePasskeyLogin(credential);
-
-    appStore.setUser(data.data?.user || null);
+    await authApi.completePasskeyLogin(credential);
     await appStore.fetchContext();
     window.location.href = getRedirectUrl();
   } catch (err) {
-    if (err.response?.status === 409) {
+    if (err instanceof ApiError && err.response.status === 409) {
       window.location.href = getRedirectUrl();
       return;
     }
     if (!userChosePasskey) return;
     // Cancelling the passkey dialog isn't an error worth showing.
-    if (err.name !== 'NotAllowedError' && err.name !== 'AbortError') {
-      errors.value = err.data
-        ? parseAllauthErrors(err.data)
-        : { non_field_errors: [err.message || 'Passkey sign-in failed.'] };
+    if (!(err instanceof Error && (err.name === 'NotAllowedError' || err.name === 'AbortError'))) {
+      errors.value =
+        err instanceof ApiError && err.data
+          ? parseAllauthErrors(err.data)
+          : { non_field_errors: [(err instanceof Error && err.message) || 'Passkey sign-in failed.'] };
     }
     resumeAutofill();
   }

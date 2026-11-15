@@ -1,20 +1,22 @@
-<script setup>
-import { ref, inject, onMounted } from 'vue';
+<script setup lang="ts">
+import { ref, onMounted } from 'vue';
 import { useRouter } from 'vue-router';
-import { get, post } from '@/utils/api';
+import type { components } from '@/api/schema';
+import { useAppStore } from '@/stores/app';
+import { api, unwrap } from '@/utils/api';
 import { showToast } from '@/composables/useToast';
 
-const appStore = inject('appStore');
+const appStore = useAppStore();
 const router = useRouter();
-const orgs = ref([]);
+const orgs = ref<components['schemas']['SwitchListItemOut'][]>([]);
 const loading = ref(true);
 
 onMounted(async () => {
-  orgs.value = await get('/api/organizations/switch-list/');
+  orgs.value = await unwrap(api.GET('/api/organizations/switch-list/'));
   loading.value = false;
 });
 
-async function selectOrg(slug) {
+async function selectOrg(slug: string) {
   await appStore.switchOrg(slug);
   router.push('/');
 }
@@ -24,10 +26,10 @@ async function signOutOrg() {
   router.push('/');
 }
 
-async function setPrimary(slug) {
-  const result = await post(`/api/organizations/${slug}/set-primary/`);
+async function setPrimary(slug: string) {
+  const result = await unwrap(api.POST('/api/organizations/{slug}/set-primary/', { params: { path: { slug } } }));
   showToast(result.is_primary ? 'Primary company updated.' : 'Primary company removed.');
-  orgs.value = await get('/api/organizations/switch-list/');
+  orgs.value = await unwrap(api.GET('/api/organizations/switch-list/'));
 }
 </script>
 

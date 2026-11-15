@@ -133,63 +133,6 @@ export function formDataBody(body: Record<string, string | Blob | undefined>): F
   return formData;
 }
 
-// ---------------------------------------------------------------------------------------------------------------------
-// Untyped helpers, kept for the files that haven't been converted to TypeScript yet. New code uses `api` instead.
-// ---------------------------------------------------------------------------------------------------------------------
-
-type QueryParams = Record<string, string | number | boolean | null | undefined | (string | number)[]>;
-
-async function request(url: string, options: RequestInit = {}): Promise<unknown> {
-  const response = await fetch(url, {
-    ...options,
-    headers: {
-      'Content-Type': 'application/json',
-      'X-CSRFToken': getCSRFToken() ?? '',
-      ...options.headers,
-    },
-  });
-
-  if (!response.ok) throw new ApiError(response, await readJson(response));
-  if (response.status === 204) return null;
-  return response.json();
-}
-
-/** @deprecated Untyped. Use `api.GET()` with `unwrap()`. */
-export function get(url: string, params: QueryParams = {}): Promise<unknown> {
-  const searchParams = new URLSearchParams();
-
-  for (const [key, value] of Object.entries(params)) {
-    if (Array.isArray(value)) {
-      value.forEach((v) => searchParams.append(key, String(v)));
-    } else if (value !== null && value !== undefined && value !== '') {
-      searchParams.append(key, String(value));
-    }
-  }
-  const qs = searchParams.toString();
-
-  return request(qs ? `${url}?${qs}` : url, { method: 'GET' });
-}
-
-/** @deprecated Untyped. Use `api.POST()` with `unwrap()`. */
-export function post(url: string, data?: unknown): Promise<unknown> {
-  return request(url, { method: 'POST', body: JSON.stringify(data) });
-}
-
-/** @deprecated Untyped. Use `api.PATCH()` with `unwrap()`. */
-export function patch(url: string, data?: unknown): Promise<unknown> {
-  return request(url, { method: 'PATCH', body: JSON.stringify(data) });
-}
-
-/** @deprecated Untyped. Use `api.PUT()` with `unwrap()`. */
-export function put(url: string, data?: unknown): Promise<unknown> {
-  return request(url, { method: 'PUT', body: JSON.stringify(data) });
-}
-
-/** @deprecated Untyped. Use `api.DELETE()` with `unwrap()`. */
-export function del(url: string): Promise<unknown> {
-  return request(url, { method: 'DELETE' });
-}
-
 /** Turn a ninja error body into `{ field: [messages] }`, for form fields to show. */
 export function parseErrors(error: unknown): Record<string, string[]> {
   const data = error instanceof ApiError ? error.data : null;
@@ -205,20 +148,25 @@ export function parseErrors(error: unknown): Record<string, string[]> {
   return { non_field_errors: ['An unexpected error occurred.'] };
 }
 
-/** @deprecated Untyped. Fetches every page of a paginated list. */
-export async function getAllResults(
-  url: string,
-  params: QueryParams = {},
-  results: unknown[] = [],
-): Promise<unknown[]> {
-  const data = (await get(url, params)) as { results: unknown[]; next: string | null };
+/** One page of a paginated ninja list. */
+export interface Page<Item> {
+  results: Item[];
+  next?: string | null;
+}
 
-  results.push(...data.results);
-  if (data.next) {
-    const nextUrl = new URL(data.next),
-      nextParams = { ...params, page: nextUrl.searchParams.get('page') };
+/**
+ * Fetch every page of a paginated list and return all of its results. `fetchPage` makes the call for one page number,
+ * so the path, its params, and the result type all come from `api`:
+ *
+ *     const teams = await getAllResults((page) => unwrap(api.GET('/api/teams/', { params: { query: { page } } })));
+ */
+export async function getAllResults<Item>(fetchPage: (page: number) => Promise<Page<Item>>): Promise<Item[]> {
+  const results: Item[] = [];
 
-    return getAllResults(url, nextParams, results);
+  for (let page = 1; ; page += 1) {
+    const data = await fetchPage(page);
+
+    results.push(...data.results);
+    if (!data.next) return results;
   }
-  return results;
 }

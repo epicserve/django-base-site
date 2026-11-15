@@ -1,15 +1,16 @@
-<script setup>
+<script setup lang="ts">
 import { ref } from 'vue';
 import { useRouter, RouterLink } from 'vue-router';
 import AuthLayout from '@/layouts/AuthLayout.vue';
 import FormField from '../components/FormField.vue';
 import FormErrors from '../components/FormErrors.vue';
 import { authApi, parseAllauthErrors } from '../api';
+import { ApiError } from '../../utils/api';
 
 const router = useRouter();
 
 const email = ref('');
-const errors = ref({});
+const errors = ref<Record<string, string[]>>({});
 const loading = ref(false);
 
 async function onSubmit() {
@@ -19,7 +20,7 @@ async function onSubmit() {
     await authApi.requestPasswordReset(email.value);
     router.push({ name: 'password-reset-done' });
   } catch (err) {
-    if (err.data) {
+    if (err instanceof ApiError && err.data) {
       errors.value = parseAllauthErrors(err.data);
     } else {
       errors.value = { non_field_errors: ['An unexpected error occurred.'] };

@@ -1,13 +1,14 @@
-<script setup>
+<script setup lang="ts">
 import { ref, onMounted } from 'vue';
 import { useRouter } from 'vue-router';
 import AccountLayout from '@/layouts/AccountLayout.vue';
 import { authApi } from '../api';
+import { ApiError } from '../../utils/api';
 import { showToast } from '../../composables/useToast';
 
 const router = useRouter();
-const codes = ref([]);
-const unused = ref([]);
+const codes = ref<string[]>([]);
+const unused = ref<string[]>([]);
 const total = ref(0);
 const loading = ref(true);
 
@@ -15,13 +16,14 @@ async function load() {
   loading.value = true;
   try {
     const data = await authApi.listRecoveryCodes();
-    const payload = data.data || {};
+    const payload = data.data;
 
-    codes.value = payload.unused_codes || payload.codes || [];
+    // allauth leaves out unused_codes once they've been viewed when MFA_RECOVERY_CODES_SHOW_ONCE is on.
+    codes.value = payload.unused_codes || [];
     unused.value = payload.unused_codes || [];
     total.value = payload.total_code_count || codes.value.length;
   } catch (err) {
-    if (err.response?.status === 401) {
+    if (err instanceof ApiError && err.response.status === 401) {
       router.push({ name: 'account-reauthenticate', query: { next: '/accounts/security/recovery-codes/' } });
     }
   } finally {
@@ -37,7 +39,7 @@ async function regenerate() {
     showToast('New recovery codes generated.');
     await load();
   } catch (err) {
-    if (err.response?.status === 401) {
+    if (err instanceof ApiError && err.response.status === 401) {
       router.push({ name: 'account-reauthenticate', query: { next: '/accounts/security/recovery-codes/' } });
     }
   } finally {

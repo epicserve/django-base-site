@@ -11,8 +11,6 @@
     "verbatimModuleSyntax": true,
     "resolveJsonModule": true,
     "skipLibCheck": true,
-    "allowJs": true,
-    "checkJs": false,
     "paths": {
       "@/*": ["./js/*"]
     }

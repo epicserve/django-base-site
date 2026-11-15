@@ -1,4 +1,4 @@
-<script setup>
+<script setup lang="ts">
 import { ref, computed, watch, onMounted } from 'vue';
 import {
   ComboboxRoot,
@@ -11,44 +11,64 @@ import {
   ComboboxItemIndicator,
   ComboboxEmpty,
 } from 'reka-ui';
-import { get, post } from '../utils/api';
+import { ApiError, parseErrors } from '../utils/api';
 import { showToast } from '../composables/useToast';
 
-const props = defineProps({
-  options: { type: Array, default: () => [] },
-  prependOptions: { type: Array, default: () => [] },
-  modelValue: { type: [String, Number], default: '' },
-  placeholder: { type: String, default: '' },
-  url: { type: String, default: '' },
-  // Async loader for sources that can't be expressed as a single URL (e.g. a
-  // combined users + teams dropdown). Receives `(q, page)` and resolves to
-  // `{ results: [{ value, label }], hasMore: bool, currentPage: int }`. Takes
-  // precedence over `url` when provided.
-  loader: { type: Function, default: null },
-  valueField: { type: String, default: 'id' },
-  labelField: { type: [String, Function], default: 'name' },
-  initialDisplayValue: { type: String, default: '' },
-  createUrl: { type: String, default: '' },
-  createLabel: { type: String, default: 'item' },
-});
+interface SelectOption {
+  value: string;
+  label: string;
+}
 
-const emit = defineEmits(['update:modelValue', 'created']);
+/** One page of options from `loader`. */
+interface LoaderPage {
+  results: SelectOption[];
+  hasMore?: boolean;
+  currentPage?: number;
+}
+
+/** What `create` resolves to: the new item, which becomes the selected option and is passed on with `created`. */
+interface CreatedItem {
+  id: number;
+  name: string;
+}
+
+const props = withDefaults(
+  defineProps<{
+    options?: SelectOption[];
+    prependOptions?: SelectOption[];
+    modelValue?: string | number;
+    placeholder?: string;
+    // Async loader (e.g. a combined users + teams dropdown). Receives `(q, page)` and resolves to
+    // `{ results: [{ value, label }], hasMore: bool, currentPage: int }`.
+    loader?: ((q: string, page: number) => Promise<LoaderPage>) | null;
+    initialDisplayValue?: string;
+    /** Creates an item named after the search text; the option to create one only shows when it's set. */
+    create?: (name: string) => Promise<CreatedItem>;
+    createLabel?: string;
+  }>(),
+  {
+    options: () => [],
+    prependOptions: () => [],
+    modelValue: '',
+    placeholder: '',
+    loader: null,
+    initialDisplayValue: '',
+    createLabel: 'item',
+  },
+);
+
+const emit = defineEmits<{ 'update:modelValue': [value: string]; created: [item: CreatedItem] }>();
 
 const query = ref('');
-const apiOptions = ref([]);
+const apiOptions = ref<SelectOption[]>([]);
 const currentPage = ref(1);
 const hasMore = ref(false);
 const isLoadingMore = ref(false);
 const currentSearchText = ref('');
 const viewportRef = ref(null);
-let debounceTimer = null;
+let debounceTimer: ReturnType<typeof setTimeout> | undefined;
 
-function mapResult(item) {
-  const label = typeof props.labelField === 'function' ? props.labelField(item) : item[props.labelField];
-  return { value: String(item[props.valueField]), label: label || '' };
-}
-
-const isAsync = computed(() => props.loader || !!props.url);
+const isAsync = computed(() => !!props.loader);
 
 const effectiveOptions = computed(() => {
   const base = isAsync.value ? apiOptions.value : props.options;
@@ -64,7 +84,7 @@ const selectedLabel = computed(() => {
 const CREATE_SENTINEL = '__create_new__';
 
 const creatableOption = computed(() => {
-  if (!props.createUrl) return null;
+  if (!props.create) return null;
   const q = query.value.trim();
   if (!q) return null;
   const lower = q.toLowerCase();
@@ -75,25 +95,26 @@ const creatableOption = computed(() => {
 
 const filteredOptions = computed(() => effectiveOptions.value);
 
-async function createItem(name) {
+async function createItem(name: string) {
+  if (!props.create) return;
   try {
-    const newItem = await post(props.createUrl, { name });
-    const mapped = mapResult(newItem);
+    const newItem = await props.create(name);
+    const mapped = { value: String(newItem.id), label: newItem.name };
     apiOptions.value = [mapped, ...apiOptions.value.filter((o) => o.value !== mapped.value)];
     emit('update:modelValue', String(mapped.value));
     emit('created', newItem);
     query.value = '';
     showToast(`${props.createLabel} created.`);
   } catch (err) {
+    const errors: Record<string, string[] | undefined> =
+      err instanceof ApiError && err.data && typeof err.data === 'object' ? parseErrors(err) : {};
     const msg =
-      err?.data?.name?.[0] ||
-      err?.data?.non_field_errors?.[0] ||
-      `Failed to create ${props.createLabel.toLowerCase()}.`;
+      errors.name?.[0] || errors.non_field_errors?.[0] || `Failed to create ${props.createLabel.toLowerCase()}.`;
     showToast(msg, 'error');
   }
 }
 
-function onSelect(val) {
+function onSelect(val: string) {
   if (val === CREATE_SENTINEL) {
     const name = query.value.trim();
     if (name) createItem(name);
@@ -104,23 +125,13 @@ function onSelect(val) {
 }
 
 async function fetchOptions(searchText = '') {
-  if (!isAsync.value) return;
+  if (!props.loader) return;
   currentSearchText.value = searchText;
   try {
-    if (props.loader) {
-      const data = await props.loader(searchText, 1);
-      apiOptions.value = data.results || [];
-      currentPage.value = data.currentPage || 1;
-      hasMore.value = !!data.hasMore;
-      return;
-    }
-    const params = { page_size: 30, page: 1 };
-    if (searchText) params.q = searchText;
-    const data = await get(props.url, params);
-    const results = data.results || data;
-    apiOptions.value = results.map(mapResult);
-    currentPage.value = data.current_page_num || 1;
-    hasMore.value = !!data.next;
+    const data = await props.loader(searchText, 1);
+    apiOptions.value = data.results || [];
+    currentPage.value = data.currentPage || 1;
+    hasMore.value = !!data.hasMore;
   } catch {
     apiOptions.value = [];
     hasMore.value = false;
@@ -128,23 +139,13 @@ async function fetchOptions(searchText = '') {
 }
 
 async function fetchNextPage() {
-  if (!isAsync.value || isLoadingMore.value || !hasMore.value) return;
+  if (!props.loader || isLoadingMore.value || !hasMore.value) return;
   isLoadingMore.value = true;
   try {
-    if (props.loader) {
-      const data = await props.loader(currentSearchText.value, currentPage.value + 1);
-      apiOptions.value = [...apiOptions.value, ...(data.results || [])];
-      currentPage.value = data.currentPage || currentPage.value + 1;
-      hasMore.value = !!data.hasMore;
-      return;
-    }
-    const params = { page_size: 30, page: currentPage.value + 1 };
-    if (currentSearchText.value) params.q = currentSearchText.value;
-    const data = await get(props.url, params);
-    const results = data.results || data;
-    apiOptions.value = [...apiOptions.value, ...results.map(mapResult)];
-    currentPage.value = data.current_page_num || currentPage.value + 1;
-    hasMore.value = !!data.next;
+    const data = await props.loader(currentSearchText.value, currentPage.value + 1);
+    apiOptions.value = [...apiOptions.value, ...(data.results || [])];
+    currentPage.value = data.currentPage || currentPage.value + 1;
+    hasMore.value = !!data.hasMore;
   } catch {
     hasMore.value = false;
   } finally {
@@ -152,9 +153,9 @@ async function fetchNextPage() {
   }
 }
 
-function handleScroll(event) {
+function handleScroll(event: Event) {
   if (!isAsync.value) return;
-  const el = event.target;
+  const el = event.target as HTMLElement;
   const threshold = 50;
   if (el.scrollHeight - el.scrollTop - el.clientHeight < threshold) {
     fetchNextPage();
@@ -164,10 +165,10 @@ function handleScroll(event) {
 // Native DOM input event only fires on real keystrokes, not programmatic
 // value changes, so this cleanly avoids fetch loops from Reka UI's
 // internal model-value syncing after selection.
-function onSearchInput(event) {
+function onSearchInput(event: Event) {
   if (!isAsync.value) return;
   clearTimeout(debounceTimer);
-  debounceTimer = setTimeout(() => fetchOptions(event.target.value), 300);
+  debounceTimer = setTimeout(() => fetchOptions((event.target as HTMLInputElement).value), 300);
 }
 
 function onClear() {

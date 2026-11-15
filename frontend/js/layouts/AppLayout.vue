@@ -1,5 +1,5 @@
-<script setup>
-import { ref, computed, inject, onMounted, onUnmounted } from 'vue';
+<script setup lang="ts">
+import { ref, computed, onMounted, onUnmounted } from 'vue';
 import { RouterLink } from 'vue-router';
 import ThemeToggle from '@/components/ThemeToggle.vue';
 import AppToast from '@/components/AppToast.vue';
@@ -10,6 +10,7 @@ import UserAvatar from '@/components/UserAvatar.vue';
 import TrialEndingBanner from '@/components/billing/TrialEndingBanner.vue';
 import PastDueBanner from '@/components/billing/PastDueBanner.vue';
 import { useNotifications } from '@/composables/useNotifications';
+import { useAppStore } from '@/stores/app';
 import { stopImpersonating } from '@/utils/hijack';
 import { isDebugToolbarOn, toggleDebugToolbar } from '@/utils/debugToolbar';
 import {
@@ -27,7 +28,7 @@ import {
   BugAntIcon,
 } from '@heroicons/vue/24/outline';
 
-const appStore = inject('appStore');
+const appStore = useAppStore();
 const { startPolling, stopPolling } = useNotifications();
 const orgDropdownOpen = ref(false);
 const userDropdownOpen = ref(false);
@@ -60,8 +61,8 @@ function toggleMobileMenu() {
   mobileMenuOpen.value = !mobileMenuOpen.value;
 }
 
-function handleClickOutside(e) {
-  if (!e.target.closest('[data-dropdown="nav"]')) {
+function handleClickOutside(e: MouseEvent) {
+  if (!(e.target instanceof Element && e.target.closest('[data-dropdown="nav"]'))) {
     closeAllDropdowns();
   }
 }
@@ -94,7 +95,7 @@ onUnmounted(() => {
           <!-- Desktop controls -->
           <div class="hidden lg:flex items-center gap-1">
             <!-- Org dropdown -->
-            <template v-if="appStore.isOrg">
+            <template v-if="appStore.isOrg && appStore.org">
               <div class="relative" data-dropdown="nav">
                 <button
                   class="cursor-pointer flex items-center gap-1.5 px-2 py-1.5 text-sm font-medium text-gray-700 hover:text-gray-900 dark:text-gray-300 dark:hover:text-white"
@@ -349,7 +350,7 @@ onUnmounted(() => {
         <div class="my-1 border-t border-gray-100 dark:border-gray-700" />
 
         <!-- Org section -->
-        <template v-if="appStore.isOrg">
+        <template v-if="appStore.isOrg && appStore.org">
           <div class="px-4 pt-2 pb-1 text-xs font-semibold uppercase tracking-wide text-gray-500 dark:text-gray-400">
             {{ appStore.org.name }}
           </div>

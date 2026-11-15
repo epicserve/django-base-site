@@ -1,48 +1,50 @@
-<script setup>
+<script setup lang="ts">
 import { ref, onMounted } from 'vue';
 import AccountLayout from '@/layouts/AccountLayout.vue';
 import FormField from '../components/FormField.vue';
 import FormErrors from '../components/FormErrors.vue';
-import { authApi, parseAllauthErrors } from '../api';
+import { authApi, parseAllauthErrors, pendingFlows, responseMeta } from '../api';
+import { ApiError } from '../../utils/api';
 import { showToast } from '../../composables/useToast';
 
 const isActive = ref(false);
 const secret = ref('');
 const totpUrl = ref('');
 const code = ref('');
-const errors = ref({});
+const errors = ref<Record<string, string[]>>({});
 const loading = ref(true);
 
 const needsReauth = ref(false);
 const reauthPassword = ref('');
-const reauthErrors = ref({});
+const reauthErrors = ref<Record<string, string[]>>({});
 const reauthLoading = ref(false);
-let pendingAction = null;
+let pendingAction: (() => Promise<void>) | null = null;
 
 async function load() {
   loading.value = true;
   errors.value = {};
   try {
-    const data = await authApi.getTotpStatus();
+    await authApi.getTotpStatus();
 
     isActive.value = true;
-    secret.value = data.data?.secret || '';
+    // allauth only sends the secret with the 404, while there's no authenticator yet.
+    secret.value = '';
   } catch (err) {
-    if (err.response?.status === 404) {
+    if (err instanceof ApiError && err.response.status === 404) {
       isActive.value = false;
-      const setupData = err.data?.meta || err.data?.data || {};
+      const setupData = responseMeta(err.data);
 
-      secret.value = setupData.secret || '';
-      totpUrl.value = setupData.totp_url || '';
+      secret.value = typeof setupData.secret === 'string' ? setupData.secret : '';
+      totpUrl.value = typeof setupData.totp_url === 'string' ? setupData.totp_url : '';
     }
   } finally {
     loading.value = false;
   }
 }
 
-function isReauthRequired(err) {
-  if (err.response?.status !== 401) return false;
-  const flows = err.data?.data?.flows || [];
+function isReauthRequired(err: unknown) {
+  if (!(err instanceof ApiError) || err.response.status !== 401) return false;
+  const flows = pendingFlows(err.data);
 
   return flows.some((f) => f.id === 'reauthenticate' || f.id === 'mfa_reauthenticate');
 }
@@ -65,7 +67,7 @@ async function activate() {
       loading.value = false;
       return;
     }
-    errors.value = err.data ? parseAllauthErrors(err.data) : {};
+    errors.value = err instanceof ApiError && err.data ? parseAllauthErrors(err.data) : {};
   } finally {
     loading.value = false;
   }
@@ -86,7 +88,7 @@ async function deactivate() {
       loading.value = false;
       return;
     }
-    errors.value = err.data ? parseAllauthErrors(err.data) : {};
+    errors.value = err instanceof ApiError && err.data ? parseAllauthErrors(err.data) : {};
   } finally {
     loading.value = false;
   }
@@ -106,7 +108,10 @@ async function submitReauth() {
       await action();
     }
   } catch (err) {
-    reauthErrors.value = err.data ? parseAllauthErrors(err.data) : { non_field_errors: ['Could not verify password.'] };
+    reauthErrors.value =
+      err instanceof ApiError && err.data
+        ? parseAllauthErrors(err.data)
+        : { non_field_errors: ['Could not verify password.'] };
   } finally {
     reauthLoading.value = false;
   }

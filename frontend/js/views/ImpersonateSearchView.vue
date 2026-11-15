@@ -1,15 +1,16 @@
-<script setup>
+<script setup lang="ts">
 import { nextTick, ref, watch } from 'vue';
-import { get } from '@/utils/api';
+import type { components } from '@/api/schema';
+import { api, unwrap } from '@/utils/api';
 import { startImpersonating } from '@/utils/hijack';
 import UserAvatar from '@/components/UserAvatar.vue';
 
 const query = ref('');
-const results = ref([]);
+const results = ref<components['schemas']['ImpersonateUserOut'][]>([]);
 const loading = ref(false);
 const selectedIndex = ref(-1);
-const rowRefs = ref([]);
-let debounceTimer = null;
+const rowRefs = ref<HTMLElement[]>([]);
+let debounceTimer: ReturnType<typeof setTimeout> | undefined;
 
 watch(query, (q) => {
   clearTimeout(debounceTimer);
@@ -22,7 +23,7 @@ watch(query, (q) => {
     loading.value = true;
     try {
       rowRefs.value = [];
-      results.value = await get('/api/users/impersonate-search/', { q: q.trim() });
+      results.value = await unwrap(api.GET('/api/users/impersonate-search/', { params: { query: { q: q.trim() } } }));
       selectedIndex.value = results.value.length ? 0 : -1;
     } finally {
       loading.value = false;
@@ -30,19 +31,19 @@ watch(query, (q) => {
   }, 250);
 });
 
-function setRowRef(el, index) {
-  if (el) {
+function setRowRef(el: unknown, index: number) {
+  if (el instanceof HTMLElement) {
     rowRefs.value[index] = el;
   }
 }
 
-async function focusRow(index) {
+async function focusRow(index: number) {
   selectedIndex.value = index;
   await nextTick();
   rowRefs.value[index]?.focus();
 }
 
-function onSearchKeydown(e) {
+function onSearchKeydown(e: KeyboardEvent) {
   if (!results.value.length) return;
   if (e.key === 'ArrowDown') {
     e.preventDefault();
@@ -53,7 +54,7 @@ function onSearchKeydown(e) {
   }
 }
 
-function onRowKeydown(e, index) {
+function onRowKeydown(e: KeyboardEvent, index: number) {
   if (e.key === 'ArrowDown') {
     e.preventDefault();
     if (index < results.value.length - 1) {

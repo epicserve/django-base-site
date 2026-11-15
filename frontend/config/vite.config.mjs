@@ -33,7 +33,7 @@ export default defineConfig({
     target: 'es2015',
     rollupOptions: {
       input: {
-        app: resolve(__dirname, '../js/app.js'),
+        app: resolve(__dirname, '../js/app.ts'),
       },
       output: {
         chunkFileNames: undefined,

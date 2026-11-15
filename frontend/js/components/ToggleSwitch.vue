@@ -1,10 +1,7 @@
-<script setup>
-const props = defineProps({
-  modelValue: { type: Boolean, required: true },
-  label: { type: String, default: '' },
-});
+<script setup lang="ts">
+const props = withDefaults(defineProps<{ modelValue: boolean; label?: string }>(), { label: '' });
 
-const emit = defineEmits(['update:modelValue']);
+const emit = defineEmits<{ 'update:modelValue': [value: boolean] }>();
 
 function toggle() {
   emit('update:modelValue', !props.modelValue);

@@ -1,20 +1,21 @@
-<script setup>
-import { computed, inject, onMounted, ref } from 'vue';
+<script setup lang="ts">
+import { computed, onMounted, ref } from 'vue';
 import { useRouter } from 'vue-router';
 import { ChevronLeftIcon } from '@heroicons/vue/20/solid';
 import BillingCycleToggle from '@/components/billing/BillingCycleToggle.vue';
 import PlanCard from '@/components/billing/PlanCard.vue';
 import AppToast from '@/components/AppToast.vue';
-import { useBilling } from '@/composables/useBilling';
+import { useBilling, type BillingCycle } from '@/composables/useBilling';
 import { showToast } from '@/composables/useToast';
+import { useAppStore } from '@/stores/app';
 
-const appStore = inject('appStore');
+const appStore = useAppStore();
 const router = useRouter();
 const billing = useBilling();
-const cycle = ref('monthly');
+const cycle = ref<BillingCycle>('monthly');
 
 const backLink = computed(() => {
-  if (appStore.isAuthenticated && appStore.isOrg && appStore.isOwner) {
+  if (appStore.isAuthenticated && appStore.isOrg && appStore.isOwner && appStore.org) {
     return { label: 'Back to Billing', to: { name: 'org-settings-billing', params: { slug: appStore.org.slug } } };
   }
   if (appStore.isAuthenticated) {
@@ -45,7 +46,7 @@ onMounted(async () => {
 const annualSavings = computed(() => {
   // Pick the highest savings across plans for a "Save up to N%" label.
   let best = 0;
-  for (const p of billing.plans.value || []) {
+  for (const p of billing.plans.value) {
     if (!p.monthly_price_cents || !p.annual_price_cents) continue;
     const yearly = p.monthly_price_cents * 12;
     const pct = Math.round(((yearly - p.annual_price_cents) / yearly) * 100);
@@ -88,7 +89,7 @@ const hasSubscription = computed(() => !!billing.subscription.value?.status);
     </div>
 
     <div
-      v-if="billing.plansLoading.value && !(billing.plans.value || []).length"
+      v-if="billing.plansLoading.value && !billing.plans.value.length"
       class="mt-12 grid gap-6 sm:grid-cols-2 lg:grid-cols-3"
     >
       <div
@@ -98,7 +99,7 @@ const hasSubscription = computed(() => !!billing.subscription.value?.status);
       />
     </div>
     <div
-      v-else-if="!(billing.plans.value || []).length"
+      v-else-if="!billing.plans.value.length"
       class="mt-12 rounded-2xl border border-dashed border-gray-300 p-12 text-center text-gray-500 dark:border-gray-700 dark:text-gray-400"
     >
       <p class="text-lg font-medium">No plans configured yet.</p>

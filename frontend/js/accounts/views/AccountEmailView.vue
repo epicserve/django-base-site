@@ -1,17 +1,19 @@
-<script setup>
+<script setup lang="ts">
 import { ref, onMounted } from 'vue';
+import type { components } from '@/api/allauth';
 import AccountLayout from '@/layouts/AccountLayout.vue';
 import { authApi, parseAllauthErrors } from '../api';
+import { ApiError } from '../../utils/api';
 import { showToast } from '../../composables/useToast';
 
-const emails = ref([]);
+const emails = ref<components['schemas']['EmailAddress'][]>([]);
 const selectedEmail = ref('');
 const newEmail = ref('');
-const addErrors = ref({});
+const addErrors = ref<Record<string, string[]>>({});
 const loading = ref(false);
 
-function toastError(err, fallback = 'An error occurred.') {
-  const parsed = err?.data ? parseAllauthErrors(err.data) : {};
+function toastError(err: unknown, fallback = 'An error occurred.') {
+  const parsed = err instanceof ApiError && err.data ? parseAllauthErrors(err.data) : {};
   const messages = [
     ...(parsed.non_field_errors || []),
     ...Object.entries(parsed)
@@ -25,7 +27,7 @@ async function loadEmails() {
   try {
     const data = await authApi.listEmails();
 
-    emails.value = data.data || [];
+    emails.value = data.data;
     const primary = emails.value.find((e) => e.primary);
 
     if (primary) selectedEmail.value = primary.email;
@@ -57,7 +59,7 @@ async function resendVerification() {
     await authApi.resendVerification(selectedEmail.value);
     showToast('Verification email sent.');
   } catch (err) {
-    if (err?.response?.status === 403) {
+    if (err instanceof ApiError && err.response.status === 403) {
       showToast('A verification email was sent recently. Please wait a few minutes before trying again.', 'error');
     } else {
       toastError(err);
@@ -92,9 +94,10 @@ async function addEmail() {
     showToast('Email added. Check your inbox for a verification link.');
     await loadEmails();
   } catch (err) {
-    const parsed = err?.data ? parseAllauthErrors(err.data) : {};
+    const data = err instanceof ApiError ? err.data : null;
+    const parsed = data ? parseAllauthErrors(data) : {};
     addErrors.value = parsed;
-    if (parsed.non_field_errors?.length || !err?.data) {
+    if (parsed.non_field_errors?.length || !data) {
       showToast(parsed.non_field_errors?.join(' ') || 'An error occurred.', 'error');
     }
   } finally {

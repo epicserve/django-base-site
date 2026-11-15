@@ -1,10 +1,15 @@
-<script setup>
+<script setup lang="ts">
 import { ref, computed, watch } from 'vue';
 import { useRouter, RouterLink } from 'vue-router';
 import { BellIcon, TrashIcon, CheckIcon, XMarkIcon, InformationCircleIcon } from '@heroicons/vue/24/outline';
 import { BellAlertIcon } from '@heroicons/vue/24/solid';
-import { useNotifications } from '../composables/useNotifications';
-import { relativeTime, userFullName } from '../utils/format';
+import {
+  useNotifications,
+  type BulkAction,
+  type Notification,
+  type NotificationFilter,
+} from '../composables/useNotifications';
+import { relativeTime } from '../utils/format';
 import AppModal from './AppModal.vue';
 import UserAvatar from './UserAvatar.vue';
 
@@ -23,10 +28,10 @@ const {
 
 const isOpen = ref(false);
 const selectMode = ref(false);
-const selectedIds = ref(new Set());
-const detailNotification = ref(null);
+const selectedIds = ref(new Set<number>());
+const detailNotification = ref<Notification | null>(null);
 
-const filterTab = ref('unread');
+const filterTab = ref<NotificationFilter>('unread');
 const hasUnread = computed(() => unreadCount.value > 0);
 const badgeLabel = computed(() => (unreadCount.value > 99 ? '99+' : String(unreadCount.value)));
 const allSelected = computed(
@@ -43,7 +48,7 @@ function toggleDropdown() {
   }
 }
 
-function switchTab(tab) {
+function switchTab(tab: NotificationFilter) {
   if (filterTab.value === tab) return;
   filterTab.value = tab;
   exitSelectMode();
@@ -63,7 +68,7 @@ function toggleSelectMode() {
   }
 }
 
-function toggleSelect(id) {
+function toggleSelect(id: number) {
   const next = new Set(selectedIds.value);
   if (next.has(id)) next.delete(id);
   else next.add(id);
@@ -78,12 +83,12 @@ function toggleSelectAll() {
   }
 }
 
-function hasNavigableUrl(notification) {
+function hasNavigableUrl(notification: Notification): notification is Notification & { url: string } {
   const url = notification.url;
   return Boolean(url) && url !== '/';
 }
 
-async function handleRowClick(notification) {
+async function handleRowClick(notification: Notification) {
   if (selectMode.value) {
     toggleSelect(notification.id);
     return;
@@ -99,11 +104,11 @@ async function handleRowClick(notification) {
   }
 }
 
-async function handleDelete(id) {
+async function handleDelete(id: number) {
   await deleteOne(id);
 }
 
-async function handleBulk(action) {
+async function handleBulk(action: BulkAction) {
   const ids = Array.from(selectedIds.value);
   if (!ids.length) return;
   await bulkAction(action, ids);
@@ -114,21 +119,21 @@ async function handleBulk(action) {
 watch(notifications, (list) => {
   if (!selectMode.value) return;
   const live = new Set(list.map((n) => n.id));
-  const next = new Set();
+  const next = new Set<number>();
   selectedIds.value.forEach((id) => {
     if (live.has(id)) next.add(id);
   });
   selectedIds.value = next;
 });
 
-function handleOutside(e) {
-  if (!e.target.closest('[data-dropdown="notifications"]')) {
+function handleOutside(e: MouseEvent) {
+  if (!(e.target instanceof Element && e.target.closest('[data-dropdown="notifications"]'))) {
     isOpen.value = false;
     exitSelectMode();
   }
 }
 
-function handleEscape(e) {
+function handleEscape(e: KeyboardEvent) {
   if (e.key === 'Escape') {
     isOpen.value = false;
     exitSelectMode();
@@ -293,7 +298,7 @@ watch(isOpen, (open) => {
             :key="n.id"
             tabindex="0"
             role="button"
-            :aria-label="`${n.is_read ? '' : 'Unread, '}${n.title}${n.actor ? ` from ${userFullName(n.actor)}` : ''}`"
+            :aria-label="`${n.is_read ? '' : 'Unread, '}${n.title}${n.actor ? ` from ${n.actor.full_name}` : ''}`"
             class="group cursor-pointer px-3 py-3 hover:bg-gray-50 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-inset dark:hover:bg-gray-700/50"
             :class="!n.is_read ? 'bg-blue-50/40 dark:bg-blue-900/10' : ''"
             @click="handleRowClick(n)"
@@ -308,7 +313,7 @@ watch(isOpen, (open) => {
                 :checked="selectedIds.has(n.id)"
                 @click.stop="toggleSelect(n.id)"
               />
-              <UserAvatar v-else-if="n.actor" :src="n.actor.avatar_url || ''" :name="userFullName(n.actor)" size="md" />
+              <UserAvatar v-else-if="n.actor" :src="n.actor.avatar_url || ''" :name="n.actor.full_name" size="md" />
               <span
                 v-else
                 class="inline-flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-blue-100 text-blue-600 dark:bg-blue-900/40 dark:text-blue-300"
@@ -371,12 +376,12 @@ watch(isOpen, (open) => {
         <div v-if="detailNotification.actor" class="flex items-center gap-3">
           <UserAvatar
             :src="detailNotification.actor.avatar_url || ''"
-            :name="userFullName(detailNotification.actor)"
+            :name="detailNotification.actor.full_name"
             size="md"
           />
           <div class="text-sm">
             <p class="font-medium text-gray-900 dark:text-white">
-              {{ userFullName(detailNotification.actor) }}
+              {{ detailNotification.actor.full_name }}
             </p>
             <p class="text-xs text-gray-500 dark:text-gray-400">
               {{ relativeTime(detailNotification.created) }}

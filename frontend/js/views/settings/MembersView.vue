@@ -1,16 +1,14 @@
-<script setup>
-import { inject } from 'vue';
+<script setup lang="ts">
 import ManageOrganizationApp from '@/apps/ManageOrganizationApp.vue';
+import { useAppStore } from '@/stores/app';
 
-const appStore = inject('appStore');
+const appStore = useAppStore();
 </script>
 
 <template>
   <ManageOrganizationApp
-    v-if="appStore.org"
+    v-if="appStore.org && appStore.user"
     :org-name="appStore.org.name"
-    organization-member-list-url="/api/organization-members/"
-    organization-invite-list-url="/api/organization-invites/"
     :current-user-id="appStore.user.id"
   />
 </template>
