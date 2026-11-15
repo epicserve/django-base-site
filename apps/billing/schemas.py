@@ -34,6 +34,19 @@ class PlanSummaryOut(Schema):
     name: str
 
 
+class BillingSummaryOut(Schema):
+    """The `billing` key of `/api/app-context/`, built by `apps.billing.access.org_billing_summary`."""
+
+    enabled: bool
+    publishable_key: str
+    plan: PlanSummaryOut | None
+    status: str | None
+    billing_cycle: str | None
+    trial_end: str | None
+    cancel_at_period_end: bool
+    features: dict[str, bool | int | float | str | None]
+
+
 class SubscriptionOut(Schema):
     plan: PlanSummaryOut | None = None
     plan_key: str | None = None
