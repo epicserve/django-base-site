@@ -56,7 +56,7 @@ _require_native_tools:
     just _start_msg "Building docker project"
     # Remove the frontend container, running or not, so the node_modules volume can go; the new image refills it
     docker compose rm --stop --force frontend
-    docker volume rm --force {{ project_slug }}_node_modules
+    docker volume rm --force "$(just _compose_project)_node_modules"
     docker compose build
     # A one-off container from the new image: `exec web` would need web running, and would use the old image
     PYTHON_CMD_PREFIX="docker compose run --rm --no-deps -T web" just collectstatic
@@ -103,10 +103,15 @@ _require_native_tools:
 
 # Remove all docker volumes except the database volume for the project
 @clean_docker_volumes: clean_docker_images
-    volumes=$(docker volume ls | grep {{ project_slug }} | grep -v postgres_data | awk '{print $2}'); \
-    if [[ -n $volumes ]]; then \
+    volumes=$(docker volume ls -q --filter "label=com.docker.compose.project=$(just _compose_project)" | grep -v '_postgres_data$'); \
+    if [ -n "$volumes" ]; then \
         docker volume rm $volumes; \
     fi
+
+# This checkout's Compose project: COMPOSE_PROJECT_NAME from .env (a worktree's own, see scripts/worktree), else the
+# directory name. Name and find volumes by it, not by project_slug, which is only the main checkout's.
+@_compose_project:
+    docker compose config | sed -n 's/^name: //p'
 
 # Remove cached Python bytecode
 @clean_py_cache:
