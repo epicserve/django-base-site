@@ -1,14 +1,13 @@
-import { get } from '@/utils/api';
+import type { AppStore } from '@/stores/app';
+import { api, unwrap } from '@/utils/api';
 
 const POLL_INTERVAL_MS = 5 * 60 * 1000;
 
-export function startVersionWatcher(appStore) {
-  let timer = null;
-
+export function startVersionWatcher(appStore: AppStore): () => void {
   async function check() {
     if (appStore.updateAvailable) return;
     try {
-      const data = await get('/api/version/');
+      const data = await unwrap(api.GET('/api/version/'));
       if (!appStore.version) {
         appStore.version = data.version;
       } else if (data.version && data.version !== appStore.version) {
@@ -23,7 +22,7 @@ export function startVersionWatcher(appStore) {
     if (document.visibilityState === 'visible') check();
   }
 
-  timer = setInterval(check, POLL_INTERVAL_MS);
+  const timer = setInterval(check, POLL_INTERVAL_MS);
   document.addEventListener('visibilitychange', onVisibility);
 
   return () => {

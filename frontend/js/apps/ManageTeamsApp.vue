@@ -1,7 +1,8 @@
-<script setup>
+<script setup lang="ts">
 import { ref, computed, onMounted } from 'vue';
 import { PlusIcon, PencilIcon, TrashIcon } from '@heroicons/vue/24/outline';
-import { getAllResults, post, patch, del, parseErrors } from '../utils/api';
+import type { components } from '../api/schema';
+import { api, getAllResults, parseErrors, unwrap } from '../utils/api';
 import { showToast } from '../composables/useToast';
 import { userFullName } from '../utils/format';
 import AppModal from '../components/AppModal.vue';
@@ -11,21 +12,19 @@ import ComboboxTagsInput from '../components/ComboboxTagsInput.vue';
 import UserAvatar from '../components/UserAvatar.vue';
 import UserBadge from '../components/UserBadge.vue';
 
-const props = defineProps({
-  teamListUrl: { type: String, required: true },
-  organizationMemberListUrl: { type: String, required: true },
-});
+type Team = components['schemas']['TeamOut'];
+type OrgUser = components['schemas']['OrgUserOut'];
 
-const teams = ref([]);
-const memberOptions = ref([]);
-const confirmRef = ref(null);
+const teams = ref<Team[]>([]);
+const memberOptions = ref<OrgUser[]>([]);
+const confirmRef = ref<InstanceType<typeof ConfirmModal> | null>(null);
 
 const modalOpen = ref(false);
 const modalTitle = ref('Add Team');
-const editingTeam = ref(null);
+const editingTeam = ref<Team | null>(null);
 const formName = ref('');
-const formMembers = ref([]);
-const formErrors = ref({});
+const formMembers = ref<string[]>([]);
+const formErrors = ref<Record<string, string[]>>({});
 
 const memberOptionsList = computed(() =>
   memberOptions.value.map((m) => ({
@@ -36,7 +35,7 @@ const memberOptionsList = computed(() =>
 
 async function loadTeams() {
   try {
-    teams.value = await getAllResults(props.teamListUrl);
+    teams.value = await getAllResults((page) => unwrap(api.GET('/api/teams/', { params: { query: { page } } })));
   } catch {
     showToast('Failed to load teams.', 'error');
   }
@@ -44,20 +43,22 @@ async function loadTeams() {
 
 async function loadMembers() {
   try {
-    const results = await getAllResults(props.organizationMemberListUrl);
-    memberOptions.value = results.map((m) => m.user || m);
+    const results = await getAllResults((page) =>
+      unwrap(api.GET('/api/organization-members/', { params: { query: { page } } })),
+    );
+    memberOptions.value = results.map((m) => m.user);
   } catch {
     memberOptions.value = [];
   }
 }
 
-function openModal(team = null) {
+function openModal(team: Team | null = null) {
   formErrors.value = {};
   if (team) {
     modalTitle.value = 'Edit Team';
     editingTeam.value = team;
     formName.value = team.name;
-    formMembers.value = (team.member_details || []).map((m) => String(m.id));
+    formMembers.value = team.member_details.map((m) => String(m.id));
   } else {
     modalTitle.value = 'Add Team';
     editingTeam.value = null;
@@ -77,16 +78,18 @@ async function saveTeam() {
     formErrors.value = { name: ['Name is required.'] };
     return;
   }
-  const payload = {
-    name,
-    members: formMembers.value.map(Number),
-  };
+  const members = formMembers.value.map(Number);
   try {
     if (editingTeam.value) {
-      await patch(`${props.teamListUrl}${editingTeam.value.id}/`, payload);
+      await unwrap(
+        api.PATCH('/api/teams/{team_id}/', {
+          params: { path: { team_id: editingTeam.value.id } },
+          body: { name, members },
+        }),
+      );
       showToast('Team updated.');
     } else {
-      await post(props.teamListUrl, payload);
+      await unwrap(api.POST('/api/teams/', { body: { name, members } }));
       showToast('Team created.');
     }
     modalOpen.value = false;
@@ -96,11 +99,11 @@ async function saveTeam() {
   }
 }
 
-async function deleteTeam(team) {
-  const confirmed = await confirmRef.value.confirm(`Are you sure you want to delete "${team.name}"?`, 'Delete Team');
+async function deleteTeam(team: Team) {
+  const confirmed = await confirmRef.value?.confirm(`Are you sure you want to delete "${team.name}"?`, 'Delete Team');
   if (!confirmed) return;
   try {
-    await del(`${props.teamListUrl}${team.id}/`);
+    await unwrap(api.DELETE('/api/teams/{team_id}/', { params: { path: { team_id: team.id } } }));
     showToast('Team deleted.');
     await loadTeams();
   } catch {
@@ -150,10 +153,10 @@ onMounted(() => {
             </td>
             <td class="px-4 py-3">
               <div class="flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-gray-700 dark:text-gray-300">
-                <template v-if="(team.member_details || []).length === 1">
+                <template v-if="team.member_details.length === 1">
                   <UserBadge :user="team.member_details[0]" truncate />
                 </template>
-                <template v-else-if="(team.member_details || []).length > 1">
+                <template v-else-if="team.member_details.length > 1">
                   <div class="flex items-center -space-x-1">
                     <UserAvatar
                       v-for="member in team.member_details.slice(0, 3)"
@@ -222,8 +225,15 @@ onMounted(() => {
         </p>
       </div>
       <div class="mb-4">
-        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Members</label>
-        <ComboboxTagsInput v-model="formMembers" :options="memberOptionsList" placeholder="Add members..." />
+        <label for="team-members" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1"
+          >Members</label
+        >
+        <ComboboxTagsInput
+          v-model="formMembers"
+          input-id="team-members"
+          :options="memberOptionsList"
+          placeholder="Add members..."
+        />
         <p v-if="formErrors.members" class="mt-1 text-sm text-red-600">
           {{ formErrors.members.join(' ') }}
         </p>

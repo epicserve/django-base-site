@@ -1,9 +1,10 @@
-<script setup>
-import { computed, inject } from 'vue';
+<script setup lang="ts">
+import { computed } from 'vue';
 import { RouterView, useRoute } from 'vue-router';
 import AppLayout from '@/layouts/AppLayout.vue';
+import { useAppStore } from '@/stores/app';
 
-const appStore = inject('appStore');
+const appStore = useAppStore();
 const route = useRoute();
 
 // Routes with `meta.publicChrome` (e.g. /pricing) bring their own MarketingLayout

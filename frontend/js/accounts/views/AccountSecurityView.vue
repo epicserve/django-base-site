@@ -1,14 +1,20 @@
-<script setup>
+<script setup lang="ts">
 import { ref, computed, onMounted } from 'vue';
 import { RouterLink } from 'vue-router';
+import type { components } from '@/api/allauth';
 import AccountLayout from '@/layouts/AccountLayout.vue';
 import { authApi } from '../api';
 
-const authenticators = ref([]);
+type Authenticator = components['schemas']['AuthenticatorList'][number];
+type RecoveryCodesAuthenticator = components['schemas']['RecoveryCodesAuthenticator'];
+
+const authenticators = ref<Authenticator[]>([]);
 const loading = ref(true);
 
 const totp = computed(() => authenticators.value.find((a) => a.type === 'totp'));
-const recoveryCodes = computed(() => authenticators.value.find((a) => a.type === 'recovery_codes'));
+const recoveryCodes = computed(() =>
+  authenticators.value.find((a): a is RecoveryCodesAuthenticator => a.type === 'recovery_codes'),
+);
 const passkeys = computed(() => authenticators.value.filter((a) => a.type === 'webauthn'));
 
 async function load() {
@@ -16,7 +22,7 @@ async function load() {
   try {
     const data = await authApi.listAuthenticators();
 
-    authenticators.value = data.data || [];
+    authenticators.value = data.data;
   } finally {
     loading.value = false;
   }

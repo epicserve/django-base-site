@@ -13,7 +13,6 @@ appStore.contextReady = appStore.fetchContext().catch(() => {
   appStore.loading = false;
 });
 
-app.provide('appStore', appStore);
 app.use(router);
 app.mount('#app');
 

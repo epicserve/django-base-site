@@ -1,17 +1,18 @@
-<script setup>
-import { computed, inject, ref, watchEffect } from 'vue';
+<script setup lang="ts">
+import { computed, ref, watchEffect } from 'vue';
 import { RouterLink } from 'vue-router';
 import { XMarkIcon } from '@heroicons/vue/20/solid';
+import { useAppStore } from '@/stores/app';
 
-const appStore = inject('appStore');
+const appStore = useAppStore();
 const dismissed = ref(false);
 
-function storageKey(trialEnd) {
+function storageKey(trialEnd: string) {
   return `trialBanner.dismissed.${trialEnd}`;
 }
 
 watchEffect(() => {
-  const trialEnd = appStore.billing?.trial_end;
+  const trialEnd = appStore.billing.trial_end;
   if (!trialEnd) {
     dismissed.value = false;
     return;
@@ -20,13 +21,13 @@ watchEffect(() => {
 });
 
 const daysLeft = computed(() => {
-  if (!appStore.billing?.trial_end) return null;
+  if (!appStore.billing.trial_end) return null;
   const ms = new Date(appStore.billing.trial_end).getTime() - Date.now();
   return Math.max(0, Math.ceil(ms / (1000 * 60 * 60 * 24)));
 });
 
 const visible = computed(() => {
-  if (!appStore.billing?.enabled) return false;
+  if (!appStore.billing.enabled) return false;
   if (appStore.billing.status !== 'trialing') return false;
   if (!appStore.billing.trial_end) return false;
   if (daysLeft.value === null || daysLeft.value > 7) return false;
@@ -34,7 +35,7 @@ const visible = computed(() => {
 });
 
 function dismiss() {
-  if (appStore.billing?.trial_end) {
+  if (appStore.billing.trial_end) {
     window.localStorage.setItem(storageKey(appStore.billing.trial_end), '1');
   }
   dismissed.value = true;

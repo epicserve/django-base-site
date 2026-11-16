@@ -1,4 +1,4 @@
-<script setup>
+<script setup lang="ts">
 import { ref, computed, watch, onMounted } from 'vue';
 import { useRouter, RouterLink } from 'vue-router';
 import {
@@ -9,28 +9,34 @@ import {
   ChevronRightIcon,
   InformationCircleIcon,
 } from '@heroicons/vue/24/outline';
-import { get, patch, post, del } from '@/utils/api';
-import { useNotifications } from '@/composables/useNotifications';
+import { api, unwrap } from '@/utils/api';
+import {
+  useNotifications,
+  type BulkAction,
+  type Notification,
+  type NotificationFilter,
+} from '@/composables/useNotifications';
 import { showToast } from '@/composables/useToast';
-import { relativeTime, userFullName } from '@/utils/format';
+import { relativeTime } from '@/utils/format';
 import AppModal from '@/components/AppModal.vue';
 import UserAvatar from '@/components/UserAvatar.vue';
 
 const router = useRouter();
-const { unreadCount, markAllRead: composableMarkAllRead } = useNotifications();
+// Changes go through the composable, which keeps the unread count in the header and the Unread tab current.
+const { unreadCount, changeCount, markRead, deleteOne, bulkAction, markAllRead } = useNotifications();
 
 const PAGE_SIZE = 25;
 
-const filterTab = ref('all');
+const filterTab = ref<NotificationFilter>('all');
 const page = ref(1);
-const items = ref([]);
+const items = ref<Notification[]>([]);
 const totalCount = ref(0);
 const numPages = ref(1);
 const loading = ref(false);
 
 const selectMode = ref(false);
-const selectedIds = ref(new Set());
-const detailNotification = ref(null);
+const selectedIds = ref(new Set<number>());
+const detailNotification = ref<Notification | null>(null);
 
 const hasUnread = computed(() => unreadCount.value > 0);
 const allSelected = computed(() => items.value.length > 0 && selectedIds.value.size === items.value.length);
@@ -44,9 +50,17 @@ const rangeLabel = computed(() => {
 async function load() {
   loading.value = true;
   try {
-    const params = { page: page.value, page_size: PAGE_SIZE };
-    if (filterTab.value === 'unread') params.is_read = 'false';
-    const data = await get('/api/notifications/', params);
+    const data = await unwrap(
+      api.GET('/api/notifications/', {
+        params: {
+          query: {
+            page: page.value,
+            page_size: PAGE_SIZE,
+            is_read: filterTab.value === 'unread' ? 'false' : undefined,
+          },
+        },
+      }),
+    );
     items.value = data.results;
     totalCount.value = data.count;
     numPages.value = data.num_pages;
@@ -62,7 +76,7 @@ function exitSelectMode() {
   selectedIds.value = new Set();
 }
 
-function switchTab(tab) {
+function switchTab(tab: NotificationFilter) {
   if (filterTab.value === tab) return;
   filterTab.value = tab;
   page.value = 1;
@@ -70,14 +84,14 @@ function switchTab(tab) {
   load();
 }
 
-function gotoPage(target) {
+function gotoPage(target: number) {
   if (target < 1 || target > numPages.value || target === page.value) return;
   page.value = target;
   exitSelectMode();
   load();
 }
 
-function toggleSelect(id) {
+function toggleSelect(id: number) {
   const next = new Set(selectedIds.value);
   if (next.has(id)) next.delete(id);
   else next.add(id);
@@ -92,22 +106,12 @@ function toggleSelectAll() {
   }
 }
 
-function hasNavigableUrl(notification) {
+function hasNavigableUrl(notification: Notification) {
   const url = notification.url;
   return Boolean(url) && url !== '/';
 }
 
-async function applyLocalRead(id, isRead) {
-  const n = items.value.find((item) => item.id === id);
-  if (n) n.is_read = isRead;
-}
-
-async function markRead(id) {
-  await patch(`/api/notifications/${id}/`, { is_read: true });
-  applyLocalRead(id, true);
-}
-
-async function handleRowClick(notification) {
+async function handleRowClick(notification: Notification) {
   if (selectMode.value) {
     toggleSelect(notification.id);
     return;
@@ -115,35 +119,35 @@ async function handleRowClick(notification) {
   if (!notification.is_read) {
     markRead(notification.id).catch(() => {});
   }
-  if (hasNavigableUrl(notification)) {
+  if (notification.url && hasNavigableUrl(notification)) {
     router.push(notification.url);
   } else {
     detailNotification.value = { ...notification, is_read: true };
   }
 }
 
-async function handleDelete(id) {
-  await del(`/api/notifications/${id}/`);
-  await load();
+async function handleDelete(id: number) {
+  await deleteOne(id);
 }
 
-async function handleBulk(action) {
+async function handleBulk(action: BulkAction) {
   const ids = Array.from(selectedIds.value);
   if (!ids.length) return;
-  await post('/api/notifications/bulk/', { action, ids });
+  await bulkAction(action, ids);
   exitSelectMode();
-  await load();
 }
 
 async function handleMarkAllRead() {
-  await composableMarkAllRead();
-  await load();
+  await markAllRead();
 }
+
+// Reload after every change, from this page or from the bell in the header, and when a new notification arrives.
+watch(changeCount, load);
 
 watch(items, (list) => {
   if (!selectMode.value) return;
   const live = new Set(list.map((n) => n.id));
-  const next = new Set();
+  const next = new Set<number>();
   selectedIds.value.forEach((id) => {
     if (live.has(id)) next.add(id);
   });
@@ -286,7 +290,7 @@ onMounted(load);
           :key="n.id"
           tabindex="0"
           role="button"
-          :aria-label="`${n.is_read ? '' : 'Unread, '}${n.title}${n.actor ? ` from ${userFullName(n.actor)}` : ''}`"
+          :aria-label="`${n.is_read ? '' : 'Unread, '}${n.title}${n.actor ? ` from ${n.actor.full_name}` : ''}`"
           class="group cursor-pointer px-4 py-3 hover:bg-gray-50 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-inset dark:hover:bg-gray-800/60"
           :class="!n.is_read ? 'bg-blue-50/40 dark:bg-blue-900/10' : ''"
           @click="handleRowClick(n)"
@@ -301,7 +305,7 @@ onMounted(load);
               :checked="selectedIds.has(n.id)"
               @click.stop="toggleSelect(n.id)"
             />
-            <UserAvatar v-else-if="n.actor" :src="n.actor.avatar_url || ''" :name="userFullName(n.actor)" size="md" />
+            <UserAvatar v-else-if="n.actor" :src="n.actor.avatar_url || ''" :name="n.actor.full_name" size="md" />
             <span
               v-else
               class="inline-flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-blue-100 text-blue-600 dark:bg-blue-900/40 dark:text-blue-300"
@@ -381,12 +385,12 @@ onMounted(load);
         <div v-if="detailNotification.actor" class="flex items-center gap-3">
           <UserAvatar
             :src="detailNotification.actor.avatar_url || ''"
-            :name="userFullName(detailNotification.actor)"
+            :name="detailNotification.actor.full_name"
             size="md"
           />
           <div class="text-sm">
             <p class="font-medium text-gray-900 dark:text-white">
-              {{ userFullName(detailNotification.actor) }}
+              {{ detailNotification.actor.full_name }}
             </p>
             <p class="text-xs text-gray-500 dark:text-gray-400">
               {{ relativeTime(detailNotification.created) }}

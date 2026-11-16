@@ -1,10 +1,11 @@
-<script setup>
+<script setup lang="ts">
 import { computed, onMounted, ref } from 'vue';
-import { get, post } from '@/utils/api';
+import type { components } from '@/api/schema';
+import { api, parseErrors, unwrap } from '@/utils/api';
 import { showToast } from '@/composables/useToast';
 import SearchableSelect from '@/components/SearchableSelect.vue';
 
-const users = ref([]);
+const users = ref<components['schemas']['StaffUserOut'][]>([]);
 const selectedUserId = ref('');
 const sendEmail = ref(true);
 const sendInApp = ref(true);
@@ -23,12 +24,12 @@ const canSubmit = computed(() => Boolean(selectedUserId.value) && (sendEmail.val
 onMounted(async () => {
   loading.value = true;
   try {
-    users.value = await get('/api/test-notifications/staff-users/');
+    users.value = await unwrap(api.GET('/api/test-notifications/staff-users/'));
     if (users.value.length) {
       selectedUserId.value = String(users.value[0].id);
     }
   } catch (err) {
-    showToast(err?.data?.detail || 'Failed to load staff users.', 'error');
+    showToast(parseErrors(err).detail?.[0] || 'Failed to load staff users.', 'error');
   } finally {
     loading.value = false;
   }
@@ -38,14 +39,18 @@ async function submit() {
   if (!canSubmit.value) return;
   sending.value = true;
   try {
-    const data = await post('/api/test-notifications/', {
-      user_id: Number(selectedUserId.value),
-      send_email: sendEmail.value,
-      send_in_app: sendInApp.value,
-    });
+    const data = await unwrap(
+      api.POST('/api/test-notifications/', {
+        body: {
+          user_id: Number(selectedUserId.value),
+          send_email: sendEmail.value,
+          send_in_app: sendInApp.value,
+        },
+      }),
+    );
     showToast(data.message || 'Test notification sent.', 'success');
   } catch (err) {
-    showToast(err?.data?.detail || 'Failed to send test notification.', 'error');
+    showToast(parseErrors(err).detail?.[0] || 'Failed to send test notification.', 'error');
   } finally {
     sending.value = false;
   }
@@ -64,10 +69,13 @@ async function submit() {
       class="rounded-xl border border-gray-200 bg-white px-8 py-8 shadow-sm dark:border-gray-700 dark:bg-gray-800"
       @submit.prevent="submit"
     >
-      <label class="block text-sm font-medium text-gray-700 dark:text-gray-300"> Recipient </label>
+      <label for="notification-recipient" class="block text-sm font-medium text-gray-700 dark:text-gray-300">
+        Recipient
+      </label>
       <div class="mt-1">
         <SearchableSelect
           v-model="selectedUserId"
+          input-id="notification-recipient"
           :options="userOptions"
           :placeholder="loading ? 'Loading…' : 'Select a staff user...'"
         />

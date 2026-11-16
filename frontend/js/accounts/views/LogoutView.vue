@@ -1,15 +1,16 @@
-<script setup>
-import { onMounted, inject } from 'vue';
-import { del } from '../../utils/api';
+<script setup lang="ts">
+import { onMounted } from 'vue';
+import { useAppStore } from '@/stores/app';
+import { authApi } from '../api';
 
-const appStore = inject('appStore');
+const appStore = useAppStore();
 
 onMounted(async () => {
   if (appStore.isAuthenticated) {
     try {
       // Headless logout returns 401 (no longer authenticated) on success.
       // Our request() throws on non-2xx, so catch is expected.
-      await del('/_allauth/browser/v1/auth/session');
+      await authApi.logout();
     } catch {
       // Session destroyed — 401 is the expected response
     }

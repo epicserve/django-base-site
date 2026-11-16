@@ -1,14 +1,15 @@
-<script>
+<script lang="ts">
 // Module scope, so the tower drops in once per page load rather than every time
 // the router remounts this view.
 let towerHasDropped = false;
 </script>
 
-<script setup>
-import { computed, inject, ref } from 'vue';
+<script setup lang="ts">
+import { computed, ref } from 'vue';
 import { ArrowTopRightOnSquareIcon, CodeBracketIcon } from '@heroicons/vue/20/solid';
+import { useAppStore } from '@/stores/app';
 
-const appStore = inject('appStore');
+const appStore = useAppStore();
 
 const shouldDrop = !towerHasDropped;
 towerHasDropped = true;
@@ -70,8 +71,8 @@ const layers = [
 // A point (x, y, z) projects to screen as ((x - y)·cos30°, (x + y)·sin30° − z).
 const COS = Math.cos(Math.PI / 6);
 const SIN = 0.5;
-const iso = (x, y, z) => [(x - y) * COS, (x + y) * SIN - z];
-const points = (corners) =>
+const iso = (x: number, y: number, z: number): [number, number] => [(x - y) * COS, (x + y) * SIN - z];
+const points = (corners: [number, number, number][]) =>
   corners
     .map((c) =>
       iso(...c)
@@ -94,7 +95,7 @@ const stackPlan = [
   { key: 'frontend', height: 54, dx: 2, dy: -4 },
 ];
 
-function buildBlock({ dx, dy, z0, height }) {
+function buildBlock({ dx, dy, z0, height }: { dx: number; dy: number; z0: number; height: number }) {
   const x0 = dx;
   const y0 = dy;
   const x1 = x0 + LENGTH;
@@ -170,7 +171,7 @@ const viewBox = [minX, minY, maxX - minX, maxY - minY].map((n) => n.toFixed(1)).
 
 const towerLabel = `A stack of blocks, top to bottom: ${layers.map((l) => l.name).join(', ')}, with an empty block on top for your app.`;
 
-const activeKey = ref(null);
+const activeKey = ref<string | null>(null);
 </script>
 
 <template>

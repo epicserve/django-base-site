@@ -1,6 +1,6 @@
-<script setup>
-defineProps({
-  errors: { type: Array, default: () => [] },
+<script setup lang="ts">
+withDefaults(defineProps<{ errors?: string[] }>(), {
+  errors: () => [],
 });
 </script>
 

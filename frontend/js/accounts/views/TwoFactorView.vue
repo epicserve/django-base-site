@@ -1,18 +1,20 @@
-<script setup>
-import { ref, inject } from 'vue';
+<script setup lang="ts">
+import { ref } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import AuthLayout from '@/layouts/AuthLayout.vue';
+import { useAppStore } from '@/stores/app';
 import FormField from '../components/FormField.vue';
 import FormErrors from '../components/FormErrors.vue';
 import { authApi, parseAllauthErrors } from '../api';
+import { ApiError } from '../../utils/api';
 import { safeNextUrl } from '../../utils/redirect';
 
 const route = useRoute();
 const router = useRouter();
-const appStore = inject('appStore');
+const appStore = useAppStore();
 
 const code = ref('');
-const errors = ref({});
+const errors = ref<Record<string, string[]>>({});
 const loading = ref(false);
 
 function getRedirectUrl() {
@@ -23,26 +25,25 @@ async function onSubmit() {
   loading.value = true;
   errors.value = {};
   try {
-    const data = await authApi.submit2FA(code.value);
-
-    appStore.setUser(data.data?.user || null);
+    await authApi.submit2FA(code.value);
     await appStore.fetchContext();
     window.location.href = getRedirectUrl();
   } catch (err) {
-    if (err.response?.status === 409) {
+    if (err instanceof ApiError && err.response.status === 409) {
       window.location.href = getRedirectUrl();
       return;
     }
-    if (err.response?.status === 410) {
+    if (err instanceof ApiError && err.response.status === 410) {
       // Flow expired — back to login
       router.push({ name: 'login' });
       return;
     }
-    errors.value = err.data
-      ? parseAllauthErrors(err.data)
-      : {
-          non_field_errors: ['Invalid code.'],
-        };
+    errors.value =
+      err instanceof ApiError && err.data
+        ? parseAllauthErrors(err.data)
+        : {
+            non_field_errors: ['Invalid code.'],
+          };
     loading.value = false;
   }
 }

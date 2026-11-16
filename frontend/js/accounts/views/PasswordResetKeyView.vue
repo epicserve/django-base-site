@@ -1,16 +1,17 @@
-<script setup>
+<script setup lang="ts">
 import { ref } from 'vue';
 import { useRoute, useRouter, RouterLink } from 'vue-router';
 import AuthLayout from '@/layouts/AuthLayout.vue';
 import FormField from '../components/FormField.vue';
 import FormErrors from '../components/FormErrors.vue';
-import { authApi, parseAllauthErrors } from '../api';
+import { authApi, parseAllauthErrors, responseMeta } from '../api';
+import { ApiError } from '../../utils/api';
 
 const route = useRoute();
 const router = useRouter();
 
 const password = ref('');
-const errors = ref({});
+const errors = ref<Record<string, string[]>>({});
 const loading = ref(false);
 const badToken = ref(false);
 
@@ -18,16 +19,16 @@ async function onSubmit() {
   loading.value = true;
   errors.value = {};
   try {
-    await authApi.resetPassword(route.params.key, password.value);
+    await authApi.resetPassword(String(route.params.key), password.value);
     router.push({ name: 'password-reset-key-done' });
   } catch (err) {
     // allauth returns 401 after a successful reset (password changed,
     // now log in). Treat 401 with is_authenticated=false as success.
-    if (err.response?.status === 401 && err.data?.meta?.is_authenticated === false) {
+    if (err instanceof ApiError && err.response.status === 401 && responseMeta(err.data).is_authenticated === false) {
       router.push({ name: 'password-reset-key-done' });
       return;
     }
-    if (err.data) {
+    if (err instanceof ApiError && err.data) {
       const parsed = parseAllauthErrors(err.data);
 
       if (parsed.key || parsed.token) {
