@@ -15,7 +15,8 @@ const POLL_INTERVAL_MS = 20_000,
   dropdownOpen = ref(false),
   seenUnreadIds = new Set<number>(),
   seeded = ref(false),
-  // Goes up after every change the user makes, so a view that keeps its own copy of the list can reload it.
+  // Goes up after every change the user makes and when a new notification arrives, so a view that keeps its own copy
+  // of the list can reload it.
   changeCount = ref(0);
 
 let pollHandle: ReturnType<typeof setInterval> | null = null,
@@ -25,18 +26,18 @@ function listNotifications(query: { is_read?: string; page_size: number }) {
   return unwrap(api.GET('/api/notifications/', { params: { query } }));
 }
 
-function toastForNew(results: Notification[]) {
+function announceNew(results: Notification[]) {
   if (!seeded.value) {
     results.forEach((n) => seenUnreadIds.add(n.id));
     seeded.value = true;
     return;
   }
-  results.forEach((n) => {
-    if (!seenUnreadIds.has(n.id)) {
-      seenUnreadIds.add(n.id);
-      showToast(n.title, 'success', 5000);
-    }
+  const arrived = results.filter((n) => !seenUnreadIds.has(n.id));
+  arrived.forEach((n) => {
+    seenUnreadIds.add(n.id);
+    showToast(n.title, 'success', 5000);
   });
+  if (arrived.length) changeCount.value += 1;
 }
 
 async function refreshUnread() {
@@ -50,7 +51,7 @@ async function refreshUnread() {
       const all = await listNotifications({ page_size: 30 });
       notifications.value = all.results;
     }
-    toastForNew(data.results);
+    announceNew(data.results);
   } catch {
     // swallow — polling recovers on next tick
   }
@@ -64,7 +65,7 @@ async function fetchList({ filter = currentFilter.value }: { filter?: Notificati
     notifications.value = data.results;
     if (filter === 'unread') {
       unreadCount.value = data.count;
-      toastForNew(data.results);
+      announceNew(data.results);
     }
   } finally {
     loading.value = false;

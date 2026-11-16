@@ -119,3 +119,19 @@ class TestPageFollowsBell:
         bell = self._open_bell(page, live_server)
         bell.get_by_role("button", name="Mark All Read", exact=True).click()
         expect(page.get_by_role("main").get_by_role("button", name=re.compile(r"^Unread, "))).to_have_count(0)
+
+
+@pytest.mark.usefixtures("notifications")
+class TestNewNotifications:
+    def test_show_on_the_page(self, page: Page, live_server, user):
+        from apps.notifications.services import notify
+
+        page.clock.install()
+        _open_page(page, live_server)
+
+        notify([user], title="Pretzel Day")
+        # The bell polls every 20 seconds.
+        page.clock.fast_forward("00:21")
+        expect(page.get_by_role("button", name="Notifications, 4 unread")).to_be_visible()
+
+        expect(page.get_by_role("main").get_by_role("button", name="Unread, Pretzel Day", exact=True)).to_be_visible()

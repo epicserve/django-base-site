@@ -141,7 +141,7 @@ async function handleMarkAllRead() {
   await markAllRead();
 }
 
-// Reload after every change, from this page or from the bell in the header.
+// Reload after every change, from this page or from the bell in the header, and when a new notification arrives.
 watch(changeCount, load);
 
 watch(items, (list) => {
