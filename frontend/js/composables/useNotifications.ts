@@ -103,8 +103,9 @@ async function bulkAction(action: BulkAction, ids: number[]) {
     notifications.value = notifications.value.filter((n) => !ids.includes(n.id));
     ids.forEach((id) => seenUnreadIds.delete(id));
   } else {
+    // The selection can mix read and unread notifications, so the count comes from `refreshUnread()` below.
     const isRead = action === 'mark_read';
-    ids.forEach((id) => applyLocalRead(id, isRead));
+    ids.forEach((id) => setLocalRead(id, isRead));
   }
   await refreshUnread();
   if (currentFilter.value === 'unread' && action !== 'mark_unread') {
@@ -123,9 +124,15 @@ async function markAllRead() {
   }
 }
 
-function applyLocalRead(id: number, isRead: boolean) {
+function setLocalRead(id: number, isRead: boolean) {
   const n = notifications.value.find((item) => item.id === id);
   if (n) n.is_read = isRead;
+  // The user marked it unread, so the next refresh mustn't toast it as a new notification.
+  if (!isRead) seenUnreadIds.add(id);
+}
+
+function applyLocalRead(id: number, isRead: boolean) {
+  setLocalRead(id, isRead);
   if (isRead) unreadCount.value = Math.max(0, unreadCount.value - 1);
   else unreadCount.value += 1;
 }

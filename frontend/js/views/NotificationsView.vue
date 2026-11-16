@@ -22,7 +22,8 @@ import AppModal from '@/components/AppModal.vue';
 import UserAvatar from '@/components/UserAvatar.vue';
 
 const router = useRouter();
-const { unreadCount, markAllRead: composableMarkAllRead } = useNotifications();
+// Changes go through the composable, which keeps the unread count in the header and the Unread tab current.
+const { unreadCount, markRead, deleteOne, bulkAction, markAllRead } = useNotifications();
 
 const PAGE_SIZE = 25;
 
@@ -110,28 +111,17 @@ function hasNavigableUrl(notification: Notification) {
   return Boolean(url) && url !== '/';
 }
 
-async function applyLocalRead(id: number, isRead: boolean) {
-  const n = items.value.find((item) => item.id === id);
-  if (n) n.is_read = isRead;
-}
-
-async function markRead(id: number) {
-  await unwrap(
-    api.PATCH('/api/notifications/{notification_id}/', {
-      params: { path: { notification_id: id } },
-      body: { is_read: true },
-    }),
-  );
-  applyLocalRead(id, true);
-}
-
 async function handleRowClick(notification: Notification) {
   if (selectMode.value) {
     toggleSelect(notification.id);
     return;
   }
   if (!notification.is_read) {
-    markRead(notification.id).catch(() => {});
+    markRead(notification.id)
+      .then(() => {
+        notification.is_read = true;
+      })
+      .catch(() => {});
   }
   if (notification.url && hasNavigableUrl(notification)) {
     router.push(notification.url);
@@ -141,20 +131,20 @@ async function handleRowClick(notification: Notification) {
 }
 
 async function handleDelete(id: number) {
-  await unwrap(api.DELETE('/api/notifications/{notification_id}/', { params: { path: { notification_id: id } } }));
+  await deleteOne(id);
   await load();
 }
 
 async function handleBulk(action: BulkAction) {
   const ids = Array.from(selectedIds.value);
   if (!ids.length) return;
-  await unwrap(api.POST('/api/notifications/bulk/', { body: { action, ids } }));
+  await bulkAction(action, ids);
   exitSelectMode();
   await load();
 }
 
 async function handleMarkAllRead() {
-  await composableMarkAllRead();
+  await markAllRead();
   await load();
 }
 

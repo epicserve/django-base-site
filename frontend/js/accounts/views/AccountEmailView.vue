@@ -201,8 +201,9 @@ async function addEmail() {
       <h2 class="text-sm font-medium text-gray-900 dark:text-white mb-3">Add Email Address</h2>
       <form class="flex items-end gap-3" @submit.prevent="addEmail">
         <div class="flex-1">
-          <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1"> Email </label>
+          <label for="new-email" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1"> Email </label>
           <input
+            id="new-email"
             v-model="newEmail"
             type="email"
             placeholder="New email address"
