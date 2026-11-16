@@ -1,4 +1,6 @@
 <script setup lang="ts">
+import { useId } from 'vue';
+
 withDefaults(
   defineProps<{
     label?: string;
@@ -19,14 +21,17 @@ withDefaults(
 );
 
 defineEmits<{ 'update:modelValue': [value: string] }>();
+
+const inputId = useId();
 </script>
 
 <template>
   <div>
-    <label v-if="label" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+    <label v-if="label" :for="inputId" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
       {{ label }}
     </label>
     <input
+      :id="inputId"
       :type="type"
       :value="modelValue"
       :placeholder="placeholder"
