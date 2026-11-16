@@ -23,6 +23,9 @@ const passkeySupported = ref(false);
 let conditionalAvailable = false;
 // Aborts the pending autofill (conditional) passkey request.
 let conditionalRequest: AbortController | null = null;
+// allauth keeps the passkey challenge in the session, so the options request can start an anonymous session. If its
+// response lands after sign-in's, that session's cookie replaces the signed-in one, so sign-in waits for it.
+let passkeyOptionsRequest: Promise<unknown> = Promise.resolve();
 
 onMounted(async () => {
   passkeySupported.value = isWebAuthnSupported();
@@ -66,6 +69,7 @@ async function onSubmit() {
   loading.value = true;
   errors.value = {};
   try {
+    await passkeyOptionsRequest;
     await authApi.login(email.value, password.value);
     await appStore.fetchContext();
     window.location.href = getRedirectUrl();
@@ -84,6 +88,8 @@ async function onSubmit() {
 }
 
 async function attemptPasskeyLogin({ conditional = false }: { conditional?: boolean } = {}) {
+  // An autofill request started during a password sign-in could replace its session the same way.
+  if (conditional && loading.value) return;
   // Only one WebAuthn request can be pending, so the button cancels the autofill one first.
   cancelConditionalRequest();
   const controller = new AbortController();
@@ -99,7 +105,12 @@ async function attemptPasskeyLogin({ conditional = false }: { conditional?: bool
   let userChosePasskey = !conditional;
 
   try {
-    const optsResp = await authApi.beginPasskeyLogin();
+    // A second options request sent while the first is pending could start a second session, and the challenge would
+    // then be in whichever session's cookie didn't win.
+    await passkeyOptionsRequest;
+    const optionsRequest = authApi.beginPasskeyLogin();
+    passkeyOptionsRequest = optionsRequest.catch(() => {});
+    const optsResp = await optionsRequest;
     const options = optsResp.data.request_options;
     const credential = await getPasskeyAssertion(options, {
       mediation: conditional ? 'conditional' : undefined,
