@@ -156,3 +156,41 @@ class TestPasskeyPrompt:
         page.get_by_role("button", name="Sign In", exact=True).click()
 
         page.wait_for_url(f"{live_server.url}/", timeout=10000)
+
+    def test_password_sign_in_survives_a_late_autofill_response(self, page: Page, live_server, user):
+        # The autofill's options request keeps its WebAuthn challenge in a new anonymous session. When that response
+        # arrived after sign-in's, its session cookie replaced the signed-in one, and the user was signed out again.
+        held_options = []
+        held_context = []
+        state = {"signed_in": False, "released": False}
+
+        def hold_options(route):
+            # The server answers now, and the browser gets the answer when the test releases it.
+            held_options.append((route, route.fetch()))
+
+        def hold_context_after_sign_in(route):
+            # Keeps the page here, after sign-in, until the options response has landed.
+            if state["signed_in"] and not state["released"]:
+                held_context.append(route)
+            else:
+                route.continue_()
+
+        page.route(re.compile(r".*/_allauth/browser/v1/auth/webauthn/login$"), hold_options)
+        page.route(re.compile(r".*/api/app-context/$"), hold_context_after_sign_in)
+        page.on("response", lambda response: response.url.endswith("/auth/login") and state.update(signed_in=True))
+
+        page.goto(f"{live_server.url}/accounts/login/")
+        page.get_by_placeholder("Email").fill("michael.scott@dundermifflin.com")
+        page.get_by_placeholder("Password").fill("dundermifflin")
+        page.get_by_role("button", name="Sign In", exact=True).click()
+        # Time for a sign-in that doesn't wait for the options response to finish.
+        page.wait_for_timeout(1000)
+
+        state["released"] = True
+        for route, response in held_options:
+            route.fulfill(response=response)
+        for route in held_context:
+            route.continue_()
+
+        expect(page.get_by_role("button", name=re.compile(r"^Notifications"))).to_be_visible()
+        assert page.request.get(f"{live_server.url}/api/app-context/").json()["user"]
