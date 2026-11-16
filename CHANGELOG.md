@@ -6,6 +6,7 @@
 ### Fixed
 
 * Playwright's headless Chromium no longer crashes at launch in the dev image, which failed the e2e run it was part of. Playwright is upgraded from 1.59.0 to 1.64.1. Its old Chromium 147 added `DBUS_SESSION_BUS_ADDRESS` and then `FC_FONTATIONS` to its own environment, the second after its threads had started, and on the image's glibc 2.36 adding it freed the old environment while another thread could still be reading it: 36 of 2,000 launches segfaulted in a stress test. Chromium 156, in Playwright 1.64.1, sets `FC_FONTATIONS` before its threads start, and none of 2,000 launches crashed. `e2e/conftest.py` also sets both variables before Playwright starts, so Chromium only overwrites them, which keeps a stack still on the old image from crashing; an e2e test checks that the Playwright driver, which hands its environment to Chromium, starts with them. Run `just build` after pulling to get the new Playwright and Chromium.
+* certifi is upgraded from 2026.4.22 to 2026.10.23, past 2026.10.18, the first release that no longer bundles the emSign root CAs whose intermediate CA keys were compromised.
 
 
 ## 2026-11-14
