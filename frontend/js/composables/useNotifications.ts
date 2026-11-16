@@ -14,7 +14,9 @@ const POLL_INTERVAL_MS = 20_000,
   currentFilter = ref<NotificationFilter>('unread'),
   dropdownOpen = ref(false),
   seenUnreadIds = new Set<number>(),
-  seeded = ref(false);
+  seeded = ref(false),
+  // Goes up after every change the user makes, so a view that keeps its own copy of the list can reload it.
+  changeCount = ref(0);
 
 let pollHandle: ReturnType<typeof setInterval> | null = null,
   visibilityHandler: (() => void) | null = null;
@@ -76,6 +78,7 @@ async function markRead(id: number) {
       body: { is_read: true },
     }),
   );
+  changeCount.value += 1;
   applyLocalRead(id, true);
 }
 
@@ -86,11 +89,13 @@ async function markUnread(id: number) {
       body: { is_read: false },
     }),
   );
+  changeCount.value += 1;
   applyLocalRead(id, false);
 }
 
 async function deleteOne(id: number) {
   await unwrap(api.DELETE('/api/notifications/{notification_id}/', { params: { path: { notification_id: id } } }));
+  changeCount.value += 1;
   notifications.value = notifications.value.filter((n) => n.id !== id);
   seenUnreadIds.delete(id);
   await refreshUnread();
@@ -99,6 +104,7 @@ async function deleteOne(id: number) {
 async function bulkAction(action: BulkAction, ids: number[]) {
   if (!ids.length) return;
   await unwrap(api.POST('/api/notifications/bulk/', { body: { action, ids } }));
+  changeCount.value += 1;
   if (action === 'delete') {
     notifications.value = notifications.value.filter((n) => !ids.includes(n.id));
     ids.forEach((id) => seenUnreadIds.delete(id));
@@ -115,6 +121,7 @@ async function bulkAction(action: BulkAction, ids: number[]) {
 
 async function markAllRead() {
   await unwrap(api.POST('/api/notifications/bulk/', { body: { action: 'mark_read', all_unread: true } }));
+  changeCount.value += 1;
   notifications.value.forEach((n) => {
     n.is_read = true;
   });
@@ -175,6 +182,7 @@ export function useNotifications() {
     notifications,
     loading: computed(() => loading.value),
     currentFilter: computed(() => currentFilter.value),
+    changeCount: computed(() => changeCount.value),
     startPolling,
     stopPolling,
     fetchList,

@@ -23,7 +23,7 @@ import UserAvatar from '@/components/UserAvatar.vue';
 
 const router = useRouter();
 // Changes go through the composable, which keeps the unread count in the header and the Unread tab current.
-const { unreadCount, markRead, deleteOne, bulkAction, markAllRead } = useNotifications();
+const { unreadCount, changeCount, markRead, deleteOne, bulkAction, markAllRead } = useNotifications();
 
 const PAGE_SIZE = 25;
 
@@ -117,11 +117,7 @@ async function handleRowClick(notification: Notification) {
     return;
   }
   if (!notification.is_read) {
-    markRead(notification.id)
-      .then(() => {
-        notification.is_read = true;
-      })
-      .catch(() => {});
+    markRead(notification.id).catch(() => {});
   }
   if (notification.url && hasNavigableUrl(notification)) {
     router.push(notification.url);
@@ -132,7 +128,6 @@ async function handleRowClick(notification: Notification) {
 
 async function handleDelete(id: number) {
   await deleteOne(id);
-  await load();
 }
 
 async function handleBulk(action: BulkAction) {
@@ -140,13 +135,14 @@ async function handleBulk(action: BulkAction) {
   if (!ids.length) return;
   await bulkAction(action, ids);
   exitSelectMode();
-  await load();
 }
 
 async function handleMarkAllRead() {
   await markAllRead();
-  await load();
 }
+
+// Reload after every change, from this page or from the bell in the header.
+watch(changeCount, load);
 
 watch(items, (list) => {
   if (!selectMode.value) return;
