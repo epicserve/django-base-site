@@ -38,6 +38,8 @@ const props = withDefaults(
     /** Creates an item named after the search text; the option to create one only shows when it's set. */
     create?: (name: string) => Promise<CreatedItem>;
     createLabel?: string;
+    /** The search input's `id`, for a `<label for>`. */
+    inputId?: string;
   }>(),
   {
     options: () => [],
@@ -131,7 +133,9 @@ watch(
   <div class="relative min-w-[200px]">
     <ComboboxRoot v-model="selectedValues" multiple ignore-filter>
       <ComboboxAnchor as-child>
+        <!-- TagsInputRoot puts its `id` on the TagsInputInput below. -->
         <TagsInputRoot
+          :id="inputId"
           v-model="selectedValues"
           delimiter=""
           class="flex min-h-[34px] flex-wrap items-center gap-1 rounded-md border border-gray-300 px-2 py-1 shadow-sm focus-within:border-blue-500 focus-within:ring-1 focus-within:ring-blue-500 dark:border-gray-600 dark:bg-gray-800"

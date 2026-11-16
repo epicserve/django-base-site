@@ -2,10 +2,20 @@
 import { ref, computed } from 'vue';
 import TIMEZONE_CHOICES, { getTimezoneLabel, type TimezoneChoice } from '../utils/timezones';
 
-const props = withDefaults(defineProps<{ currentTimezone: string; fieldName?: string; modelValue?: string }>(), {
-  fieldName: 'timezone',
-  modelValue: '',
-});
+const props = withDefaults(
+  defineProps<{
+    currentTimezone: string;
+    fieldName?: string;
+    modelValue?: string;
+    /** The search input's `id`, for a `<label for>`. */
+    inputId?: string;
+  }>(),
+  {
+    fieldName: 'timezone',
+    modelValue: '',
+    inputId: undefined,
+  },
+);
 
 const emit = defineEmits<{ 'update:modelValue': [value: string] }>();
 
@@ -54,6 +64,7 @@ function onBlur() {
   <div class="relative">
     <input :name="fieldName" type="hidden" :value="selected" />
     <input
+      :id="inputId"
       type="text"
       :value="isOpen ? search : selectedLabel"
       :placeholder="selectedLabel || 'Search timezones...'"

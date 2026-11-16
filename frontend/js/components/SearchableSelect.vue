@@ -45,6 +45,8 @@ const props = withDefaults(
     /** Creates an item named after the search text; the option to create one only shows when it's set. */
     create?: (name: string) => Promise<CreatedItem>;
     createLabel?: string;
+    /** The search input's `id`, for a `<label for>`. */
+    inputId?: string;
   }>(),
   {
     options: () => [],
@@ -197,6 +199,7 @@ onMounted(() => {
       class="inline-flex w-full items-center justify-between rounded-md border border-gray-300 bg-white px-2.5 text-sm leading-none shadow-sm hover:bg-gray-50 focus-within:border-blue-500 focus-within:ring-1 focus-within:ring-blue-500 dark:border-gray-600 dark:bg-gray-800 dark:hover:bg-gray-700"
     >
       <ComboboxInput
+        :id="inputId"
         v-model="query"
         :display-value="() => selectedLabel"
         :placeholder="placeholder"

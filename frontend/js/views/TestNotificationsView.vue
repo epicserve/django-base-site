@@ -69,10 +69,13 @@ async function submit() {
       class="rounded-xl border border-gray-200 bg-white px-8 py-8 shadow-sm dark:border-gray-700 dark:bg-gray-800"
       @submit.prevent="submit"
     >
-      <label class="block text-sm font-medium text-gray-700 dark:text-gray-300"> Recipient </label>
+      <label for="notification-recipient" class="block text-sm font-medium text-gray-700 dark:text-gray-300">
+        Recipient
+      </label>
       <div class="mt-1">
         <SearchableSelect
           v-model="selectedUserId"
+          input-id="notification-recipient"
           :options="userOptions"
           :placeholder="loading ? 'Loading…' : 'Select a staff user...'"
         />

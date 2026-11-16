@@ -55,7 +55,7 @@ async function onSubmit() {
 <template>
   <AccountLayout>
     <div class="mb-6">
-      <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Profile Photo</label>
+      <h2 class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Profile Photo</h2>
       <AvatarCropper :current-avatar-url="appStore.user?.avatar_url || ''" :user-name="userDisplayName" />
     </div>
     <form @submit.prevent="onSubmit">
@@ -63,8 +63,11 @@ async function onSubmit() {
       <FormField v-model="firstName" label="First Name" autocomplete="given-name" :errors="errors.first_name || []" />
       <FormField v-model="lastName" label="Last Name" autocomplete="family-name" :errors="errors.last_name || []" />
       <div class="mb-4 mt-4">
-        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Timezone</label>
+        <label for="timezone-search" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1"
+          >Timezone</label
+        >
         <TimezoneSelectApp
+          input-id="timezone-search"
           :current-timezone="timezone"
           field-name="timezone"
           :model-value="timezone"
