@@ -24,7 +24,7 @@
 * Unchecking "Allow this passkey to sign me in without a password" adds a two-factor passkey. It added a passwordless one anyway: the SPA sent `passwordless=false`, and allauth treats the parameter as on whenever it's present. An e2e test adds a passkey each way with Chromium's virtual authenticator.
 * Creating an organization makes it primary only if you have no primary organization. It always made the new one primary without clearing the old, so you had two, and sign-in picked one of them.
 * Opening, deleting, or bulk-changing notifications on the notifications page updates the unread count on the bell and the Unread tab straight away. It changed only on the next 20-second poll. Marking a notification unread no longer pops it up as a new one on that refresh.
-* `FormField` labels and the "Email" label on the account email page name their inputs, so screen readers announce them and clicking one focuses its input.
+* Form labels name their inputs, so screen readers announce them and clicking one focuses its input. That covers `FormField` and the Email, Timezone, team Members, and test-notification Recipient fields. `TimezoneSelectApp`, `SearchableSelect`, and `ComboboxTagsInput` take an `input-id` for a `<label for>`. "Profile Photo" on the account page is a heading, since it names no single input.
 * `docs/billing.md` names `appStore.featureValue()`; it named a `featureLimit()` that doesn't exist.
 
 

@@ -225,8 +225,15 @@ onMounted(() => {
         </p>
       </div>
       <div class="mb-4">
-        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Members</label>
-        <ComboboxTagsInput v-model="formMembers" :options="memberOptionsList" placeholder="Add members..." />
+        <label for="team-members" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1"
+          >Members</label
+        >
+        <ComboboxTagsInput
+          v-model="formMembers"
+          input-id="team-members"
+          :options="memberOptionsList"
+          placeholder="Add members..."
+        />
         <p v-if="formErrors.members" class="mt-1 text-sm text-red-600">
           {{ formErrors.members.join(' ') }}
         </p>
