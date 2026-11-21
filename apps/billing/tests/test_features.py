@@ -10,6 +10,7 @@ class TestFeatureRegistry:
     def test_get_feature(self, settings):
         settings.BILLING_FEATURES = FEATURES
         f = get_feature("teams")
+        assert f is not None
         assert f.key == "teams"
         assert f.type == "bool"
         assert f.default is False
@@ -26,4 +27,5 @@ class TestFeatureRegistry:
     def test_default_type_is_bool(self, settings):
         settings.BILLING_FEATURES = [{"key": "x", "label": "X", "default": True}]
         f = get_feature("x")
+        assert f is not None
         assert f.type == "bool"

@@ -19,7 +19,7 @@ def require_authenticated(request: HttpRequest) -> None:
 
 def require_superuser(request: HttpRequest) -> None:
     require_authenticated(request)
-    if not request.user.is_superuser:
+    if not getattr(request.user, "is_superuser", False):
         raise PermissionDenied("Superuser permission required.")
 
 

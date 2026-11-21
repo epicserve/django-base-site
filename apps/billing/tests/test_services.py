@@ -81,6 +81,7 @@ class TestSyncSubscriptionFromStripe:
             _payload(customer="cus_year", sub_id="sub_year", price_id="price_pro_annual")
         )
 
+        assert sub is not None
         assert sub.billing_cycle == BillingCycle.ANNUAL
 
     def test_updates_existing_subscription(self, billing_settings):
@@ -98,6 +99,7 @@ class TestSyncSubscriptionFromStripe:
             _payload(customer="cus_upd", sub_id="sub_upd", status="past_due", quantity=7)
         )
 
+        assert sub is not None
         assert sub.status == SubscriptionStatus.PAST_DUE
         assert sub.quantity == 7
         assert Subscription.objects.filter(organization=org).count() == 1
@@ -118,6 +120,7 @@ class TestSyncSubscriptionFromStripe:
 
         sub = sync_subscription_from_stripe(_payload(customer="cus_status", sub_id="sub_status", status="weirdness"))
 
+        assert sub is not None
         assert sub.status == SubscriptionStatus.INCOMPLETE
 
     def test_unknown_plan_falls_back_to_default_plan(self, billing_settings):
@@ -127,4 +130,5 @@ class TestSyncSubscriptionFromStripe:
         sub = sync_subscription_from_stripe(_payload(customer="cus_plan", sub_id="sub_plan", price_id="price_unknown"))
 
         # Falls back to the default plan ("free") since no recognized price.
+        assert sub is not None
         assert sub.plan_key == "free"
