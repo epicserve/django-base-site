@@ -44,6 +44,12 @@ updates:
       interval: "weekly"
       day: "saturday"
       time: "11:00" # 11 AM UTC / 5 AM CST
+    ignore:
+      # openapi-typescript (`just generate_api_types`) needs TypeScript's JS compiler API and its peer range is
+      # `typescript: ^5.x`; TypeScript 7 is the Go port and has no JS API. Drop this once openapi-typescript's peer
+      # range takes a newer major.
+      - dependency-name: "typescript"
+        update-types: ["version-update:semver-major"]
     groups:
       production-dependencies:
         dependency-type: "production"
