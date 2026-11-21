@@ -21,7 +21,7 @@ jobs:
     steps:
       - uses: actions/checkout@v7
       - name: Use Just for running commands
-        run: curl --proto '=https' --tlsv1.2 -sSf https://just.systems/install.sh | bash -s -- --to /usr/local/bin
+        uses: extractions/setup-just@v4
       - name: Setup Bun
         uses: oven-sh/setup-bun@v2
       - name: Setup Python 3.15
@@ -72,7 +72,7 @@ jobs:
     steps:
       - uses: actions/checkout@v7
       - name: Use Just for running commands
-        run: curl --proto '=https' --tlsv1.2 -sSf https://just.systems/install.sh | bash -s -- --to /usr/local/bin
+        uses: extractions/setup-just@v4
       - name: Match docker user to runner UID/GID
         # The bun container bind-mounts the workspace and writes to it, so it
         # needs the same UID/GID as the runner user that owns the files.
@@ -117,7 +117,7 @@ jobs:
     steps:
       - uses: actions/checkout@v7
       - name: Use Just for running commands
-        run: curl --proto '=https' --tlsv1.2 -sSf https://just.systems/install.sh | bash -s -- --to /usr/local/bin
+        uses: extractions/setup-just@v4
       - name: Match docker user to runner UID/GID
         # The bun container bind-mounts the workspace and writes to it, so it
         # needs the same UID/GID as the runner user that owns the files.
