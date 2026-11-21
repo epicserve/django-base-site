@@ -1,6 +1,20 @@
 # CHANGELOG
 
 
+## 2026-11-21
+
+### Changed
+
+* django-ninja is upgraded from 1.6.3 to 1.8.0, and epicenv from 1.6.2 to 1.6.3, along with the `uvx epicenv@…` pins in `scripts/start_new_project` and the `just create_env` recipe. Dates in `[tool.uv.exclude-newer-package]` had held both back: each was added to take one release before it was 7 days old, and kept blocking every release after it. The entries are gone, and a comment on `exclude-newer` says to remove such an entry once its release is 7 days old. Run `just build` after pulling.
+
+### CI
+
+* Jobs install `just` with `extractions/setup-just` instead of `just.systems/install.sh`. With no version given, the script looked up the latest release through GitHub's API without authenticating, and runners share that API's rate limit, so jobs failed at random with a 403.
+* Every action is pinned to a full commit SHA, with its release in a trailing comment, as GitHub's security hardening guide recommends. Dependabot updates both.
+* Dependabot no longer proposes TypeScript majors. `openapi-typescript`, which `just generate_api_types` runs, supports only TypeScript 5, and TypeScript 7 has no JavaScript compiler API.
+* Dependabot's uv updates wait until a release is 7 days old (`cooldown`), like uv's `exclude-newer = "P7D"`, so they stop proposing releases uv won't lock yet.
+
+
 ## 2026-11-16
 
 ### Fixed

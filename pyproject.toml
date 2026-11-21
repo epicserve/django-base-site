@@ -148,10 +148,7 @@ extend-immutable-calls = ["ninja.Query", "ninja.File", "ninja.Form", "ninja.Body
 section-order = ["future", "standard-library", "django", "third-party", "first-party", "local-folder", ]
 
 [tool.uv]
+# Skip releases less than 7 days old. To take one sooner, add the package to
+# [tool.uv.exclude-newer-package] with a date, and remove that entry once the
+# release is 7 days old: a fixed date holds the package back from then on.
 exclude-newer = "P7D"
-
-[tool.uv.exclude-newer-package]
-epicenv = "2026-05-23"
-# 1.6.3 (Django 6.1 support) is less than 7 days old; keep the rolling P7D
-# cutoff for everything else.
-django-ninja = "2026-08-17"

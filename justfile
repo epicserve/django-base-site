@@ -11,7 +11,7 @@ project_slug := 'django-base-site'
 
 # Create or regenerate .env file from .env.toml schema
 @create_env:
-    uvx epicenv@1.6.2 create
+    uvx epicenv@1.6.3 create
 
 # Create a Django superuser via epicenv (idempotent). Default: reads credentials
 # from DJANGO_SUPERUSER_USERNAME / _EMAIL / _PASSWORD in .env, which
