@@ -86,6 +86,7 @@ Use Just for all development tasks. Common ones:
 - Every `apps.*` management command must import cleanly; `apps/base/tests/test_management_commands.py` loads them all, since `ty` ignores unresolved imports.
 - To check a UI change in the browser, follow the `run-app` skill ([.agents/skills/run-app/SKILL.md](.agents/skills/run-app/SKILL.md)): start the stack, `just seed`, then sign in as a seeded login with Playwright.
 - CI (`.github/workflows/ci.yml`) runs `just lint`, the pytest suite, and the Playwright e2e suite on pushes to `main` and on pull requests. Dependabot (`.github/dependabot.yml`) opens weekly dependency PRs; the `/weekly-maintenance` skill reviews and merges them.
+- Workflows install `just` with `extractions/setup-just`, not the `just.systems` install script, which fails on GitHub's API rate limit. Pin every action to a full commit SHA with its release in a trailing comment (`uses: actions/checkout@<sha> # v7.0.1`), as GitHub's hardening guide recommends; Dependabot updates both.
 
 <!-- template-only:start -->
 

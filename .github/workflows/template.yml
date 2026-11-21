@@ -28,9 +28,9 @@ jobs:
       READ_DOT_ENV_FILE: on
       PYTHON_CMD_PREFIX: docker compose run -u root --rm --no-deps web
     steps:
-      - uses: actions/checkout@v7
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
       - name: Use Just for running commands
-        uses: extractions/setup-just@v4
+        uses: extractions/setup-just@53165ef7e734c5c07cb06b3c8e7b647c5aa16db3 # v4.0.0
       - name: Match docker user to runner UID/GID
         # The bun container bind-mounts the workspace and writes to it, so it
         # needs the same UID/GID as the runner user that owns the files.
@@ -38,7 +38,7 @@ jobs:
           echo "HOST_UID=$(id -u)" >> $GITHUB_ENV
           echo "HOST_GID=$(id -g)" >> $GITHUB_ENV
       - name: Install uv
-        uses: astral-sh/setup-uv@v7
+        uses: astral-sh/setup-uv@37802adc94f370d6bfd71619e3f0bf239e1f3b78 # v7.6.0
       - name: Test install script
         run: |
           ./scripts/start_new_project "example" ${GITHUB_REF#refs/heads/} 1 ${{ env.BUILD_DIR }}

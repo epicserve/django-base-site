@@ -19,13 +19,13 @@ jobs:
     name: Lint
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v7
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
       - name: Use Just for running commands
-        uses: extractions/setup-just@v4
+        uses: extractions/setup-just@53165ef7e734c5c07cb06b3c8e7b647c5aa16db3 # v4.0.0
       - name: Setup Bun
-        uses: oven-sh/setup-bun@v2
+        uses: oven-sh/setup-bun@0c5077e51419868618aeaa5fe8019c62421857d6 # v2.2.0
       - name: Setup Python 3.15
-        uses: actions/setup-python@v7
+        uses: actions/setup-python@6d4fd22b20465ccc0f7354476588e8df7c9ca0e0 # v7.1.0
         with:
           python-version: "3.15"
       - name: Install frontend requirements
@@ -70,9 +70,9 @@ jobs:
       PYTHON_CMD_PREFIX: docker compose run -u root -e DATABASE_URL -e READ_DOT_ENV_FILE -e SECRET_KEY -e DB_SSL_REQUIRED --rm --no-deps web
       DOCKER_COMPOSE_PREFIX: docker compose run -u root -e DATABASE_URL -e READ_DOT_ENV_FILE -e SECRET_KEY -e DB_SSL_REQUIRED --rm --no-deps web
     steps:
-      - uses: actions/checkout@v7
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
       - name: Use Just for running commands
-        uses: extractions/setup-just@v4
+        uses: extractions/setup-just@53165ef7e734c5c07cb06b3c8e7b647c5aa16db3 # v4.0.0
       - name: Match docker user to runner UID/GID
         # The bun container bind-mounts the workspace and writes to it, so it
         # needs the same UID/GID as the runner user that owns the files.
@@ -115,9 +115,9 @@ jobs:
       PYTHON_CMD_PREFIX: docker compose run -u root -e DATABASE_URL -e READ_DOT_ENV_FILE -e SECRET_KEY -e DB_SSL_REQUIRED --rm --no-deps web
       DOCKER_COMPOSE_PREFIX: docker compose run -u root -e DATABASE_URL -e READ_DOT_ENV_FILE -e SECRET_KEY -e DB_SSL_REQUIRED --rm --no-deps web
     steps:
-      - uses: actions/checkout@v7
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
       - name: Use Just for running commands
-        uses: extractions/setup-just@v4
+        uses: extractions/setup-just@53165ef7e734c5c07cb06b3c8e7b647c5aa16db3 # v4.0.0
       - name: Match docker user to runner UID/GID
         # The bun container bind-mounts the workspace and writes to it, so it
         # needs the same UID/GID as the runner user that owns the files.
