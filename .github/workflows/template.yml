@@ -38,7 +38,7 @@ jobs:
           echo "HOST_UID=$(id -u)" >> $GITHUB_ENV
           echo "HOST_GID=$(id -g)" >> $GITHUB_ENV
       - name: Install uv
-        uses: astral-sh/setup-uv@37802adc94f370d6bfd71619e3f0bf239e1f3b78 # v7.6.0
+        uses: astral-sh/setup-uv@1db35dd8eee11c5894872e0b383ae6c406cf738d # v10.4.0
       - name: Test install script
         run: |
           ./scripts/start_new_project "example" ${GITHUB_REF#refs/heads/} 1 ${{ env.BUILD_DIR }}
