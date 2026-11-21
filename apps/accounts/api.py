@@ -179,9 +179,9 @@ def upload_avatar(
     user.avatar_crop_data = crop
     user.save(update_fields=["avatar_original", "avatar_thumbnail", "avatar_crop_data"])
 
-    if old_original and old_original != user.avatar_original.name:
+    if old_original_storage and old_original and old_original != user.avatar_original.name:
         old_original_storage.delete(old_original)
-    if old_thumb and old_thumb != user.avatar_thumbnail.name:
+    if old_thumb_storage and old_thumb and old_thumb != user.avatar_thumbnail.name:
         old_thumb_storage.delete(old_thumb)
 
     return {"avatar_url": user.avatar_url}

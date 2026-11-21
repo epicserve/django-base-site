@@ -61,13 +61,13 @@ dev = [
 # swappable user model, ninja's Query/Path/Body sentinels, etc.). Until ty's
 # Django integration matures, downgrade them so pre-commit type checking stays
 # focused on application bugs rather than framework-level false positives.
-unresolved-attribute = "ignore"
-call-non-callable = "ignore"
+missing-attribute = "ignore"
+not-callable = "ignore"
 invalid-argument-type = "ignore"
 no-matching-overload = "ignore"
-invalid-method-override = "ignore"
+incompatible-method-override = "ignore"
 invalid-assignment = "ignore"
-unresolved-import = "ignore"
+import-not-found = "ignore"
 not-iterable = "ignore"
 unsupported-operator = "ignore"
 

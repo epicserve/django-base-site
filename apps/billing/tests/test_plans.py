@@ -41,11 +41,15 @@ class TestPlanRegistry:
 
     def test_get_default_plan_prefers_is_default(self, settings):
         settings.BILLING_PLANS = [PLAN_PRO, PLAN_FREE]
-        assert get_default_plan().key == "free"
+        default_plan = get_default_plan()
+        assert default_plan is not None
+        assert default_plan.key == "free"
 
     def test_get_default_plan_falls_back_to_first_free(self, settings):
         settings.BILLING_PLANS = [PLAN_PRO, dict(PLAN_FREE, is_default=False)]
-        assert get_default_plan().key == "free"
+        default_plan = get_default_plan()
+        assert default_plan is not None
+        assert default_plan.key == "free"
 
     def test_get_default_plan_returns_none_when_empty(self, settings):
         settings.BILLING_PLANS = []
@@ -53,7 +57,9 @@ class TestPlanRegistry:
 
     def test_get_free_plan(self, settings):
         settings.BILLING_PLANS = [PLAN_PRO, PLAN_FREE]
-        assert get_free_plan().key == "free"
+        free_plan = get_free_plan()
+        assert free_plan is not None
+        assert free_plan.key == "free"
 
     def test_price_id_for_monthly(self, settings):
         settings.BILLING_PLANS = [PLAN_PRO]
@@ -79,7 +85,11 @@ class TestPlanRegistry:
 
     def test_resolve_plan_by_price_id(self, settings):
         settings.BILLING_PLANS = [PLAN_FREE, PLAN_PRO]
-        assert resolve_plan_by_price_id("price_pro_monthly").key == "pro"
-        assert resolve_plan_by_price_id("price_pro_annual").key == "pro"
+        monthly = resolve_plan_by_price_id("price_pro_monthly")
+        annual = resolve_plan_by_price_id("price_pro_annual")
+        assert monthly is not None
+        assert annual is not None
+        assert monthly.key == "pro"
+        assert annual.key == "pro"
         assert resolve_plan_by_price_id("nope") is None
         assert resolve_plan_by_price_id("") is None

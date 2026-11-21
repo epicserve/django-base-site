@@ -21,11 +21,13 @@ class LegacyPagination(PaginationBase):
     default_page_size: int = 15
     max_page_size: int = 500
 
-    class Input(Schema):
+    class Input(PaginationBase.Input):
         page: int = 1
         page_size: int | None = None
 
-    class Output(Schema):
+    # Not a subclass of PaginationBase.Output on purpose: that one requires an ``items`` field, and this envelope
+    # carries its list under ``results`` (see ``items_attribute``).
+    class Output(Schema):  # ty: ignore[incompatible-attribute-override]
         default_ordering: str = ""
         ordering: str = ""
         next: str | None = None
