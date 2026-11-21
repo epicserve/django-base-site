@@ -33,6 +33,9 @@ updates:
       day: "saturday"
       time: "11:00" # 11 AM UTC / 5 AM CST
     open-pull-requests-limit: 10
+    # Match pyproject.toml's `exclude-newer = "P7D"`: uv won't lock a release less than 7 days old.
+    cooldown:
+      default-days: 7
     groups:
       uv-dependencies:
         patterns:

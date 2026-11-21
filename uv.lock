@@ -10,10 +10,6 @@ resolution-markers = [
 exclude-newer = "0001-01-01T00:00:00Z" # This has no effect and is included for backwards compatibility when using relative exclude-newer values.
 exclude-newer-span = "P7D"
 
-[options.exclude-newer-package]
-django-ninja = "2026-08-18T00:00:00Z"
-epicenv = "2026-05-24T00:00:00Z"
-
 [[package]]
 name = "aiohappyeyeballs"
 version = "2.6.1"
@@ -897,15 +893,15 @@ wheels = [
 
 [[package]]
 name = "django-ninja"
-version = "1.6.3"
+version = "1.8.0"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "django" },
     { name = "pydantic" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/a2/57/71cc769a7410ade9bd1cddee16132e3da7718fcce1386c67ade7ea939677/django_ninja-1.6.3.tar.gz", hash = "sha256:a65a5016bbf044702fb1f1ff702f96dc3c806fbd7c918290512659531873039f", size = 2340438, upload-time = "2026-08-17T08:45:42.703Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/8d/53/3453836e6246b5d4b0e55c36d2dfab4cad6091d08483bdc4505906a1197c/django_ninja-1.8.0.tar.gz", hash = "sha256:0f043a1aebd2c45e2a124a83e5bd0961491b18cdf81ea57c6abd80607b2c6ef8", size = 2347023, upload-time = "2026-11-08T10:52:03.703Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/e3/de/061d08265951765835166a2c69f0b99a8f49dfbea85d7d204ac87a236679/django_ninja-1.6.3-py3-none-any.whl", hash = "sha256:e83ba573e0f17b1d2fddca078613e2aaad512acb3d3c6bc9a5f1a0d9257dd70c", size = 2375010, upload-time = "2026-08-17T08:45:40.473Z" },
+    { url = "https://files.pythonhosted.org/packages/f1/d5/fbfdae4ab7a81f4980cec09ef17f86d4ac2d96058787bd6282d775be91bc/django_ninja-1.8.0-py3-none-any.whl", hash = "sha256:132f37a36ac5ec9569fdc141da6984c1806bdd08af36f855980fab6cdcb10038", size = 2382930, upload-time = "2026-11-08T10:52:01.541Z" },
 ]
 
 [[package]]
@@ -1098,15 +1094,15 @@ django = [
 
 [[package]]
 name = "epicenv"
-version = "1.6.2"
+version = "1.6.3"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "click" },
     { name = "environs" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/3b/5f/3e76d4de0f58540858acedbdfe2ad34ef367b0ee27b871455d079727d885/epicenv-1.6.2.tar.gz", hash = "sha256:99bf0e8bee15aab03402ee961d9b95514541c77f7ffcb7d8d8348ab7a7d3912d", size = 67665, upload-time = "2026-05-22T18:45:52.503Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/a8/cf/3cba4f3f64c5c51c3b02b0c534fc9dcd8290f881d8a1dcd7c5c921155332/epicenv-1.6.3.tar.gz", hash = "sha256:bcdd2b151399e2b31c90209ca6fb1e695f3d83e3616cbc295cdb4eaed71ef3a4", size = 72335, upload-time = "2026-09-04T14:16:29.012Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/22/b3/f18c7ad063e140c141380ff387ea79a9b023baa07ef55673cf0096e6e26d/epicenv-1.6.2-py3-none-any.whl", hash = "sha256:d1611789f7b1e36f0902dc13a12066fba746d85e5266ce5a63666b7496282b96", size = 30742, upload-time = "2026-05-22T18:45:53.74Z" },
+    { url = "https://files.pythonhosted.org/packages/f3/2c/88628167023a0eebad2abb1196fa32c5246d7154426a195d437893e7b18c/epicenv-1.6.3-py3-none-any.whl", hash = "sha256:48d4d9cbe5e4282e1ee22eb6ee13f116afb8e46385d5d44548d4e1ce6200f149", size = 31482, upload-time = "2026-09-04T14:16:27.57Z" },
 ]
 
 [package.optional-dependencies]

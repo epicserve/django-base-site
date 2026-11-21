@@ -29,7 +29,7 @@ function create_env_file() {
     rm -f .env.toml.bak
 
     # Generate .env file using epicenv (pinned for reproducible bootstrap)
-    uvx epicenv@1.6.2 create
+    uvx epicenv@1.6.3 create
 }
 
 function ask_yes_or_no_default_yes() {
