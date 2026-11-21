@@ -17,12 +17,12 @@ dependencies = [
     "django-storages~=1.8",
     "epicenv[django]~=1.6",
     "fido2~=2.2",
-    "gunicorn~=26.0",
+    "gunicorn>=26,<28",
     "hiredis~=3.0",  # needed for Django's native cache and sessions
     "psycopg2-binary~=2.9",
     "python-json-logger~=4.1",
     "redis>=7.1,<9.0",  # needed for celery
-    "stripe>=14,<17",
+    "stripe>=14,<18",
     "whitenoise~=6.7",
 ]
 
