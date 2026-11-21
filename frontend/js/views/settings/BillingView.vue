@@ -1,11 +1,13 @@
-<script setup>
-import { computed, inject, onBeforeUnmount, onMounted, ref } from 'vue';
+<script setup lang="ts">
+import { computed, onBeforeUnmount, onMounted, ref } from 'vue';
 import { RouterLink, useRoute, useRouter } from 'vue-router';
 import { useBilling } from '@/composables/useBilling';
 import { showToast } from '@/composables/useToast';
+import { useAppStore } from '@/stores/app';
+import { parseErrors } from '@/utils/api';
 import SubscriptionStatusBadge from '@/components/billing/SubscriptionStatusBadge.vue';
 
-const appStore = inject('appStore');
+const appStore = useAppStore();
 const route = useRoute();
 const router = useRouter();
 const billing = useBilling();
@@ -55,7 +57,7 @@ async function onManageBilling() {
   try {
     await billing.manageBilling();
   } catch (err) {
-    showToast(err?.data?.detail || 'Could not open the billing portal.', 'error');
+    showToast(parseErrors(err).detail?.[0] || 'Could not open the billing portal.', 'error');
   } finally {
     portalBusy.value = false;
   }
@@ -127,7 +129,7 @@ async function onManageBilling() {
       </div>
 
       <!-- Active subscription -->
-      <template v-else>
+      <template v-else-if="sub">
         <section class="rounded-lg border border-gray-200 bg-white p-6 dark:border-gray-700 dark:bg-gray-800">
           <header class="flex items-center justify-between gap-3">
             <h2 class="text-lg font-semibold text-gray-900 dark:text-white">Current Plan</h2>

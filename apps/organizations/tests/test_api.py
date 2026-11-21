@@ -275,3 +275,39 @@ class TestInviteList:
             },
             "new@example.com": None,
         }
+
+
+@pytest.mark.django_db
+class TestCreateOrganization:
+    """`POST /api/organizations/`: the creator owns the new organization, which is primary only if nothing else is."""
+
+    @pytest.fixture()
+    def signed_in_client(self, client):
+        client.user = baker.make(User, email="kevin@example.com")
+        client.force_login(client.user)
+        return client
+
+    def _create(self, client, slug):
+        resp = client.post(
+            "/api/organizations/",
+            data=json.dumps({"name": slug.title(), "slug": slug}),
+            content_type="application/json",
+        )
+        assert resp.status_code == 201
+        return OrganizationMember.objects.get(user=client.user, organization__slug=slug)
+
+    def test_first_organization_is_primary(self, signed_in_client):
+        membership = self._create(signed_in_client, "first-co")
+
+        assert membership.is_owner
+        assert membership.is_primary
+
+    def test_keeps_the_existing_primary(self, signed_in_client):
+        # Sign-in opens the primary organization, so creating another one shouldn't move it, or leave two.
+        first = self._create(signed_in_client, "first-co")
+        second = self._create(signed_in_client, "second-co")
+
+        first.refresh_from_db()
+        assert first.is_primary
+        assert not second.is_primary
+        assert OrganizationMember.objects.filter(user=signed_in_client.user, is_primary=True).count() == 1

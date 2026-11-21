@@ -17,7 +17,50 @@ if (!specPath || !outPath) {
 const BLOB = ts.factory.createTypeReferenceNode(ts.factory.createIdentifier('Blob'));
 const NULL = ts.factory.createLiteralTypeNode(ts.factory.createNull());
 
-const ast = await openapiTS(JSON.parse(readFileSync(specPath, 'utf8')), {
+// The names of the component schemas `node` refers to, directly or through other component schemas.
+function schemasReferencedBy(node, schemas, found = new Set()) {
+  if (Array.isArray(node)) {
+    node.forEach((child) => schemasReferencedBy(child, schemas, found));
+  } else if (node && typeof node === 'object') {
+    for (const [key, value] of Object.entries(node)) {
+      const name = key === '$ref' && typeof value === 'string' ? value.split('/').pop() : null;
+
+      if (name && schemas[name] && !found.has(name)) {
+        found.add(name);
+        schemasReferencedBy(schemas[name], schemas, found);
+      } else if (key !== '$ref') {
+        schemasReferencedBy(value, schemas, found);
+      }
+    }
+  }
+  return found;
+}
+
+// openapi-typescript makes a property with a default required (its `defaultNonNullable` option). That's right for a
+// response, where ninja always sends the field, but wrong for a request body, which can leave it out (`TeamIn` doesn't
+// need `members`). So for each schema that only request bodies use, drop the default of every property the schema
+// doesn't list as required, which leaves those properties optional.
+function makeRequestDefaultsOptional(spec) {
+  const schemas = spec.components?.schemas ?? {},
+    operations = Object.values(spec.paths ?? {}).flatMap((pathItem) => Object.values(pathItem)),
+    inRequests = schemasReferencedBy(operations.map((operation) => operation?.requestBody), schemas),
+    inResponses = schemasReferencedBy(operations.map((operation) => operation?.responses), schemas);
+
+  for (const name of inRequests) {
+    if (inResponses.has(name)) continue;
+    const required = new Set(schemas[name].required ?? []);
+
+    for (const [key, property] of Object.entries(schemas[name].properties ?? {})) {
+      if (!required.has(key)) delete property.default;
+    }
+  }
+  return spec;
+}
+
+const ast = await openapiTS(makeRequestDefaultsOptional(JSON.parse(readFileSync(specPath, 'utf8'))), {
+  // An object schema that lists no properties means "any object" (allauth's WebAuthn options and credentials), not
+  // "an object with no properties", so type it as `Record<string, unknown>` rather than `Record<string, never>`.
+  emptyObjectsUnknown: true,
   transform(schemaObject) {
     if (schemaObject.format === 'binary') {
       return schemaObject.nullable ? ts.factory.createUnionTypeNode([BLOB, NULL]) : BLOB;

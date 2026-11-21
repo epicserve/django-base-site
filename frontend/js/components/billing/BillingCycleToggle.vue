@@ -1,11 +1,10 @@
-<script setup>
-defineProps({
-  modelValue: { type: String, required: true },
-  annualSavingsLabel: { type: String, default: '' },
-});
-const emit = defineEmits(['update:modelValue']);
+<script setup lang="ts">
+import type { BillingCycle } from '@/composables/useBilling';
 
-function setCycle(value) {
+withDefaults(defineProps<{ modelValue: BillingCycle; annualSavingsLabel?: string }>(), { annualSavingsLabel: '' });
+const emit = defineEmits<{ 'update:modelValue': [value: BillingCycle] }>();
+
+function setCycle(value: BillingCycle) {
   emit('update:modelValue', value);
 }
 </script>

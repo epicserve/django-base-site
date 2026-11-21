@@ -1,13 +1,14 @@
-<script setup>
+<script setup lang="ts">
 import { ref } from 'vue';
 import AppModal from './AppModal.vue';
 
 const isOpen = ref(false);
 const title = ref('Confirm');
 const message = ref('');
-let resolveFn = null;
+let resolveFn: ((confirmed: boolean) => void) | null = null;
 
-function confirm(msg, ttl = 'Confirm') {
+/** Open the modal and resolve to whether the user pressed OK. */
+function confirm(msg: string, ttl = 'Confirm'): Promise<boolean> {
   message.value = msg;
   title.value = ttl;
   isOpen.value = true;

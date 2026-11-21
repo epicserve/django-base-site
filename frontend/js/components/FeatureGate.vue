@@ -1,11 +1,10 @@
-<script setup>
-import { computed, inject } from 'vue';
+<script setup lang="ts">
+import { computed } from 'vue';
+import { useAppStore } from '@/stores/app';
 
-const props = defineProps({
-  feature: { type: String, required: true },
-});
+const props = defineProps<{ feature: string }>();
 
-const appStore = inject('appStore');
+const appStore = useAppStore();
 const allowed = computed(() => appStore.hasFeature(props.feature));
 </script>
 

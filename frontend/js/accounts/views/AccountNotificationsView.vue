@@ -1,17 +1,20 @@
-<script setup>
+<script setup lang="ts">
 import { ref, onMounted } from 'vue';
+import type { components } from '@/api/schema';
 import AccountLayout from '@/layouts/AccountLayout.vue';
-import { get, patch } from '@/utils/api';
+import { api, unwrap } from '@/utils/api';
 import { showToast } from '@/composables/useToast';
 
-const categories = ref([]);
+type Preference = components['schemas']['NotificationPreferenceOut'];
+
+const categories = ref<Preference[]>([]);
 const loading = ref(true);
-const saving = ref({});
+const saving = ref<Record<string, boolean>>({});
 
 async function load() {
   loading.value = true;
   try {
-    categories.value = await get('/api/notifications/preferences/');
+    categories.value = await unwrap(api.GET('/api/notifications/preferences/'));
   } catch {
     showToast('Failed to load notification preferences.', 'error');
   } finally {
@@ -19,12 +22,17 @@ async function load() {
   }
 }
 
-async function toggle(category, channel) {
+async function toggle(category: Preference, channel: 'in_app' | 'email') {
   const key = `${category.key}:${channel}`;
   saving.value = { ...saving.value, [key]: true };
   const next = !category[channel];
   try {
-    const updated = await patch(`/api/notifications/preferences/${category.key}/`, { [channel]: next });
+    const updated = await unwrap(
+      api.PATCH('/api/notifications/preferences/{category}/', {
+        params: { path: { category: category.key } },
+        body: channel === 'in_app' ? { in_app: next } : { email: next },
+      }),
+    );
     Object.assign(category, updated);
   } catch {
     showToast('Failed to update preference.', 'error');

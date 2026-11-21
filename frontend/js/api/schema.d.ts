@@ -753,11 +753,8 @@ export interface components {
              * @enum {string}
              */
             action: "mark_read" | "mark_unread" | "delete";
-            /**
-             * All Unread
-             * @default false
-             */
-            all_unread: boolean;
+            /** All Unread */
+            all_unread?: boolean;
             /** Ids */
             ids?: number[] | null;
         };
@@ -848,16 +845,10 @@ export interface components {
         InviteIn: {
             /** Invitee */
             invitee?: number | null;
-            /**
-             * Invitee Email
-             * @default
-             */
-            invitee_email: string;
-            /**
-             * Is Owner
-             * @default false
-             */
-            is_owner: boolean;
+            /** Invitee Email */
+            invitee_email?: string;
+            /** Is Owner */
+            is_owner?: boolean;
         };
         /** InviteOut */
         InviteOut: {
@@ -911,11 +902,8 @@ export interface components {
         };
         /** MemberIn */
         MemberIn: {
-            /**
-             * Is Owner
-             * @default false
-             */
-            is_owner: boolean;
+            /** Is Owner */
+            is_owner?: boolean;
             /** User */
             user: number;
         };
@@ -1404,11 +1392,8 @@ export interface components {
         };
         /** TeamIn */
         TeamIn: {
-            /**
-             * Members
-             * @default []
-             */
-            members: number[];
+            /** Members */
+            members?: number[];
             /** Name */
             name: string;
         };
@@ -1442,16 +1427,10 @@ export interface components {
         };
         /** TestNotificationIn */
         TestNotificationIn: {
-            /**
-             * Send Email
-             * @default true
-             */
-            send_email: boolean;
-            /**
-             * Send In App
-             * @default true
-             */
-            send_in_app: boolean;
+            /** Send Email */
+            send_email?: boolean;
+            /** Send In App */
+            send_in_app?: boolean;
             /** User Id */
             user_id: number;
         };

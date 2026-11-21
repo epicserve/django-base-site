@@ -200,7 +200,7 @@ Features support two `type`s:
 * `"bool"` — gate things on/off (`org_has_feature(org, 'teams')`).
 * `"limit"` — numeric caps (`org_feature_limit(org, 'max_team_count')`).
 
-Use them from Python with `@requires_feature('teams')` ([apps/billing/access.py](https://github.com/epicserve/django-base-site/blob/main/apps/billing/access.py)) on view/api functions, or from Vue with `appStore.hasFeature('teams')` and `appStore.featureLimit('max_team_count')`.
+Use them from Python with `@requires_feature('teams')` ([apps/billing/access.py](https://github.com/epicserve/django-base-site/blob/main/apps/billing/access.py)) on view/api functions, or from Vue with `appStore.hasFeature('teams')` and `appStore.featureValue('max_team_count', Infinity)`, which returns the fallback when billing is off or the plan doesn't set the feature.
 
 ## Production
 
@@ -219,6 +219,6 @@ Use them from Python with `@requires_feature('teams')` ([apps/billing/access.py]
 | [apps/billing/access.py](https://github.com/epicserve/django-base-site/blob/main/apps/billing/access.py) | `org_has_feature`, `org_feature_limit`, `@requires_feature`. |
 | [apps/billing/api.py](https://github.com/epicserve/django-base-site/blob/main/apps/billing/api.py) | Ninja router — `/api/billing/plans/`, `/api/billing/features/`, `/api/billing/subscription/`, `/api/billing/checkout/`, `/api/billing/portal/`. |
 | [apps/billing/tasks.py](https://github.com/epicserve/django-base-site/blob/main/apps/billing/tasks.py) | Celery beat tasks for trial reminders and drift reconcile. |
-| [frontend/js/composables/useBilling.js](https://github.com/epicserve/django-base-site/blob/main/frontend/js/composables/useBilling.js) | SPA composable — `subscribe()`, `manageBilling()`, `fetchSubscription()`, etc. |
+| [frontend/js/composables/useBilling.ts](https://github.com/epicserve/django-base-site/blob/main/frontend/js/composables/useBilling.ts) | SPA composable — `subscribe()`, `manageBilling()`, `fetchSubscription()`, etc. |
 | [frontend/js/views/PricingView.vue](https://github.com/epicserve/django-base-site/blob/main/frontend/js/views/PricingView.vue) | Public pricing page. |
 | [frontend/js/views/settings/BillingView.vue](https://github.com/epicserve/django-base-site/blob/main/frontend/js/views/settings/BillingView.vue) | Org-scoped billing settings tab. |

@@ -7,7 +7,7 @@
  * `allowAccounts: true` for flows (e.g. reauth) that legitimately land back
  * inside `/accounts/`.
  */
-export function safeNextUrl(next, fallback = '/', { allowAccounts = false } = {}) {
+export function safeNextUrl(next: unknown, fallback = '/', { allowAccounts = false } = {}): string {
   if (typeof next !== 'string' || next.length === 0) return fallback;
   if (next[0] !== '/') return fallback;
   if (next.length > 1 && (next[1] === '/' || next[1] === '\\')) return fallback;

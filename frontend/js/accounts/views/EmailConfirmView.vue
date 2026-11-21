@@ -1,18 +1,20 @@
-<script setup>
-import { ref, onMounted, inject } from 'vue';
+<script setup lang="ts">
+import { ref, onMounted } from 'vue';
 import { useRoute, RouterLink } from 'vue-router';
 import AuthLayout from '@/layouts/AuthLayout.vue';
-import { authApi } from '../api';
+import { useAppStore } from '@/stores/app';
+import { authApi, hasAllauthErrors } from '../api';
+import { ApiError } from '../../utils/api';
 
 const route = useRoute();
-const appStore = inject('appStore');
+const appStore = useAppStore();
 
-const status = ref('loading');
+const status = ref<'loading' | 'success' | 'error'>('loading');
 const errorMessage = ref('');
 
 const VERIFIED_KEYS_STORAGE = 'verifiedEmailKeys';
 
-function loadVerifiedKeys() {
+function loadVerifiedKeys(): Set<string> {
   try {
     return new Set(JSON.parse(sessionStorage.getItem(VERIFIED_KEYS_STORAGE) || '[]'));
   } catch {
@@ -20,7 +22,7 @@ function loadVerifiedKeys() {
   }
 }
 
-function rememberVerifiedKey(key) {
+function rememberVerifiedKey(key: string) {
   const keys = loadVerifiedKeys();
   keys.add(key);
   try {
@@ -33,7 +35,7 @@ function rememberVerifiedKey(key) {
 onMounted(async () => {
   // The email link URL-encodes the key (allauth runs it through quote()),
   // so decode before POSTing or allauth rejects it as "invalid or expired".
-  const key = decodeURIComponent(route.params.key);
+  const key = decodeURIComponent(String(route.params.key));
 
   // If we've already verified this key in the current browser session, the
   // server will reject a second POST as "invalid or expired" — refreshing the
@@ -51,7 +53,7 @@ onMounted(async () => {
     // A successful verification for an unauthenticated user still comes back
     // as 401 with an auth/flow response (no `errors`). Treat responses with
     // no explicit errors array as success.
-    if (err.data && !err.data.errors) {
+    if (err instanceof ApiError && err.data && !hasAllauthErrors(err.data)) {
       rememberVerifiedKey(key);
       status.value = 'success';
       return;

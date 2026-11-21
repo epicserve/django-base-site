@@ -1,8 +1,9 @@
-<script setup>
-import { computed, inject } from 'vue';
+<script setup lang="ts">
+import { computed } from 'vue';
 import { RouterLink, RouterView, useRoute } from 'vue-router';
+import { useAppStore } from '@/stores/app';
 
-const appStore = inject('appStore');
+const appStore = useAppStore();
 const route = useRoute();
 
 const tabs = computed(() => {

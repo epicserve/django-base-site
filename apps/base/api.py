@@ -30,7 +30,7 @@ def _get_app_version() -> str:
         manifest = _get_manifest()
     except (FileNotFoundError, ValueError):
         return "unknown"
-    entry = manifest.get("js/app.js") or {}
+    entry = manifest.get("js/app.ts") or {}
     return entry.get("file", "unknown")
 
 

@@ -2,7 +2,7 @@ import { getCSRFToken } from '@/utils/api';
 
 // django-hijack's acquire and release views expect a regular form POST and answer with a redirect,
 // so build and submit a form instead of calling them with fetch().
-function submitHijackForm(action, fields) {
+function submitHijackForm(action: string, fields: Record<string, string | number> = {}) {
   const form = document.createElement('form');
   form.method = 'POST';
   form.action = action;
@@ -18,7 +18,7 @@ function submitHijackForm(action, fields) {
   form.submit();
 }
 
-export function startImpersonating(userId) {
+export function startImpersonating(userId: number) {
   submitHijackForm('/hijack/acquire/', { user_pk: userId });
 }
 

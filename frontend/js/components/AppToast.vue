@@ -1,12 +1,20 @@
-<script setup>
+<script setup lang="ts">
 import { ref, onMounted, onUnmounted } from 'vue';
 import { ToastProvider, ToastRoot, ToastTitle, ToastViewport } from 'reka-ui';
-import { setToastRef } from '../composables/useToast';
+import { setToastRef, type ToastType } from '../composables/useToast';
 
-const toasts = ref([]);
+interface Toast {
+  id: number;
+  message: string;
+  type: ToastType;
+  duration: number;
+  open: boolean;
+}
+
+const toasts = ref<Toast[]>([]);
 let nextId = 0;
 
-function addToast(message, type = 'success', duration = 4000) {
+function addToast(message: string, type: ToastType = 'success', duration = 4000) {
   const id = nextId;
   nextId += 1;
   toasts.value.push({
@@ -18,12 +26,12 @@ function addToast(message, type = 'success', duration = 4000) {
   });
 }
 
-function closeToast(id) {
+function closeToast(id: number) {
   const toast = toasts.value.find((t) => t.id === id);
   if (toast) toast.open = false;
 }
 
-function removeToast(id) {
+function removeToast(id: number) {
   toasts.value = toasts.value.filter((t) => t.id !== id);
 }
 
@@ -41,7 +49,7 @@ onUnmounted(() => setToastRef(null));
       class="toast-root group pointer-events-auto flex items-start gap-3 rounded-lg border bg-white px-4 py-3 text-sm shadow-lg ring-1 ring-black/5 dark:bg-gray-800 dark:ring-white/10"
       :class="toast.type === 'error' ? 'border-red-200 dark:border-red-900/50' : 'border-gray-200 dark:border-gray-700'"
       @animationend="
-        (e) => {
+        (e: AnimationEvent) => {
           if (!toast.open && e.animationName.includes('slide-out')) removeToast(toast.id);
         }
       "

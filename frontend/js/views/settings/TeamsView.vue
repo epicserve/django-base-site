@@ -1,15 +1,15 @@
-<script setup>
-import { inject } from 'vue';
+<script setup lang="ts">
 import { RouterLink } from 'vue-router';
 import ManageTeamsApp from '@/apps/ManageTeamsApp.vue';
 import FeatureGate from '@/components/FeatureGate.vue';
+import { useAppStore } from '@/stores/app';
 
-const appStore = inject('appStore');
+const appStore = useAppStore();
 </script>
 
 <template>
   <FeatureGate feature="teams">
-    <ManageTeamsApp team-list-url="/api/teams/" organization-member-list-url="/api/organization-members/" />
+    <ManageTeamsApp />
     <template #fallback>
       <div
         class="rounded-lg border border-dashed border-gray-300 bg-white p-8 text-center dark:border-gray-700 dark:bg-gray-800"
@@ -19,7 +19,7 @@ const appStore = inject('appStore');
           Upgrade to unlock teams and team-based access controls.
         </p>
         <RouterLink
-          v-if="appStore.isOwner"
+          v-if="appStore.org?.is_owner"
           :to="{ name: 'org-settings-billing', params: { slug: appStore.org.slug } }"
           class="mt-4 inline-flex cursor-pointer rounded-md bg-indigo-600 px-4 py-2 text-sm font-medium text-white hover:bg-indigo-500"
         >

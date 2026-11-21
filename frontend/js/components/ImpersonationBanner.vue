@@ -1,11 +1,12 @@
-<script setup>
-import { computed, inject } from 'vue';
+<script setup lang="ts">
+import { computed } from 'vue';
 import { XMarkIcon } from '@heroicons/vue/20/solid';
 import UserAvatar from '@/components/UserAvatar.vue';
-import { post } from '@/utils/api';
+import { useAppStore } from '@/stores/app';
+import { api, unwrap } from '@/utils/api';
 import { stopImpersonating } from '@/utils/hijack';
 
-const appStore = inject('appStore');
+const appStore = useAppStore();
 
 const user = computed(() => appStore.user);
 const fullName = computed(() => `${user.value?.first_name || ''} ${user.value?.last_name || ''}`.trim());
@@ -15,9 +16,10 @@ const visible = computed(() => !!user.value?.is_hijacked && !user.value.imperson
 // Hidden for the rest of this impersonation. The flag lives in the Django session, which is
 // flushed when the next impersonation logs in a different user, so the banner comes back then.
 async function hide() {
+  if (!appStore.user) return;
   appStore.user.impersonation_banner_hidden = true;
   try {
-    await post('/api/impersonation/hide-banner/');
+    await unwrap(api.POST('/api/impersonation/hide-banner/'));
   } catch {
     // Already hidden on this page; it shows again on the next page load.
   }
@@ -26,7 +28,7 @@ async function hide() {
 
 <template>
   <Transition name="impersonation-banner">
-    <div v-if="visible" class="impersonation-banner grid">
+    <div v-if="visible && user" class="impersonation-banner grid">
       <div class="overflow-hidden">
         <div
           role="status"

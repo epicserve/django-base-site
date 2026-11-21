@@ -23,6 +23,8 @@ export interface AppStore {
   version: string | null;
   updateAvailable: boolean;
   billing: BillingSummary;
+  /** The first `fetchContext()`, which the router waits for before its guards read the user. */
+  contextReady: Promise<void> | null;
   readonly isAuthenticated: boolean;
   readonly isOrg: boolean;
   readonly isOwner: boolean;
@@ -68,6 +70,7 @@ export function initAppStore(): AppStore {
       cancel_at_period_end: false,
       features: {},
     },
+    contextReady: null,
 
     isAuthenticated: computed(() => appStore.user !== null),
     isOrg: computed(() => !!appStore.org?.id),
@@ -144,7 +147,7 @@ export function initAppStore(): AppStore {
   return appStore;
 }
 
-/** The store `initAppStore()` created. Components can also `inject('appStore')`, which returns the same object. */
+/** The store `initAppStore()` created. */
 export function useAppStore(): AppStore {
   if (store === null) throw new Error('initAppStore() has not been called.');
   return store;

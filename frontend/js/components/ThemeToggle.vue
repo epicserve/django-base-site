@@ -1,10 +1,10 @@
-<script setup>
+<script setup lang="ts">
 import { ref, onMounted } from 'vue';
 import { SwatchIcon } from '@heroicons/vue/24/outline';
 
 const currentTheme = ref('auto');
 
-function setTheme(theme) {
+function setTheme(theme: string) {
   currentTheme.value = theme;
   localStorage.setItem('theme', theme);
   if (theme === 'auto') {
