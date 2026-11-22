@@ -77,6 +77,8 @@ Use Just for all development tasks. Common ones:
 - Create worktrees with `wt`, not `git worktree add` or a Claude Code worktree, so the hooks run. For one made another way, run `scripts/worktree setup` inside it.
 - The hooks need approving once per machine: `wt config approvals add` in the main checkout (it prompts), or answer the prompt on the first `wt switch --create`. In a shell that can't prompt, `wt` stops with "Cannot prompt for approval" and creates nothing. Ask the user to approve them rather than passing `--yes` for them.
 
+**Claude Code permissions:** `.claude/settings.json` (checked in) makes Claude Code refuse commands that destroy local data, such as `docker compose down -v`, `manage.py flush`, and `migrate --fake`, and ask before `just db_restore`, `scripts/worktree teardown`, `wt remove`, a force push, or dropping a database. The rules match the command as written, so they catch the usual spellings, not every one. Personal settings go in `.claude/settings.local.json`, which git ignores; it can add rules but can't lift these, because a deny or ask rule in any settings file wins over an allow.
+
 ## Testing
 
 - Run `just verify` before calling work done. It doesn't run the e2e suite, so also run `just test_e2e` when a change touches the SPA or a flow the e2e tests cover.
@@ -103,7 +105,7 @@ These exist only in the Django Base Site template. `scripts/start_new_project` r
 - `README.md`, `CHANGELOG.md`, `LICENSE.md`, `docs/`, `zensical.toml`, `config/docs.just`, `.readthedocs.yaml`, `scripts/start_new_project`.
 - `config/template.just`, which holds `clean_extra_files` itself, so the recipe doesn't linger in new projects.
 - The docs site's dev dependencies (`zensical`, `mkdocs-linkcheck`), removed from `pyproject.toml` and `uv.lock` with `uv remove`.
-- `.github/workflows/template.yml` — the "Tests install script" job: runs `scripts/start_new_project` and checks the generated project (CI and Dependabot kept, docs tooling and its dependencies gone, no dead links or `just` recipes in its AGENTS.md, nothing else pointing at the deleted files, images pullable), then boots it with `docker compose up`, checks `/api/app-context/` responds, runs `just seed` twice, and signs in as a seeded login and as the superuser from the generated `.env`. It doesn't run pytest; `ci.yml`'s Tests job covers the code.
+- `.github/workflows/template.yml` — the "Tests install script" job: runs `scripts/start_new_project` and checks the generated project (CI and Dependabot kept, docs tooling and its dependencies gone, no dead links or `just` recipes in its AGENTS.md, nothing else pointing at the deleted files, images pullable, `.claude/settings.json` committed and `.claude/settings.local.json` ignored), then boots it with `docker compose up`, checks `/api/app-context/` responds, runs `just seed` twice, and signs in as a seeded login and as the superuser from the generated `.env`. It doesn't run pytest; `ci.yml`'s Tests job covers the code.
 - Blocks of this file wrapped in `<!-- template-only:start -->` / `<!-- template-only:end -->` markers, each on a line of its own. Put anything that only applies to the template (docs site, release notes, the install script) inside such a block, and don't link to the files above from outside one.
 
 <!-- template-only:end -->

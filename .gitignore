@@ -18,9 +18,11 @@ public/static/dist
 public/media/*
 !public/media/.keep
 
-# Claude Code: keep local settings out, but commit skills so projects made from this template inherit them
+# Claude Code: commit the skills and the shared settings (permission rules) so projects made from this template inherit
+# them. Everything else stays out, including each developer's own .claude/settings.local.json.
 .claude/*
 !.claude/skills
+!.claude/settings.json
 CLAUDE.local.md
 .playwright-mcp/
 

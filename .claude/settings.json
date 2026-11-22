@@ -1,0 +1,35 @@
+{
+  "$schema": "https://json.schemastore.org/claude-code-settings.json",
+  "permissions": {
+    "deny": [
+      "Bash(docker compose *down *-v*)",
+      "Bash(docker-compose *down *-v*)",
+      "Bash(docker volume prune*)",
+      "Bash(./manage.py flush*)",
+      "Bash(python*manage.py flush*)",
+      "Bash(docker*manage.py flush*)",
+      "Bash(./manage.py migrate *--fake*)",
+      "Bash(python*manage.py migrate *--fake*)",
+      "Bash(docker*manage.py migrate *--fake*)"
+    ],
+    "ask": [
+      "Bash(just db_restore *)",
+      "Bash(*scripts/worktree teardown*)",
+      "Bash(wt remove *)",
+      "Bash(wt merge *)",
+      "Bash(just clean_docker_*)",
+      "Bash(docker volume rm *)",
+      "Bash(docker volume remove *)",
+      "Bash(docker system prune*)",
+      "Bash(*manage.py migrate * zero*)",
+      "Bash(*dropdb *)",
+      "Bash(*DROP DATABASE*)",
+      "Bash(*drop database*)",
+      "Bash(*DROP SCHEMA*)",
+      "Bash(*drop schema*)",
+      "Bash(git push *--force*)",
+      "Bash(git push -f*)",
+      "Bash(git push * -f*)"
+    ]
+  }
+}

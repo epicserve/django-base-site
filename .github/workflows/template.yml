@@ -150,6 +150,22 @@ jobs:
           git init -q .
           just install_hooks
           test "$(git config core.hooksPath)" = ".githooks" || { echo "ERROR: core.hooksPath was not set after git init"; exit 1; }
+      - name: Verify the new project commits its Claude Code permission rules
+        working-directory: ${{ env.BUILD_DIR }}
+        # .claude/settings.json makes Claude Code refuse or ask before commands that destroy local data. .gitignore
+        # ignores the rest of .claude/, so without its exception for this file a new project's first `git add .` would
+        # leave the rules out, with nothing to say so. .claude/settings.local.json is each developer's own and stays out.
+        # pytest can't check this: the web container has no git. core.excludesFile=/dev/null leaves out any global
+        # excludes file, so only the project's .gitignore decides.
+        run: |
+          jq -e '.permissions.deny and .permissions.ask' .claude/settings.json > /dev/null \
+            || { echo "ERROR: .claude/settings.json is missing, isn't valid JSON, or has no deny and ask rules"; exit 1; }
+          if git -c core.excludesFile=/dev/null check-ignore -q .claude/settings.json; then
+            echo "ERROR: .gitignore ignores .claude/settings.json, so the new project wouldn't commit it"
+            exit 1
+          fi
+          git -c core.excludesFile=/dev/null check-ignore -q .claude/settings.local.json \
+            || { echo "ERROR: .gitignore doesn't ignore .claude/settings.local.json"; exit 1; }
       - name: Build docker images
         working-directory: ${{ env.BUILD_DIR }}
         run: docker compose build web frontend
