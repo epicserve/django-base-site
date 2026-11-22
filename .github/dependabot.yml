@@ -48,11 +48,12 @@ updates:
       day: "saturday"
       time: "11:00" # 11 AM UTC / 5 AM CST
     ignore:
-      # openapi-typescript (`just generate_api_types`) needs TypeScript's JS compiler API and its peer range is
-      # `typescript: ^5.x`; TypeScript 7 is the Go port and has no JS API. Drop this once openapi-typescript's peer
-      # range takes a newer major.
+      # TypeScript 7 is the Go port and has no JavaScript compiler API, which openapi-typescript (`just
+      # generate_api_types`) and vue-tsc (`just lint_ts`) both load; 7.0.2 crashes both. TypeScript 6 still has the
+      # API. Drop this once both tools support 7. openapi-typescript's peer range is `^5.x`, but 6.0.3 generates the
+      # same types, and `just lint_api_types` fails if a TypeScript update changes them.
       - dependency-name: "typescript"
-        update-types: ["version-update:semver-major"]
+        versions: [">=7.0.0"]
     groups:
       production-dependencies:
         dependency-type: "production"

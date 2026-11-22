@@ -5,13 +5,14 @@
 
 ### Changed
 
+* TypeScript is upgraded from 5.9.3 to 6.0.3, the last release before the Go port (7) and the last with the JavaScript compiler API that `openapi-typescript` and `vue-tsc` need. The generated API types don't change, and `tsconfig.json` uses nothing 6.0 deprecates. `openapi-typescript` 7.13.0 still declares `typescript: ^5.x`, and `just lint_api_types` fails if a TypeScript update changes its output. Run `just build` after pulling, so the `frontend` container's `vue-tsc` uses it.
 * django-ninja is upgraded from 1.6.3 to 1.8.0, and epicenv from 1.6.2 to 1.6.3, along with the `uvx epicenv@…` pins in `scripts/start_new_project` and the `just create_env` recipe. Dates in `[tool.uv.exclude-newer-package]` had held both back: each was added to take one release before it was 7 days old, and kept blocking every release after it. The entries are gone, and a comment on `exclude-newer` says to remove such an entry once its release is 7 days old. Run `just build` after pulling.
 
 ### CI
 
 * Jobs install `just` with `extractions/setup-just` instead of `just.systems/install.sh`. With no version given, the script looked up the latest release through GitHub's API without authenticating, and runners share that API's rate limit, so jobs failed at random with a 403.
 * Every action is pinned to a full commit SHA, with its release in a trailing comment, as GitHub's security hardening guide recommends. Dependabot updates both.
-* Dependabot no longer proposes TypeScript majors. `openapi-typescript`, which `just generate_api_types` runs, supports only TypeScript 5, and TypeScript 7 has no JavaScript compiler API.
+* Dependabot no longer proposes TypeScript 7. It's the Go port and has no JavaScript compiler API, which `openapi-typescript` (`just generate_api_types`) and `vue-tsc` (`just lint_ts`) both load, and 7.0.2 crashes both.
 * Dependabot's uv updates wait until a release is 7 days old (`cooldown`), like uv's `exclude-newer = "P7D"`, so they stop proposing releases uv won't lock yet.
 
 
