@@ -86,12 +86,32 @@ def _get_css_asset(filename: str):
     return _get_css_link(hashed_filename)
 
 
+def _get_chunk_css(name: str, seen: set[str]) -> list[str]:
+    """
+    Return the CSS files of a manifest chunk, then of every chunk it imports statically, each file once.
+
+    This is what Vite's backend integration guide says the page has to link: in a build, CSS imported by the entry
+    (`frontend/js/app.ts` imports `css/app.css`) is a separate file that no script loads. Chunks loaded with a dynamic
+    `import()` load their own CSS, so they're left out.
+    """
+    if name in seen:
+        return []
+    seen.add(name)
+    chunk = _get_manifest().get(name, {})
+    css = list(chunk.get("css", []))
+    for imported in chunk.get("imports", []):
+        css += [file for file in _get_chunk_css(imported, seen) if file not in css]
+    return css
+
+
 def _get_js_asset(filename: str):
     if vite_settings.VITE_DEV_MODE is True:
+        # The Vite dev server injects the entry's CSS from the script.
         return _get_script_tag(filename)
     file_data = _get_file_data(filename)
     hashed_filename = file_data.get("file")
-    return _get_script_tag(hashed_filename)
+    css_links = "".join(_get_css_link(css) for css in _get_chunk_css(filename, set()))
+    return mark_safe(css_links + _get_script_tag(hashed_filename))  # noqa: S308
 
 
 @register.simple_tag

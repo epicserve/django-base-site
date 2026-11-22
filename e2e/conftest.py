@@ -21,6 +21,15 @@ def browser_type_launch_args(browser_type_launch_args):
     return {**browser_type_launch_args, "args": ["--no-sandbox"]}
 
 
+@pytest.fixture(scope="session")
+def browser_context_args(browser_context_args):
+    from apps.accounts.models import User
+
+    # The e2e users keep User.timezone's default. In any other timezone (CI and the dev image run in UTC), the browser
+    # gets TimezoneDetectModal on every signed-in page, and its backdrop takes every click.
+    return {**browser_context_args, "timezone_id": User().timezone}
+
+
 @pytest.fixture()
 def user(db):
     from allauth.account.models import EmailAddress

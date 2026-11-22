@@ -64,12 +64,19 @@ class TestViteAssetDevModeOff(BaseViteTest):
             vite_asset("js/does_not_exist.css")
 
     def test_js_asset(self):
+        # A built entry's CSS is a separate file that no script loads, so the tag links it.
         result = vite_asset("js/main.js")
-        assert result == '<script type="module" src="/public/static/dist/js/main-hashgoeshere.js"></script>'
+        assert result == (
+            '<link rel="stylesheet" href="/public/static/dist/js/main-hashgoeshere.css">'
+            '<script type="module" src="/public/static/dist/js/main-hashgoeshere.js"></script>'
+        )
 
         with override_settings(STATIC_URL=STATIC_URL, VITE_OUTPUT_DIR=VITE_OUTPUT_DIR):
             result = vite_asset("js/main.js")
-            assert result == '<script type="module" src="/static/dist/main-hashgoeshere.js"></script>'
+            assert result == (
+                '<link rel="stylesheet" href="/static/dist/main-hashgoeshere.css">'
+                '<script type="module" src="/static/dist/main-hashgoeshere.js"></script>'
+            )
 
         with pytest.raises(
             Exception,
@@ -92,6 +99,17 @@ class TestViteAssetDevModeOff(BaseViteTest):
             f"{settings.BASE_DIR}/apps/base/tests/vite_manifest.json.",
         ):
             vite_asset("js/does_not_exist.css")
+
+    def test_js_asset_links_the_css_of_the_chunks_it_imports(self):
+        # js/admin.js imports _shared.js, which imports _base.js (and itself); each CSS file is linked once.
+        # _lazy.js is a dynamic import, which loads its own CSS.
+        result = vite_asset("js/admin.js")
+        assert result == (
+            '<link rel="stylesheet" href="/public/static/dist/js/admin-hash.css">'
+            '<link rel="stylesheet" href="/public/static/dist/js/shared-hash.css">'
+            '<link rel="stylesheet" href="/public/static/dist/js/base-hash.css">'
+            '<script type="module" src="/public/static/dist/js/admin-hash.js"></script>'
+        )
 
 
 class TestViteHMRClientTagOn(BaseViteTest):
