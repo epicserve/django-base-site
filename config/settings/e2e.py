@@ -33,3 +33,10 @@ STORAGES = {
     "default": {"BACKEND": "django.core.files.storage.InMemoryStorage"},
     "staticfiles": {"BACKEND": "django.contrib.staticfiles.storage.StaticFilesStorage"},
 }
+
+# The live server speaks plain HTTP, and CI runs it with DEBUG off, which turns these on: SECURE_SSL_REDIRECT would send
+# the browser to https://, which nothing serves. Pin them off, as with DEBUG on.
+SECURE_SSL_REDIRECT = False
+SESSION_COOKIE_SECURE = False
+CSRF_COOKIE_SECURE = False
+SECURE_HSTS_SECONDS = 0

@@ -19,3 +19,16 @@ class TestEnvSchema:
         declared = set(tomllib.loads(SCHEMA_FILE.read_text())["variables"])
         assert read
         assert sorted(read - declared) == []
+
+    def test_defaults_are_values_of_their_type(self):
+        # epicenv shows a variable's default in the .env it generates and compares against it in `epicenv diff`, so
+        # it's a value, not a description: "on when DEBUG is off" for a bool is wrong. When the real default depends on
+        # DEBUG, the schema's is the value with DEBUG on, as in a generated .env, and the help_text says what changes.
+        python_types = {"bool": bool, "int": int, "list": list}
+        variables = tomllib.loads(SCHEMA_FILE.read_text())["variables"]
+        wrong = {
+            name: variable["default"]
+            for name, variable in variables.items()
+            if "default" in variable and type(variable["default"]) is not python_types.get(variable["type"], str)
+        }
+        assert wrong == {}
