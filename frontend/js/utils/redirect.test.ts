@@ -21,8 +21,18 @@ describe('safeNextUrl', () => {
     });
   }
 
-  // Browsers read each of these as another site's address.
-  for (const next of ['//evil.example', '//evil.example/notifications/', '/\\evil.example', '\\\\evil.example']) {
+  // Browsers read each of these as another site's address. They drop tabs and newlines from an address, and read `\`
+  // as `/`, so the last four are `//evil.example` too.
+  for (const next of [
+    '//evil.example',
+    '//evil.example/notifications/',
+    '/\\evil.example',
+    '\\\\evil.example',
+    '/\t/evil.example',
+    '/\n/evil.example',
+    '/\r\n/evil.example',
+    '/\t\\evil.example',
+  ]) {
     test(`rejects ${JSON.stringify(next)}, which leads to another site`, () => {
       expect(safeNextUrl(next)).toBe('/');
     });

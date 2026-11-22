@@ -63,6 +63,17 @@ class TestLogin:
         page.wait_for_url(f"{live_server.url}/", timeout=10000)
         expect(page).not_to_have_url(re.compile(r"/accounts/login"))
 
+    def test_next_cannot_leave_the_site(self, page: Page, live_server, user):
+        # Browsers drop the tab from `/<tab>/evil.example`, which leaves `//evil.example`, another site's address.
+        page.route(re.compile(r"^https?://evil\.example/"), lambda route: route.fulfill(body="Another site"))
+        page.goto(f"{live_server.url}/accounts/login/?next=/%09/evil.example/")
+
+        page.get_by_placeholder("Email").fill("michael.scott@dundermifflin.com")
+        page.get_by_placeholder("Password").fill("dundermifflin")
+        page.get_by_role("button", name="Sign In", exact=True).click()
+
+        page.wait_for_url(f"{live_server.url}/", timeout=10000)
+
 
 class TestLogout:
     @pytest.mark.usefixtures("_login")
