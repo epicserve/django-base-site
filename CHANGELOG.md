@@ -9,12 +9,22 @@
 
 ### Changed
 
+* Email goes out from the Celery worker instead of the request or task that sends it (item 4 of #1277). `send_email()` and allauth's emails (`AccountAdapter.send_mail`) render the message, then `queue_email()` queues its strings for `apps.base.tasks.send_email_message`, which retries SMTP, socket and SES errors with backoff: up to 8 times, over up to about 20 minutes. A project made from this template must run a Celery worker in production for email to go out; `compose.yml`'s `worker` service already does locally. A worker started before this change discards the new task as unregistered, so restart it after pulling (`docker compose restart worker`), and in production deploy the worker with or before the web process. Test and e2e settings run Celery tasks eagerly, so `mail.outbox` assertions work unchanged. The superuser's test email now says it was queued, since it hasn't been sent yet when the page answers.
 * TypeScript is upgraded from 5.9.3 to 6.0.3, the last release before the Go port (7) and the last with the JavaScript compiler API that `openapi-typescript` and `vue-tsc` need. The generated API types don't change, and `tsconfig.json` uses nothing 6.0 deprecates. `openapi-typescript` 7.13.0 still declares `typescript: ^5.x`, and `just lint_api_types` fails if a TypeScript update changes its output. Run `just build` after pulling, so the `frontend` container's `vue-tsc` uses it.
 * django-ninja is upgraded from 1.6.3 to 1.8.0, and epicenv from 1.6.2 to 1.6.3, along with the `uvx epicenv@…` pins in `scripts/start_new_project` and the `just create_env` recipe. Dates in `[tool.uv.exclude-newer-package]` had held both back: each was added to take one release before it was 7 days old, and kept blocking every release after it. The entries are gone, and a comment on `exclude-newer` says to remove such an entry once its release is 7 days old. Run `just build` after pulling.
+
+### Removed
+
+* The placeholder `add` Celery task in `apps/base/tasks.py`.
 
 ### Fixed
 
 * A built SPA (production, and the e2e suite) loads its stylesheet. `{% vite_asset 'js/app.ts' %}` emitted only the entry's script, and in a build the CSS that `app.ts` imports is a separate file no script loads, so every page rendered without Tailwind's styles. The Vite dev server injects the CSS from the script, which is why it only showed up in a build. The tag now links the entry's CSS, and that of the chunks it imports, before the script, as Vite's backend integration guide describes. An e2e test checks a Tailwind style on the built page. Until now the e2e suite ran against unstyled pages, so it never saw that `TimezoneDetectModal` opened on every signed-in page: Playwright's browser runs in UTC, and the e2e users are on `User.timezone`'s default, `America/Chicago`. With styles, the modal's backdrop took every click and failed 18 tests, so the e2e browser now runs in that timezone.
+* A mail server that's down no longer turns these into failures, because sending moved to the Celery worker. Each has a test that fails on the old code:
+  * Inviting someone answered with a 500, though the invite had been saved.
+  * Signing up and requesting a password reset answered with a 500.
+  * A Stripe webhook for a canceled subscription or a failed payment answered with a 500 after it had already added the owners' in-app notification. Stripe redelivered the event, and each delivery added another notification.
+  * The daily trial-ending check stopped at the first failed email. That subscription never got its email, and every one after it in the run got no reminder at all, because the next day's run is outside the reminder window.
 
 ### CI
 

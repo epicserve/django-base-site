@@ -16,6 +16,11 @@ CACHES = {
 
 SESSION_ENGINE: str = "django.contrib.sessions.backends.cached_db"
 
+# Run Celery tasks in-process, so emails (queued by apps.base.utils.email.queue_email) land in `mail.outbox` without a
+# broker or worker, and a task that raises fails the test that queued it.
+CELERY_TASK_ALWAYS_EAGER = True
+CELERY_TASK_EAGER_PROPAGATES = True
+
 # A git worktree's .env moves these to its own ports (scripts/worktree). Tests expect the defaults.
 SESSION_COOKIE_NAME = "sessionid"
 VITE_SERVER_PORT = "3000"

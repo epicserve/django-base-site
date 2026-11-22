@@ -10,6 +10,7 @@ import pytest
 from model_bakery import baker
 
 from apps.accounts.models import User
+from apps.base.tests.mail import record_queued_emails, use_failing_mail_server
 from apps.organizations.models import Organization, OrganizationInvite, OrganizationMember
 from apps.organizations.signals import user_logged_in_receiver
 
@@ -221,23 +222,24 @@ class TestOrganizationSettingsViewSet(OrganizationAPITestBase):
         self.assertEqual(self.org.billing_email, "billing@example.com")
 
 
+@pytest.fixture()
+def owner_client(client):
+    owner = baker.make(User, email="owner@example.com")
+    org = baker.make(Organization, name="Acme")
+    baker.make(OrganizationMember, organization=org, user=owner, is_owner=True)
+    client.force_login(owner)
+    session = client.session
+    session["organization_data"] = json.dumps(
+        {"pk": org.pk, "id": org.pk, "name": org.name, "slug": org.slug, "is_owner": True}
+    )
+    session.save()
+    client.org, client.owner = org, owner
+    return client
+
+
 @pytest.mark.django_db
 class TestInviteList:
     """What the Members tab's invite list needs from the API."""
-
-    @pytest.fixture()
-    def owner_client(self, client):
-        owner = baker.make(User, email="owner@example.com")
-        org = baker.make(Organization, name="Acme")
-        baker.make(OrganizationMember, organization=org, user=owner, is_owner=True)
-        client.force_login(owner)
-        session = client.session
-        session["organization_data"] = json.dumps(
-            {"pk": org.pk, "id": org.pk, "name": org.name, "slug": org.slug, "is_owner": True}
-        )
-        session.save()
-        client.org, client.owner = org, owner
-        return client
 
     def test_list_reports_expired_invites(self, owner_client):
         org, owner = owner_client.org, owner_client.owner
@@ -275,6 +277,31 @@ class TestInviteList:
             },
             "new@example.com": None,
         }
+
+
+@pytest.mark.django_db
+class TestCreateInviteEmail:
+    def test_a_mail_outage_doesnt_fail_the_invite(
+        self, owner_client, settings, monkeypatch, django_capture_on_commit_callbacks
+    ):
+        # The invite was saved, then sending its email inline answered with a 500.
+        use_failing_mail_server(settings)
+        queued = record_queued_emails(monkeypatch)
+
+        with django_capture_on_commit_callbacks(execute=True):
+            resp = owner_client.post(
+                "/api/organization-invites/",
+                data=json.dumps({"invitee_email": "guest@example.com", "is_owner": False}),
+                content_type="application/json",
+            )
+
+        assert resp.status_code == 201
+        assert OrganizationInvite.objects.filter(
+            organization=owner_client.org, invitee_email="guest@example.com"
+        ).exists()
+        [message] = queued
+        assert message["to"] == ["guest@example.com"]
+        assert "/organizations/invite/" in message["body"]
 
 
 @pytest.mark.django_db

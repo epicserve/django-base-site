@@ -8,6 +8,7 @@ import pytest
 from allauth.account.models import EmailAddress
 
 from apps.accounts.models import User
+from apps.base.tests.mail import record_queued_emails, use_failing_mail_server
 
 
 @pytest.fixture()
@@ -64,3 +65,39 @@ def test_password_reset_request(mailoutbox, client, verified_user):
     assert resp.status_code in (200, 401), resp.content
     assert len(mailoutbox) == 1
     assert verified_user.email in mailoutbox[0].to
+
+
+@pytest.mark.django_db
+class TestMailOutage:
+    """allauth's emails are queued (`AccountAdapter.send_mail`), so a mail server that's down can't fail the request."""
+
+    def test_password_reset_request(self, client, verified_user, settings, monkeypatch):
+        use_failing_mail_server(settings)
+        queued = record_queued_emails(monkeypatch)
+
+        resp = client.post(
+            "/_allauth/browser/v1/auth/password/request",
+            data={"email": verified_user.email},
+            content_type="application/json",
+        )
+
+        assert resp.status_code == 200, resp.content
+        [message] = queued
+        assert message["to"] == [verified_user.email]
+        assert "/accounts/password/reset/key/" in message["body"]
+
+    def test_signup(self, client, settings, monkeypatch):
+        use_failing_mail_server(settings)
+        queued = record_queued_emails(monkeypatch)
+
+        resp = client.post(
+            "/_allauth/browser/v1/auth/signup",
+            data={"email": "newbie@example.com", "password": "testpw123!"},
+            content_type="application/json",
+        )
+
+        # Email verification is optional, so the new user is signed in at once.
+        assert resp.status_code == 200, resp.content
+        [message] = queued
+        assert message["to"] == ["newbie@example.com"]
+        assert "/accounts/confirm-email/" in message["body"]

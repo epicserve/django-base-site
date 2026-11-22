@@ -13,7 +13,7 @@ The Django Base Site uses Docker Compose for local development. Install [Docker]
 | `mailpit`  | `axllent/mailpit`                    | Local SMTP capture. Web UI at http://localhost:8025                    |
 | `silo`     | `pgsty/silo:RELEASE.2026-09-16T00-00-00Z` | S3-compatible media storage via [Silo](https://github.com/pgsty/silo), a maintained MinIO fork. Console at http://localhost:9001 |
 | `web`      | `epicserve/django-base-site:python`  | Django dev server. Runs migrations + `ensure_s3_bucket` on startup.    |
-| `worker`   | same as web                          | Celery worker.                                                         |
+| `worker`   | same as web                          | Celery worker, which sends every email, plus the beat schedule.        |
 | `frontend` | `epicserve/django-base-site:bun`     | bun running the Vite dev server. HMR exposed at http://localhost:3000  |
 
 The `web` and `frontend` containers run as `${HOST_UID:-1000}:${HOST_GID:-1000}` so bind-mount writes don't end up root-owned.

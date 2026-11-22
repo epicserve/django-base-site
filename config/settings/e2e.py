@@ -17,6 +17,11 @@ CACHES = {
 # Use database-backed sessions since DummyCache can't store session data
 SESSION_ENGINE = "django.contrib.sessions.backends.db"
 
+# Run Celery tasks in-process, so emails (queued by apps.base.utils.email.queue_email) land in `mail.outbox` without a
+# broker or worker (CI's e2e job runs no Redis), and a task that raises fails the test that queued it.
+CELERY_TASK_ALWAYS_EAGER = True
+CELERY_TASK_EAGER_PROPAGATES = True
+
 # Use pre-built production assets instead of the Vite dev server
 VITE_DEV_MODE = False
 VITE_MANIFEST_FILE = BASE_DIR / "public" / "static" / "dist" / "js" / ".vite" / "manifest.json"
