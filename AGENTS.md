@@ -39,6 +39,7 @@ Use Just for all development tasks. Common ones:
 - `just format` - Format Python (ruff), JS (oxfmt + oxlint), HTML (djlint), justfile
 - `just lint` - Run all linters + ty type check + check for missing migrations + check the generated API types are current + vue-tsc
 - `just generate_api_types` - Regenerate `frontend/js/api/*.d.ts` from the ninja and allauth OpenAPI specs; run it after changing a ninja schema and commit the result
+- `just verify` - lint, then pytest with `-x --ff -q` (stops at the first failure, last run's failures first); run it before calling work done
 - `just pre_commit` - format + lint + test + test_e2e
 
 **Testing:**
@@ -75,6 +76,7 @@ Use Just for all development tasks. Common ones:
 
 ## Testing
 
+- Run `just verify` before calling work done. It doesn't run the e2e suite, so also run `just test_e2e` when a change touches the SPA or a flow the e2e tests cover.
 - pytest with pytest-django.
 - Test settings in `config.settings.test_runner`; e2e settings in `config.settings.e2e`.
 - Model Bakery for fixtures.
