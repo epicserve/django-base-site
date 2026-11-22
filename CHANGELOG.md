@@ -6,6 +6,7 @@
 ### Added
 
 * `just verify` runs `just lint`, then pytest with `-x --ff -q`: it stops at the first failure and runs the last run's failures first. The two run one after the other, so the output reads top to bottom. AGENTS.md tells agents to run it before calling work done, and `just test_e2e` too when a change touches the SPA.
+* `just test_js` runs the SPA's unit tests with `bun test`, which is built into bun, so it adds no dependency. The first ones cover `safeNextUrl()`, which keeps a `?next=` redirect on the site. A test goes beside its module as `<name>.test.ts`. `@types/bun` isn't installed, so `frontend/js/bun-test.d.ts` declares the parts of `bun:test` the tests use, and `vue-tsc` type-checks the tests. `just pre_commit` runs it too.
 
 ### Changed
 
@@ -33,6 +34,7 @@
 
 ### CI
 
+* The Tests job runs `just test_js`, so the SPA's unit tests run on every push and pull request.
 * Jobs install `just` with `extractions/setup-just` instead of `just.systems/install.sh`. With no version given, the script looked up the latest release through GitHub's API without authenticating, and runners share that API's rate limit, so jobs failed at random with a 403.
 * Every action is pinned to a full commit SHA, with its release in a trailing comment, as GitHub's security hardening guide recommends. Dependabot updates both.
 * Dependabot no longer proposes TypeScript 7. It's the Go port and has no JavaScript compiler API, which `openapi-typescript` (`just generate_api_types`) and `vue-tsc` (`just lint_ts`) both load, and 7.0.2 crashes both.

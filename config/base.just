@@ -273,7 +273,7 @@ lint_api_types: _require_native_tools _require_node_modules
     {{ python_cmd_prefix }} ty check .
 
 # Run pre-commit checks
-pre_commit: format lint test test_e2e
+pre_commit: format lint test test_js test_e2e
 
 # Lint, then run pytest stopping at the first failure (last run's failures first). One after the other, not in
 # parallel, so the output reads top to bottom. Run it before calling work done.
@@ -305,6 +305,11 @@ pre_commit: format lint test test_e2e
 # Run tests without coverage
 @test:
     {{ python_cmd_prefix }} pytest --ds=config.settings.test_runner
+
+# Run the SPA's unit tests (`frontend/js/**/*.test.ts`) with bun's built-in test runner
+@test_js:
+    just _start_msg "Running the SPA's unit tests with bun test"
+    {{ bun_cmd_prefix }} bun test ./frontend/js/
 
 # Run tests with coverage
 @test_with_coverage:

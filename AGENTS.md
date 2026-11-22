@@ -42,10 +42,11 @@ Use Just for all development tasks. Common ones:
 - `just lint_deploy` - `manage.py check --deploy --fail-level WARNING` under `config.settings.deploy_check`, with DEBUG off and no `.env`, so the production HTTPS defaults can't quietly regress. It silences only `security.W005` and `security.W021` (HSTS `includeSubDomains` and `preload`, which each project decides for its own domain); `check --deploy` in a real deploy still shows them.
 - `just generate_api_types` - Regenerate `frontend/js/api/*.d.ts` from the ninja and allauth OpenAPI specs; run it after changing a ninja schema and commit the result
 - `just verify` - lint, then pytest with `-x --ff -q` (stops at the first failure, last run's failures first); run it before calling work done
-- `just pre_commit` - format + lint + test + test_e2e
+- `just pre_commit` - format + lint + test + test_js + test_e2e
 
 **Testing:**
 - `just test` - pytest (Django + ninja API tests)
+- `just test_js` - `bun test` for the SPA's unit tests (`frontend/js/**/*.test.ts`)
 - `just test_with_coverage` - pytest --cov, opens HTML report
 - `just test_e2e [args]` - `bun run build` then pytest e2e/ with `--ds=config.settings.e2e`. Excluded from `just test` via `--ignore=e2e` in `pyproject.toml`.
 
@@ -86,10 +87,11 @@ Use Just for all development tasks. Common ones:
 - pyotp for the TOTP / MFA tests under `apps/accounts/tests/test_mfa_flows.py`.
 - Playwright e2e tests under `e2e/` (auth flow incl. the passkey prompt, invite flow, org settings, avatar upload); `--ignore=e2e` is on `pyproject.toml` `[tool.pytest.ini_options]` so the unit suite stays fast.
 - Coverage configuration in `config/coverage.ini`.
+- `bun test` (built into bun, run by `just test_js`) unit-tests plain TypeScript functions, such as `safeNextUrl()` in `frontend/js/utils/redirect.test.ts`. Put a test beside its module as `<name>.test.ts` and import `describe`, `test`, and `expect` from `bun:test`. `@types/bun` isn't installed, so `frontend/js/bun-test.d.ts` declares the parts the tests use; add to it when a test needs more. Components and flows are covered by the e2e tests instead.
 - `frontend/js/utils/api.type-test.ts` holds type-level regression tests: `@ts-expect-error` lines for API bugs that shipped before the types existed, next to the same calls written correctly. `vue-tsc` fails if one stops being an error. Add one when the types should have caught a bug.
 - Every `apps.*` management command must import cleanly; `apps/base/tests/test_management_commands.py` loads them all, since `ty` ignores unresolved imports.
 - To check a UI change in the browser, follow the `run-app` skill ([.agents/skills/run-app/SKILL.md](.agents/skills/run-app/SKILL.md)): start the stack, `just seed`, then sign in as a seeded login with Playwright.
-- CI (`.github/workflows/ci.yml`) runs `just lint`, the pytest suite, and the Playwright e2e suite on pushes to `main` and on pull requests. Dependabot (`.github/dependabot.yml`) opens weekly dependency PRs; the `/weekly-maintenance` skill reviews and merges them.
+- CI (`.github/workflows/ci.yml`) runs `just lint`, `just test_js`, the pytest suite, and the Playwright e2e suite on pushes to `main` and on pull requests. Dependabot (`.github/dependabot.yml`) opens weekly dependency PRs; the `/weekly-maintenance` skill reviews and merges them.
 - Workflows install `just` with `extractions/setup-just`, not the `just.systems` install script, which fails on GitHub's API rate limit. Pin every action to a full commit SHA with its release in a trailing comment (`uses: actions/checkout@<sha> # v7.0.1`), as GitHub's hardening guide recommends; Dependabot updates both.
 
 <!-- template-only:start -->
