@@ -41,7 +41,7 @@ Use Just for all development tasks. Common ones:
 - `just lint` - Run all linters + ty type check + check for missing migrations + Django's deployment checks + check the generated API types are current + vue-tsc
 - `just lint_deploy` - `manage.py check --deploy --fail-level WARNING` under `config.settings.deploy_check`, with DEBUG off and no `.env`, so the production HTTPS defaults can't quietly regress. It silences only `security.W005` and `security.W021` (HSTS `includeSubDomains` and `preload`, which each project decides for its own domain); `check --deploy` in a real deploy still shows them.
 - `just generate_api_types` - Regenerate `frontend/js/api/*.d.ts` from the ninja and allauth OpenAPI specs; run it after changing a ninja schema and commit the result
-- `just verify` - lint, then pytest with `-x --ff -q` (stops at the first failure, last run's failures first); run it before calling work done
+- `just verify` - lint, then pytest with `-x --ff -q` (stops at the first failure, last run's failures first), then `just test_js`; run it before calling work done
 - `just pre_commit` - format + lint + test + test_js + test_e2e
 
 **Testing:**

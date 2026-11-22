@@ -275,11 +275,12 @@ lint_api_types: _require_native_tools _require_node_modules
 # Run pre-commit checks
 pre_commit: format lint test test_js test_e2e
 
-# Lint, then run pytest stopping at the first failure (last run's failures first). One after the other, not in
-# parallel, so the output reads top to bottom. Run it before calling work done.
+# Lint, then run pytest stopping at the first failure (last run's failures first), then the SPA's unit tests. One
+# after the other, not in parallel, so the output reads top to bottom. Run it before calling work done.
 @verify: _ensure_web lint
     just _start_msg "Running tests"
     {{ python_cmd_prefix }} pytest --ds=config.settings.test_runner -x --ff -q
+    just test_js
 
 # Create known dev logins, organizations, teams and invites (DEBUG only; safe to rerun)
 @seed: _ensure_web

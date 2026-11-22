@@ -6,7 +6,7 @@
 ### Added
 
 * `just verify` runs `just lint`, then pytest with `-x --ff -q`: it stops at the first failure and runs the last run's failures first. The two run one after the other, so the output reads top to bottom. AGENTS.md tells agents to run it before calling work done, and `just test_e2e` too when a change touches the SPA.
-* `just test_js` runs the SPA's unit tests with `bun test`, which is built into bun, so it adds no dependency. The first ones cover `safeNextUrl()`, which keeps a `?next=` redirect on the site. A test goes beside its module as `<name>.test.ts`. `@types/bun` isn't installed, so `frontend/js/bun-test.d.ts` declares the parts of `bun:test` the tests use, and `vue-tsc` type-checks the tests. `just pre_commit` runs it too.
+* `just test_js` runs the SPA's unit tests with `bun test`, which is built into bun, so it adds no dependency. The first ones cover `safeNextUrl()`, which keeps a `?next=` redirect on the site. A test goes beside its module as `<name>.test.ts`. `@types/bun` isn't installed, so `frontend/js/bun-test.d.ts` declares the parts of `bun:test` the tests use, and `vue-tsc` type-checks the tests. `just verify` runs it after pytest, and `just pre_commit` runs it too.
 
 ### Changed
 
