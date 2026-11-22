@@ -65,6 +65,9 @@ class TestSignInWithAPasskey:
         _sign_in(page, live_server)
         _add_passkey(page, passwordless=True)
         expect(page.get_by_text("Michael's Laptop")).to_be_visible()
+        # The virtual authenticator answers the email field's passkey autofill request at once, so the login page
+        # would sign in on its own while the click waits for the page transition to finish. Turn autofill off.
+        page.add_init_script("PublicKeyCredential.isConditionalMediationAvailable = async () => false;")
         page.goto(f"{live_server.url}/accounts/logout/")
         page.wait_for_url(re.compile(r"/accounts/login"), timeout=10000)
         expect(page.get_by_role("button", name="Sign In with a Passkey")).to_be_visible()
