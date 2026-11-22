@@ -3,6 +3,10 @@
 
 ## 2026-11-21
 
+### Added
+
+* `just verify` runs `just lint`, then pytest with `-x --ff -q`: it stops at the first failure and runs the last run's failures first. The two run one after the other, so the output reads top to bottom. AGENTS.md tells agents to run it before calling work done, and `just test_e2e` too when a change touches the SPA.
+
 ### Changed
 
 * TypeScript is upgraded from 5.9.3 to 6.0.3, the last release before the Go port (7) and the last with the JavaScript compiler API that `openapi-typescript` and `vue-tsc` need. The generated API types don't change, and `tsconfig.json` uses nothing 6.0 deprecates. `openapi-typescript` 7.13.0 still declares `typescript: ^5.x`, and `just lint_api_types` fails if a TypeScript update changes its output. Run `just build` after pulling, so the `frontend` container's `vue-tsc` uses it.
