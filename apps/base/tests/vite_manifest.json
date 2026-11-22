@@ -6,5 +6,43 @@
     "file": "main-hashgoeshere.js",
     "isEntry": true,
     "src": "js/main.js"
+  },
+  "js/admin.js": {
+    "css": [
+      "admin-hash.css"
+    ],
+    "dynamicImports": [
+      "_lazy.js"
+    ],
+    "file": "admin-hash.js",
+    "imports": [
+      "_shared.js"
+    ],
+    "isEntry": true,
+    "src": "js/admin.js"
+  },
+  "_shared.js": {
+    "css": [
+      "shared-hash.css"
+    ],
+    "file": "shared-hash.js",
+    "imports": [
+      "_base.js",
+      "_shared.js"
+    ]
+  },
+  "_base.js": {
+    "css": [
+      "base-hash.css",
+      "shared-hash.css"
+    ],
+    "file": "base-hash.js"
+  },
+  "_lazy.js": {
+    "css": [
+      "lazy-hash.css"
+    ],
+    "file": "lazy-hash.js",
+    "isDynamicEntry": true
   }
 }
