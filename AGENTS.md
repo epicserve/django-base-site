@@ -38,7 +38,8 @@ Use Just for all development tasks. Common ones:
 
 **Code Quality:**
 - `just format` - Format Python (ruff), JS (oxfmt + oxlint), HTML (djlint), justfile
-- `just lint` - Run all linters + ty type check + check for missing migrations + check the generated API types are current + vue-tsc
+- `just lint` - Run all linters + ty type check + check for missing migrations + Django's deployment checks + check the generated API types are current + vue-tsc
+- `just lint_deploy` - `manage.py check --deploy --fail-level WARNING` under `config.settings.deploy_check`, with DEBUG off and no `.env`, so the production HTTPS defaults can't quietly regress. It silences only `security.W005` and `security.W021` (HSTS `includeSubDomains` and `preload`, which each project decides for its own domain); `check --deploy` in a real deploy still shows them.
 - `just generate_api_types` - Regenerate `frontend/js/api/*.d.ts` from the ninja and allauth OpenAPI specs; run it after changing a ninja schema and commit the result
 - `just verify` - lint, then pytest with `-x --ff -q` (stops at the first failure, last run's failures first); run it before calling work done
 - `just pre_commit` - format + lint + test + test_e2e
@@ -158,6 +159,7 @@ Key variables:
 - `SITE_DOMAIN` — defaults to `localhost:8000`. **Use `localhost`, not `127.0.0.1`** — WebAuthn / passkey enrollment rejects bare IPs as Relying Party IDs.
 - `HOST_PORT_WEB` / `_VITE` / `_DB` / `_SILO` / `_SILO_CONSOLE` / `_MAILPIT` / `_MAILPIT_SMTP` / `_DEBUGPY` — the host ports `compose.yml` publishes (defaults 8000, 3000, 5432, 9000, 9001, 8025, 1025, 5678). Unset in the main checkout; `scripts/worktree setup` sets them in a worktree's `.env`, with `COMPOSE_PROJECT_NAME`, a matching `SITE_DOMAIN` and `MEDIA_S3_URL_ENDPOINT_URL`, and `SESSION_COOKIE_NAME` (browsers share cookies across ports, so each stack needs its own session cookie). Django reads `HOST_PORT_VITE` as `VITE_SERVER_PORT`.
 - `ALLOWED_HOSTS` — defaults to `localhost,127.0.0.1`
+- `SECURE_SSL_REDIRECT` / `SESSION_COOKIE_SECURE` / `CSRF_COOKIE_SECURE` / `SECURE_HSTS_SECONDS` — HTTPS. Each is on by default when DEBUG is off (HSTS for one year, for this host only) and off when it's on, so production needs none of them set, only HTTPS in front of the app. Turn them off (`off`, or `SECURE_HSTS_SECONDS=0`) only for a deploy without TLS, such as a staging site. Behind a proxy that terminates TLS, Django has to see requests as HTTPS or the redirect loops: `gunicorn.conf.py` trusts the proxy's `X-Forwarded-Proto` (`forwarded_allow_ips`), and `SECURE_PROXY_SSL_HEADER=on` makes Django trust it under any other server. django-alive's `/-/alive/` and `/-/health/` are never redirected. `SECURE_HSTS_INCLUDE_SUBDOMAINS` and `SECURE_HSTS_PRELOAD` stay off until a project turns them on for its own domain. The test and e2e settings pin all of these off, because the test client and the live server speak plain HTTP and CI runs both with DEBUG off.
 - `INTERNAL_IPS` — for Django Debug Toolbar, which is off until you turn it on with **Debug Toolbar** in the user menu (DEBUG only). The choice is a `debug_toolbar` cookie read by `apps/base/debug_toolbar.py`, not a setting.
 - `USE_DEBUGPY=true` — enable remote debugging
 - `MEDIA_S3_*` — Silo / S3 credentials (locally they are also Silo's root user and password). `MEDIA_S3_ENDPOINT_URL` is the Docker-internal hostname (`http://silo:9000`); `MEDIA_S3_URL_ENDPOINT_URL` is the browser-facing one (`http://localhost:9000`). The split is handled by `apps.base.storage.S3MediaStorage`.

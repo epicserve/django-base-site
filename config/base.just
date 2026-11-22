@@ -214,7 +214,7 @@ _generate_api_types out_dir:
     {{ bun_cmd_prefix }} bun frontend/config/generate-api-types.mjs "$spec_dir/allauth.json" "{{ out_dir }}/allauth.d.ts"
 
 # Lint everything
-lint: lint_js lint_html lint_py lint_migrations lint_types lint_api_types lint_ts
+lint: lint_js lint_html lint_py lint_migrations lint_deploy lint_types lint_api_types lint_ts
 
 # Fail if the checked-in API types in frontend/js/api/ don't match the backend's schemas
 lint_api_types: _require_native_tools _require_node_modules
@@ -229,6 +229,16 @@ lint_api_types: _require_native_tools _require_node_modules
         echo "The API types in frontend/js/api/ are stale. Run \`just generate_api_types\` and commit the result." >&2
         exit 1
     fi
+
+# Run Django's deployment checks (`check --deploy`) against the production defaults: DEBUG off, no .env, and none of
+# the HTTPS settings overridden. The secret key is a placeholder long enough to pass the check; nothing is signed with it.
+@lint_deploy:
+    just _start_msg "Running Django's deployment checks"
+    {{ python_cmd_prefix_with_deps }} env -u SECURE_SSL_REDIRECT -u SECURE_HSTS_SECONDS -u SECURE_HSTS_INCLUDE_SUBDOMAINS \
+        -u SECURE_HSTS_PRELOAD -u SESSION_COOKIE_SECURE -u CSRF_COOKIE_SECURE \
+        READ_DOT_ENV_FILE=off DEBUG=off ALLOWED_HOSTS=example.com \
+        SECRET_KEY=placeholder-for-the-deployment-checks-never-used-to-sign-anything \
+        ./manage.py check --deploy --fail-level WARNING --settings=config.settings.deploy_check
 
 # Lint HTML
 @lint_html: _require_native_tools

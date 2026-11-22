@@ -43,6 +43,23 @@ CSRF_TRUSTED_ORIGINS = env.list("CSRF_TRUSTED_ORIGINS", default=[])
 # detection and bypass `secure`-flag cookies / SECURE_SSL_REDIRECT.
 if env.bool("SECURE_PROXY_SSL_HEADER", default=False):
     SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")
+
+# HTTPS. The redirect, the secure cookies, and HSTS are on by default when DEBUG is off, so a production deploy gets
+# them without setting anything, and off when DEBUG is on, for local dev over http://localhost. `just lint_deploy` runs
+# `check --deploy` against these defaults. Behind a proxy that terminates TLS, Django has to see the request as HTTPS
+# or SECURE_SSL_REDIRECT redirects forever: gunicorn.conf.py trusts the proxy's X-Forwarded-Proto, and
+# SECURE_PROXY_SSL_HEADER above does the same.
+SECURE_SSL_REDIRECT = env.bool("SECURE_SSL_REDIRECT", default=not DEBUG)
+# django-alive's health checks (config/urls.py), which load balancers and container probes call over plain HTTP.
+SECURE_REDIRECT_EXEMPT = [r"^-/(alive|health)/$"]
+SESSION_COOKIE_SECURE = env.bool("SESSION_COOKIE_SECURE", default=not DEBUG)
+CSRF_COOKIE_SECURE = env.bool("CSRF_COOKIE_SECURE", default=not DEBUG)
+# One year, for this host only. includeSubDomains and preload reach every subdomain of the domain, which the template
+# can't know about, and preload takes months to undo, so a project turns each on for its own domain.
+SECURE_HSTS_SECONDS = env.int("SECURE_HSTS_SECONDS", default=0 if DEBUG else 31_536_000)
+SECURE_HSTS_INCLUDE_SUBDOMAINS = env.bool("SECURE_HSTS_INCLUDE_SUBDOMAINS", default=False)
+SECURE_HSTS_PRELOAD = env.bool("SECURE_HSTS_PRELOAD", default=False)
+
 INTERNAL_IPS = env.list("INTERNAL_IPS", default=["127.0.0.1"])
 
 # Get the IP to use for Django Debug Toolbar when developing with docker
