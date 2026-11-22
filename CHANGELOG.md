@@ -26,6 +26,7 @@
   * Signing up and requesting a password reset answered with a 500.
   * A Stripe webhook for a canceled subscription or a failed payment answered with a 500 after it had already added the owners' in-app notification. Stripe redelivered the event, and each delivery added another notification.
   * The daily trial-ending check stopped at the first failed email. That subscription never got its email, and every one after it in the run got no reminder at all, because the next day's run is outside the reminder window.
+* `.env.toml` gives `DB_SSL_REQUIRED` and `VITE_DEV_MODE` boolean defaults (`false`, `true`) rather than the strings `"false"` and `"true"`, and says in their help text how DEBUG changes them. A test checks that every default in `.env.toml` is a value of its variable's type.
 
 ### CI
 

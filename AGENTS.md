@@ -150,7 +150,7 @@ The project supports remote debugging with VS Code, PyCharm, LazyVim/Neovim, or 
 
 ## Environment Configuration
 
-Uses `.env` for local development. Schema is defined in `.env.toml` under `[variables]`. Generate a new `.env` with `just create_env` (or `uvx epicenv create`).
+Uses `.env` for local development. Schema is defined in `.env.toml` under `[variables]`. A variable's `default` is a value of its type (`false`, not `"false"` or a description), the one it has in a generated `.env`, where DEBUG is on. epicenv uses it only for that `.env` and `epicenv diff`; the runtime default is in the settings. When it depends on DEBUG, say so in `help_text`. `apps/base/tests/test_env_schema.py` checks the types. Generate a new `.env` with `just create_env` (or `uvx epicenv create`).
 
 Key variables:
 - `DEBUG=on` for development
