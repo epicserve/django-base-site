@@ -89,7 +89,7 @@ It lasts for the life of the tab. Enroll under `/accounts/security/passkeys/`. O
 
 - Open the changed route, take a screenshot, and read the console for errors and the network log for failed requests. The SPA's routes are in `frontend/js/router.ts`.
 - Common pages: `/`, `/organizations/<slug>/settings/{general,members,teams}/`, `/accounts/general/`, `/accounts/security/`, `/notifications/`.
-- Emails (invites sent from the app, password reset, email verification) land in Mailpit at `http://localhost:8025` (`HOST_PORT_MAILPIT` in a worktree).
+- Emails (invites sent from the app, password reset, email verification) land in Mailpit at `http://localhost:8025` (`HOST_PORT_MAILPIT` in a worktree). The `worker` service sends them, and it doesn't reload on code changes: after changing a Celery task, run `docker compose restart worker`.
 
 ## 6. Keep it
 

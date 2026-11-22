@@ -15,8 +15,10 @@ from django.test import RequestFactory
 import pytest
 from model_bakery import baker
 
+from apps.base.tests.mail import record_queued_emails, use_failing_mail_server
 from apps.billing.constants import WEBHOOK_MAX_FAILURES, SubscriptionStatus
 from apps.billing.models import BillingCustomer, Subscription, WebhookEvent
+from apps.notifications.models import Notification
 
 
 @pytest.fixture
@@ -247,3 +249,40 @@ class TestPaymentFailedHandler:
         html, _ = email.alternatives[0]
         assert f"We weren't able to process the latest payment for {org_name}{period}" in email.body.splitlines()
         assert re.search(rf"<strong>{re.escape(org_name)}</strong>{re.escape(period)}\s*</p>", html)
+
+
+@pytest.mark.django_db
+class TestMailOutage:
+    @pytest.mark.parametrize(
+        ("event_type", "event_object"),
+        [
+            ("customer.subscription.deleted", {"id": "sub_outage"}),
+            ("invoice.payment_failed", {"customer": "cus_outage", "amount_due": 1000}),
+        ],
+    )
+    def test_a_redelivered_event_notifies_the_owner_once(
+        self, billing_settings, patch_construct_event, settings, monkeypatch, event_type, event_object
+    ):
+        # Sending the email inline raised after notify(), so the webhook answered 500, Stripe redelivered the event,
+        # and every delivery added another in-app notification.
+        use_failing_mail_server(settings)
+        queued = record_queued_emails(monkeypatch)
+        org = baker.make("organizations.Organization", name="Acme")
+        owner = baker.make("accounts.User", first_name="Michael", last_name="Scott", email="owner@example.com")
+        baker.make("organizations.OrganizationMember", organization=org, user=owner, is_owner=True)
+        BillingCustomer.objects.create(organization=org, stripe_customer_id="cus_outage")
+        Subscription.objects.create(
+            organization=org, stripe_subscription_id="sub_outage", plan_key="pro", status=SubscriptionStatus.ACTIVE
+        )
+        event = {"id": "evt_outage", "type": event_type, "data": {"object": event_object}}
+        patch_construct_event(event)
+
+        from apps.billing.webhooks import stripe_webhook
+
+        # Stripe redelivers any event that doesn't get a 2xx.
+        statuses = [stripe_webhook(_post(event)).status_code for _ in range(2)]
+
+        assert statuses == [200, 200]
+        assert Notification.objects.filter(recipient=owner).count() == 1
+        [message] = queued
+        assert message["to"] == ["Michael Scott <owner@example.com>"]

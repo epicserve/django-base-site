@@ -6,9 +6,16 @@ tasks would crash at startup and signals would crash unrelated org/member
 mutations.
 """
 
+from datetime import timedelta
+
+from django.utils import timezone
+
 import pytest
 from model_bakery import baker
 
+from apps.base.tests.mail import record_queued_emails, use_failing_mail_server
+from apps.billing.constants import SubscriptionStatus
+from apps.billing.models import Subscription
 from apps.billing.tasks import check_trials_ending, reconcile_subscriptions
 
 
@@ -58,3 +65,41 @@ class TestSeatSyncSignalDisabled:
         org.save()
 
         assert called == []
+
+
+@pytest.mark.django_db
+class TestCheckTrialsEndingMailOutage:
+    def test_a_failed_email_doesnt_end_the_run(self, settings, monkeypatch):
+        # Sending inline, the first failed email raised out of the loop, so every later trial in the run (and that
+        # one's email) never got its reminder: the next day's run is outside the reminder window.
+        settings.BILLING_ENABLED = True
+        settings.STRIPE_SECRET_KEY = "sk_test_dummy"  # noqa: S105
+        use_failing_mail_server(settings)
+        queued = record_queued_emails(monkeypatch)
+        trial_end = timezone.now() + timedelta(days=3)
+        subscriptions = []
+        for name in ("Acme", "Globex"):
+            org = baker.make("organizations.Organization", name=name)
+            owner = baker.make(
+                "accounts.User", first_name=name, last_name="Owner", email=f"owner@{name.lower()}.example"
+            )
+            baker.make("organizations.OrganizationMember", organization=org, user=owner, is_owner=True)
+            subscriptions.append(
+                Subscription.objects.create(
+                    organization=org,
+                    stripe_subscription_id=f"sub_{name.lower()}",
+                    plan_key="pro",
+                    status=SubscriptionStatus.TRIALING,
+                    trial_end=trial_end,
+                )
+            )
+
+        assert check_trials_ending() == 2
+
+        for subscription in subscriptions:
+            subscription.refresh_from_db()
+            assert subscription.trial_ending_notified_at is not None
+        assert sorted(message["to"][0] for message in queued) == [
+            "Acme Owner <owner@acme.example>",
+            "Globex Owner <owner@globex.example>",
+        ]

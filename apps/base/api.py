@@ -170,8 +170,9 @@ def send_test_notification(request, payload: TestNotificationIn):
         )
 
     recipient_label = f"{recipient.get_full_name() or recipient.username} ({recipient.email})"
+    # The email is queued for a Celery worker (apps.base.utils.email.queue_email), so it hasn't been sent yet.
     if payload.send_email and payload.send_in_app:
-        return {"message": f"Email + in-app notification sent to {recipient_label}"}
+        return {"message": f"Email queued and in-app notification sent to {recipient_label}"}
     if payload.send_email:
-        return {"message": f"Email sent to {recipient_label}"}
+        return {"message": f"Email queued for {recipient_label}"}
     return {"message": f"In-app notification sent to {recipient_label}"}
