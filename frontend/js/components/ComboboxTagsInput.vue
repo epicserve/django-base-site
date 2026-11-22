@@ -40,6 +40,8 @@ const props = withDefaults(
     createLabel?: string;
     /** The search input's `id`, for a `<label for>`. */
     inputId?: string;
+    /** The `id` of the field's error message while it has one, which marks the search input invalid and describes it. */
+    errorId?: string;
   }>(),
   {
     options: () => [],
@@ -162,6 +164,8 @@ watch(
           <ComboboxInput v-model="query" as-child>
             <TagsInputInput
               :placeholder="placeholder"
+              :aria-invalid="errorId ? 'true' : undefined"
+              :aria-describedby="errorId"
               class="min-w-[80px] flex-1 bg-transparent text-sm outline-none placeholder:text-gray-400 dark:text-white dark:placeholder:text-gray-500"
               @keydown.enter.prevent
             />

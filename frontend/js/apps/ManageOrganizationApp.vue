@@ -304,10 +304,12 @@ onMounted(loadData);
           id="invite-email"
           v-model="inviteEmail"
           type="email"
+          :aria-invalid="inviteEmailError ? 'true' : undefined"
+          :aria-describedby="inviteEmailError ? 'invite-email-error' : undefined"
           class="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:border-blue-500 focus:ring-blue-500 dark:bg-gray-800 dark:border-gray-600 dark:text-white"
           @keyup.enter="sendEmailInvite"
         />
-        <p v-if="inviteEmailError" class="mt-1 text-sm text-red-600">
+        <p v-if="inviteEmailError" id="invite-email-error" class="mt-1 text-sm text-red-600">
           {{ inviteEmailError }}
         </p>
       </div>
