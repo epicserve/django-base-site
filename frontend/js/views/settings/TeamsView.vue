@@ -19,7 +19,7 @@ const appStore = useAppStore();
           Upgrade to unlock teams and team-based access controls.
         </p>
         <RouterLink
-          v-if="appStore.org?.is_owner"
+          v-if="appStore.org && appStore.can('manage_billing')"
           :to="{ name: 'org-settings-billing', params: { slug: appStore.org.slug } }"
           class="mt-4 inline-flex cursor-pointer rounded-md bg-indigo-600 px-4 py-2 text-sm font-medium text-white hover:bg-indigo-500"
         >

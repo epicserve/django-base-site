@@ -21,7 +21,7 @@ def org(db, user):
     from apps.organizations.models import Organization, OrganizationMember
 
     org = Organization.objects.create(name="Dunder Mifflin", slug="dunder-mifflin")
-    OrganizationMember.objects.create(organization=org, user=user, is_owner=True)
+    OrganizationMember.objects.create(organization=org, user=user, role="owner")
     return org
 
 

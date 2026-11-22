@@ -184,8 +184,9 @@ Key variables:
 
 ## Multi-Tenant Scaffolding
 
-- `Organization` (name, slug, billing_email), `OrganizationMember` (with `is_owner` + `is_primary` flags), `OrganizationInvite` (key-based, 7-day expiration).
-- `OrganizationMiddleware` lazy-loads `request.org` from the session via `apps.organizations.session`. The session caches a minimal serialized org dict; the full model instance is only fetched when `org.instance` is accessed.
+- `Organization` (name, slug, billing_email), `OrganizationMember` (with a `role` and an `is_primary` flag), `OrganizationInvite` (key-based, 7-day expiration, with the `role` the invitee gets).
+- **Roles and permissions** live in `apps/organizations/roles.py`. A member's `role` (`owner` or `member`) grants the `OrgPerm` permissions listed in `ROLE_PERMISSIONS`. Check permissions, never roles: `require_org_perm(request, OrgPerm.MANAGE_MEMBERS)` in a ninja route, `has_org_perm(user, org, perm)` elsewhere, `org.members_with_perm(perm)` to pick who gets an email, and `appStore.can('manage_members')` in the SPA. App-context reads the current org's `role` and `permissions` from the database on every load, so a role change applies at once. Each org settings tab names its permission in `frontend/js/utils/orgSettings.ts`. To add a permission, add it to `OrgPerm`, grant it in `ROLE_PERMISSIONS`, check it, and run `just generate_api_types`. To add a role, also add a migration for the field's new choice and a badge label in `ManageOrganizationApp.vue` (`vue-tsc` fails without one).
+- `OrganizationMiddleware` lazy-loads `request.org` from the session via `apps.organizations.session`. The session caches a minimal serialized org dict (never the user's role); the full model instance is only fetched when `org.instance` is accessed.
 - `apps/organizations/signals.py` switches to the user's primary org on login / hijack-start / hijack-end.
 - The org switcher in the AppLayout user menu, the OrgSettingsLayout (General / Members / Teams tabs), and the OrgCreateView/OrgSwitchView pages are SPA-driven; the only server-rendered org URL is the catch-all that gives the SPA the accept-invite path.
 

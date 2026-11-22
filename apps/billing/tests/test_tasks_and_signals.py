@@ -83,7 +83,7 @@ class TestCheckTrialsEndingMailOutage:
             owner = baker.make(
                 "accounts.User", first_name=name, last_name="Owner", email=f"owner@{name.lower()}.example"
             )
-            baker.make("organizations.OrganizationMember", organization=org, user=owner, is_owner=True)
+            baker.make("organizations.OrganizationMember", organization=org, user=owner, role="owner")
             subscriptions.append(
                 Subscription.objects.create(
                     organization=org,

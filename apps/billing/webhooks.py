@@ -28,6 +28,7 @@ from django.views.decorators.http import require_POST
 from apps.billing.constants import WEBHOOK_MAX_FAILURES, SubscriptionStatus
 from apps.billing.models import BillingCustomer, Subscription, WebhookEvent
 from apps.billing.services import _stripe, sync_subscription_from_stripe
+from apps.organizations.roles import OrgPerm
 
 logger = logging.getLogger(__name__)
 
@@ -44,10 +45,10 @@ def _on_checkout_completed(event):
     if sub is not None and org_pk:
         from apps.notifications.services import notify
 
-        owners = list(sub.organization.owners)
-        if owners:
+        billing_managers = list(sub.organization.members_with_perm(OrgPerm.MANAGE_BILLING))
+        if billing_managers:
             notify(
-                owners,
+                billing_managers,
                 title="Subscription activated",
                 body=f"Your {sub.organization.name} subscription is active.",
                 url=f"/organizations/{sub.organization.slug}/settings/billing/",
@@ -73,10 +74,10 @@ def _on_subscription_deleted(event):
     from apps.base.utils.email import send_email
     from apps.notifications.services import notify
 
-    owners = list(sub.organization.owners)
-    if owners:
+    billing_managers = list(sub.organization.members_with_perm(OrgPerm.MANAGE_BILLING))
+    if billing_managers:
         notify(
-            owners,
+            billing_managers,
             title="Subscription canceled",
             body=f"Your {sub.organization.name} subscription has been canceled.",
             url=f"/organizations/{sub.organization.slug}/settings/billing/",
@@ -86,7 +87,7 @@ def _on_subscription_deleted(event):
         )
         send_email(
             sending_user=None,
-            recipients=owners,
+            recipients=billing_managers,
             subject=f"Your {sub.organization.name} subscription has been canceled",
             base_template_name="billing/emails/subscription_canceled",
             context={"subscription": sub, "organization": sub.organization},
@@ -110,11 +111,11 @@ def _on_payment_failed(event):
     from apps.notifications.services import notify
 
     org = customer.organization
-    owners = list(org.owners)
-    if not owners:
+    billing_managers = list(org.members_with_perm(OrgPerm.MANAGE_BILLING))
+    if not billing_managers:
         return
     notify(
-        owners,
+        billing_managers,
         title="Payment failed",
         body=f"Your last payment for {org.name} could not be processed.",
         url=f"/organizations/{org.slug}/settings/billing/",
@@ -123,7 +124,7 @@ def _on_payment_failed(event):
     )
     send_email(
         sending_user=None,
-        recipients=owners,
+        recipients=billing_managers,
         subject=f"Payment failed for {org.name}",
         base_template_name="billing/emails/payment_failed",
         context={"organization": org, "amount_due": obj.get("amount_due", 0)},

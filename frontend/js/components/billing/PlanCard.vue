@@ -83,7 +83,7 @@ const ctaState = computed<CtaState>(() => {
       hint: '',
     };
   }
-  if (!appStore.isOwner) {
+  if (!appStore.can('manage_billing')) {
     return {
       label: 'Owner-Only',
       action: null,

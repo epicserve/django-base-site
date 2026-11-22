@@ -14,6 +14,7 @@ from apps.base.utils.timezones import get_timezone_label
 from apps.billing.access import org_billing_summary
 from apps.notifications.services import notify
 from apps.organizations.models import Organization, OrganizationMember
+from apps.organizations.roles import get_org_role, role_permissions
 from apps.organizations.session import get_member_count, get_owner_count
 
 router = Router(tags=["app"])
@@ -63,8 +64,16 @@ def app_context(request):
     org_data = None
     org_instance = None
     if org_ctx and org_ctx.pk:
-        org_data = {"id": org_ctx.id, "name": org_ctx.name, "slug": org_ctx.slug, "is_owner": org_ctx.is_owner}
         org_instance = org_ctx.instance
+        # From the database, not the session, so a role change shows up on the next page load.
+        role = get_org_role(user, org_instance)
+        org_data = {
+            "id": org_ctx.id,
+            "name": org_ctx.name,
+            "slug": org_ctx.slug,
+            "role": role,
+            "permissions": role_permissions(role),
+        }
 
     return {
         "user": {

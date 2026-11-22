@@ -119,7 +119,7 @@ export interface paths {
         };
         /**
          * Get Subscription
-         * @description Owner-only. Returns the org's current subscription state.
+         * @description Needs `manage_billing`. Returns the org's current subscription state.
          *
          *     When the org has no Subscription row, returns the default-plan shape so
          *     the SPA renders a "pick a plan" UI off this endpoint instead of 404.
@@ -847,8 +847,7 @@ export interface components {
             invitee?: number | null;
             /** Invitee Email */
             invitee_email?: string;
-            /** Is Owner */
-            is_owner?: boolean;
+            role?: components["schemas"]["OrgRole"];
         };
         /** InviteOut */
         InviteOut: {
@@ -865,8 +864,6 @@ export interface components {
             invitee_email: string;
             /** Is Expired */
             is_expired: boolean;
-            /** Is Owner */
-            is_owner: boolean;
             /** Key */
             key: string;
             /**
@@ -878,6 +875,7 @@ export interface components {
             organization: number;
             /** Pk */
             pk: number;
+            role: components["schemas"]["OrgRole"];
             /** Sender */
             sender: number;
         };
@@ -902,8 +900,7 @@ export interface components {
         };
         /** MemberIn */
         MemberIn: {
-            /** Is Owner */
-            is_owner?: boolean;
+            role?: components["schemas"]["OrgRole"];
             /** User */
             user: number;
         };
@@ -914,8 +911,6 @@ export interface components {
              * Format: date-time
              */
             created: string;
-            /** Is Owner */
-            is_owner: boolean;
             /**
              * Modified
              * Format: date-time
@@ -925,12 +920,12 @@ export interface components {
             organization: number;
             /** Pk */
             pk: number;
+            role: components["schemas"]["OrgRole"];
             user: components["schemas"]["OrgUserOut"];
         };
         /** MemberPatchIn */
         MemberPatchIn: {
-            /** Is Owner */
-            is_owner?: boolean | null;
+            role?: components["schemas"]["OrgRole"] | null;
         };
         /** MemberSearchOut */
         MemberSearchOut: {
@@ -1024,14 +1019,25 @@ export interface components {
             /** In App */
             in_app?: boolean | null;
         };
+        /**
+         * OrgPerm
+         * @enum {string}
+         */
+        OrgPerm: "manage_settings" | "manage_members" | "manage_teams" | "manage_billing";
+        /**
+         * OrgRole
+         * @enum {string}
+         */
+        OrgRole: "owner" | "member";
         /** OrgSelectOut */
         OrgSelectOut: {
             /** Id */
             id: number;
-            /** Is Owner */
-            is_owner: boolean;
             /** Name */
             name: string;
+            /** Permissions */
+            permissions: components["schemas"]["OrgPerm"][];
+            role: components["schemas"]["OrgRole"] | null;
             /** Slug */
             slug: string;
         };

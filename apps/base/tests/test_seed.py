@@ -126,13 +126,15 @@ class TestSeedDevData:
             "member@example.com",
             *(member.email for member in DUNDER_MIFFLIN_CAST),
         }
-        assert list(dunder_mifflin.owners.values_list("email", flat=True)) == ["owner@example.com"]
+        dunder_mifflin_owners = dunder_mifflin.organizationmember_set.filter(role="owner")
+        assert list(dunder_mifflin_owners.values_list("user__email", flat=True)) == ["owner@example.com"]
         assert set(pawnee.members.values_list("username", flat=True)) == {
             "leslie",
             "owner@example.com",
             *(member.email for member in PAWNEE_CAST),
         }
-        assert list(pawnee.owners.values_list("username", flat=True)) == ["leslie"]
+        pawnee_owners = pawnee.organizationmember_set.filter(role="owner")
+        assert list(pawnee_owners.values_list("user__username", flat=True)) == ["leslie"]
         owner_primary = OrganizationMember.objects.filter(user__email="owner@example.com", is_primary=True)
         assert list(owner_primary.values_list("organization__slug", flat=True)) == ["dunder-mifflin"]
         assert not OrganizationMember.objects.filter(user__email="user@example.com").exists()

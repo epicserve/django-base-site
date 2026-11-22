@@ -3,7 +3,9 @@ from dataclasses import dataclass
 
 from django.apps import apps
 
-REQUIRED_ORG_KEYS = {"pk", "id", "name", "slug", "is_owner"}
+# The session caches only what doesn't change with the user's role; the role is read from the database when needed,
+# so a role change applies at once.
+REQUIRED_ORG_KEYS = {"pk", "id", "name", "slug"}
 
 
 @dataclass
@@ -12,7 +14,6 @@ class MockedOrg:
     id: int | None = None
     name: str | None = ""
     slug: str | None = None
-    is_owner: bool = False
 
     def __str__(self):
         """Return the organization name."""
@@ -38,7 +39,8 @@ def get_organization(request):
         remove_org(request)
         return {}
 
-    org = MockedOrg(**org_data)
+    # Sessions saved before the role field also hold `is_owner`, which is ignored.
+    org = MockedOrg(**{key: value for key, value in org_data.items() if key in REQUIRED_ORG_KEYS})
 
     return org
 
@@ -58,9 +60,7 @@ def save_counts(request):
 
 
 def save_org(request, org):
-    data = {k: getattr(org, k) for k in REQUIRED_ORG_KEYS if k != "is_owner"}
-    data["is_owner"] = org.is_owner(request.user)
-    request.session["organization_data"] = json.dumps(data)
+    request.session["organization_data"] = json.dumps({k: getattr(org, k) for k in REQUIRED_ORG_KEYS})
 
 
 def save_org_data(request, org):

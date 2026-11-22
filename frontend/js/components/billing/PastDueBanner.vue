@@ -20,7 +20,7 @@ const visible = computed(() => {
       <strong>Payment failed.</strong>
       Update your payment method to keep your subscription active.
       <RouterLink
-        v-if="appStore.org?.slug && appStore.isOwner"
+        v-if="appStore.org?.slug && appStore.can('manage_billing')"
         :to="{ name: 'org-settings-billing', params: { slug: appStore.org.slug } }"
         class="ml-2 font-medium underline hover:no-underline"
       >

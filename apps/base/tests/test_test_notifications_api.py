@@ -16,9 +16,7 @@ URL = "/api/test-notifications/"
 
 def _set_session_org(client, org):
     session = client.session
-    session["organization_data"] = json.dumps(
-        {"pk": org.pk, "id": org.pk, "name": org.name, "slug": org.slug, "is_owner": False}
-    )
+    session["organization_data"] = json.dumps({"pk": org.pk, "id": org.pk, "name": org.name, "slug": org.slug})
     session.save()
 
 
@@ -43,7 +41,7 @@ class TestSendTestNotification:
                 is_staff=True,
             )
             self.org = baker.make("organizations.Organization", name="Acme")
-            OrganizationMember.objects.create(organization=self.org, user=self.sender, is_owner=True)
+            OrganizationMember.objects.create(organization=self.org, user=self.sender, role="owner")
             self.client.force_login(self.sender)
             _set_session_org(self.client, self.org)
             yield

@@ -2,22 +2,14 @@
 import { computed } from 'vue';
 import { RouterLink, RouterView, useRoute } from 'vue-router';
 import { useAppStore } from '@/stores/app';
+import { orgSettingsTabs } from '@/utils/orgSettings';
 
 const appStore = useAppStore();
 const route = useRoute();
 
-const tabs = computed(() => {
-  const slug = route.params.slug;
-  const items = [
-    { name: 'org-settings-general', label: 'General' },
-    { name: 'org-settings-members', label: 'Members' },
-    { name: 'org-settings-teams', label: 'Teams' },
-  ];
-  if (appStore.billing?.enabled) {
-    items.push({ name: 'org-settings-billing', label: 'Billing' });
-  }
-  return items.map((t) => ({ ...t, to: { name: t.name, params: { slug } } }));
-});
+const tabs = computed(() =>
+  orgSettingsTabs(appStore).map((tab) => ({ ...tab, to: { name: tab.name, params: { slug: route.params.slug } } })),
+);
 </script>
 
 <template>

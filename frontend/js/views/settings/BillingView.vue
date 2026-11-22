@@ -15,7 +15,7 @@ const activating = ref(false);
 const portalBusy = ref(false);
 
 onMounted(async () => {
-  if (!appStore.isOwner) return;
+  if (!appStore.can('manage_billing')) return;
   await billing.fetchSubscription();
   if (route.query.checkout === 'success') {
     activating.value = true;
@@ -67,7 +67,7 @@ async function onManageBilling() {
 <template>
   <div class="space-y-6">
     <div
-      v-if="!appStore.isOwner"
+      v-if="!appStore.can('manage_billing')"
       class="rounded-lg border border-dashed border-gray-300 bg-white p-6 text-center text-gray-500 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-400"
     >
       Only org owners can manage billing. Contact your owner to make changes.

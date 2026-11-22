@@ -231,7 +231,7 @@ class TestPaymentFailedHandler:
         # A name that already ends in a period ("Inc.") used to get a second one.
         org = baker.make("organizations.Organization", name=org_name)
         owner = baker.make("accounts.User", email="owner@example.com")
-        baker.make("organizations.OrganizationMember", organization=org, user=owner, is_owner=True)
+        baker.make("organizations.OrganizationMember", organization=org, user=owner, role="owner")
         BillingCustomer.objects.create(organization=org, stripe_customer_id="cus_failed")
         monkeypatch.setattr("apps.notifications.services.notify", lambda *a, **kw: [])
         event = {
@@ -269,7 +269,7 @@ class TestMailOutage:
         queued = record_queued_emails(monkeypatch)
         org = baker.make("organizations.Organization", name="Acme")
         owner = baker.make("accounts.User", first_name="Michael", last_name="Scott", email="owner@example.com")
-        baker.make("organizations.OrganizationMember", organization=org, user=owner, is_owner=True)
+        baker.make("organizations.OrganizationMember", organization=org, user=owner, role="owner")
         BillingCustomer.objects.create(organization=org, stripe_customer_id="cus_outage")
         Subscription.objects.create(
             organization=org, stripe_subscription_id="sub_outage", plan_key="pro", status=SubscriptionStatus.ACTIVE

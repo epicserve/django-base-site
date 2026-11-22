@@ -11,6 +11,8 @@ from typing import Any
 from django.core.exceptions import PermissionDenied
 from django.http import HttpRequest
 
+from apps.organizations.roles import OrgPerm, has_org_perm
+
 
 def require_authenticated(request: HttpRequest) -> None:
     if not (request.user and request.user.is_authenticated):
@@ -32,9 +34,9 @@ def require_org_selected(request: HttpRequest) -> Any:
     return org
 
 
-def require_org_owner(request: HttpRequest) -> Any:
-    """Return the active org or raise 403 if the user isn't the owner."""
+def require_org_perm(request: HttpRequest, perm: OrgPerm) -> Any:
+    """Return the active org, or raise 403 if the user's role in it doesn't grant the permission."""
     org = require_org_selected(request)
-    if not org.is_owner(request.user):
-        raise PermissionDenied("Only organization owners are allowed to perform this action.")
+    if not has_org_perm(request.user, org, perm):
+        raise PermissionDenied("Your role in this organization doesn't allow this.")
     return org

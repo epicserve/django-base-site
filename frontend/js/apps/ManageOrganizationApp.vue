@@ -13,6 +13,10 @@ import UserBadge from '../components/UserBadge.vue';
 type Member = components['schemas']['MemberOut'];
 type Invite = components['schemas']['InviteOut'];
 type SearchResult = components['schemas']['MemberSearchOut'];
+type Role = components['schemas']['OrgRole'];
+
+// A role the API adds needs a label here, or vue-tsc fails.
+const ROLE_LABELS: Record<Role, string> = { owner: 'Owner', member: 'Member' };
 
 const props = defineProps<{ orgName: string; currentUserId: number }>();
 
@@ -95,10 +99,10 @@ async function sendEmailInvite() {
 }
 
 async function changeRole(member: Member) {
-  const currentRole = member.is_owner ? 'owner' : 'member';
-  const newRole = member.is_owner ? 'member' : 'owner';
+  // Switches between the template's two roles. A project that adds roles would offer a choice here instead.
+  const newRole: Role = member.role === 'owner' ? 'member' : 'owner';
   const confirmed = await confirmRef.value?.confirm(
-    `Change ${userFullName(member.user)}'s role from ${currentRole} to ${newRole}?`,
+    `Change ${userFullName(member.user)}'s role from ${member.role} to ${newRole}?`,
     'Change Role',
   );
   if (!confirmed) return;
@@ -106,7 +110,7 @@ async function changeRole(member: Member) {
     await unwrap(
       api.PATCH('/api/organization-members/{member_id}/', {
         params: { path: { member_id: member.pk } },
-        body: { is_owner: !member.is_owner },
+        body: { role: newRole },
       }),
     );
     showToast('Role updated.');
@@ -171,12 +175,12 @@ onMounted(loadData);
               <span
                 :class="[
                   'inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium',
-                  member.is_owner
+                  member.role === 'owner'
                     ? 'bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-300'
                     : 'bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-300',
                 ]"
               >
-                {{ member.is_owner ? 'owner' : 'member' }}
+                {{ ROLE_LABELS[member.role] }}
               </span>
             </td>
             <td class="py-2 text-right">

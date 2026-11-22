@@ -41,16 +41,14 @@ class TestAppContext:
             timezone="America/New_York",
         )
         self.org = baker.make("organizations.Organization", name="Scranton", slug="scranton")
-        OrganizationMember.objects.create(organization=self.org, user=self.user, is_owner=True, is_primary=True)
+        OrganizationMember.objects.create(organization=self.org, user=self.user, role="owner", is_primary=True)
 
     def _sign_in(self, org=None):
         # force_login's request has no `user`, so the login signal doesn't select the primary org; set it directly.
         self.client.force_login(self.user)
         if org is not None:
             session = self.client.session
-            session["organization_data"] = json.dumps(
-                {"pk": org.pk, "id": org.pk, "name": org.name, "slug": org.slug, "is_owner": True}
-            )
+            session["organization_data"] = json.dumps({"pk": org.pk, "id": org.pk, "name": org.name, "slug": org.slug})
             session["org_member_count"] = "1"
             session["org_owner_count"] = "1"
             session.save()
@@ -97,7 +95,13 @@ class TestAppContext:
                 "impersonation_banner_hidden": False,
                 "organizations": orgs,
             },
-            "org": {"id": self.org.pk, "name": "Scranton", "slug": "scranton", "is_owner": True},
+            "org": {
+                "id": self.org.pk,
+                "name": "Scranton",
+                "slug": "scranton",
+                "role": "owner",
+                "permissions": ["manage_settings", "manage_members", "manage_teams", "manage_billing"],
+            },
             "organizations": orgs,
             "orgMemberCount": 1,
             "orgOwnerCount": 1,

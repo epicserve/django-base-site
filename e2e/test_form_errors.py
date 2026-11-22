@@ -32,7 +32,7 @@ class TestFieldErrors:
         from apps.organizations.models import Organization, OrganizationMember
 
         org = Organization.objects.create(name="Dunder Mifflin", slug="dunder-mifflin")
-        OrganizationMember.objects.create(organization=org, user=user, is_owner=True, is_primary=True)
+        OrganizationMember.objects.create(organization=org, user=user, role="owner", is_primary=True)
         return org
 
     def test_sign_in(self, page: Page, live_server, user):

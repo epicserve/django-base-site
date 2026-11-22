@@ -41,7 +41,7 @@ class TestFormLabels:
         from apps.organizations.models import Organization, OrganizationMember
 
         org = Organization.objects.create(name="Dunder Mifflin", slug="dunder-mifflin")
-        OrganizationMember.objects.create(organization=org, user=user, is_owner=True, is_primary=True)
+        OrganizationMember.objects.create(organization=org, user=user, role="owner", is_primary=True)
         self._sign_in(page, live_server, "/organizations/dunder-mifflin/settings/teams/")
         page.get_by_role("button", name="Add Team").click()
         expect(page.get_by_label("Name", exact=True)).to_be_visible()

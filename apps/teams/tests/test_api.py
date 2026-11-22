@@ -25,13 +25,13 @@ class TestTeamAPI(TestCase):
     def setUp(self):
         self.user = User.objects.create_user(username="owner", password="secret")  # noqa: S106
         self.org = baker.make("organizations.Organization")
-        baker.make("organizations.OrganizationMember", organization=self.org, user=self.user, is_owner=True)
+        baker.make("organizations.OrganizationMember", organization=self.org, user=self.user, role="owner")
 
     def _login(self):
         self.client.force_login(self.user)
         session = self.client.session
         session["organization_data"] = json.dumps(
-            {"pk": self.org.pk, "id": self.org.pk, "name": self.org.name, "slug": self.org.slug, "is_owner": True}
+            {"pk": self.org.pk, "id": self.org.pk, "name": self.org.name, "slug": self.org.slug}
         )
         session.save()
 
