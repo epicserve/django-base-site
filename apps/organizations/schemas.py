@@ -1,9 +1,13 @@
 from datetime import datetime
 
 from ninja import Schema
+from pydantic import ConfigDict
 
 
 class OrganizationCreateIn(Schema):
+    # A name of only spaces would pass the model's blank check.
+    model_config = ConfigDict(str_strip_whitespace=True)
+
     name: str
     slug: str
 

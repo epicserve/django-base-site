@@ -58,26 +58,38 @@ class TestFieldErrors:
 
         self._expect_error(email, "This email address is already associated with this account.")
 
-    def test_create_organization(self, page: Page, live_server, user):
-        # The API doesn't send field errors for this form yet, so the test answers with one.
-        page.route(
-            re.compile(r".*/api/organizations/$"),
-            lambda route: (
-                route.fulfill(status=400, json={"slug": ["That account name is taken."]})
-                if route.request.method == "POST"
-                else route.continue_()
-            ),
-        )
+    def test_create_blank_organization(self, page: Page, live_server, user):
+        # The API used to save it, and every page then threw `Missing required param "slug"`.
+        from apps.organizations.models import Organization
+
+        self._sign_in(page, live_server, "/organizations/create/")
+        name = page.get_by_label("Name", exact=True)
+        slug = page.get_by_label("Account Name", exact=True)
+        self._expect_valid(name)
+        self._expect_valid(slug)
+
+        page.get_by_role("button", name="Create").click()
+
+        self._expect_error(name, "This field cannot be blank.")
+        self._expect_error(slug, "This field cannot be blank.")
+        assert not Organization.objects.exists()
+
+    def test_create_organization_with_a_taken_slug(self, page: Page, live_server, org):
+        # The API used to answer with a 500.
+        from apps.organizations.models import Organization
+
         self._sign_in(page, live_server, "/organizations/create/")
         name = page.get_by_label("Name", exact=True)
         slug = page.get_by_label("Account Name", exact=True)
         self._expect_valid(slug)
 
         name.fill("Dunder Mifflin")
+        expect(slug).to_have_value("dunder-mifflin")
         page.get_by_role("button", name="Create").click()
 
-        self._expect_error(slug, "That account name is taken.")
+        self._expect_error(slug, "Account name is already taken.")
         self._expect_valid(name)
+        assert list(Organization.objects.all()) == [org]
 
     def test_team_name(self, page: Page, live_server, org):
         self._sign_in(page, live_server, "/organizations/dunder-mifflin/settings/teams/")
