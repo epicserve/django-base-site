@@ -83,9 +83,6 @@ filterwarnings = [
     "error",
 ]
 
-[tool.bandit]
-exclude_dirs = ["tests", "node_modules"]
-
 [tool.coverage.run]
 branch = true
 source = ["."]

@@ -19,6 +19,7 @@
 ### Removed
 
 * The placeholder `add` Celery task in `apps/base/tasks.py`.
+* The `[tool.bandit]` block in `pyproject.toml`. Nothing read it: bandit isn't installed, and Ruff's `S` rules run its checks.
 
 ### Fixed
 
