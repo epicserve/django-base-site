@@ -51,3 +51,14 @@ def get_org_role(user, org) -> OrgRole | None:
 def has_org_perm(user, org, perm: OrgPerm) -> bool:
     """Return whether the user's role in the organization grants the permission."""
     return perm in role_permissions(get_org_role(user, org))
+
+
+def can_assign_role(user, org, role: str) -> bool:
+    """
+    Return whether the user may give someone the role, or change or remove someone who has it.
+
+    That takes `manage_members` and every permission the role grants, so a role that manages members can't hand out,
+    or take away, more than it has: an admin can't make an owner.
+    """
+    granted = set(role_permissions(get_org_role(user, org)))
+    return OrgPerm.MANAGE_MEMBERS in granted and set(role_permissions(role)) <= granted

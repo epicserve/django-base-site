@@ -196,3 +196,72 @@ class TestInviteRole:
         assert self._accept(client, invite).status_code == 200
 
         assert OrganizationMember.objects.get(organization=org, user=invitee).role == OrgRole.MEMBER
+
+
+@pytest.mark.django_db
+class TestRoleGrantsAreBounded:
+    """A role that manages members can't give, change or remove a role with permissions it lacks."""
+
+    @pytest.fixture()
+    def admin_client(self, client, monkeypatch, org, member):
+        # Stands in for an admin role a project might add: it manages members, and that's all.
+        monkeypatch.setitem(ROLE_PERMISSIONS, OrgRole.MEMBER, frozenset({OrgPerm.MANAGE_MEMBERS}))
+        return sign_in(client, member, org)
+
+    def _post(self, client, url, data):
+        return client.post(url, data=json.dumps(data), content_type="application/json")
+
+    def test_adds_a_member_but_not_an_owner(self, admin_client):
+        jim, pam = baker.make(User, _quantity=2)
+
+        as_member = self._post(admin_client, "/api/organization-members/", {"user": jim.pk, "role": "member"})
+        as_owner = self._post(admin_client, "/api/organization-members/", {"user": pam.pk, "role": "owner"})
+
+        assert (as_member.status_code, as_owner.status_code) == (201, 403)
+        assert not OrganizationMember.objects.filter(user=pam).exists()
+
+    def test_cant_promote_a_member_to_owner(self, admin_client, org):
+        jim = baker.make(OrganizationMember, organization=org, user=baker.make(User), role=OrgRole.MEMBER)
+
+        response = admin_client.patch(
+            f"/api/organization-members/{jim.pk}/", data=json.dumps({"role": "owner"}), content_type="application/json"
+        )
+
+        assert response.status_code == 403
+        jim.refresh_from_db()
+        assert jim.role == OrgRole.MEMBER
+
+    def test_cant_demote_or_remove_an_owner(self, admin_client, org, owner):
+        membership = OrganizationMember.objects.get(organization=org, user=owner)
+
+        demote = admin_client.patch(
+            f"/api/organization-members/{membership.pk}/",
+            data=json.dumps({"role": "member"}),
+            content_type="application/json",
+        )
+        remove = admin_client.delete(f"/api/organization-members/{membership.pk}/")
+
+        assert (demote.status_code, remove.status_code) == (403, 403)
+        membership.refresh_from_db()
+        assert membership.role == OrgRole.OWNER
+
+    def test_invites_a_member_but_not_an_owner(self, admin_client):
+        as_member = self._post(admin_client, "/api/organization-invites/", {"invitee_email": "jim@example.com"})
+        as_owner = self._post(
+            admin_client, "/api/organization-invites/", {"invitee_email": "pam@example.com", "role": "owner"}
+        )
+
+        assert (as_member.status_code, as_owner.status_code) == (201, 403)
+        assert list(OrganizationInvite.objects.values_list("invitee_email", flat=True)) == ["jim@example.com"]
+
+    def test_an_owner_invite_it_sent_grants_member(self, client, monkeypatch, org, member):
+        monkeypatch.setitem(ROLE_PERMISSIONS, OrgRole.MEMBER, frozenset({OrgPerm.MANAGE_MEMBERS}))
+        invite = OrganizationInvite.objects.create(
+            organization=org, sender=member, invitee_email="jim@example.com", role=OrgRole.OWNER
+        )
+        jim = baker.make(User, email="jim@example.com")
+        client.force_login(jim)
+
+        assert client.post(f"/api/invite-by-key/{invite.key}/accept/").status_code == 200
+
+        assert OrganizationMember.objects.get(organization=org, user=jim).role == OrgRole.MEMBER
