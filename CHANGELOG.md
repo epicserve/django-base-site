@@ -27,6 +27,7 @@
   * A Stripe webhook for a canceled subscription or a failed payment answered with a 500 after it had already added the owners' in-app notification. Stripe redelivered the event, and each delivery added another notification.
   * The daily trial-ending check stopped at the first failed email. That subscription never got its email, and every one after it in the run got no reminder at all, because the next day's run is outside the reminder window.
 * `.env.toml` gives `DB_SSL_REQUIRED` and `VITE_DEV_MODE` boolean defaults (`false`, `true`) rather than the strings `"false"` and `"true"`, and says in their help text how DEBUG changes them. A test checks that every default in `.env.toml` is a value of its variable's type.
+* Opening a page in the SPA starts it at the top. It kept the previous page's scroll position, so a page could open partway down. Back and forward still return to where you were, a link to a hash scrolls to its element, and a change to the query alone, such as a filter, leaves the scroll where it is. `App.vue`'s page transition keeps the old page on screen until it has faded out, so the router waits for the new page to mount before it scrolls: on the old one, a saved position can be out of reach and a hash's element isn't there yet. e2e tests cover each case.
 
 ### CI
 

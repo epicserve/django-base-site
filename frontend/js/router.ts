@@ -1,5 +1,6 @@
 import { createRouter as createVueRouter, createWebHistory, type Router } from 'vue-router';
 import type { AppStore } from './stores/app';
+import { scrollBehavior } from './utils/scrollBehavior';
 
 declare module 'vue-router' {
   interface RouteMeta {
@@ -16,6 +17,7 @@ declare module 'vue-router' {
 export function createRouter(appStore: AppStore): Router {
   const router = createVueRouter({
     history: createWebHistory(),
+    scrollBehavior,
     routes: [
       // Home
       {
