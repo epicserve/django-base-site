@@ -41,11 +41,12 @@ Use Just for all development tasks. Common ones:
 - `just lint` - Run all linters + ty type check + check for missing migrations + Django's deployment checks + check the generated API types are current + vue-tsc
 - `just lint_deploy` - `manage.py check --deploy --fail-level WARNING` under `config.settings.deploy_check`, with DEBUG off and no `.env`, so the production HTTPS defaults can't quietly regress. It silences only `security.W005` and `security.W021` (HSTS `includeSubDomains` and `preload`, which each project decides for its own domain); `check --deploy` in a real deploy still shows them.
 - `just generate_api_types` - Regenerate `frontend/js/api/*.d.ts` from the ninja and allauth OpenAPI specs; run it after changing a ninja schema and commit the result
-- `just verify` - lint, then pytest with `-x --ff -q` (stops at the first failure, last run's failures first); run it before calling work done
-- `just pre_commit` - format + lint + test + test_e2e
+- `just verify` - lint, then pytest with `-x --ff -q` (stops at the first failure, last run's failures first), then `just test_js`; run it before calling work done
+- `just pre_commit` - format + lint + test + test_js + test_e2e
 
 **Testing:**
 - `just test` - pytest (Django + ninja API tests)
+- `just test_js` - `bun test` for the SPA's unit tests (`frontend/js/**/*.test.ts`)
 - `just test_with_coverage` - pytest --cov, opens HTML report
 - `just test_e2e [args]` - `bun run build` then pytest e2e/ with `--ds=config.settings.e2e`. Excluded from `just test` via `--ignore=e2e` in `pyproject.toml`.
 
@@ -86,10 +87,11 @@ Use Just for all development tasks. Common ones:
 - pyotp for the TOTP / MFA tests under `apps/accounts/tests/test_mfa_flows.py`.
 - Playwright e2e tests under `e2e/` (auth flow incl. the passkey prompt, invite flow, org settings, avatar upload); `--ignore=e2e` is on `pyproject.toml` `[tool.pytest.ini_options]` so the unit suite stays fast.
 - Coverage configuration in `config/coverage.ini`.
+- `bun test` (built into bun, run by `just test_js`) unit-tests plain TypeScript functions, such as `safeNextUrl()` in `frontend/js/utils/redirect.test.ts`. Put a test beside its module as `<name>.test.ts` and import `describe`, `test`, and `expect` from `bun:test`. `@types/bun` isn't installed, so `frontend/js/bun-test.d.ts` declares the parts the tests use; add to it when a test needs more. Components and flows are covered by the e2e tests instead.
 - `frontend/js/utils/api.type-test.ts` holds type-level regression tests: `@ts-expect-error` lines for API bugs that shipped before the types existed, next to the same calls written correctly. `vue-tsc` fails if one stops being an error. Add one when the types should have caught a bug.
 - Every `apps.*` management command must import cleanly; `apps/base/tests/test_management_commands.py` loads them all, since `ty` ignores unresolved imports.
 - To check a UI change in the browser, follow the `run-app` skill ([.agents/skills/run-app/SKILL.md](.agents/skills/run-app/SKILL.md)): start the stack, `just seed`, then sign in as a seeded login with Playwright.
-- CI (`.github/workflows/ci.yml`) runs `just lint`, the pytest suite, and the Playwright e2e suite on pushes to `main` and on pull requests. Dependabot (`.github/dependabot.yml`) opens weekly dependency PRs; the `/weekly-maintenance` skill reviews and merges them.
+- CI (`.github/workflows/ci.yml`) runs `just lint`, `just test_js`, the pytest suite, and the Playwright e2e suite on pushes to `main` and on pull requests. Dependabot (`.github/dependabot.yml`) opens weekly dependency PRs; the `/weekly-maintenance` skill reviews and merges them.
 - Workflows install `just` with `extractions/setup-just`, not the `just.systems` install script, which fails on GitHub's API rate limit. Pin every action to a full commit SHA with its release in a trailing comment (`uses: actions/checkout@<sha> # v7.0.1`), as GitHub's hardening guide recommends; Dependabot updates both.
 
 <!-- template-only:start -->
@@ -111,6 +113,7 @@ These exist only in the Django Base Site template. `scripts/start_new_project` r
 - **Ninja**: `[tool.ruff.lint.flake8-bugbear] extend-immutable-calls` includes `ninja.Query/File/Form/Body/Path` so default-arg-with-call patterns don't trip B008.
 - **JavaScript / Vue**: Oxlint (`.oxlintrc.json`) for linting + Oxfmt (`.oxfmtrc.json`, Prettier-compatible) for formatting. Both run via `bun run lint-js` / `format-js`. Vue SFC `<script>` blocks are linted; `<template>` blocks are formatted but not linted. 120-char line length.
 - **TypeScript**: Write modules as `.ts` and components with `<script setup lang="ts">`, typing props and emits with `defineProps<...>()` and `defineEmits<...>()`. `vue-tsc` checks both, templates included. Narrow a nullable value (`appStore.user`, `appStore.org`) with `v-if`, optional chaining, or a computed rather than a `!` assertion or an `as` cast. Oxlint bans `any` (`typescript/no-explicit-any`); use `unknown` and narrow it. Call the API with `api` and `unwrap()`, passing the path template and its params (`api.GET('/api/teams/{team_id}/', { params: { path: { team_id } } })`), never a URL built with a template literal, and pass request bodies inline so unknown keys are caught. A caught error is `unknown`: check `err instanceof ApiError` before reading `err.response.status` or `err.data`. Take types from `components['schemas']` in `@/api/schema` rather than redeclaring them.
+- **Form fields**: Use `FormField` (`frontend/js/accounts/components/FormField.vue`), which ties its label and its errors to the input. A field built by hand needs a `<label for>`, and while it shows an error, `aria-invalid="true"` and `aria-describedby` naming the error's element. `e2e/test_form_labels.py` and `e2e/test_form_errors.py` check each form.
 - **HTML / Django templates**: djLint for formatting and linting.
 - **CSS**: Tailwind v4 utilities (no separate Sass/Stylelint pipeline anymore — both were dropped during the SPA conversion).
 - **Line Length**: 120 characters for Python and HTML.

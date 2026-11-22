@@ -85,6 +85,8 @@ jobs:
         run: docker compose build web frontend
       - name: Build frontend assets
         run: just build_frontend
+      - name: Run the SPA's unit tests
+        run: just test_js
       - name: Run tests
         run: ${{ env.DOCKER_COMPOSE_PREFIX }} pytest --cov --ds=config.settings.test_runner
   e2e:

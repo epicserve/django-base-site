@@ -3,6 +3,7 @@ import { computed } from 'vue';
 import { RouterView, useRoute } from 'vue-router';
 import AppLayout from '@/layouts/AppLayout.vue';
 import { useAppStore } from '@/stores/app';
+import { pageMounted } from '@/utils/scrollBehavior';
 
 const appStore = useAppStore();
 const route = useRoute();
@@ -36,13 +37,13 @@ function reloadForUpdate() {
     <AppLayout v-if="useAppLayout">
       <RouterView v-slot="{ Component, route: r }">
         <Transition name="page" mode="out-in">
-          <component :is="Component" :key="r.path" />
+          <component :is="Component" :key="r.path" @vue:mounted="pageMounted(r.path)" />
         </Transition>
       </RouterView>
     </AppLayout>
     <RouterView v-else v-slot="{ Component, route: r }">
       <Transition name="page" mode="out-in">
-        <component :is="Component" :key="r.path" />
+        <component :is="Component" :key="r.path" @vue:mounted="pageMounted(r.path)" />
       </Transition>
     </RouterView>
   </template>

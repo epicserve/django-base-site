@@ -207,11 +207,15 @@ async function addEmail() {
             v-model="newEmail"
             type="email"
             placeholder="New email address"
+            :aria-invalid="addErrors.email?.length ? 'true' : undefined"
+            :aria-describedby="addErrors.email?.length ? 'new-email-errors' : undefined"
             class="block w-full rounded-lg border border-gray-300 px-3 py-2.5 text-sm shadow-sm placeholder:text-gray-400 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:placeholder:text-gray-500"
           />
-          <p v-for="err in addErrors.email || []" :key="err" class="mt-1 text-sm text-red-600 dark:text-red-400">
-            {{ err }}
-          </p>
+          <div v-if="addErrors.email?.length" id="new-email-errors">
+            <p v-for="err in addErrors.email" :key="err" class="mt-1 text-sm text-red-600 dark:text-red-400">
+              {{ err }}
+            </p>
+          </div>
         </div>
         <div class="mb-0.5">
           <button

@@ -2,7 +2,6 @@
 import { ref } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import AuthLayout from '@/layouts/AuthLayout.vue';
-import { useAppStore } from '@/stores/app';
 import FormField from '../components/FormField.vue';
 import FormErrors from '../components/FormErrors.vue';
 import { authApi, parseAllauthErrors } from '../api';
@@ -11,7 +10,6 @@ import { safeNextUrl } from '../../utils/redirect';
 
 const route = useRoute();
 const router = useRouter();
-const appStore = useAppStore();
 
 const code = ref('');
 const errors = ref<Record<string, string[]>>({});
@@ -26,7 +24,8 @@ async function onSubmit() {
   errors.value = {};
   try {
     await authApi.submit2FA(code.value);
-    await appStore.fetchContext();
+    // A full page load, not a router push, so nothing from the signed-out session lingers. The new page loads the
+    // signed-in user's app context.
     window.location.href = getRedirectUrl();
   } catch (err) {
     if (err instanceof ApiError && err.response.status === 409) {

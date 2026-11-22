@@ -57,9 +57,11 @@ async function submit() {
               id="org-name"
               v-model="name"
               type="text"
+              :aria-invalid="errors.name ? 'true' : undefined"
+              :aria-describedby="errors.name ? 'org-name-error' : undefined"
               class="mt-1 block w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-sm shadow-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500 dark:bg-gray-800 dark:border-gray-600 dark:text-white"
             />
-            <p v-if="errors.name" class="mt-1 text-sm text-red-600">
+            <p v-if="errors.name" id="org-name-error" class="mt-1 text-sm text-red-600">
               {{ errors.name[0] }}
             </p>
           </div>
@@ -71,10 +73,12 @@ async function submit() {
               id="org-slug"
               v-model="slug"
               type="text"
+              :aria-invalid="errors.slug ? 'true' : undefined"
+              :aria-describedby="errors.slug ? 'org-slug-error' : undefined"
               class="mt-1 block w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-sm shadow-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500 dark:bg-gray-800 dark:border-gray-600 dark:text-white"
               @input="slugManuallyEdited = true"
             />
-            <p v-if="errors.slug" class="mt-1 text-sm text-red-600">
+            <p v-if="errors.slug" id="org-slug-error" class="mt-1 text-sm text-red-600">
               {{ errors.slug[0] }}
             </p>
           </div>

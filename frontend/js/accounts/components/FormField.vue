@@ -23,6 +23,7 @@ withDefaults(
 defineEmits<{ 'update:modelValue': [value: string] }>();
 
 const inputId = useId();
+const errorsId = `${inputId}-errors`;
 </script>
 
 <template>
@@ -36,11 +37,15 @@ const inputId = useId();
       :value="modelValue"
       :placeholder="placeholder"
       :autocomplete="autocomplete"
+      :aria-invalid="errors.length ? 'true' : undefined"
+      :aria-describedby="errors.length ? errorsId : undefined"
       class="block w-full rounded-lg border border-gray-300 px-3 py-2.5 text-sm shadow-sm placeholder:text-gray-400 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:placeholder:text-gray-500"
       @input="$emit('update:modelValue', ($event.target as HTMLInputElement).value)"
     />
-    <p v-for="err in errors" :key="err" class="mt-1 text-sm text-red-600 dark:text-red-400">
-      {{ err }}
-    </p>
+    <div v-if="errors.length" :id="errorsId">
+      <p v-for="err in errors" :key="err" class="mt-1 text-sm text-red-600 dark:text-red-400">
+        {{ err }}
+      </p>
+    </div>
   </div>
 </template>

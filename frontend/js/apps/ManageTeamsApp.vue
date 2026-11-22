@@ -217,10 +217,12 @@ onMounted(() => {
           id="team-name"
           v-model="formName"
           type="text"
+          :aria-invalid="formErrors.name ? 'true' : undefined"
+          :aria-describedby="formErrors.name ? 'team-name-error' : undefined"
           class="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:border-blue-500 focus:ring-blue-500 dark:bg-gray-800 dark:border-gray-600 dark:text-white"
           @keyup.enter="saveTeam"
         />
-        <p v-if="formErrors.name" class="mt-1 text-sm text-red-600">
+        <p v-if="formErrors.name" id="team-name-error" class="mt-1 text-sm text-red-600">
           {{ formErrors.name.join(' ') }}
         </p>
       </div>
@@ -233,8 +235,9 @@ onMounted(() => {
           input-id="team-members"
           :options="memberOptionsList"
           placeholder="Add members..."
+          :error-id="formErrors.members ? 'team-members-error' : undefined"
         />
-        <p v-if="formErrors.members" class="mt-1 text-sm text-red-600">
+        <p v-if="formErrors.members" id="team-members-error" class="mt-1 text-sm text-red-600">
           {{ formErrors.members.join(' ') }}
         </p>
       </div>

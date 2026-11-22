@@ -2,7 +2,6 @@
 import { ref, onBeforeUnmount, onMounted } from 'vue';
 import { useRoute, useRouter, RouterLink } from 'vue-router';
 import AuthLayout from '@/layouts/AuthLayout.vue';
-import { useAppStore } from '@/stores/app';
 import FormField from '../components/FormField.vue';
 import FormErrors from '../components/FormErrors.vue';
 import { authApi, parseAllauthErrors, pendingFlows } from '../api';
@@ -12,7 +11,6 @@ import { safeNextUrl } from '../../utils/redirect';
 
 const route = useRoute();
 const router = useRouter();
-const appStore = useAppStore();
 
 const email = ref('');
 const password = ref('');
@@ -71,7 +69,8 @@ async function onSubmit() {
   try {
     await passkeyOptionsRequest;
     await authApi.login(email.value, password.value);
-    await appStore.fetchContext();
+    // A full page load, not a router push, so nothing from the signed-out session lingers. The new page loads the
+    // signed-in user's app context.
     window.location.href = getRedirectUrl();
   } catch (err) {
     if (err instanceof ApiError && err.response.status === 409) {
@@ -118,7 +117,8 @@ async function attemptPasskeyLogin({ conditional = false }: { conditional?: bool
     });
     userChosePasskey = true;
     await authApi.completePasskeyLogin(credential);
-    await appStore.fetchContext();
+    // A full page load, not a router push, so nothing from the signed-out session lingers. The new page loads the
+    // signed-in user's app context.
     window.location.href = getRedirectUrl();
   } catch (err) {
     if (err instanceof ApiError && err.response.status === 409) {

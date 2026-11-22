@@ -63,6 +63,17 @@ class TestLogin:
         page.wait_for_url(f"{live_server.url}/", timeout=10000)
         expect(page).not_to_have_url(re.compile(r"/accounts/login"))
 
+    def test_next_cannot_leave_the_site(self, page: Page, live_server, user):
+        # Browsers drop the tab from `/<tab>/evil.example`, which leaves `//evil.example`, another site's address.
+        page.route(re.compile(r"^https?://evil\.example/"), lambda route: route.fulfill(body="Another site"))
+        page.goto(f"{live_server.url}/accounts/login/?next=/%09/evil.example/")
+
+        page.get_by_placeholder("Email").fill("michael.scott@dundermifflin.com")
+        page.get_by_placeholder("Password").fill("dundermifflin")
+        page.get_by_role("button", name="Sign In", exact=True).click()
+
+        page.wait_for_url(f"{live_server.url}/", timeout=10000)
+
 
 class TestLogout:
     @pytest.mark.usefixtures("_login")
@@ -94,6 +105,55 @@ class TestAuthRedirects:
 
         expect(page).to_have_url(re.compile(r"/accounts/login"))
         expect(page.get_by_placeholder("Email")).to_be_visible()
+
+
+def watch_app_context_requests(page: Page) -> list[str]:
+    """Collect the URL of each /api/app-context/ request the page makes from now on."""
+    urls: list[str] = []
+    page.on("request", lambda request: "/api/app-context/" in request.url and urls.append(request.url))
+    return urls
+
+
+class TestSignInLoadsTheAppContextOnce:
+    """
+    Signing in ends with a full page load, which fetches /api/app-context/ for the new session.
+
+    The sign-in pages used to fetch it once more just before leaving, and the page load threw that away.
+    """
+
+    def test_password(self, page: Page, live_server, user):
+        page.goto(f"{live_server.url}/accounts/login/")
+        # The page renders once its own app context has loaded.
+        expect(page.get_by_role("button", name="Sign In", exact=True)).to_be_visible()
+        requests = watch_app_context_requests(page)
+
+        page.get_by_placeholder("Email").fill("michael.scott@dundermifflin.com")
+        page.get_by_placeholder("Password").fill("dundermifflin")
+        page.get_by_role("button", name="Sign In", exact=True).click()
+
+        page.wait_for_url(f"{live_server.url}/", timeout=10000)
+        expect(page.get_by_role("button", name=re.compile(r"^Notifications"))).to_be_visible()
+        assert len(requests) == 1
+
+    def test_two_factor(self, page: Page, live_server, user):
+        import pyotp
+        from allauth.mfa.totp.internal.auth import TOTP, generate_totp_secret
+
+        secret = generate_totp_secret()
+        TOTP.activate(user, secret)
+        page.goto(f"{live_server.url}/accounts/login/")
+        page.get_by_placeholder("Email").fill("michael.scott@dundermifflin.com")
+        page.get_by_placeholder("Password").fill("dundermifflin")
+        page.get_by_role("button", name="Sign In", exact=True).click()
+        page.wait_for_url(re.compile(r"/accounts/2fa/"), timeout=10000)
+        requests = watch_app_context_requests(page)
+
+        page.get_by_label("Code", exact=True).fill(pyotp.TOTP(secret).now())
+        page.get_by_role("button", name="Continue").click()
+
+        page.wait_for_url(f"{live_server.url}/", timeout=10000)
+        expect(page.get_by_role("button", name=re.compile(r"^Notifications"))).to_be_visible()
+        assert len(requests) == 1
 
 
 # Stands in for the browser's WebAuthn API: records each navigator.credentials.get() call and leaves it
@@ -161,22 +221,23 @@ class TestPasskeyPrompt:
         # The autofill's options request keeps its WebAuthn challenge in a new anonymous session. When that response
         # arrived after sign-in's, its session cookie replaced the signed-in one, and the user was signed out again.
         held_options = []
-        held_context = []
+        held_page_loads = []
         state = {"signed_in": False, "released": False}
 
         def hold_options(route):
             # The server answers now, and the browser gets the answer when the test releases it.
             held_options.append((route, route.fetch()))
 
-        def hold_context_after_sign_in(route):
-            # Keeps the page here, after sign-in, until the options response has landed.
+        def hold_page_load_after_sign_in(route):
+            # Keeps the login page open, after sign-in, until the options response has landed. Sign-in ends by loading
+            # the home page, and the login page's requests stop once the new page replaces it.
             if state["signed_in"] and not state["released"]:
-                held_context.append(route)
+                held_page_loads.append(route)
             else:
                 route.continue_()
 
         page.route(re.compile(r".*/_allauth/browser/v1/auth/webauthn/login$"), hold_options)
-        page.route(re.compile(r".*/api/app-context/$"), hold_context_after_sign_in)
+        page.route(f"{live_server.url}/", hold_page_load_after_sign_in)
         page.on("response", lambda response: response.url.endswith("/auth/login") and state.update(signed_in=True))
 
         page.goto(f"{live_server.url}/accounts/login/")
@@ -189,7 +250,7 @@ class TestPasskeyPrompt:
         state["released"] = True
         for route, response in held_options:
             route.fulfill(response=response)
-        for route in held_context:
+        for route in held_page_loads:
             route.continue_()
 
         expect(page.get_by_role("button", name=re.compile(r"^Notifications"))).to_be_visible()
