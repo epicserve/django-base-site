@@ -1,6 +1,10 @@
 <script setup lang="ts">
 import { useId } from 'vue';
 
+// Attributes that aren't props, such as `inputmode`, `maxlength` or `class`, go on the <input>, not the wrapper <div>.
+// The template binds them before the input's own attributes, so they can't replace its id or its error wiring.
+defineOptions({ inheritAttrs: false });
+
 withDefaults(
   defineProps<{
     label?: string;
@@ -32,6 +36,7 @@ const errorsId = `${inputId}-errors`;
       {{ label }}
     </label>
     <input
+      v-bind="$attrs"
       :id="inputId"
       :type="type"
       :value="modelValue"
