@@ -3,6 +3,7 @@
 import io
 import re
 
+import pytest
 from PIL import Image
 from playwright.sync_api import Page, expect
 
@@ -50,3 +51,24 @@ class TestAvatar:
         expect(header_photo).to_have_count(0)
         user.refresh_from_db()
         assert not user.avatar_thumbnail
+
+    @pytest.mark.parametrize("key", ["Enter", "Space"])
+    def test_choose_an_image_with_the_keyboard(self, page: Page, live_server, user, key):
+        self._sign_in(page, live_server)
+        page.get_by_role("button", name="Change Photo").press("Enter")
+        expect(page.get_by_role("dialog", name="Change Profile Photo")).to_be_visible()
+        choose_label = page.locator("label", has_text="Choose an Image")
+        expect(choose_label).to_have_css("outline-style", "none")
+
+        # The dialog opens with its close button focused, and the file input is the next stop. It used to be
+        # `display: none`, which Tab skips, so a keyboard couldn't choose an image.
+        page.keyboard.press("Tab")
+        expect(page.get_by_label("Choose an Image")).to_be_focused()
+        # The input is visually hidden, so its label shows the focus ring.
+        expect(choose_label).to_have_css("outline-style", "solid")
+        expect(choose_label).to_have_css("outline-width", "2px")
+
+        with page.expect_file_chooser() as file_chooser:
+            page.keyboard.press(key)
+        file_chooser.value.set_files({"name": "michael.png", "mimeType": "image/png", "buffer": _png()})
+        expect(page.locator(".vue-advanced-cropper")).to_be_visible()

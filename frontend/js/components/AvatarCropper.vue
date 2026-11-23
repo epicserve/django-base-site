@@ -148,8 +148,9 @@ async function removeAvatar() {
 
   <AppModal :open="showModal" title="Change Profile Photo" size="lg" @close="closeModal">
     <div v-if="!imageSrc" class="text-center py-8">
+      <!-- The file input is visually hidden, not display: none, so Tab reaches it; the label shows its focus ring. -->
       <label
-        class="cursor-pointer inline-flex items-center gap-2 rounded-md bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700"
+        class="cursor-pointer inline-flex items-center gap-2 rounded-md bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700 has-focus-visible:outline-2 has-focus-visible:outline-offset-2 has-focus-visible:outline-blue-600"
       >
         <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
           <path
@@ -159,7 +160,7 @@ async function removeAvatar() {
           />
         </svg>
         Choose an Image
-        <input type="file" accept="image/jpeg,image/png,image/webp" class="hidden" @change="onFileSelect" />
+        <input type="file" accept="image/jpeg,image/png,image/webp" class="sr-only" @change="onFileSelect" />
       </label>
       <p class="mt-2 text-sm text-gray-500 dark:text-gray-400">JPEG, PNG, or WebP up to 10 MB</p>
     </div>
