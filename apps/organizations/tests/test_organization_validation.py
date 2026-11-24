@@ -118,12 +118,10 @@ class TestUpdateSettingsValidation:
     def owner_client(self, client):
         owner = baker.make(User, email="owner@example.com")
         org = baker.make(Organization, name="Acme", slug="acme", billing_email="billing@example.com")
-        baker.make(OrganizationMember, organization=org, user=owner, is_owner=True)
+        baker.make(OrganizationMember, organization=org, user=owner, role="owner")
         client.force_login(owner)
         session = client.session
-        session["organization_data"] = json.dumps(
-            {"pk": org.pk, "id": org.pk, "name": org.name, "slug": org.slug, "is_owner": True}
-        )
+        session["organization_data"] = json.dumps({"pk": org.pk, "id": org.pk, "name": org.name, "slug": org.slug})
         session.save()
         client.org = org
         return client
