@@ -190,6 +190,20 @@ Key variables:
 - `apps/organizations/signals.py` switches to the user's primary org on login / hijack-start / hijack-end.
 - The org switcher in the AppLayout user menu, the OrgSettingsLayout (General / Members / Teams tabs), and the OrgCreateView/OrgSwitchView pages are SPA-driven; the only server-rendered org URL is the catch-all that gives the SPA the accept-invite path.
 
+## Adding a Feature
+
+Copy `apps/teams/` (about 160 lines): an organization-scoped model, its admin, a ninja router, and a settings tab in the SPA (`frontend/js/views/settings/TeamsView.vue` and `frontend/js/apps/ManageTeamsApp.vue`). Its `tests/test_api.py` is the older `TestCase` style, so write new tests like `apps/organizations/tests/test_roles.py` instead. A feature usually needs each of these:
+
+- **App and model**: add the app to `INSTALLED_APPS` in `config/settings/_base.py`. Give the model a `ForeignKey` to `organizations.Organization` and a queryset built on `FilterByOrganizationMixin` (`apps/organizations/managers.py`), and read rows through `.filter_by_org(request)` so one organization never sees another's. `just lint` fails on a missing migration.
+- **Who can call it**: start each ninja route with `require_org_perm(request, OrgPerm.X)` (`apps/base/permissions.py`) for an action a role grants, or `require_org_selected(request)` for one any member can take. Outside a route, use `has_org_perm(user, org, perm)`. A new kind of action gets its own `OrgPerm` (see Multi-Tenant Scaffolding).
+- **Schemas**: every route needs a `response=` schema. Check input in the schema, or with the model's `clean_fields()`, so a bad value gets a field error rather than a 500 (`create_organization` in `apps/organizations/api.py` does both).
+- **Router**: register it in `config/api.py` with `api.add_router(...)`, then run `just generate_api_types` and commit `frontend/js/api/*.d.ts`.
+- **SPA**: add the page to `frontend/js/router.ts`. An organization settings tab also goes in `TABS` in `frontend/js/utils/orgSettings.ts`, with the permission it takes. Show controls with `appStore.can(perm)`.
+- **Notifications**: a model that `notify(..., target=obj)` points at goes in `NOTIFICATIONS_TARGET_MODELS` (`"app_label.ModelName"`), so deleting a row deletes its notifications. A new kind of notification gets a category in `NOTIFICATIONS_CATEGORIES`.
+- **Paid features**: declare the feature in `BILLING_FEATURES`, decorate the route with `requires_feature("key")` (`apps/billing/access.py`), and wrap the UI in `FeatureGate` or `useFeature()`. All of them let everything through when `BILLING_ENABLED` is off.
+- **Settings**: read each new setting with `env(...)` in `config/settings/_base.py` and declare it in `.env.toml` (see Environment Configuration). `apps/base/tests/test_env_schema.py` fails on one that's read but not declared.
+- **Tests**: class-based pytest under `apps/<app>/tests/`, and an e2e test under `e2e/` for a new page or flow. Run `just verify`, and `just test_e2e` when the SPA changed.
+
 ## Key Dependencies
 
 - **Backend**: Django 6, django-allauth[mfa] (with fido2 for WebAuthn), django-ninja, django-hijack, Pillow, Celery, Redis, PostgreSQL 17, gunicorn, WhiteNoise, django-storages + boto3, django-ses, django-alive, django-maintenance-mode.
