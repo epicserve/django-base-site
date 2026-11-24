@@ -44,6 +44,7 @@
 * A demoted owner no longer keeps the owner menus and settings links until they switch organizations or sign in again. The session cached `is_owner` when the organization was selected, and app-context served that copy; it now reads the role from the database on every load.
 * Anyone could look up any user's email address. Signing up and creating an organization makes you its owner, and the Members tab's search matched every active user's name, username and email and returned their email. Adding a member or inviting one by user id returned the email too, so counting through ids found every one, and adding a member that way put the user in your organization without an invite. All three are gone (see Removed). `apps/organizations/tests/test_member_privacy.py` fails on the old code.
 * An organization can't lose its last owner. The API let the last owner demote themselves (the Members tab disables Change Role on your own row), which left nobody who could manage the organization, its members or its billing. More generally, a role change that would leave one of the role's permissions with nobody to hold it gets a 400 that says which, because giving a role takes every permission it grants, so nobody could ever be given that permission again. The check locks the organization's members, so two owners demoting each other at once can't both succeed.
+* Screen readers announce the close button in every modal as Close. It held only an icon and had no name.
 
 ### CI
 
