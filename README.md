@@ -129,6 +129,9 @@ Before proceeding make sure you have installed [Docker](https://docs.docker.com/
 [Just](https://github.com/casey/just#installation). Docker with Docker Compose is used for local development and Just is
 used for common project commands.
 
+**Windows users:** Follow the [Windows (WSL 2) setup guide](docs/windows.md) first to configure WSL 2, Docker Desktop,
+and the CLI tools below inside Ubuntu before running the installation steps.
+
 `just format` and `just lint` run the formatters and source linters (ruff, djLint, oxfmt, oxlint) natively, so you also
 need [uv](https://docs.astral.sh/uv/) (for `uvx`) and [bun](https://bun.sh/) (for `bunx`) on your PATH — `uv` is already
 needed for `uvx epicenv` below. (Only the checks that need the project's installed dependencies run in Docker: `ty`, the

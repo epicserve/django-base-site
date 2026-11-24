@@ -1,6 +1,6 @@
 # Using Docker
 
-The Django Base Site uses Docker Compose for local development. Install [Docker](https://docs.docker.com/engine/installation/), then follow the [README](https://github.com/epicserve/django-base-site#installation) to get a project running.
+The Django Base Site uses Docker Compose for local development. Install [Docker](https://docs.docker.com/engine/installation/), then follow the [README](https://github.com/epicserve/django-base-site#installation) to get a project running. On Windows, use Docker Desktop's WSL 2 backend — see the [Windows (WSL 2) setup guide](windows.md).
 
 ## Services
 
