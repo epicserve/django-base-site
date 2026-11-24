@@ -2,7 +2,8 @@ import re
 
 from django.apps import apps
 from django.conf import settings
-from django.db import models, transaction
+from django.core.exceptions import ValidationError
+from django.db import IntegrityError, models, transaction
 from django.db.models import Q
 from django.shortcuts import get_object_or_404
 
@@ -47,8 +48,20 @@ settings_router = Router(tags=["organization-settings"])
 @orgs_router.post("/", response={201: OrganizationCreateOut})
 def create_organization(request, payload: OrganizationCreateIn):
     require_authenticated(request)
+    org = Organization(name=payload.name, slug=payload.slug)
+    # A blank, overlong, or malformed name or slug becomes a field error. Not full_clean(): Organization.clean()
+    # refuses a slug that matches any username, and sign-up gives acme@example.com the username "acme".
+    org.clean_fields()
     with transaction.atomic():
-        org = Organization.objects.create(name=payload.name, slug=payload.slug)
+        try:
+            with transaction.atomic():
+                org.save()
+        except IntegrityError:
+            # The slug's unique index is the check, so a request racing another for the same slug gets this error too.
+            # Confirm the slug actually exists so another IntegrityError isn't misattributed to it.
+            if Organization.objects.filter(slug=org.slug).exists():
+                raise ValidationError({"slug": ["Account name is already taken."]}) from None
+            raise
         # Sign-in opens the primary organization, so a new one only becomes primary if the user has none.
         has_primary = OrganizationMember.objects.filter(user=request.user, is_primary=True).exists()
         OrganizationMember.objects.create(
@@ -282,6 +295,8 @@ def update_settings(request, payload: SettingsPatchIn):
     data = payload.dict(exclude_unset=True)
     for field, value in data.items():
         setattr(org, field, value)
+    # Check only the fields sent, so a slug saved before create checked slugs doesn't block a billing email change.
+    org.clean_fields(exclude=[field.name for field in Organization._meta.fields if field.name not in data])
     org.save()
     return {"billing_email": org.billing_email or ""}
 
