@@ -6,11 +6,13 @@ from django.test import RequestFactory
 
 import pytest
 from model_bakery import baker
+from ninja.errors import HttpError
 
 from apps.accounts.models import User
-from apps.billing.api import get_subscription
+from apps.billing.api import create_checkout, create_portal, get_subscription
+from apps.billing.schemas import CheckoutIn
 from apps.organizations.models import Organization, OrganizationInvite, OrganizationMember
-from apps.organizations.roles import ROLE_PERMISSIONS, OrgPerm, OrgRole, has_org_perm
+from apps.organizations.roles import ROLE_PERMISSIONS, OrgPerm, OrgRole, get_org_role, has_org_perm, role_permissions
 from apps.organizations.session import MockedOrg
 
 
@@ -57,6 +59,14 @@ class TestHasOrgPerm:
     def test_an_anonymous_user_has_none(self, org):
         assert not any(has_org_perm(AnonymousUser(), org, perm) for perm in OrgPerm)
 
+    def test_an_unrecognized_role_has_none(self, org, member):
+        OrganizationMember.objects.filter(organization=org, user=member).update(role="removed_role")
+
+        assert role_permissions("removed_role") == []
+        assert role_permissions(None) == []
+        assert get_org_role(member, org) is None
+        assert not any(has_org_perm(member, org, perm) for perm in OrgPerm)
+
 
 # One read-only route for each permission. Billing's router is mounted only with BILLING_ENABLED, which test settings
 # leave off, so its route is called directly.
@@ -93,6 +103,37 @@ class TestRoutesCheckTheirPermission:
             with pytest.raises(PermissionDenied):
                 get_subscription(request)
 
+    @pytest.mark.parametrize("granted", list(OrgPerm))
+    def test_billing_checkout_needs_manage_billing(self, monkeypatch, org, member, granted):
+        monkeypatch.setitem(ROLE_PERMISSIONS, OrgRole.MEMBER, frozenset({granted}))
+        request = RequestFactory().post("/api/billing/checkout/")
+        request.user = member
+        request.org = MockedOrg(pk=org.pk, id=org.pk, name=org.name, slug=org.slug)
+        payload = CheckoutIn(plan_key="nonexistent", billing_cycle="monthly")
+
+        if granted == OrgPerm.MANAGE_BILLING:
+            with pytest.raises(HttpError) as exc_info:
+                create_checkout(request, payload)
+            assert exc_info.value.status_code == 404
+        else:
+            with pytest.raises(PermissionDenied):
+                create_checkout(request, payload)
+
+    @pytest.mark.parametrize("granted", list(OrgPerm))
+    def test_billing_portal_needs_manage_billing(self, monkeypatch, org, member, granted):
+        monkeypatch.setitem(ROLE_PERMISSIONS, OrgRole.MEMBER, frozenset({granted}))
+        request = RequestFactory().post("/api/billing/portal/")
+        request.user = member
+        request.org = MockedOrg(pk=org.pk, id=org.pk, name=org.name, slug=org.slug)
+
+        if granted == OrgPerm.MANAGE_BILLING:
+            with pytest.raises(HttpError) as exc_info:
+                create_portal(request)
+            assert exc_info.value.status_code == 409
+        else:
+            with pytest.raises(PermissionDenied):
+                create_portal(request)
+
 
 @pytest.mark.django_db
 class TestCurrentOrgPermissions:
@@ -124,6 +165,16 @@ class TestCurrentOrgPermissions:
         current = client.get("/api/app-context/").json()["org"]
 
         assert (current["slug"], current["role"]) == ("dunder-mifflin", "owner")
+
+    def test_an_unrecognized_role_returns_no_permissions(self, client, org, member):
+        OrganizationMember.objects.filter(organization=org, user=member).update(role="removed_role")
+        sign_in(client, member, org)
+
+        response = client.get("/api/app-context/")
+
+        assert response.status_code == 200
+        current = response.json()["org"]
+        assert (current["role"], current["permissions"]) == (None, [])
 
 
 @pytest.mark.django_db
@@ -253,6 +304,21 @@ class TestRoleGrantsAreBounded:
 
         assert (as_member.status_code, as_owner.status_code) == (201, 403)
         assert list(OrganizationInvite.objects.values_list("invitee_email", flat=True)) == ["jim@example.com"]
+
+    def test_cancels_a_member_invite_but_not_an_owner_invite(self, admin_client, org, owner):
+        member_invite = OrganizationInvite.objects.create(
+            organization=org, sender=owner, invitee_email="jim@example.com", role=OrgRole.MEMBER
+        )
+        owner_invite = OrganizationInvite.objects.create(
+            organization=org, sender=owner, invitee_email="pam@example.com", role=OrgRole.OWNER
+        )
+
+        cancel_member = admin_client.delete(f"/api/organization-invites/{member_invite.pk}/")
+        cancel_owner = admin_client.delete(f"/api/organization-invites/{owner_invite.pk}/")
+
+        assert (cancel_member.status_code, cancel_owner.status_code) == (204, 403)
+        assert not OrganizationInvite.objects.filter(pk=member_invite.pk).exists()
+        assert OrganizationInvite.objects.filter(pk=owner_invite.pk).exists()
 
     def test_an_owner_invite_it_sent_grants_member(self, client, monkeypatch, org, member):
         monkeypatch.setitem(ROLE_PERMISSIONS, OrgRole.MEMBER, frozenset({OrgPerm.MANAGE_MEMBERS}))

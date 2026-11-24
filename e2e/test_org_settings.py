@@ -152,6 +152,14 @@ class TestNonOwner:
         OrganizationMember.objects.create(organization=org, user=member, is_primary=True)
         return member
 
+    def test_org_menu_hides_settings_link(self, page: Page, live_server, member):
+        _sign_in(page, live_server, member.email, "/")
+
+        page.get_by_role("button", name="Dunder Mifflin").click()
+
+        expect(page.get_by_role("link", name="Switch Company")).to_be_visible()
+        expect(page.get_by_role("link", name="Settings", exact=True)).to_have_count(0)
+
     @pytest.mark.parametrize("tab", ["general", "members", "teams"])
     def test_settings_redirect_home(self, page: Page, live_server, member, tab):
         # The settings APIs are owner-only; a member who types the URL used to get "No members." and an invite form.

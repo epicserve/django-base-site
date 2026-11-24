@@ -29,9 +29,19 @@ ROLE_PERMISSIONS: dict[OrgRole, frozenset[OrgPerm]] = {
 }
 
 
+def _parse_role(role: str | None) -> OrgRole | None:
+    if not role:
+        return None
+    try:
+        return OrgRole(role)
+    except ValueError:
+        return None
+
+
 def role_permissions(role: str | None) -> list[OrgPerm]:
-    """Return the permissions a role grants, in `OrgPerm`'s order. No role (not a member) grants none."""
-    granted = ROLE_PERMISSIONS.get(OrgRole(role), frozenset()) if role else frozenset()
+    """Return the permissions a role grants, in `OrgPerm`'s order. Unknown or missing roles grant none."""
+    parsed = _parse_role(role)
+    granted = ROLE_PERMISSIONS.get(parsed, frozenset()) if parsed is not None else frozenset()
     return [perm for perm in OrgPerm if perm in granted]
 
 
@@ -40,12 +50,12 @@ def roles_with_perm(perm: OrgPerm) -> list[OrgRole]:
 
 
 def get_org_role(user, org) -> OrgRole | None:
-    """Return the user's role in the organization, or None if they aren't a member."""
+    """Return the user's role in the organization, or None if they aren't a member or their role isn't recognized."""
     if org is None or not getattr(user, "is_authenticated", False):
         return None
     member_model = apps.get_model("organizations.OrganizationMember")
     role = member_model.objects.filter(organization=org, user=user).values_list("role", flat=True).first()
-    return OrgRole(role) if role else None
+    return _parse_role(role)
 
 
 def has_org_perm(user, org, perm: OrgPerm) -> bool:
