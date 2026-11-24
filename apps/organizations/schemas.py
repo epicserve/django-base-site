@@ -144,4 +144,6 @@ class SettingsOut(Schema):
 
 
 class SettingsPatchIn(Schema):
+    model_config = ConfigDict(str_strip_whitespace=True)
+
     billing_email: str | None = None

@@ -54,10 +54,14 @@ def create_organization(request, payload: OrganizationCreateIn):
     org.clean_fields()
     with transaction.atomic():
         try:
-            org.save()
+            with transaction.atomic():
+                org.save()
         except IntegrityError:
             # The slug's unique index is the check, so a request racing another for the same slug gets this error too.
-            raise ValidationError({"slug": ["Account name is already taken."]}) from None
+            # Confirm the slug actually exists so another IntegrityError isn't misattributed to it.
+            if Organization.objects.filter(slug=org.slug).exists():
+                raise ValidationError({"slug": ["Account name is already taken."]}) from None
+            raise
         # Sign-in opens the primary organization, so a new one only becomes primary if the user has none.
         has_primary = OrganizationMember.objects.filter(user=request.user, is_primary=True).exists()
         OrganizationMember.objects.create(

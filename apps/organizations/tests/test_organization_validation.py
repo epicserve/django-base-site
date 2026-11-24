@@ -7,6 +7,8 @@ every SPA page for its members, and a taken, overlong, or malformed slug answere
 
 import json
 
+from django.db import IntegrityError
+
 import pytest
 from model_bakery import baker
 
@@ -80,6 +82,18 @@ class TestCreateOrganizationValidation:
         assert list(Organization.objects.all()) == [existing]
         assert not OrganizationMember.objects.filter(user=signed_in_client.user).exists()
 
+    def test_non_slug_integrity_error_is_not_reported_as_taken_slug(self, signed_in_client, monkeypatch):
+        def raise_other_integrity_error(self, *args, **kwargs):
+            raise IntegrityError("other constraint failed")
+
+        monkeypatch.setattr(Organization, "save", raise_other_integrity_error)
+
+        with pytest.raises(IntegrityError, match="other constraint failed"):
+            self._post(signed_in_client, "Acme", "acme")
+
+        assert not Organization.objects.exists()
+        assert not OrganizationMember.objects.exists()
+
     def test_strips_surrounding_spaces(self, signed_in_client):
         resp = self._post(signed_in_client, "  Acme  ", " acme ")
 
@@ -128,6 +142,14 @@ class TestUpdateSettingsValidation:
         assert resp.json() == {"billing_email": ["Enter a valid email address."]}
         owner_client.org.refresh_from_db()
         assert owner_client.org.billing_email == "billing@example.com"
+
+    def test_strips_surrounding_spaces(self, owner_client):
+        resp = self._patch(owner_client, "  new@example.com  ")
+
+        assert resp.status_code == 200
+        assert resp.json() == {"billing_email": "new@example.com"}
+        owner_client.org.refresh_from_db()
+        assert owner_client.org.billing_email == "new@example.com"
 
     def test_checks_only_the_fields_sent(self, owner_client):
         # A row saved before create validated its slug can still change its billing email.
