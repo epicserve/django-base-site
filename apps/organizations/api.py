@@ -137,6 +137,31 @@ def _require_assignable(request, org, *roles):
         raise PermissionDenied("You can't give, change or remove a role with permissions you don't have.")
 
 
+def _require_permissions_stay_held(org, membership, new_role) -> None:
+    """
+    Raise 400 if changing the member's role would leave one of its permissions with nobody to hold it.
+
+    Giving a role takes every permission it grants (`can_assign_role`), so a permission nobody holds could never be
+    given again. Demoting the last owner would leave nobody who could manage the organization at all. Removing a member
+    can't do this: you can't remove yourself, and whoever removes someone holds every permission their role grants.
+
+    Call it in a transaction. It locks the organization's members, so two owners demoting each other at once can't both
+    succeed.
+    """
+    roles = dict(
+        OrganizationMember.objects.select_for_update().filter(organization=org).order_by("pk").values_list("pk", "role")
+    )
+    current_role = roles.pop(membership.pk, membership.role)
+    held = {perm for role in [*roles.values(), new_role] for perm in role_permissions(role)}
+    lost = [perm for perm in role_permissions(current_role) if perm not in held]
+    if lost:
+        raise HttpError(
+            400,
+            f"Nobody else in the organization can {lost[0].label}. Give someone else the {OrgRole(current_role).label}"
+            " role first.",
+        )
+
+
 def _members_qs(request):
     return (
         OrganizationMember.objects.select_related("user", "organization")
@@ -172,8 +197,10 @@ def patch_member(request, member_id: int, payload: MemberPatchIn):
     membership = get_object_or_404(_members_qs(request), pk=member_id)
     if payload.role is not None and payload.role != membership.role:
         _require_assignable(request, org, membership.role, payload.role)
-        membership.role = payload.role
-        membership.save(update_fields=["role", "modified"])
+        with transaction.atomic():
+            _require_permissions_stay_held(org, membership, payload.role)
+            membership.role = payload.role
+            membership.save(update_fields=["role", "modified"])
         if membership.role == OrgRole.OWNER:
             membership.send_owner_email(sending_user=request.user)
     return membership
