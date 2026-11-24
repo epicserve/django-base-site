@@ -6,6 +6,7 @@ from model_bakery import baker
 from apps.accounts.models import User
 from apps.base.utils.timezones import get_timezone_label
 from apps.organizations.models import OrganizationMember
+from apps.organizations.roles import OrgPerm, OrgRole
 from config.api import api
 
 APP_CONTEXT_URL = "/api/app-context/"
@@ -41,7 +42,7 @@ class TestAppContext:
             timezone="America/New_York",
         )
         self.org = baker.make("organizations.Organization", name="Scranton", slug="scranton")
-        OrganizationMember.objects.create(organization=self.org, user=self.user, role="owner", is_primary=True)
+        OrganizationMember.objects.create(organization=self.org, user=self.user, role=OrgRole.OWNER, is_primary=True)
 
     def _sign_in(self, org=None):
         # force_login's request has no `user`, so the login signal doesn't select the primary org; set it directly.
@@ -99,8 +100,8 @@ class TestAppContext:
                 "id": self.org.pk,
                 "name": "Scranton",
                 "slug": "scranton",
-                "role": "owner",
-                "permissions": ["manage_settings", "manage_members", "manage_teams", "manage_billing"],
+                "role": OrgRole.OWNER,
+                "permissions": list(OrgPerm),
             },
             "organizations": orgs,
             "orgMemberCount": 1,

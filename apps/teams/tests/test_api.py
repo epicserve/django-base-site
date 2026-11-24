@@ -6,6 +6,7 @@ from django.test import TestCase
 from model_bakery import baker
 
 from apps.accounts.models import User
+from apps.organizations.roles import OrgRole
 from apps.organizations.signals import user_logged_in_receiver
 from apps.teams.models import Team
 
@@ -25,7 +26,7 @@ class TestTeamAPI(TestCase):
     def setUp(self):
         self.user = User.objects.create_user(username="owner", password="secret")  # noqa: S106
         self.org = baker.make("organizations.Organization")
-        baker.make("organizations.OrganizationMember", organization=self.org, user=self.user, role="owner")
+        baker.make("organizations.OrganizationMember", organization=self.org, user=self.user, role=OrgRole.OWNER)
 
     def _login(self):
         self.client.force_login(self.user)

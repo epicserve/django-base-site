@@ -14,6 +14,7 @@ from model_bakery import baker
 
 from apps.accounts.models import User
 from apps.organizations.models import Organization, OrganizationMember
+from apps.organizations.roles import OrgRole
 
 BLANK = "This field cannot be blank."
 INVALID_SLUG = "Enter a valid name consisting of letters, numbers, underscores or hyphens."
@@ -118,7 +119,7 @@ class TestUpdateSettingsValidation:
     def owner_client(self, client):
         owner = baker.make(User, email="owner@example.com")
         org = baker.make(Organization, name="Acme", slug="acme", billing_email="billing@example.com")
-        baker.make(OrganizationMember, organization=org, user=owner, role="owner")
+        baker.make(OrganizationMember, organization=org, user=owner, role=OrgRole.OWNER)
         client.force_login(owner)
         session = client.session
         session["organization_data"] = json.dumps({"pk": org.pk, "id": org.pk, "name": org.name, "slug": org.slug})

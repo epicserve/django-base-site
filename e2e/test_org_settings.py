@@ -24,9 +24,10 @@ def _sign_in(page: Page, live_server, email: str, next_path: str):
 @pytest.fixture()
 def org(db, user):
     from apps.organizations.models import Organization, OrganizationMember
+    from apps.organizations.roles import OrgRole
 
     org = Organization.objects.create(name="Dunder Mifflin", slug="dunder-mifflin")
-    OrganizationMember.objects.create(organization=org, user=user, role="owner", is_primary=True)
+    OrganizationMember.objects.create(organization=org, user=user, role=OrgRole.OWNER, is_primary=True)
     return org
 
 
@@ -110,9 +111,10 @@ class TestChangeRole:
     def test_an_owner_makes_a_member_an_owner(self, page: Page, live_server, org):
         from apps.accounts.models import User
         from apps.organizations.models import OrganizationMember
+        from apps.organizations.roles import OrgRole
 
         dwight = baker.make(User, email="dwight.schrute@dundermifflin.com", first_name="Dwight", last_name="Schrute")
-        OrganizationMember.objects.create(organization=org, user=dwight, role="member")
+        OrganizationMember.objects.create(organization=org, user=dwight, role=OrgRole.MEMBER)
         _sign_in(page, live_server, "michael.scott@dundermifflin.com", TestMembersTab.MEMBERS_PATH)
         row = page.get_by_role("row", name=re.compile("dwight.schrute@dundermifflin.com"))
         expect(row.get_by_text("Member", exact=True)).to_be_visible()
@@ -123,7 +125,7 @@ class TestChangeRole:
         dialog.get_by_role("button", name="OK").click()
 
         expect(row.get_by_text("Owner", exact=True)).to_be_visible()
-        assert OrganizationMember.objects.get(organization=org, user=dwight).role == "owner"
+        assert OrganizationMember.objects.get(organization=org, user=dwight).role == OrgRole.OWNER
 
 
 class TestTeamsTab:

@@ -9,6 +9,7 @@ from model_bakery import baker
 from apps.accounts.models import User
 from apps.notifications.models import Notification
 from apps.organizations.models import OrganizationMember
+from apps.organizations.roles import OrgRole
 from apps.organizations.signals import user_logged_in_receiver
 
 URL = "/api/test-notifications/"
@@ -41,7 +42,7 @@ class TestSendTestNotification:
                 is_staff=True,
             )
             self.org = baker.make("organizations.Organization", name="Acme")
-            OrganizationMember.objects.create(organization=self.org, user=self.sender, role="owner")
+            OrganizationMember.objects.create(organization=self.org, user=self.sender, role=OrgRole.OWNER)
             self.client.force_login(self.sender)
             _set_session_org(self.client, self.org)
             yield

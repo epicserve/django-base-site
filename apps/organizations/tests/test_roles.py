@@ -142,13 +142,13 @@ class TestCurrentOrgPermissions:
 
         current = client.get("/api/app-context/").json()["org"]
 
-        assert (current["role"], current["permissions"]) == ("member", [])
+        assert (current["role"], current["permissions"]) == (OrgRole.MEMBER, [])
 
     def test_a_role_change_shows_up_without_switching_organizations(self, client, org, owner):
         # The session once cached `is_owner` from when the organization was selected, so a demoted owner kept the
         # owner UI until they switched organizations or signed in again.
         sign_in(client, owner, org)
-        assert client.get("/api/app-context/").json()["org"]["role"] == "owner"
+        assert client.get("/api/app-context/").json()["org"]["role"] == OrgRole.OWNER
 
         OrganizationMember.objects.filter(organization=org, user=owner).update(role=OrgRole.MEMBER)
 
@@ -164,7 +164,7 @@ class TestCurrentOrgPermissions:
 
         current = client.get("/api/app-context/").json()["org"]
 
-        assert (current["slug"], current["role"]) == ("dunder-mifflin", "owner")
+        assert (current["slug"], current["role"]) == ("dunder-mifflin", OrgRole.OWNER)
 
     def test_an_unrecognized_role_returns_no_permissions(self, client, org, member):
         OrganizationMember.objects.filter(organization=org, user=member).update(role="removed_role")
@@ -190,9 +190,9 @@ class TestChangeRole:
         sign_in(client, owner, org)
         membership = OrganizationMember.objects.get(organization=org, user=member)
 
-        response = self._patch(client, membership, "owner")
+        response = self._patch(client, membership, OrgRole.OWNER)
 
-        assert (response.status_code, response.json()["role"]) == (200, "owner")
+        assert (response.status_code, response.json()["role"]) == (200, OrgRole.OWNER)
         assert [message.subject for message in mailoutbox] == [
             "You've been made an owner of the Dunder Mifflin organization"
         ]
@@ -202,9 +202,9 @@ class TestChangeRole:
         membership = baker.make(OrganizationMember, organization=org, user=other_owner, role=OrgRole.OWNER)
         sign_in(client, owner, org)
 
-        response = self._patch(client, membership, "member")
+        response = self._patch(client, membership, OrgRole.MEMBER)
 
-        assert (response.status_code, response.json()["role"]) == (200, "member")
+        assert (response.status_code, response.json()["role"]) == (200, OrgRole.MEMBER)
         assert mailoutbox == []
 
     def test_an_unknown_role_is_rejected(self, client, org, owner, member):
@@ -265,8 +265,8 @@ class TestRoleGrantsAreBounded:
     def test_adds_a_member_but_not_an_owner(self, admin_client):
         jim, pam = baker.make(User, _quantity=2)
 
-        as_member = self._post(admin_client, "/api/organization-members/", {"user": jim.pk, "role": "member"})
-        as_owner = self._post(admin_client, "/api/organization-members/", {"user": pam.pk, "role": "owner"})
+        as_member = self._post(admin_client, "/api/organization-members/", {"user": jim.pk, "role": OrgRole.MEMBER})
+        as_owner = self._post(admin_client, "/api/organization-members/", {"user": pam.pk, "role": OrgRole.OWNER})
 
         assert (as_member.status_code, as_owner.status_code) == (201, 403)
         assert not OrganizationMember.objects.filter(user=pam).exists()
@@ -275,7 +275,9 @@ class TestRoleGrantsAreBounded:
         jim = baker.make(OrganizationMember, organization=org, user=baker.make(User), role=OrgRole.MEMBER)
 
         response = admin_client.patch(
-            f"/api/organization-members/{jim.pk}/", data=json.dumps({"role": "owner"}), content_type="application/json"
+            f"/api/organization-members/{jim.pk}/",
+            data=json.dumps({"role": OrgRole.OWNER}),
+            content_type="application/json",
         )
 
         assert response.status_code == 403
@@ -287,7 +289,7 @@ class TestRoleGrantsAreBounded:
 
         demote = admin_client.patch(
             f"/api/organization-members/{membership.pk}/",
-            data=json.dumps({"role": "member"}),
+            data=json.dumps({"role": OrgRole.MEMBER}),
             content_type="application/json",
         )
         remove = admin_client.delete(f"/api/organization-members/{membership.pk}/")
@@ -299,7 +301,7 @@ class TestRoleGrantsAreBounded:
     def test_invites_a_member_but_not_an_owner(self, admin_client):
         as_member = self._post(admin_client, "/api/organization-invites/", {"invitee_email": "jim@example.com"})
         as_owner = self._post(
-            admin_client, "/api/organization-invites/", {"invitee_email": "pam@example.com", "role": "owner"}
+            admin_client, "/api/organization-invites/", {"invitee_email": "pam@example.com", "role": OrgRole.OWNER}
         )
 
         assert (as_member.status_code, as_owner.status_code) == (201, 403)

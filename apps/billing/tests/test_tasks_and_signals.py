@@ -17,6 +17,7 @@ from apps.base.tests.mail import record_queued_emails, use_failing_mail_server
 from apps.billing.constants import SubscriptionStatus
 from apps.billing.models import Subscription
 from apps.billing.tasks import check_trials_ending, reconcile_subscriptions
+from apps.organizations.roles import OrgRole
 
 
 @pytest.mark.django_db
@@ -83,7 +84,7 @@ class TestCheckTrialsEndingMailOutage:
             owner = baker.make(
                 "accounts.User", first_name=name, last_name="Owner", email=f"owner@{name.lower()}.example"
             )
-            baker.make("organizations.OrganizationMember", organization=org, user=owner, role="owner")
+            baker.make("organizations.OrganizationMember", organization=org, user=owner, role=OrgRole.OWNER)
             subscriptions.append(
                 Subscription.objects.create(
                     organization=org,

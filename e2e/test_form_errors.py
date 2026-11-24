@@ -30,9 +30,10 @@ class TestFieldErrors:
     @pytest.fixture()
     def org(self, user):
         from apps.organizations.models import Organization, OrganizationMember
+        from apps.organizations.roles import OrgRole
 
         org = Organization.objects.create(name="Dunder Mifflin", slug="dunder-mifflin")
-        OrganizationMember.objects.create(organization=org, user=user, role="owner", is_primary=True)
+        OrganizationMember.objects.create(organization=org, user=user, role=OrgRole.OWNER, is_primary=True)
         return org
 
     def test_sign_in(self, page: Page, live_server, user):

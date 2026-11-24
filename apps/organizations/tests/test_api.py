@@ -12,6 +12,7 @@ from model_bakery import baker
 from apps.accounts.models import User
 from apps.base.tests.mail import record_queued_emails, use_failing_mail_server
 from apps.organizations.models import Organization, OrganizationInvite, OrganizationMember
+from apps.organizations.roles import OrgPerm, OrgRole
 from apps.organizations.signals import user_logged_in_receiver
 
 
@@ -28,7 +29,7 @@ class OrganizationAPITestBase(TestCase):
             password="secret",  # noqa: S106
         )
         self.org = baker.make("organizations.Organization", name="Acme", billing_email="owner@example.com")
-        baker.make("organizations.OrganizationMember", organization=self.org, user=self.user, role="owner")
+        baker.make("organizations.OrganizationMember", organization=self.org, user=self.user, role=OrgRole.OWNER)
 
     def _login(self):
         self.client.force_login(self.user)
@@ -49,11 +50,11 @@ class TestOrganizationViewSet(OrganizationAPITestBase):
         )
         self.assertEqual(resp.status_code, 201)
         new_org = Organization.objects.get(slug="new-co")
-        self.assertEqual(new_org.organizationmember_set.get(user=self.user).role, "owner")
+        self.assertEqual(new_org.organizationmember_set.get(user=self.user).role, OrgRole.OWNER)
 
     def test_switch_list(self):
         other = baker.make("organizations.Organization", name="Other Co")
-        baker.make("organizations.OrganizationMember", organization=other, user=self.user, role="member")
+        baker.make("organizations.OrganizationMember", organization=other, user=self.user, role=OrgRole.MEMBER)
         self._login()
         resp = self.client.get("/api/organizations/switch-list/")
         self.assertEqual(resp.status_code, 200)
@@ -65,8 +66,8 @@ class TestOrganizationViewSet(OrganizationAPITestBase):
         resp = self.client.post(f"/api/organizations/{self.org.slug}/select/")
         self.assertEqual(resp.status_code, 200)
         self.assertEqual(resp.json()["slug"], self.org.slug)
-        self.assertEqual(resp.json()["role"], "owner")
-        self.assertIn("manage_members", resp.json()["permissions"])
+        self.assertEqual(resp.json()["role"], OrgRole.OWNER)
+        self.assertIn(OrgPerm.MANAGE_MEMBERS, resp.json()["permissions"])
 
     def test_set_primary(self):
         self._login()
@@ -127,7 +128,7 @@ class TestOrganizationMemberViewSet(OrganizationAPITestBase):
         self._login()
         resp = self.client.post(
             "/api/organization-members/",
-            data=json.dumps({"user": new_user.pk, "role": "member"}),
+            data=json.dumps({"user": new_user.pk, "role": OrgRole.MEMBER}),
             content_type="application/json",
         )
         self.assertEqual(resp.status_code, 201)
@@ -139,7 +140,9 @@ class TestOrganizationMemberViewSet(OrganizationAPITestBase):
             email="member@example.com",
             password="secret",  # noqa: S106
         )
-        membership = baker.make("organizations.OrganizationMember", organization=self.org, user=new_user, role="member")
+        membership = baker.make(
+            "organizations.OrganizationMember", organization=self.org, user=new_user, role=OrgRole.MEMBER
+        )
         self._login()
         resp = self.client.delete(f"/api/organization-members/{membership.pk}/")
         self.assertEqual(resp.status_code, 204)
@@ -181,7 +184,7 @@ class TestOrganizationInviteViewSet(OrganizationAPITestBase):
         with self.captureOnCommitCallbacks(execute=True):
             resp = self.client.post(
                 "/api/organization-invites/",
-                data=json.dumps({"invitee_email": "guest@example.com", "role": "member"}),
+                data=json.dumps({"invitee_email": "guest@example.com", "role": OrgRole.MEMBER}),
                 content_type="application/json",
             )
         self.assertEqual(resp.status_code, 201)
@@ -225,7 +228,7 @@ class TestOrganizationSettingsViewSet(OrganizationAPITestBase):
 def owner_client(client):
     owner = baker.make(User, email="owner@example.com")
     org = baker.make(Organization, name="Acme")
-    baker.make(OrganizationMember, organization=org, user=owner, role="owner")
+    baker.make(OrganizationMember, organization=org, user=owner, role=OrgRole.OWNER)
     client.force_login(owner)
     session = client.session
     session["organization_data"] = json.dumps({"pk": org.pk, "id": org.pk, "name": org.name, "slug": org.slug})
@@ -288,7 +291,7 @@ class TestCreateInviteEmail:
         with django_capture_on_commit_callbacks(execute=True):
             resp = owner_client.post(
                 "/api/organization-invites/",
-                data=json.dumps({"invitee_email": "guest@example.com", "role": "member"}),
+                data=json.dumps({"invitee_email": "guest@example.com", "role": OrgRole.MEMBER}),
                 content_type="application/json",
             )
 
@@ -323,7 +326,7 @@ class TestCreateOrganization:
     def test_first_organization_is_primary(self, signed_in_client):
         membership = self._create(signed_in_client, "first-co")
 
-        assert membership.role == "owner"
+        assert membership.role == OrgRole.OWNER
         assert membership.is_primary
 
     def test_keeps_the_existing_primary(self, signed_in_client):
