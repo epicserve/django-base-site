@@ -6,6 +6,7 @@ from django.shortcuts import get_object_or_404
 from ninja import Query, Router, Status
 from ninja.errors import HttpError
 from ninja.pagination import paginate
+from ninja.throttling import UserRateThrottle
 
 from apps.base.ninja_pagination import LegacyPagination
 from apps.base.permissions import require_authenticated, require_org_perm
@@ -223,6 +224,21 @@ def delete_member(request, member_id: int):
 # ---------------------------------------------------------------------------
 
 
+class InviteRateThrottle(UserRateThrottle):
+    """Count one user's invites against a rate, in a bucket of their own for each rate."""
+
+    def __init__(self, rate: str):
+        # The cache key comes from the scope, so two rates sharing one would count each invite twice in one bucket.
+        self.scope = f"organization_invites_{rate}"
+        super().__init__(rate)
+
+
+# Each invite emails an address the sender typed, and anyone can sign up and create an organization, so cap how many
+# invites one user sends: enough to bring in a team at once, not enough to use the site to send spam. Sign-in, sign-up
+# and password resets have allauth's own limits.
+INVITE_THROTTLES = [InviteRateThrottle("30/h"), InviteRateThrottle("100/d")]
+
+
 def _invites_qs(request):
     return (
         OrganizationInvite.objects.select_related("organization", "sender", "invitee")
@@ -238,7 +254,7 @@ def list_invites(request):
     return _invites_qs(request)
 
 
-@invites_router.post("/", response={201: InviteOut})
+@invites_router.post("/", response={201: InviteOut}, throttle=INVITE_THROTTLES)
 def create_invite(request, payload: InviteIn):
     org = require_org_perm(request, OrgPerm.MANAGE_MEMBERS)
     _require_assignable(request, org, payload.role)
