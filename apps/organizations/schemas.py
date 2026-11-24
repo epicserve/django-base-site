@@ -83,22 +83,8 @@ class MemberOut(Schema):
         return OrgUserOut.from_user(obj.user)
 
 
-class MemberIn(Schema):
-    user: int
-    role: OrgRole = OrgRole.MEMBER
-
-
 class MemberPatchIn(Schema):
     role: OrgRole | None = None
-
-
-class MemberSearchOut(Schema):
-    pk: int
-    first_name: str = ""
-    last_name: str = ""
-    username: str
-    email: str = ""
-    avatar_url: str | None = None
 
 
 class InviteOut(Schema):
@@ -128,8 +114,7 @@ class InviteOut(Schema):
 
 
 class InviteIn(Schema):
-    invitee_email: str = ""
-    invitee: int | None = None
+    invitee_email: str
     role: OrgRole = OrgRole.MEMBER
 
 

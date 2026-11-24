@@ -262,15 +262,6 @@ class TestRoleGrantsAreBounded:
     def _post(self, client, url, data):
         return client.post(url, data=json.dumps(data), content_type="application/json")
 
-    def test_adds_a_member_but_not_an_owner(self, admin_client):
-        jim, pam = baker.make(User, _quantity=2)
-
-        as_member = self._post(admin_client, "/api/organization-members/", {"user": jim.pk, "role": OrgRole.MEMBER})
-        as_owner = self._post(admin_client, "/api/organization-members/", {"user": pam.pk, "role": OrgRole.OWNER})
-
-        assert (as_member.status_code, as_owner.status_code) == (201, 403)
-        assert not OrganizationMember.objects.filter(user=pam).exists()
-
     def test_cant_promote_a_member_to_owner(self, admin_client, org):
         jim = baker.make(OrganizationMember, organization=org, user=baker.make(User), role=OrgRole.MEMBER)
 

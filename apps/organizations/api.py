@@ -1,7 +1,3 @@
-import re
-
-from django.apps import apps
-from django.conf import settings
 from django.core.exceptions import PermissionDenied, ValidationError
 from django.db import IntegrityError, models, transaction
 from django.db.models import Q
@@ -18,10 +14,8 @@ from apps.organizations.roles import OrgPerm, OrgRole, can_assign_role, get_org_
 from apps.organizations.schemas import (
     InviteIn,
     InviteOut,
-    MemberIn,
     MemberOut,
     MemberPatchIn,
-    MemberSearchOut,
     OrganizationCreateIn,
     OrganizationCreateOut,
     OrgSelectOut,
@@ -166,46 +160,6 @@ def list_members(request, q: str | None = Query(None)):
     return qs
 
 
-@members_router.get("/search/", response=list[MemberSearchOut])
-def search_members(request, q: str = Query("")):
-    org = require_org_perm(request, OrgPerm.MANAGE_MEMBERS)
-    user_model = apps.get_model(settings.AUTH_USER_MODEL)
-    qs = []
-    if len(q) > 2:
-        items = [item.strip() for item in re.split(r"\s+", q)]
-        q_obj = Q()
-        for item in items:
-            for fn in ("first_name", "last_name", "username", "email"):
-                q_obj |= Q(**{f"{fn}__icontains": item})
-        qs = user_model.objects.filter(is_active=True).filter(q_obj)
-        qs = qs.exclude(pk__in=OrganizationMember.objects.filter(organization=org).values_list("user_id", flat=True))
-        qs = qs.exclude(
-            pk__in=OrganizationInvite.objects.filter(organization=org)
-            .filter(invitee__isnull=False)
-            .values_list("invitee_id", flat=True)
-        )
-        qs = qs[:10]
-    return [
-        {
-            "pk": u.pk,
-            "first_name": u.first_name,
-            "last_name": u.last_name,
-            "username": u.username,
-            "email": u.email,
-            "avatar_url": u.avatar_url,
-        }
-        for u in qs
-    ]
-
-
-@members_router.post("/", response={201: MemberOut})
-def create_member(request, payload: MemberIn):
-    org = require_org_perm(request, OrgPerm.MANAGE_MEMBERS)
-    _require_assignable(request, org, payload.role)
-    membership = OrganizationMember.objects.create(organization=org, user_id=payload.user, role=payload.role)
-    return Status(201, membership)
-
-
 @members_router.get("/{member_id}/", response=MemberOut)
 def get_member(request, member_id: int):
     require_org_perm(request, OrgPerm.MANAGE_MEMBERS)
@@ -266,7 +220,6 @@ def create_invite(request, payload: InviteIn):
             organization=org,
             sender=request.user,
             invitee_email=payload.invitee_email,
-            invitee_id=payload.invitee,
             role=payload.role,
         )
         transaction.on_commit(invite.send_invite)

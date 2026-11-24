@@ -23,6 +23,7 @@
 * The placeholder `add` Celery task in `apps/base/tasks.py`.
 * The `[tool.bandit]` block in `pyproject.toml`. Nothing read it: bandit isn't installed, and Ruff's `S` rules run its checks.
 * `Organization.is_owner()`, `.owners` and `.regular_members` (use `has_org_perm()` and `members_with_perm()`), and `require_org_owner` (use `require_org_perm`). Two unused pieces that read ownership are gone too: `OrganizationForm` and the `get_org_js_object` template tag.
+* Member search on the Members tab, and the routes that reached users outside the organization by id: `GET /api/organization-members/search/`, `POST /api/organization-members/` (the SPA never called it), and the `invitee` field of `POST /api/organization-invites/`. Invite people by email; they join when they accept. `MemberIn` and `MemberSearchOut` are gone from the generated types, and an invite's `invitee_email` is required.
 
 ### Fixed
 
@@ -40,6 +41,7 @@
 * On a phone, the two-factor code fields, at sign-in and when setting up an authenticator app, bring up the number pad. They asked for it with `inputmode="numeric"`, but `FormField` put any attribute that isn't one of its props on its wrapper `<div>`, so phones showed the full keyboard. `FormField` now puts those attributes on its `<input>`. That includes `class`, which now styles the input rather than the wrapper; no field in the template passes one. The sign-in field takes a recovery code too, and allauth's recovery codes are digits as well. An e2e test checks both fields.
 * A profile photo can be chosen with the keyboard. The Change Profile Photo dialog's file input was `display: none`, which Tab skips, so only a mouse could reach Choose an Image. The input is now visually hidden instead (`sr-only`): Tab reaches it, the Choose an Image button shows a focus ring while the input has keyboard focus (not after a mouse click), and Enter or Space opens the file chooser. An e2e test chooses an image with each key.
 * A demoted owner no longer keeps the owner menus and settings links until they switch organizations or sign in again. The session cached `is_owner` when the organization was selected, and app-context served that copy; it now reads the role from the database on every load.
+* Anyone could look up any user's email address. Signing up and creating an organization makes you its owner, and the Members tab's search matched every active user's name, username and email and returned their email. Adding a member or inviting one by user id returned the email too, so counting through ids found every one, and adding a member that way put the user in your organization without an invite. All three are gone (see Removed). `apps/organizations/tests/test_member_privacy.py` fails on the old code.
 
 ### CI
 

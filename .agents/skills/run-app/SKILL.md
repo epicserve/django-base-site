@@ -52,7 +52,7 @@ The superuser is the account in `.env` (`just create_env` fills it from 1Passwor
 
 The rest of the seeded data:
 
-- Dunder Mifflin (`dunder-mifflin`) has 20 members, for checking long lists and member search. The other 18 are logins such as `jim.halpert@dundermifflin.example`, with the same password. Pawnee Parks and Recreation (`pawnee-parks`) has the Parks crew, such as `ron.swanson@pawnee.example`.
+- Dunder Mifflin (`dunder-mifflin`) has 20 members, for checking long lists. The other 18 are logins such as `jim.halpert@dundermifflin.example`, with the same password. Pawnee Parks and Recreation (`pawnee-parks`) has the Parks crew, such as `ron.swanson@pawnee.example`.
 - Teams: Sales and Party Planning Committee at Dunder Mifflin, Harvest Festival at Pawnee.
 - Invites to Dunder Mifflin: `user@example.com` (pending), `holly.flax@dundermifflin.example` (pending, no account), `todd.packer@dundermifflin.example` (expired). `just seed` prints their accept URLs because seeded invites send no email.
 
