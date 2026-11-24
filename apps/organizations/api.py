@@ -2,7 +2,7 @@ import re
 
 from django.apps import apps
 from django.conf import settings
-from django.core.exceptions import ValidationError
+from django.core.exceptions import PermissionDenied, ValidationError
 from django.db import IntegrityError, models, transaction
 from django.db.models import Q
 from django.shortcuts import get_object_or_404
@@ -12,8 +12,9 @@ from ninja.errors import HttpError
 from ninja.pagination import paginate
 
 from apps.base.ninja_pagination import LegacyPagination
-from apps.base.permissions import require_authenticated, require_org_owner
+from apps.base.permissions import require_authenticated, require_org_perm
 from apps.organizations.models import Organization, OrganizationInvite, OrganizationMember
+from apps.organizations.roles import OrgPerm, OrgRole, can_assign_role, get_org_role, role_permissions
 from apps.organizations.schemas import (
     InviteIn,
     InviteOut,
@@ -65,7 +66,7 @@ def create_organization(request, payload: OrganizationCreateIn):
         # Sign-in opens the primary organization, so a new one only becomes primary if the user has none.
         has_primary = OrganizationMember.objects.filter(user=request.user, is_primary=True).exists()
         OrganizationMember.objects.create(
-            organization=org, user=request.user, is_owner=True, is_primary=not has_primary
+            organization=org, user=request.user, role=OrgRole.OWNER, is_primary=not has_primary
         )
     save_org_data(request, org)
     return Status(201, {"id": org.pk, "name": org.name, "slug": org.slug})
@@ -109,7 +110,8 @@ def select_org(request, slug: str):
     if not org.is_member(request.user):
         raise HttpError(403, "Not a member.")
     save_org_data(request, org)
-    return {"id": org.pk, "slug": org.slug, "name": org.name, "is_owner": org.is_owner(request.user)}
+    role = get_org_role(request.user, org)
+    return {"id": org.pk, "slug": org.slug, "name": org.name, "role": role, "permissions": role_permissions(role)}
 
 
 @orgs_router.post("/{slug}/set-primary/", response=SetPrimaryOut)
@@ -135,6 +137,12 @@ def set_primary(request, slug: str):
 # ---------------------------------------------------------------------------
 
 
+def _require_assignable(request, org, *roles):
+    """Raise 403 unless the user may assign every given role (see `can_assign_role`)."""
+    if not all(can_assign_role(request.user, org, role) for role in roles):
+        raise PermissionDenied("You can't give, change or remove a role with permissions you don't have.")
+
+
 def _members_qs(request):
     return (
         OrganizationMember.objects.select_related("user", "organization")
@@ -146,7 +154,7 @@ def _members_qs(request):
 @members_router.get("/", response=list[MemberOut])
 @paginate(LegacyPagination)
 def list_members(request, q: str | None = Query(None)):
-    require_org_owner(request)
+    require_org_perm(request, OrgPerm.MANAGE_MEMBERS)
     qs = _members_qs(request)
     if q:
         qs = qs.filter(
@@ -160,7 +168,7 @@ def list_members(request, q: str | None = Query(None)):
 
 @members_router.get("/search/", response=list[MemberSearchOut])
 def search_members(request, q: str = Query("")):
-    org = require_org_owner(request)
+    org = require_org_perm(request, OrgPerm.MANAGE_MEMBERS)
     user_model = apps.get_model(settings.AUTH_USER_MODEL)
     qs = []
     if len(q) > 2:
@@ -192,34 +200,36 @@ def search_members(request, q: str = Query("")):
 
 @members_router.post("/", response={201: MemberOut})
 def create_member(request, payload: MemberIn):
-    org = require_org_owner(request)
-    membership = OrganizationMember.objects.create(organization=org, user_id=payload.user, is_owner=payload.is_owner)
+    org = require_org_perm(request, OrgPerm.MANAGE_MEMBERS)
+    _require_assignable(request, org, payload.role)
+    membership = OrganizationMember.objects.create(organization=org, user_id=payload.user, role=payload.role)
     return Status(201, membership)
 
 
 @members_router.get("/{member_id}/", response=MemberOut)
 def get_member(request, member_id: int):
-    require_org_owner(request)
+    require_org_perm(request, OrgPerm.MANAGE_MEMBERS)
     return get_object_or_404(_members_qs(request), pk=member_id)
 
 
 @members_router.patch("/{member_id}/", response=MemberOut)
 def patch_member(request, member_id: int, payload: MemberPatchIn):
-    require_org_owner(request)
+    org = require_org_perm(request, OrgPerm.MANAGE_MEMBERS)
     membership = get_object_or_404(_members_qs(request), pk=member_id)
-    was_owner = membership.is_owner
-    if payload.is_owner is not None:
-        membership.is_owner = payload.is_owner
-        membership.save(update_fields=["is_owner", "modified"])
-        if not was_owner and membership.is_owner:
+    if payload.role is not None and payload.role != membership.role:
+        _require_assignable(request, org, membership.role, payload.role)
+        membership.role = payload.role
+        membership.save(update_fields=["role", "modified"])
+        if membership.role == OrgRole.OWNER:
             membership.send_owner_email(sending_user=request.user)
     return membership
 
 
 @members_router.delete("/{member_id}/", response={204: None})
 def delete_member(request, member_id: int):
-    require_org_owner(request)
+    org = require_org_perm(request, OrgPerm.MANAGE_MEMBERS)
     membership = get_object_or_404(_members_qs(request), pk=member_id)
+    _require_assignable(request, org, membership.role)
     if membership.user.pk == request.user.pk:
         raise HttpError(400, "You're not allowed to remove yourself from the organization.")
     membership.send_removal_email(sending_user=request.user)
@@ -243,20 +253,21 @@ def _invites_qs(request):
 @invites_router.get("/", response=list[InviteOut])
 @paginate(LegacyPagination)
 def list_invites(request):
-    require_org_owner(request)
+    require_org_perm(request, OrgPerm.MANAGE_MEMBERS)
     return _invites_qs(request)
 
 
 @invites_router.post("/", response={201: InviteOut})
 def create_invite(request, payload: InviteIn):
-    org = require_org_owner(request)
+    org = require_org_perm(request, OrgPerm.MANAGE_MEMBERS)
+    _require_assignable(request, org, payload.role)
     with transaction.atomic():
         invite = OrganizationInvite.objects.create(
             organization=org,
             sender=request.user,
             invitee_email=payload.invitee_email,
             invitee_id=payload.invitee,
-            is_owner=payload.is_owner,
+            role=payload.role,
         )
         transaction.on_commit(invite.send_invite)
     return Status(201, invite)
@@ -264,14 +275,15 @@ def create_invite(request, payload: InviteIn):
 
 @invites_router.get("/{invite_id}/", response=InviteOut)
 def get_invite(request, invite_id: int):
-    require_org_owner(request)
+    require_org_perm(request, OrgPerm.MANAGE_MEMBERS)
     return get_object_or_404(_invites_qs(request), pk=invite_id)
 
 
 @invites_router.delete("/{invite_id}/", response={204: None})
 def delete_invite(request, invite_id: int):
-    require_org_owner(request)
+    org = require_org_perm(request, OrgPerm.MANAGE_MEMBERS)
     invite = get_object_or_404(_invites_qs(request), pk=invite_id)
+    _require_assignable(request, org, invite.role)
     with transaction.atomic():
         transaction.on_commit(invite.send_cancellation)
         invite.delete()
@@ -285,13 +297,13 @@ def delete_invite(request, invite_id: int):
 
 @settings_router.get("/", response=SettingsOut)
 def get_settings(request):
-    org = require_org_owner(request)
+    org = require_org_perm(request, OrgPerm.MANAGE_SETTINGS)
     return {"billing_email": org.billing_email or ""}
 
 
 @settings_router.patch("/update_settings/", response=SettingsOut)
 def update_settings(request, payload: SettingsPatchIn):
-    org = require_org_owner(request)
+    org = require_org_perm(request, OrgPerm.MANAGE_SETTINGS)
     data = payload.dict(exclude_unset=True)
     for field, value in data.items():
         setattr(org, field, value)
@@ -329,9 +341,13 @@ def accept_invite_by_key(request, key: str):
         raise HttpError(403, "This invitation was sent to a different email address.")
     if invite.organization.is_member(request.user):
         raise HttpError(409, "You're already a member of this organization.")
-    is_owner = invite.is_owner and invite.organization.is_owner(invite.sender)
+    # The invite's role holds only while its sender could still assign it, so a sender who has lost permissions since
+    # can't hand out roles through invites they sent before.
+    role = invite.role if can_assign_role(invite.sender, invite.organization, invite.role) else OrgRole.MEMBER
     with transaction.atomic():
-        OrganizationMember.objects.get_or_create(organization=invite.organization, user=request.user, is_owner=is_owner)
+        OrganizationMember.objects.get_or_create(
+            organization=invite.organization, user=request.user, defaults={"role": role}
+        )
         invite.delete()
     save_counts(request)
     save_org_data(request, invite.organization)

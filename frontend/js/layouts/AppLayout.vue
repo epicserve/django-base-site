@@ -11,6 +11,7 @@ import TrialEndingBanner from '@/components/billing/TrialEndingBanner.vue';
 import PastDueBanner from '@/components/billing/PastDueBanner.vue';
 import { useNotifications } from '@/composables/useNotifications';
 import { useAppStore } from '@/stores/app';
+import { orgSettingsTabs } from '@/utils/orgSettings';
 import { stopImpersonating } from '@/utils/hijack';
 import { isDebugToolbarOn, toggleDebugToolbar } from '@/utils/debugToolbar';
 import {
@@ -29,6 +30,8 @@ import {
 } from '@heroicons/vue/24/outline';
 
 const appStore = useAppStore();
+// The org menu's Settings link opens the first settings tab the user's role lets them open.
+const firstSettingsTab = computed(() => orgSettingsTabs(appStore)[0]);
 const { startPolling, stopPolling } = useNotifications();
 const orgDropdownOpen = ref(false);
 const userDropdownOpen = ref(false);
@@ -118,15 +121,15 @@ onUnmounted(() => {
                   class="absolute right-0 top-full z-50 mt-1 w-56 rounded-md border border-gray-200 bg-white py-1 shadow-lg dark:bg-gray-800 dark:border-gray-700"
                 >
                   <RouterLink
-                    v-if="appStore.isOwner"
+                    v-if="firstSettingsTab"
                     class="cursor-pointer flex items-center gap-2 px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-700"
-                    :to="{ name: 'org-settings-general', params: { slug: appStore.org.slug } }"
+                    :to="{ name: firstSettingsTab.name, params: { slug: appStore.org.slug } }"
                     @click="closeAllDropdowns"
                   >
                     <Cog6ToothIcon class="h-4 w-4 text-gray-400 dark:text-gray-500" />
                     Settings
                   </RouterLink>
-                  <div v-if="appStore.isOwner" class="my-1 border-t border-gray-100 dark:border-gray-700" />
+                  <div v-if="firstSettingsTab" class="my-1 border-t border-gray-100 dark:border-gray-700" />
                   <RouterLink
                     v-if="appStore.orgMemberCount > 0"
                     class="cursor-pointer flex items-center gap-2 px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-700"
@@ -355,9 +358,9 @@ onUnmounted(() => {
             {{ appStore.org.name }}
           </div>
           <RouterLink
-            v-if="appStore.isOwner"
+            v-if="firstSettingsTab"
             class="cursor-pointer flex items-center gap-2 rounded px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-700"
-            :to="{ name: 'org-settings-general', params: { slug: appStore.org.slug } }"
+            :to="{ name: firstSettingsTab.name, params: { slug: appStore.org.slug } }"
             @click="closeAllDropdowns"
           >
             <Cog6ToothIcon class="h-4 w-4 text-gray-400 dark:text-gray-500" />

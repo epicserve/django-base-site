@@ -5,6 +5,7 @@ import { api, unwrap } from '@/utils/api';
 type Schemas = components['schemas'];
 export type AppUser = Schemas['AppUserOut'];
 export type CurrentOrg = Schemas['OrgSelectOut'];
+export type OrgPerm = Schemas['OrgPerm'];
 export type OrgSummary = Schemas['OrgSummaryOut'];
 export type BillingSummary = Schemas['BillingSummaryOut'];
 export type FeatureValue = BillingSummary['features'][string];
@@ -27,7 +28,8 @@ export interface AppStore {
   contextReady: Promise<void> | null;
   readonly isAuthenticated: boolean;
   readonly isOrg: boolean;
-  readonly isOwner: boolean;
+  /** Whether the user's role in the current organization grants the permission. Check this, never the role. */
+  can(perm: OrgPerm): boolean;
   hasFeature(key: string): boolean;
   featureValue<Fallback = null>(key: string, fallback?: Fallback | null): FeatureValue | Fallback;
   fetchContext(): Promise<void>;
@@ -37,7 +39,7 @@ export interface AppStore {
   signOutOrg(): Promise<void>;
 }
 
-type Computed = 'isAuthenticated' | 'isOrg' | 'isOwner';
+type Computed = 'isAuthenticated' | 'isOrg';
 
 // What's passed to reactive(), which unwraps the computed refs into the plain booleans `AppStore` declares.
 type AppStoreSource = Omit<AppStore, Computed> & { [Key in Computed]: ComputedRef<boolean> };
@@ -74,7 +76,10 @@ export function initAppStore(): AppStore {
 
     isAuthenticated: computed(() => appStore.user !== null),
     isOrg: computed(() => !!appStore.org?.id),
-    isOwner: computed(() => !!appStore.org?.is_owner),
+
+    can(perm: OrgPerm) {
+      return appStore.org?.permissions.includes(perm) ?? false;
+    },
 
     // Feature gating helpers. When billing is disabled, hasFeature returns true
     // so downstream gates pass and the starter template "just works" without

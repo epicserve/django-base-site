@@ -10,18 +10,6 @@ register = template.Library()
 
 
 @register.simple_tag()
-def get_org_js_object(request):
-    data = {
-        "id": request.org.id,
-        "name": request.org.name,
-        "slug": request.org.slug,
-        "is_owner": request.org.is_owner,
-        "type": "org" if request.org.id else "user",
-    }
-    return mark_safe(json.dumps(data))  # noqa: S308
-
-
-@register.simple_tag()
 def get_user_js_object(request):
     data = {
         "id": request.user.id,

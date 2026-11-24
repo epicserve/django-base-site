@@ -2,6 +2,8 @@ from django.apps import apps
 from django.conf import settings
 from django.db.models import Count, Q, QuerySet
 
+from apps.organizations.roles import OrgRole
+
 
 class FilterByOrganizationMixin(QuerySet):
     def filter_by_org(self, request):
@@ -13,7 +15,7 @@ class OrganizationQuerySet(QuerySet):
         org_member_model = apps.get_model("organizations.OrganizationMember")
         counts = org_member_model.objects.filter(user=user).aggregate(
             member_count=Count("pk"),
-            owner_count=Count("pk", filter=Q(is_owner=True)),
+            owner_count=Count("pk", filter=Q(role=OrgRole.OWNER)),
         )
         return {
             "member_count": counts["member_count"] or 0,

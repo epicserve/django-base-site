@@ -52,6 +52,7 @@ from allauth.mfa.models import Authenticator
 
 from apps.accounts.models import User
 from apps.organizations.models import Organization, OrganizationInvite, OrganizationMember
+from apps.organizations.roles import OrgRole
 from apps.teams.models import Team
 
 # Deliberately well-known: the command only runs with DEBUG on against a local database, and agents need it to
@@ -137,14 +138,14 @@ PAWNEE_CAST = _cast(
 )
 FILLERS = (*DUNDER_MIFFLIN_CAST, *PAWNEE_CAST)
 
-# (organization slug, user email, is_owner, is_primary)
+# (organization slug, user email, role, is_primary)
 MEMBERSHIPS = (
-    ("pawnee-parks", SUPERUSER, True, True),
-    ("dunder-mifflin", "owner@example.com", True, True),
-    ("pawnee-parks", "owner@example.com", False, False),
-    ("dunder-mifflin", "member@example.com", False, True),
-    *(("dunder-mifflin", member.email, False, True) for member in DUNDER_MIFFLIN_CAST),
-    *(("pawnee-parks", member.email, False, True) for member in PAWNEE_CAST),
+    ("pawnee-parks", SUPERUSER, OrgRole.OWNER, True),
+    ("dunder-mifflin", "owner@example.com", OrgRole.OWNER, True),
+    ("pawnee-parks", "owner@example.com", OrgRole.MEMBER, False),
+    ("dunder-mifflin", "member@example.com", OrgRole.MEMBER, True),
+    *(("dunder-mifflin", member.email, OrgRole.MEMBER, True) for member in DUNDER_MIFFLIN_CAST),
+    *(("pawnee-parks", member.email, OrgRole.MEMBER, True) for member in PAWNEE_CAST),
 )
 
 # (organization slug, team name, member emails)
@@ -322,14 +323,14 @@ class Command(BaseCommand):
         return orgs
 
     def _seed_memberships(self, users: dict[str, User], orgs: dict[str, Organization]) -> None:
-        for slug, email, is_owner, is_primary in MEMBERSHIPS:
+        for slug, email, role, is_primary in MEMBERSHIPS:
             user = users[email]
             has_primary = OrganizationMember.objects.filter(user=user, is_primary=True).exists()
             OrganizationMember.objects.update_or_create(
                 organization=orgs[slug],
                 user=user,
-                defaults={"is_owner": is_owner},
-                create_defaults={"is_owner": is_owner, "is_primary": is_primary and not has_primary},
+                defaults={"role": role},
+                create_defaults={"role": role, "is_primary": is_primary and not has_primary},
             )
 
     def _seed_teams(self, users: dict[str, User], orgs: dict[str, Organization]) -> None:

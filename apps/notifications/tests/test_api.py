@@ -21,9 +21,7 @@ def _detail_url(pk: int) -> str:
 
 def set_session_org(client, org):
     session = client.session
-    session["organization_data"] = json.dumps(
-        {"pk": org.pk, "id": org.pk, "name": org.name, "slug": org.slug, "is_owner": False}
-    )
+    session["organization_data"] = json.dumps({"pk": org.pk, "id": org.pk, "name": org.name, "slug": org.slug})
     session.save()
 
 

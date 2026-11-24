@@ -19,9 +19,10 @@ from playwright.sync_api import Page, expect
 @pytest.fixture()
 def org(db, user):
     from apps.organizations.models import Organization, OrganizationMember
+    from apps.organizations.roles import OrgRole
 
     org = Organization.objects.create(name="Dunder Mifflin", slug="dunder-mifflin")
-    OrganizationMember.objects.create(organization=org, user=user, is_owner=True)
+    OrganizationMember.objects.create(organization=org, user=user, role=OrgRole.OWNER)
     return org
 
 

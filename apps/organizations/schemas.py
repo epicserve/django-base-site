@@ -3,6 +3,8 @@ from datetime import datetime
 from ninja import Schema
 from pydantic import ConfigDict
 
+from apps.organizations.roles import OrgPerm, OrgRole
+
 
 class OrganizationCreateIn(Schema):
     # A name of only spaces would pass the model's blank check.
@@ -30,7 +32,9 @@ class OrgSelectOut(Schema):
     id: int
     slug: str
     name: str
-    is_owner: bool
+    # The current user's role, and what it lets them do. The SPA checks `permissions`, not `role`.
+    role: OrgRole | None
+    permissions: list[OrgPerm]
 
 
 class SuccessOut(Schema):
@@ -66,7 +70,7 @@ class MemberOut(Schema):
     pk: int
     organization: int
     user: OrgUserOut
-    is_owner: bool
+    role: OrgRole
     created: datetime
     modified: datetime
 
@@ -81,11 +85,11 @@ class MemberOut(Schema):
 
 class MemberIn(Schema):
     user: int
-    is_owner: bool = False
+    role: OrgRole = OrgRole.MEMBER
 
 
 class MemberPatchIn(Schema):
-    is_owner: bool | None = None
+    role: OrgRole | None = None
 
 
 class MemberSearchOut(Schema):
@@ -103,7 +107,7 @@ class InviteOut(Schema):
     sender: int
     invitee: OrgUserOut | None = None
     invitee_email: str = ""
-    is_owner: bool
+    role: OrgRole
     is_expired: bool
     key: str
     created: datetime
@@ -126,7 +130,7 @@ class InviteOut(Schema):
 class InviteIn(Schema):
     invitee_email: str = ""
     invitee: int | None = None
-    is_owner: bool = False
+    role: OrgRole = OrgRole.MEMBER
 
 
 class PublicInviteOut(Schema):

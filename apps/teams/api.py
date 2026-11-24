@@ -4,8 +4,9 @@ from ninja import Query, Router, Status
 from ninja.pagination import paginate
 
 from apps.base.ninja_pagination import LegacyPagination
-from apps.base.permissions import require_org_owner
+from apps.base.permissions import require_org_perm
 from apps.organizations.models import OrganizationMember
+from apps.organizations.roles import OrgPerm
 from apps.teams.models import Team
 from apps.teams.schemas import TeamIn, TeamOut, TeamPatchIn
 
@@ -31,7 +32,7 @@ def _validate_members(member_ids: list[int], org) -> list[int]:
 @router.get("/", response=list[TeamOut])
 @paginate(LegacyPagination)
 def list_teams(request, q: str | None = Query(None)):
-    require_org_owner(request)
+    require_org_perm(request, OrgPerm.MANAGE_TEAMS)
     qs = _team_qs(request)
     if q:
         qs = qs.filter(name__icontains=q)
@@ -40,7 +41,7 @@ def list_teams(request, q: str | None = Query(None)):
 
 @router.post("/", response={201: TeamOut})
 def create_team(request, payload: TeamIn):
-    org = require_org_owner(request)
+    org = require_org_perm(request, OrgPerm.MANAGE_TEAMS)
     member_ids = _validate_members(payload.members, org)
     team = Team.objects.create(organization=org, name=payload.name)
     if member_ids:
@@ -50,13 +51,13 @@ def create_team(request, payload: TeamIn):
 
 @router.get("/{team_id}/", response=TeamOut)
 def get_team(request, team_id: int):
-    require_org_owner(request)
+    require_org_perm(request, OrgPerm.MANAGE_TEAMS)
     return get_object_or_404(_team_qs(request), pk=team_id)
 
 
 @router.patch("/{team_id}/", response=TeamOut)
 def patch_team(request, team_id: int, payload: TeamPatchIn):
-    org = require_org_owner(request)
+    org = require_org_perm(request, OrgPerm.MANAGE_TEAMS)
     team = get_object_or_404(_team_qs(request), pk=team_id)
     if payload.name is not None:
         team.name = payload.name
@@ -69,7 +70,7 @@ def patch_team(request, team_id: int, payload: TeamPatchIn):
 
 @router.delete("/{team_id}/", response={204: None})
 def delete_team(request, team_id: int):
-    require_org_owner(request)
+    require_org_perm(request, OrgPerm.MANAGE_TEAMS)
     team = get_object_or_404(_team_qs(request), pk=team_id)
     team.delete()
     return Status(204, None)

@@ -13,6 +13,7 @@ from django.utils.translation import gettext_lazy as _
 from ..base.mixins import TimeStampModelMixin
 from ..base.utils.email import send_email
 from .managers import OrganizationInviteQuerySet, OrganizationMemberQuerySet, OrganizationQuerySet
+from .roles import OrgPerm, OrgRole, roles_with_perm
 
 
 def get_user_model():
@@ -42,28 +43,19 @@ class Organization(TimeStampModelMixin):
     def is_member(self, user):
         return OrganizationMember.objects.filter(organization=self, user=user).exists()
 
-    def is_owner(self, user):
-        return OrganizationMember.objects.filter(organization=self, user=user, is_owner=True).exists()
-
     @property
     def members(self):
         return get_user_model().objects.filter(pk__in=self.organizationmember_set.values_list("user_id", flat=True))
 
-    @property
-    def regular_members(self):
+    def members_with_perm(self, perm: OrgPerm):
+        """Return the members whose role grants the permission, e.g. who gets billing emails."""
         return get_user_model().objects.filter(
-            pk__in=self.organizationmember_set.filter(is_owner=False).values_list("user_id", flat=True)
-        )
-
-    @property
-    def owners(self):
-        return get_user_model().objects.filter(
-            pk__in=self.organizationmember_set.filter(is_owner=True).values_list("user_id", flat=True)
+            pk__in=self.organizationmember_set.filter(role__in=roles_with_perm(perm)).values_list("user_id", flat=True)
         )
 
 
 class OrganizationRoleMixin(models.Model):
-    is_owner = models.BooleanField(default=False, verbose_name=_("owner"))
+    role = models.CharField(max_length=20, choices=OrgRole.choices, default=OrgRole.MEMBER, verbose_name=_("role"))
 
     class Meta:
         abstract = True

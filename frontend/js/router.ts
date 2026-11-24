@@ -1,5 +1,6 @@
 import { createRouter as createVueRouter, createWebHistory, type Router } from 'vue-router';
 import type { AppStore } from './stores/app';
+import { isOrgSettingsTab, orgSettingsTabs } from './utils/orgSettings';
 import { scrollBehavior } from './utils/scrollBehavior';
 
 declare module 'vue-router' {
@@ -8,7 +9,6 @@ declare module 'vue-router' {
     guest?: boolean;
     staffOnly?: boolean;
     superuserOnly?: boolean;
-    ownerOnly?: boolean;
     public?: boolean;
     publicChrome?: boolean;
   }
@@ -46,11 +46,12 @@ export function createRouter(appStore: AppStore): Router {
         meta: { requiresAuth: true },
       },
 
-      // Organization Settings (nested tabs). Every tab's API is owner-only, and only owners get the Settings link.
+      // Organization Settings (nested tabs). Each tab takes a permission (utils/orgSettings.ts), and the guard below
+      // sends the user to the first tab they can open, or home if there's none.
       {
         path: '/organizations/:slug/settings/',
         component: () => import('./layouts/OrgSettingsLayout.vue'),
-        meta: { requiresAuth: true, ownerOnly: true },
+        meta: { requiresAuth: true },
         children: [
           { path: '', redirect: (to) => ({ name: 'org-settings-general', params: to.params }) },
           {
@@ -243,16 +244,16 @@ export function createRouter(appStore: AppStore): Router {
     if (to.meta.superuserOnly && !appStore.user?.is_superuser) {
       return { name: 'home' };
     }
-    if (to.meta.ownerOnly && !appStore.isOwner) {
-      return { name: 'home' };
+    if (isOrgSettingsTab(to.name)) {
+      // Also hides the Billing tab when BILLING_ENABLED is false.
+      const tabs = orgSettingsTabs(appStore);
+      if (!tabs.some((tab) => tab.name === to.name)) {
+        return tabs[0] ? { name: tabs[0].name, params: to.params } : { name: 'home' };
+      }
     }
-    // When BILLING_ENABLED is false, hide pricing page + billing tab so users
-    // don't land on dead routes when the feature isn't configured.
+    // When BILLING_ENABLED is false, hide the pricing page so users don't land on a dead route.
     if (to.name === 'pricing' && !appStore.billing.enabled) {
       return appStore.isAuthenticated ? { name: 'home' } : { name: 'login' };
-    }
-    if (to.name === 'org-settings-billing' && !appStore.billing.enabled) {
-      return { name: 'org-settings-general', params: to.params };
     }
     return true;
   });

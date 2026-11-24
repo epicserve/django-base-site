@@ -15,7 +15,7 @@ const billing = useBilling();
 const cycle = ref<BillingCycle>('monthly');
 
 const backLink = computed(() => {
-  if (appStore.isAuthenticated && appStore.isOrg && appStore.isOwner && appStore.org) {
+  if (appStore.isAuthenticated && appStore.isOrg && appStore.can('manage_billing') && appStore.org) {
     return { label: 'Back to Billing', to: { name: 'org-settings-billing', params: { slug: appStore.org.slug } } };
   }
   if (appStore.isAuthenticated) {
@@ -34,7 +34,7 @@ onMounted(async () => {
   } catch {
     showToast('Could not load plans.', 'error');
   }
-  if (appStore.isAuthenticated && appStore.isOrg && appStore.isOwner) {
+  if (appStore.isAuthenticated && appStore.isOrg && appStore.can('manage_billing')) {
     try {
       await billing.fetchSubscription();
     } catch {

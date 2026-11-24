@@ -1,8 +1,8 @@
 """
 End-to-end tests for the organization settings pages (/organizations/<slug>/settings/...).
 
-Every tab's API is owner-only. The Members and Teams tabs load lists that the API
-paginates (`DEFAULT_PAGE_SIZE` rows per page), so they must follow every page.
+Each tab's API needs a permission that only the owner role grants (apps/organizations/roles.py). The Members and
+Teams tabs load lists that the API paginates (`DEFAULT_PAGE_SIZE` rows per page), so they must follow every page.
 """
 
 import re
@@ -24,9 +24,10 @@ def _sign_in(page: Page, live_server, email: str, next_path: str):
 @pytest.fixture()
 def org(db, user):
     from apps.organizations.models import Organization, OrganizationMember
+    from apps.organizations.roles import OrgRole
 
     org = Organization.objects.create(name="Dunder Mifflin", slug="dunder-mifflin")
-    OrganizationMember.objects.create(organization=org, user=user, is_owner=True, is_primary=True)
+    OrganizationMember.objects.create(organization=org, user=user, role=OrgRole.OWNER, is_primary=True)
     return org
 
 
@@ -106,6 +107,27 @@ class TestMembersTab:
         expect(invite_row.get_by_text("Dwight Schrute", exact=True)).to_be_visible()
 
 
+class TestChangeRole:
+    def test_an_owner_makes_a_member_an_owner(self, page: Page, live_server, org):
+        from apps.accounts.models import User
+        from apps.organizations.models import OrganizationMember
+        from apps.organizations.roles import OrgRole
+
+        dwight = baker.make(User, email="dwight.schrute@dundermifflin.com", first_name="Dwight", last_name="Schrute")
+        OrganizationMember.objects.create(organization=org, user=dwight, role=OrgRole.MEMBER)
+        _sign_in(page, live_server, "michael.scott@dundermifflin.com", TestMembersTab.MEMBERS_PATH)
+        row = page.get_by_role("row", name=re.compile("dwight.schrute@dundermifflin.com"))
+        expect(row.get_by_text("Member", exact=True)).to_be_visible()
+
+        row.get_by_role("button", name="Change Role").click()
+        dialog = page.get_by_role("dialog")
+        expect(dialog).to_contain_text("Change Dwight Schrute's role from member to owner?")
+        dialog.get_by_role("button", name="OK").click()
+
+        expect(row.get_by_text("Owner", exact=True)).to_be_visible()
+        assert OrganizationMember.objects.get(organization=org, user=dwight).role == OrgRole.OWNER
+
+
 class TestTeamsTab:
     def test_lists_teams_past_the_first_page(self, page: Page, live_server, org, more_than_a_page):
         from apps.teams.models import Team
@@ -131,6 +153,14 @@ class TestNonOwner:
         EmailAddress.objects.create(user=member, email=member.email, verified=True, primary=True)
         OrganizationMember.objects.create(organization=org, user=member, is_primary=True)
         return member
+
+    def test_org_menu_hides_settings_link(self, page: Page, live_server, member):
+        _sign_in(page, live_server, member.email, "/")
+
+        page.get_by_role("button", name="Dunder Mifflin").click()
+
+        expect(page.get_by_role("link", name="Switch Company")).to_be_visible()
+        expect(page.get_by_role("link", name="Settings", exact=True)).to_have_count(0)
 
     @pytest.mark.parametrize("tab", ["general", "members", "teams"])
     def test_settings_redirect_home(self, page: Page, live_server, member, tab):

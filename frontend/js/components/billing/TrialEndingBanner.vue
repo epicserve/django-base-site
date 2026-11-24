@@ -50,7 +50,7 @@ function dismiss() {
     <p>
       Your trial ends in {{ daysLeft }} {{ daysLeft === 1 ? 'day' : 'days' }}.
       <RouterLink
-        v-if="appStore.org?.slug && appStore.isOwner"
+        v-if="appStore.org?.slug && appStore.can('manage_billing')"
         :to="{ name: 'org-settings-billing', params: { slug: appStore.org.slug } }"
         class="ml-2 font-medium underline hover:no-underline"
       >

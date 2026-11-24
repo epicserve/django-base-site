@@ -5,11 +5,13 @@ from django.utils import timezone
 
 from celery import shared_task
 
+from apps.organizations.roles import OrgPerm
+
 
 @shared_task
 def check_trials_ending() -> int:
     """
-    Send 'trial ending' notification to org owners 3 days before trial_end.
+    Send the 'trial ending' notification 3 days before trial_end, to the members who can manage billing.
 
     Idempotent via Subscription.trial_ending_notified_at; daily cron runs but
     re-sends are gated by that timestamp. No-ops when BILLING_ENABLED is False.
@@ -33,10 +35,10 @@ def check_trials_ending() -> int:
     )
     sent = 0
     for sub in qs:
-        owners = list(sub.organization.owners)
-        if owners:
+        billing_managers = list(sub.organization.members_with_perm(OrgPerm.MANAGE_BILLING))
+        if billing_managers:
             notify(
-                owners,
+                billing_managers,
                 title="Your trial is ending soon",
                 body=f"Your {sub.organization.name} trial ends on {sub.trial_end:%b %d, %Y}.",
                 url=f"/organizations/{sub.organization.slug}/settings/billing/",
@@ -46,7 +48,7 @@ def check_trials_ending() -> int:
             )
             send_email(
                 sending_user=None,
-                recipients=owners,
+                recipients=billing_managers,
                 subject=f"Your {sub.organization.name} trial is ending soon",
                 base_template_name="billing/emails/trial_ending",
                 context={"subscription": sub, "organization": sub.organization},

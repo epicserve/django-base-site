@@ -1,0 +1,74 @@
+"""
+Organization roles and the permissions each one grants.
+
+Code checks permissions, never roles: `has_org_perm(user, org, perm)`, or `require_org_perm(request, perm)` in a ninja
+route. To add a role, add it to `OrgRole` (with a migration for the field's choices) and give it its permissions in
+`ROLE_PERMISSIONS`. To add a permission, add it to `OrgPerm`, grant it in `ROLE_PERMISSIONS`, and check it.
+"""
+
+from django.apps import apps
+from django.db import models
+from django.utils.translation import gettext_lazy as _
+
+
+class OrgRole(models.TextChoices):
+    OWNER = "owner", _("owner")
+    MEMBER = "member", _("member")
+
+
+class OrgPerm(models.TextChoices):
+    MANAGE_SETTINGS = "manage_settings", _("manage the organization's settings")
+    MANAGE_MEMBERS = "manage_members", _("manage members and invites")
+    MANAGE_TEAMS = "manage_teams", _("manage teams")
+    MANAGE_BILLING = "manage_billing", _("manage billing")
+
+
+ROLE_PERMISSIONS: dict[OrgRole, frozenset[OrgPerm]] = {
+    OrgRole.OWNER: frozenset(OrgPerm),
+    OrgRole.MEMBER: frozenset(),
+}
+
+
+def _parse_role(role: str | None) -> OrgRole | None:
+    if not role:
+        return None
+    try:
+        return OrgRole(role)
+    except ValueError:
+        return None
+
+
+def role_permissions(role: str | None) -> list[OrgPerm]:
+    """Return the permissions a role grants, in `OrgPerm`'s order. Unknown or missing roles grant none."""
+    parsed = _parse_role(role)
+    granted = ROLE_PERMISSIONS.get(parsed, frozenset()) if parsed is not None else frozenset()
+    return [perm for perm in OrgPerm if perm in granted]
+
+
+def roles_with_perm(perm: OrgPerm) -> list[OrgRole]:
+    return [role for role, perms in ROLE_PERMISSIONS.items() if perm in perms]
+
+
+def get_org_role(user, org) -> OrgRole | None:
+    """Return the user's role in the organization, or None if they aren't a member or their role isn't recognized."""
+    if org is None or not getattr(user, "is_authenticated", False):
+        return None
+    member_model = apps.get_model("organizations.OrganizationMember")
+    role = member_model.objects.filter(organization=org, user=user).values_list("role", flat=True).first()
+    return _parse_role(role)
+
+
+def has_org_perm(user, org, perm: OrgPerm) -> bool:
+    """Return whether the user's role in the organization grants the permission."""
+    return perm in role_permissions(get_org_role(user, org))
+
+
+def can_assign_role(user, org, role: str) -> bool:
+    """
+    Return whether the user may give someone the role, or change or remove someone who has it.
+
+    That takes `manage_members` and every permission the role grants, so a role that manages members can't hand out,
+    or take away, more than it has: an admin can't make an owner.
+    """
+    granted = set(role_permissions(get_org_role(user, org)))
+    return OrgPerm.MANAGE_MEMBERS in granted and set(role_permissions(role)) <= granted

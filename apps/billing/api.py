@@ -5,7 +5,7 @@ from django.conf import settings
 from ninja import Router
 from ninja.errors import HttpError
 
-from apps.base.permissions import require_org_owner
+from apps.base.permissions import require_org_perm
 from apps.billing.features import get_features
 from apps.billing.models import Subscription
 from apps.billing.plans import get_default_plan, get_plan, get_plans
@@ -18,6 +18,7 @@ from apps.billing.schemas import (
     SubscriptionOut,
 )
 from apps.billing.services import create_checkout_session, create_portal_session
+from apps.organizations.roles import OrgPerm
 
 router = Router(tags=["billing"])
 
@@ -37,12 +38,12 @@ def list_features(request):
 @router.get("/subscription/", response=SubscriptionOut)
 def get_subscription(request):
     """
-    Owner-only. Returns the org's current subscription state.
+    Needs `manage_billing`. Returns the org's current subscription state.
 
     When the org has no Subscription row, returns the default-plan shape so
     the SPA renders a "pick a plan" UI off this endpoint instead of 404.
     """
-    org = require_org_owner(request)
+    org = require_org_perm(request, OrgPerm.MANAGE_BILLING)
     sub = Subscription.objects.filter(organization=org).first()
     if sub is None:
         plan = get_default_plan()
@@ -71,7 +72,7 @@ def get_subscription(request):
 
 @router.post("/checkout/", response=CheckoutOut)
 def create_checkout(request, payload: CheckoutIn):
-    org = require_org_owner(request)
+    org = require_org_perm(request, OrgPerm.MANAGE_BILLING)
     plan = get_plan(payload.plan_key)
     if plan is None:
         raise HttpError(404, f"Unknown plan: {payload.plan_key}")
@@ -97,7 +98,7 @@ def create_checkout(request, payload: CheckoutIn):
 
 @router.post("/portal/", response=PortalOut)
 def create_portal(request):
-    org = require_org_owner(request)
+    org = require_org_perm(request, OrgPerm.MANAGE_BILLING)
     if not Subscription.objects.filter(organization=org).exists():
         raise HttpError(409, "No active subscription. Start a checkout first.")
     base = settings.SITE_URL.rstrip("/")
