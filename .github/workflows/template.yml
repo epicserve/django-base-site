@@ -224,3 +224,21 @@ jobs:
           }
           sign_in owner@example.com dev-password
           sign_in "$(sed -n 's/^DJANGO_SUPERUSER_EMAIL=//p' .env)" "$(sed -n 's/^DJANGO_SUPERUSER_PASSWORD=//p' .env)"
+      - name: Verify just clean_docker_containers removes only this project's containers
+        working-directory: ${{ env.BUILD_DIR }}
+        # It used to kill and remove every container on the machine. A container from outside the project, started
+        # from an image the project already pulled, has to survive it, and the project's own containers have to go.
+        run: |
+          docker run -d --name bystander "$(docker compose config --images | grep -m1 redis)"
+          just clean_docker_containers
+          project=$(docker compose config | sed -n 's/^name: //p')
+          if [ -n "$(docker ps -aq --filter "label=com.docker.compose.project=${project}")" ]; then
+            echo "ERROR: just clean_docker_containers left some of the project's containers:"
+            docker ps -a --filter "label=com.docker.compose.project=${project}"
+            exit 1
+          fi
+          if [ "$(docker inspect -f '{{.State.Running}}' bystander 2>/dev/null)" != "true" ]; then
+            echo "ERROR: just clean_docker_containers stopped or removed a container from outside the project"
+            exit 1
+          fi
+          docker rm --force bystander
