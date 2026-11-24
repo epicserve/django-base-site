@@ -1,6 +1,6 @@
 # Debugging Django in Docker
 
-This project supports remote debugging of Django running inside Docker containers using the Debug Adapter Protocol (DAP). This works with VS Code, LazyVim/Neovim, and any other DAP-compatible editor.
+This project supports remote debugging of Django running inside Docker containers using the Debug Adapter Protocol (DAP). This works with VS Code, LazyVim/Neovim, and any other DAP-compatible editor. On Windows, run the project inside WSL 2 and connect your editor via its WSL integration — see [Editors and IDEs on Windows](windows.md#editors-and-ides).
 
 ## Table of Contents
 
