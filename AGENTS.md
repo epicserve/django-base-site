@@ -176,6 +176,7 @@ Key variables:
 `HEADLESS_ONLY = True`, so allauth never renders templates — it returns JSON via `/_allauth/browser/v1/...`. The Vue SPA at `frontend/js/accounts/views/*` drives the entire flow:
 
 - **Sign-in**: `LoginView.vue` POSTs to `/_allauth/browser/v1/auth/login`. Honors `?next=` (skipping `/accounts/*` redirects).
+- **Session expiry**: a 401 from `/api/` while the SPA thinks someone is signed in means their session ended. `app.ts` (through `onUnauthorized()` in `frontend/js/utils/api.ts` and `utils/sessionExpiry.ts`) then loads `/accounts/login/?next=<the page>&session=expired`, and `LoginView.vue` says the session ended. A 401 from `/_allauth/` never counts: allauth sends one on purpose while a two-factor code is pending and after signing out.
 - **Sign-up**: `SignupView.vue` POSTs to `.../auth/signup`. Includes a hidden `timezone` field auto-populated by `Intl.DateTimeFormat`. After signup, if email verification is optional and the user is auto-logged-in, honors `?next=`.
 - **Email verification**: link in the email goes to `/accounts/confirm-email/{key}` (Vue route via `HEADLESS_FRONTEND_URLS`).
 - **Password reset**: 3-step flow under `frontend/js/accounts/views/PasswordReset*View.vue`.
