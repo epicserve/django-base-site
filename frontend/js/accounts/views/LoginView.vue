@@ -12,6 +12,8 @@ import { safeNextUrl } from '../../utils/redirect';
 const route = useRoute();
 const router = useRouter();
 
+// app.ts sends someone here with `?session=expired` when an /api/ call finds their session has ended.
+const sessionExpired = route.query.session === 'expired';
 const email = ref('');
 const password = ref('');
 const errors = ref<Record<string, string[]>>({});
@@ -153,6 +155,13 @@ async function passkeyLogin() {
     <h1 class="text-center text-2xl font-semibold tracking-tight text-gray-900 dark:text-white">Sign In</h1>
     <p class="mt-2 text-center text-sm text-gray-500 dark:text-gray-400">Welcome Back</p>
     <form class="mt-6 space-y-4" @submit.prevent="onSubmit">
+      <p
+        v-if="sessionExpired"
+        role="status"
+        class="rounded-lg bg-amber-50 px-4 py-3 text-sm text-amber-800 dark:bg-amber-900/20 dark:text-amber-300"
+      >
+        Your session has ended. Sign in again to pick up where you left off.
+      </p>
       <FormErrors :errors="errors.non_field_errors || []" />
       <FormField
         v-model="email"

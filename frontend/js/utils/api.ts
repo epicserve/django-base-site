@@ -58,6 +58,16 @@ async function readJson(response: Response): Promise<unknown> {
   }
 }
 
+let unauthorizedHandler: ((url: string) => void) | null = null;
+
+/**
+ * Call `handler` with the request's URL whenever a response is a 401, before its `ApiError` is thrown. `app.ts` uses it
+ * to send someone whose session has ended to the sign-in page (see `utils/sessionExpiry.ts`).
+ */
+export function onUnauthorized(handler: (url: string) => void) {
+  unauthorizedHandler = handler;
+}
+
 const csrfAndErrors: Middleware = {
   onRequest({ request }) {
     const token = getCSRFToken();
@@ -65,7 +75,8 @@ const csrfAndErrors: Middleware = {
     if (token) request.headers.set('X-CSRFToken', token);
     return request;
   },
-  async onResponse({ response }) {
+  async onResponse({ request, response }) {
+    if (response.status === 401) unauthorizedHandler?.(request.url);
     if (!response.ok) throw new ApiError(response, await readJson(response));
     return undefined;
   },
