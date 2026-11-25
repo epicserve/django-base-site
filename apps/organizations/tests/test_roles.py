@@ -1,71 +1,67 @@
 import json
+from unittest.mock import patch
 
 from django.contrib.auth.models import AnonymousUser
+from django.core import mail
 from django.core.exceptions import PermissionDenied
 from django.test import RequestFactory
 
 import pytest
-from model_bakery import baker
 from ninja.errors import HttpError
 
-from apps.accounts.models import User
+from apps.accounts.tests.recipes import make_user
+from apps.base.tests import BaseTest
+from apps.base.tests.sign_in import sign_in
 from apps.billing.api import create_checkout, create_portal, get_subscription
 from apps.billing.schemas import CheckoutIn
-from apps.organizations.models import Organization, OrganizationInvite, OrganizationMember
+from apps.organizations.models import OrganizationInvite, OrganizationMember
 from apps.organizations.roles import ROLE_PERMISSIONS, OrgPerm, OrgRole, get_org_role, has_org_perm, role_permissions
 from apps.organizations.session import MockedOrg
+from apps.organizations.tests.recipes import make_invite, make_member, make_org
 
 
-def sign_in(client, user, org):
-    client.force_login(user)
-    session = client.session
-    session["organization_data"] = json.dumps({"pk": org.pk, "id": org.pk, "name": org.name, "slug": org.slug})
-    session.save()
-    return client
+def _grant_members(*perms):
+    """Give the member role exactly `perms` until the block ends."""
+    return patch.dict(ROLE_PERMISSIONS, {OrgRole.MEMBER: frozenset(perms)})
 
 
-@pytest.fixture()
-def org():
-    return baker.make(Organization, name="Dunder Mifflin", slug="dunder-mifflin")
+class DunderMifflinTest(BaseTest):
+    """Dunder Mifflin, owned by Michael, with Dwight as a member."""
+
+    @classmethod
+    def setUpTestData(cls):
+        cls.org = make_org(name="Dunder Mifflin", slug="dunder-mifflin")
+        cls.owner = make_member(
+            cls.org, make_user("michael@example.com", first_name="Michael", last_name="Scott"), role=OrgRole.OWNER
+        )
+        cls.member = make_member(cls.org, make_user("dwight@example.com", first_name="Dwight", last_name="Schrute"))
+
+    def _membership(self, user):
+        return OrganizationMember.objects.get(organization=self.org, user=user)
 
 
-@pytest.fixture()
-def owner(org):
-    user = baker.make(User, email="michael@example.com", first_name="Michael", last_name="Scott")
-    baker.make(OrganizationMember, organization=org, user=user, role=OrgRole.OWNER)
-    return user
+class TestHasOrgPerm(DunderMifflinTest):
+    def test_an_owner_has_every_permission(self):
+        assert all(has_org_perm(self.owner, self.org, perm) for perm in OrgPerm)
 
+    def test_a_member_has_none(self):
+        assert not any(has_org_perm(self.member, self.org, perm) for perm in OrgPerm)
 
-@pytest.fixture()
-def member(org):
-    user = baker.make(User, email="dwight@example.com", first_name="Dwight", last_name="Schrute")
-    baker.make(OrganizationMember, organization=org, user=user, role=OrgRole.MEMBER)
-    return user
+    def test_someone_outside_the_organization_has_none(self):
+        outsider = make_user()
 
+        assert not any(has_org_perm(outsider, self.org, perm) for perm in OrgPerm)
 
-@pytest.mark.django_db
-class TestHasOrgPerm:
-    def test_an_owner_has_every_permission(self, org, owner):
-        assert all(has_org_perm(owner, org, perm) for perm in OrgPerm)
+    def test_an_anonymous_user_has_none(self):
+        assert not any(has_org_perm(AnonymousUser(), self.org, perm) for perm in OrgPerm)
 
-    def test_a_member_has_none(self, org, member):
-        assert not any(has_org_perm(member, org, perm) for perm in OrgPerm)
-
-    def test_someone_outside_the_organization_has_none(self, org):
-        outsider = baker.make(User)
-
-        assert not any(has_org_perm(outsider, org, perm) for perm in OrgPerm)
-
-    def test_an_anonymous_user_has_none(self, org):
-        assert not any(has_org_perm(AnonymousUser(), org, perm) for perm in OrgPerm)
-
-    def test_an_unrecognized_role_has_none(self, org, member):
-        OrganizationMember.objects.filter(organization=org, user=member).update(role="removed_role")
+    def test_an_unrecognized_role_has_none(self):
+        OrganizationMember.objects.filter(organization=self.org, user=self.member).update(role="removed_role")
 
         assert role_permissions("removed_role") == []
         assert role_permissions(None) == []
-        assert get_org_role(member, org) is None
-        assert not any(has_org_perm(member, org, perm) for perm in OrgPerm)
+        assert get_org_role(self.member, self.org) is None
+        assert not any(has_org_perm(self.member, self.org, perm) for perm in OrgPerm)
 
 
 # One read-only route for each permission. Billing's router is mounted only with BILLING_ENABLED, which test settings
@@ -77,141 +73,135 @@ ROUTES = {
 }
 
 
-@pytest.mark.django_db
-class TestRoutesCheckTheirPermission:
+class TestRoutesCheckTheirPermission(DunderMifflinTest):
     """Give the member role one permission at a time: exactly the routes that need it open up."""
 
-    @pytest.mark.parametrize("granted", list(OrgPerm))
-    def test_a_role_opens_only_the_routes_its_permissions_cover(self, client, monkeypatch, org, member, granted):
-        monkeypatch.setitem(ROLE_PERMISSIONS, OrgRole.MEMBER, frozenset({granted}))
-        sign_in(client, member, org)
+    def _billing_request(self, method, path):
+        request = getattr(RequestFactory(), method)(path)
+        request.user = self.member
+        request.org = MockedOrg(pk=self.org.pk, id=self.org.pk, name=self.org.name, slug=self.org.slug)
+        return request
 
-        statuses = {perm: client.get(url).status_code for perm, url in ROUTES.items()}
+    def test_a_role_opens_only_the_routes_its_permissions_cover(self):
+        sign_in(self.client, self.member, self.org)
 
-        assert statuses == {perm: 200 if perm == granted else 403 for perm in ROUTES}
+        for granted in OrgPerm:
+            with self.subTest(granted=granted), _grant_members(granted):
+                statuses = {perm: self.client.get(url).status_code for perm, url in ROUTES.items()}
 
-    @pytest.mark.parametrize("granted", list(OrgPerm))
-    def test_billing_needs_manage_billing(self, monkeypatch, org, member, granted):
-        monkeypatch.setitem(ROLE_PERMISSIONS, OrgRole.MEMBER, frozenset({granted}))
-        request = RequestFactory().get("/api/billing/subscription/")
-        request.user = member
-        request.org = MockedOrg(pk=org.pk, id=org.pk, name=org.name, slug=org.slug)
+                assert statuses == {perm: 200 if perm == granted else 403 for perm in ROUTES}
 
-        if granted == OrgPerm.MANAGE_BILLING:
-            get_subscription(request)
-        else:
-            with pytest.raises(PermissionDenied):
-                get_subscription(request)
+    def test_billing_needs_manage_billing(self):
+        for granted in OrgPerm:
+            with self.subTest(granted=granted), _grant_members(granted):
+                request = self._billing_request("get", "/api/billing/subscription/")
 
-    @pytest.mark.parametrize("granted", list(OrgPerm))
-    def test_billing_checkout_needs_manage_billing(self, monkeypatch, org, member, granted):
-        monkeypatch.setitem(ROLE_PERMISSIONS, OrgRole.MEMBER, frozenset({granted}))
-        request = RequestFactory().post("/api/billing/checkout/")
-        request.user = member
-        request.org = MockedOrg(pk=org.pk, id=org.pk, name=org.name, slug=org.slug)
-        payload = CheckoutIn(plan_key="nonexistent", billing_cycle="monthly")
+                if granted == OrgPerm.MANAGE_BILLING:
+                    get_subscription(request)
+                else:
+                    with pytest.raises(PermissionDenied):
+                        get_subscription(request)
 
-        if granted == OrgPerm.MANAGE_BILLING:
-            with pytest.raises(HttpError) as exc_info:
-                create_checkout(request, payload)
-            assert exc_info.value.status_code == 404
-        else:
-            with pytest.raises(PermissionDenied):
-                create_checkout(request, payload)
+    def test_billing_checkout_needs_manage_billing(self):
+        for granted in OrgPerm:
+            with self.subTest(granted=granted), _grant_members(granted):
+                request = self._billing_request("post", "/api/billing/checkout/")
+                payload = CheckoutIn(plan_key="nonexistent", billing_cycle="monthly")
 
-    @pytest.mark.parametrize("granted", list(OrgPerm))
-    def test_billing_portal_needs_manage_billing(self, monkeypatch, org, member, granted):
-        monkeypatch.setitem(ROLE_PERMISSIONS, OrgRole.MEMBER, frozenset({granted}))
-        request = RequestFactory().post("/api/billing/portal/")
-        request.user = member
-        request.org = MockedOrg(pk=org.pk, id=org.pk, name=org.name, slug=org.slug)
+                if granted == OrgPerm.MANAGE_BILLING:
+                    with pytest.raises(HttpError) as exc_info:
+                        create_checkout(request, payload)
+                    assert exc_info.value.status_code == 404
+                else:
+                    with pytest.raises(PermissionDenied):
+                        create_checkout(request, payload)
 
-        if granted == OrgPerm.MANAGE_BILLING:
-            with pytest.raises(HttpError) as exc_info:
-                create_portal(request)
-            assert exc_info.value.status_code == 409
-        else:
-            with pytest.raises(PermissionDenied):
-                create_portal(request)
+    def test_billing_portal_needs_manage_billing(self):
+        for granted in OrgPerm:
+            with self.subTest(granted=granted), _grant_members(granted):
+                request = self._billing_request("post", "/api/billing/portal/")
+
+                if granted == OrgPerm.MANAGE_BILLING:
+                    with pytest.raises(HttpError) as exc_info:
+                        create_portal(request)
+                    assert exc_info.value.status_code == 409
+                else:
+                    with pytest.raises(PermissionDenied):
+                        create_portal(request)
 
 
-@pytest.mark.django_db
-class TestCurrentOrgPermissions:
-    def test_app_context_lists_the_roles_permissions(self, client, org, member):
-        sign_in(client, member, org)
+class TestCurrentOrgPermissions(DunderMifflinTest):
+    def test_app_context_lists_the_roles_permissions(self):
+        sign_in(self.client, self.member, self.org)
 
-        current = client.get("/api/app-context/").json()["org"]
+        current = self.client.get("/api/app-context/").json()["org"]
 
         assert (current["role"], current["permissions"]) == (OrgRole.MEMBER, [])
 
-    def test_a_role_change_shows_up_without_switching_organizations(self, client, org, owner):
+    def test_a_role_change_shows_up_without_switching_organizations(self):
         # The session once cached `is_owner` from when the organization was selected, so a demoted owner kept the
         # owner UI until they switched organizations or signed in again.
-        sign_in(client, owner, org)
-        assert client.get("/api/app-context/").json()["org"]["role"] == OrgRole.OWNER
+        sign_in(self.client, self.owner, self.org)
+        assert self.client.get("/api/app-context/").json()["org"]["role"] == OrgRole.OWNER
 
-        OrganizationMember.objects.filter(organization=org, user=owner).update(role=OrgRole.MEMBER)
+        OrganizationMember.objects.filter(organization=self.org, user=self.owner).update(role=OrgRole.MEMBER)
 
-        assert client.get("/api/app-context/").json()["org"]["permissions"] == []
+        assert self.client.get("/api/app-context/").json()["org"]["permissions"] == []
 
-    def test_a_session_saved_before_roles_keeps_its_organization(self, client, org, owner):
-        client.force_login(owner)
-        session = client.session
-        session["organization_data"] = json.dumps(
-            {"pk": org.pk, "id": org.pk, "name": org.name, "slug": org.slug, "is_owner": True}
-        )
+    def test_a_session_saved_before_roles_keeps_its_organization(self):
+        sign_in(self.client, self.owner, self.org)
+        # Sessions saved before roles also cached `is_owner` with the organization. That key is what this test is about,
+        # so the session is edited by hand.
+        session = self.client.session
+        session["organization_data"] = json.dumps({**json.loads(session["organization_data"]), "is_owner": True})
         session.save()
 
-        current = client.get("/api/app-context/").json()["org"]
+        current = self.client.get("/api/app-context/").json()["org"]
 
         assert (current["slug"], current["role"]) == ("dunder-mifflin", OrgRole.OWNER)
 
-    def test_an_unrecognized_role_returns_no_permissions(self, client, org, member):
-        OrganizationMember.objects.filter(organization=org, user=member).update(role="removed_role")
-        sign_in(client, member, org)
+    def test_an_unrecognized_role_returns_no_permissions(self):
+        OrganizationMember.objects.filter(organization=self.org, user=self.member).update(role="removed_role")
+        sign_in(self.client, self.member, self.org)
 
-        response = client.get("/api/app-context/")
+        response = self.client.get("/api/app-context/")
 
         assert response.status_code == 200
         current = response.json()["org"]
         assert (current["role"], current["permissions"]) == (None, [])
 
 
-@pytest.mark.django_db
-class TestChangeRole:
-    def _patch(self, client, membership, role):
-        return client.patch(
+class TestChangeRole(DunderMifflinTest):
+    def setUp(self):
+        sign_in(self.client, self.owner, self.org)
+
+    def _patch(self, membership, role):
+        return self.client.patch(
             f"/api/organization-members/{membership.pk}/",
             data=json.dumps({"role": role}),
             content_type="application/json",
         )
 
-    def test_making_a_member_an_owner_emails_them(self, client, org, owner, member, mailoutbox):
-        sign_in(client, owner, org)
-        membership = OrganizationMember.objects.get(organization=org, user=member)
-
-        response = self._patch(client, membership, OrgRole.OWNER)
+    def test_making_a_member_an_owner_emails_them(self):
+        response = self._patch(self._membership(self.member), OrgRole.OWNER)
 
         assert (response.status_code, response.json()["role"]) == (200, OrgRole.OWNER)
-        assert [message.subject for message in mailoutbox] == [
+        assert [message.subject for message in mail.outbox] == [
             "You've been made an owner of the Dunder Mifflin organization"
         ]
 
-    def test_making_an_owner_a_member_sends_nothing(self, client, org, owner, mailoutbox):
-        other_owner = baker.make(User, email="jan@example.com")
-        membership = baker.make(OrganizationMember, organization=org, user=other_owner, role=OrgRole.OWNER)
-        sign_in(client, owner, org)
+    def test_making_an_owner_a_member_sends_nothing(self):
+        other_owner = make_member(self.org, make_user("jan@example.com"), role=OrgRole.OWNER)
 
-        response = self._patch(client, membership, OrgRole.MEMBER)
+        response = self._patch(self._membership(other_owner), OrgRole.MEMBER)
 
         assert (response.status_code, response.json()["role"]) == (200, OrgRole.MEMBER)
-        assert mailoutbox == []
+        assert mail.outbox == []
 
-    def test_an_unknown_role_is_rejected(self, client, org, owner, member):
-        sign_in(client, owner, org)
-        membership = OrganizationMember.objects.get(organization=org, user=member)
+    def test_an_unknown_role_is_rejected(self):
+        membership = self._membership(self.member)
 
-        response = self._patch(client, membership, "admin")
+        response = self._patch(membership, "admin")
 
         # The project's ninja error handler answers validation errors with 400 and field errors.
         assert (response.status_code, list(response.json())) == (400, ["role"])
@@ -219,53 +209,49 @@ class TestChangeRole:
         assert membership.role == OrgRole.MEMBER
 
 
-@pytest.mark.django_db
-class TestInviteRole:
-    def _accept(self, client, invite):
-        return client.post(f"/api/invite-by-key/{invite.key}/accept/")
+class TestInviteRole(DunderMifflinTest):
+    @classmethod
+    def setUpTestData(cls):
+        super().setUpTestData()
+        cls.invitee = make_user("jim@example.com")
+        cls.invite = make_invite(cls.org, cls.owner, email="jim@example.com", role=OrgRole.OWNER)
 
-    def _invite(self, org, sender, role):
-        invitee = baker.make(User, email="jim@example.com")
-        invite = OrganizationInvite.objects.create(
-            organization=org, sender=sender, invitee_email="jim@example.com", role=role
-        )
-        return invite, invitee
+    def setUp(self):
+        sign_in(self.client, self.invitee)
 
-    def test_an_owner_invite_makes_the_invitee_an_owner(self, client, org, owner):
-        invite, invitee = self._invite(org, owner, OrgRole.OWNER)
-        client.force_login(invitee)
+    def _accept(self):
+        return self.client.post(f"/api/invite-by-key/{self.invite.key}/accept/")
 
-        assert self._accept(client, invite).status_code == 200
+    def test_an_owner_invite_makes_the_invitee_an_owner(self):
+        assert self._accept().status_code == 200
 
-        assert OrganizationMember.objects.get(organization=org, user=invitee).role == OrgRole.OWNER
+        assert self._membership(self.invitee).role == OrgRole.OWNER
 
-    def test_a_sender_who_lost_manage_members_only_grants_member(self, client, org, owner):
-        invite, invitee = self._invite(org, owner, OrgRole.OWNER)
-        OrganizationMember.objects.filter(organization=org, user=owner).update(role=OrgRole.MEMBER)
-        client.force_login(invitee)
+    def test_a_sender_who_lost_manage_members_only_grants_member(self):
+        OrganizationMember.objects.filter(organization=self.org, user=self.owner).update(role=OrgRole.MEMBER)
 
-        assert self._accept(client, invite).status_code == 200
+        assert self._accept().status_code == 200
 
-        assert OrganizationMember.objects.get(organization=org, user=invitee).role == OrgRole.MEMBER
+        assert self._membership(self.invitee).role == OrgRole.MEMBER
 
 
-@pytest.mark.django_db
-class TestRoleGrantsAreBounded:
+class TestRoleGrantsAreBounded(DunderMifflinTest):
     """A role that manages members can't give, change or remove a role with permissions it lacks."""
 
-    @pytest.fixture()
-    def admin_client(self, client, monkeypatch, org, member):
-        # Stands in for an admin role a project might add: it manages members, and that's all.
-        monkeypatch.setitem(ROLE_PERMISSIONS, OrgRole.MEMBER, frozenset({OrgPerm.MANAGE_MEMBERS}))
-        return sign_in(client, member, org)
+    @classmethod
+    def setUpClass(cls):
+        # Stands in for an admin role a project might add: it manages members, and that's all. Dwight has it.
+        cls.enterClassContext(_grant_members(OrgPerm.MANAGE_MEMBERS))
+        super().setUpClass()
 
-    def _post(self, client, url, data):
-        return client.post(url, data=json.dumps(data), content_type="application/json")
+    def _post(self, url, data):
+        return self.client.post(url, data=json.dumps(data), content_type="application/json")
 
-    def test_cant_promote_a_member_to_owner(self, admin_client, org):
-        jim = baker.make(OrganizationMember, organization=org, user=baker.make(User), role=OrgRole.MEMBER)
+    def test_cant_promote_a_member_to_owner(self):
+        jim = self._membership(make_member(self.org, role=OrgRole.MEMBER))
+        sign_in(self.client, self.member, self.org)
 
-        response = admin_client.patch(
+        response = self.client.patch(
             f"/api/organization-members/{jim.pk}/",
             data=json.dumps({"role": OrgRole.OWNER}),
             content_type="application/json",
@@ -275,52 +261,47 @@ class TestRoleGrantsAreBounded:
         jim.refresh_from_db()
         assert jim.role == OrgRole.MEMBER
 
-    def test_cant_demote_or_remove_an_owner(self, admin_client, org, owner):
-        membership = OrganizationMember.objects.get(organization=org, user=owner)
+    def test_cant_demote_or_remove_an_owner(self):
+        membership = self._membership(self.owner)
+        sign_in(self.client, self.member, self.org)
 
-        demote = admin_client.patch(
+        demote = self.client.patch(
             f"/api/organization-members/{membership.pk}/",
             data=json.dumps({"role": OrgRole.MEMBER}),
             content_type="application/json",
         )
-        remove = admin_client.delete(f"/api/organization-members/{membership.pk}/")
+        remove = self.client.delete(f"/api/organization-members/{membership.pk}/")
 
         assert (demote.status_code, remove.status_code) == (403, 403)
         membership.refresh_from_db()
         assert membership.role == OrgRole.OWNER
 
-    def test_invites_a_member_but_not_an_owner(self, admin_client):
-        as_member = self._post(admin_client, "/api/organization-invites/", {"invitee_email": "jim@example.com"})
-        as_owner = self._post(
-            admin_client, "/api/organization-invites/", {"invitee_email": "pam@example.com", "role": OrgRole.OWNER}
-        )
+    def test_invites_a_member_but_not_an_owner(self):
+        sign_in(self.client, self.member, self.org)
+
+        as_member = self._post("/api/organization-invites/", {"invitee_email": "jim@example.com"})
+        as_owner = self._post("/api/organization-invites/", {"invitee_email": "pam@example.com", "role": OrgRole.OWNER})
 
         assert (as_member.status_code, as_owner.status_code) == (201, 403)
         assert list(OrganizationInvite.objects.values_list("invitee_email", flat=True)) == ["jim@example.com"]
 
-    def test_cancels_a_member_invite_but_not_an_owner_invite(self, admin_client, org, owner):
-        member_invite = OrganizationInvite.objects.create(
-            organization=org, sender=owner, invitee_email="jim@example.com", role=OrgRole.MEMBER
-        )
-        owner_invite = OrganizationInvite.objects.create(
-            organization=org, sender=owner, invitee_email="pam@example.com", role=OrgRole.OWNER
-        )
+    def test_cancels_a_member_invite_but_not_an_owner_invite(self):
+        member_invite = make_invite(self.org, self.owner, email="jim@example.com", role=OrgRole.MEMBER)
+        owner_invite = make_invite(self.org, self.owner, email="pam@example.com", role=OrgRole.OWNER)
+        sign_in(self.client, self.member, self.org)
 
-        cancel_member = admin_client.delete(f"/api/organization-invites/{member_invite.pk}/")
-        cancel_owner = admin_client.delete(f"/api/organization-invites/{owner_invite.pk}/")
+        cancel_member = self.client.delete(f"/api/organization-invites/{member_invite.pk}/")
+        cancel_owner = self.client.delete(f"/api/organization-invites/{owner_invite.pk}/")
 
         assert (cancel_member.status_code, cancel_owner.status_code) == (204, 403)
         assert not OrganizationInvite.objects.filter(pk=member_invite.pk).exists()
         assert OrganizationInvite.objects.filter(pk=owner_invite.pk).exists()
 
-    def test_an_owner_invite_it_sent_grants_member(self, client, monkeypatch, org, member):
-        monkeypatch.setitem(ROLE_PERMISSIONS, OrgRole.MEMBER, frozenset({OrgPerm.MANAGE_MEMBERS}))
-        invite = OrganizationInvite.objects.create(
-            organization=org, sender=member, invitee_email="jim@example.com", role=OrgRole.OWNER
-        )
-        jim = baker.make(User, email="jim@example.com")
-        client.force_login(jim)
+    def test_an_owner_invite_it_sent_grants_member(self):
+        invite = make_invite(self.org, self.member, email="jim@example.com", role=OrgRole.OWNER)
+        jim = make_user("jim@example.com")
+        sign_in(self.client, jim)
 
-        assert client.post(f"/api/invite-by-key/{invite.key}/accept/").status_code == 200
+        assert self.client.post(f"/api/invite-by-key/{invite.key}/accept/").status_code == 200
 
-        assert OrganizationMember.objects.get(organization=org, user=jim).role == OrgRole.MEMBER
+        assert self._membership(jim).role == OrgRole.MEMBER

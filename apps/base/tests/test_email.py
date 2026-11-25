@@ -1,33 +1,41 @@
 import logging
 from smtplib import SMTPServerDisconnected
 
+from django.core import mail
 from django.core.mail import EmailMessage, EmailMultiAlternatives
 
 import pytest
 from kombu.exceptions import OperationalError
-from model_bakery import baker
 
+from apps.accounts.tests.recipes import make_user
 from apps.base.tasks import send_email_message
+from apps.base.tests import BaseTest
 from apps.base.tests.mail import record_queued_emails, use_failing_mail_server
 from apps.base.utils.email import email_to_dict, queue_email, send_email
 
 
-@pytest.mark.django_db
-class TestSendEmail:
-    def test_queues_the_rendered_message_instead_of_sending_it(self, monkeypatch, mailoutbox):
-        queued = record_queued_emails(monkeypatch)
-        sender = baker.make("accounts.User", first_name="Michael", last_name="Scott", email="michael@example.com")
-        recipient = baker.make("accounts.User", first_name="Pam", last_name="Beesly", email="pam@example.com")
+class TestSendEmail(BaseTest):
+    @classmethod
+    def setUpTestData(cls):
+        cls.sender = make_user("michael@example.com", first_name="Michael", last_name="Scott")
+        cls.recipient = make_user("pam@example.com", first_name="Pam", last_name="Beesly")
+
+    @pytest.fixture(autouse=True)
+    def _pytest_fixtures(self, monkeypatch):
+        self.monkeypatch = monkeypatch
+
+    def test_queues_the_rendered_message_instead_of_sending_it(self):
+        queued = record_queued_emails(self.monkeypatch)
 
         send_email(
-            sender,
-            [recipient],
+            self.sender,
+            [self.recipient],
             subject="Test Email",
             base_template_name="emails/test_email",
             context={"date_time": "Nov 21, 2026", "debug_settings": []},
         )
 
-        assert mailoutbox == []
+        assert mail.outbox == []
         [message] = queued
         assert message["subject"] == "Test Email"
         assert message["to"] == ["Pam Beesly <pam@example.com>"]

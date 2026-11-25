@@ -1,53 +1,28 @@
 import json
 import logging
 
-from django.contrib.auth import user_logged_in
-
-import pytest
-from model_bakery import baker
-
-from apps.accounts.models import User
+from apps.accounts.tests.recipes import make_superuser, make_user
+from apps.base.tests import BaseTest
+from apps.base.tests.sign_in import sign_in
 from apps.notifications.models import Notification
-from apps.organizations.models import OrganizationMember
-from apps.organizations.roles import OrgRole
-from apps.organizations.signals import user_logged_in_receiver
+from apps.organizations.tests.recipes import make_member, make_org
 
 URL = "/api/test-notifications/"
 
 
-def _set_session_org(client, org):
-    session = client.session
-    session["organization_data"] = json.dumps({"pk": org.pk, "id": org.pk, "name": org.name, "slug": org.slug})
-    session.save()
+class TestSendTestNotification(BaseTest):
+    @classmethod
+    def setUpTestData(cls):
+        cls.sender = make_superuser("root@example.com")
+        cls.recipient = make_user("alice@example.com", is_staff=True)
+        cls.org = make_org(cls.sender, name="Acme")
 
-
-@pytest.mark.django_db
-class TestSendTestNotification:
-    @pytest.fixture(autouse=True)
-    def _setup(self, db, client):
-        logging.getLogger("django.request").setLevel(logging.ERROR)
-        user_logged_in.disconnect(user_logged_in_receiver)
-        try:
-            self.client = client
-            self.sender = User.objects.create_superuser(
-                username="root",
-                email="root@example.com",
-                password="secret",  # noqa: S106
-                is_staff=True,
-            )
-            self.recipient = User.objects.create_user(
-                username="alice",
-                email="alice@example.com",
-                password="secret",  # noqa: S106
-                is_staff=True,
-            )
-            self.org = baker.make("organizations.Organization", name="Acme")
-            OrganizationMember.objects.create(organization=self.org, user=self.sender, role=OrgRole.OWNER)
-            self.client.force_login(self.sender)
-            _set_session_org(self.client, self.org)
-            yield
-        finally:
-            user_logged_in.connect(user_logged_in_receiver)
+    def setUp(self):
+        # Keep the 400 responses' warnings out of the test output.
+        logger = logging.getLogger("django.request")
+        self.addCleanup(logger.setLevel, logger.level)
+        logger.setLevel(logging.ERROR)
+        sign_in(self.client, self.sender, self.org)
 
     def _post(self, data):
         return self.client.post(URL, data=json.dumps(data), content_type="application/json")
@@ -59,7 +34,7 @@ class TestSendTestNotification:
         assert Notification.objects.count() == 0
 
     def test_succeeds_when_recipient_is_in_sender_org(self):
-        OrganizationMember.objects.create(organization=self.org, user=self.recipient)
+        make_member(self.org, self.recipient)
         resp = self._post({"user_id": self.recipient.pk, "send_email": False, "send_in_app": True})
         assert resp.status_code == 200
         assert Notification.objects.filter(recipient=self.recipient).count() == 1

@@ -5,21 +5,23 @@ import json
 import sys
 
 from django.apps import apps as django_apps
+from django.conf import settings as django_settings
 from django.core.handlers.wsgi import WSGIHandler
 from django.core.signals import request_finished, request_started
 from django.db import close_old_connections
-from django.test import Client, RequestFactory
+from django.test import RequestFactory, override_settings
 from django.urls import path
 from django.views.decorators.csrf import csrf_exempt
 
 import pytest
 import sentry_sdk
-from model_bakery import baker
 from sentry_sdk.transport import Transport
 
 import config.settings._base
-from apps.accounts.models import User
+from apps.accounts.tests.recipes import make_user
 from apps.base.sentry import init_sentry
+from apps.base.tests import BaseTest
+from apps.base.tests.sign_in import sign_in
 
 
 def _print_invite(invite: dict):
@@ -111,19 +113,27 @@ class TestStartsWithDjango:
         assert calls == ["init_sentry"]
 
 
-@pytest.mark.django_db
-@pytest.mark.urls(__name__)
 class TestTurnedOn:
     def test_reports_from_django_and_celery(self, sent_events):
         init_sentry()
 
         assert {"django", "celery"} <= set(sentry_sdk.get_client().integrations)
 
-    def test_an_error_in_a_view_is_reported_without_personal_details(self, sent_events, settings):
+
+@override_settings(ROOT_URLCONF=__name__)
+class TestErrorReports(BaseTest):
+    @classmethod
+    def setUpTestData(cls):
+        cls.michael = make_user("michael.scott@dundermifflin.com")
+
+    @pytest.fixture(autouse=True)
+    def _pytest_fixtures(self, sent_events):
+        self.sent_events = sent_events
+
+    def test_an_error_in_a_view_is_reported_without_personal_details(self):
         init_sentry()
-        client = Client()
-        client.force_login(baker.make(User, email="michael.scott@dundermifflin.com"))
-        session_key = client.session.session_key
+        sign_in(self.client, self.michael)
+        session_key = self.client.session.session_key
 
         status = _post_through_wsgi(
             "/out-of-paper/",
@@ -131,17 +141,17 @@ class TestTurnedOn:
             REMOTE_ADDR="203.0.113.7",
             # As a proxy in front of the app would add it.
             HTTP_X_FORWARDED_FOR="198.51.100.4",
-            HTTP_COOKIE=f"{settings.SESSION_COOKIE_NAME}={session_key}",
+            HTTP_COOKIE=f"{django_settings.SESSION_COOKIE_NAME}={session_key}",
         )
 
         assert status == "500 Internal Server Error"
-        (event,) = sent_events
+        (event,) = self.sent_events
         assert event["exception"]["values"][-1]["value"] == "Dunder Mifflin is out of paper"
         # The stack trace keeps its functions and lines, without the values of their local variables.
         frames = event["exception"]["values"][-1]["stacktrace"]["frames"]
         assert [frame["function"] for frame in frames[-2:]] == ["out_of_paper", "_print_invite"]
         assert [frame for frame in frames if "vars" in frame] == []
-        assert event["environment"] == settings.INSTANCE
+        assert event["environment"] == django_settings.INSTANCE
         assert event["request"]["url"] == "http://testserver/out-of-paper/"
         assert event["request"]["headers"]["Cookie"] == "[Filtered]"
         assert "user" not in event

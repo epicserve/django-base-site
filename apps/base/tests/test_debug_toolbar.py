@@ -1,7 +1,11 @@
+from django.test import override_settings
+
 import pytest
 
-from apps.accounts.models import User
+from apps.accounts.tests.recipes import make_user
 from apps.base.debug_toolbar import ENABLED_COOKIE, show_toolbar
+from apps.base.tests import BaseTest
+from apps.base.tests.sign_in import sign_in
 
 
 @pytest.fixture()
@@ -38,19 +42,18 @@ class TestShowToolbar:
         assert show_toolbar(local_request) is False
 
 
-@pytest.mark.django_db
-class TestAppContextDebugFlag:
-    @pytest.fixture(autouse=True)
-    def _login(self, client):
-        client.force_login(User.objects.create_user(username="jim", password="secret"))  # noqa: S106
-        self.client = client
+class TestAppContextDebugFlag(BaseTest):
+    @classmethod
+    def setUpTestData(cls):
+        cls.jim = make_user("jim@example.com")
 
-    def test_reports_debug_on(self, settings):
-        settings.DEBUG = True
+    def setUp(self):
+        sign_in(self.client, self.jim)
 
+    @override_settings(DEBUG=True)
+    def test_reports_debug_on(self):
         assert self.client.get("/api/app-context/").json()["debug"] is True
 
-    def test_reports_debug_off(self, settings):
-        settings.DEBUG = False
-
+    @override_settings(DEBUG=False)
+    def test_reports_debug_off(self):
         assert self.client.get("/api/app-context/").json()["debug"] is False

@@ -3,9 +3,12 @@
 import runpy
 
 from django.conf import settings
+from django.test import override_settings
 from django.urls import reverse
 
 import pytest
+
+from apps.base.tests import BaseTest
 
 BASE_SETTINGS = settings.BASE_DIR / "config" / "settings" / "_base.py"
 
@@ -97,8 +100,12 @@ class TestSslRedirect:
 
         assert response.status_code == 200
 
-    @pytest.mark.django_db
-    def test_leaves_the_health_check_on_plain_http(self, client):
-        response = client.get(reverse("alive_health"))
+
+@override_settings(SECURE_SSL_REDIRECT=True)
+class TestSslRedirectHealthCheck(BaseTest):
+    """The health check queries the database, which `TestSslRedirect`'s tests don't."""
+
+    def test_leaves_the_health_check_on_plain_http(self):
+        response = self.client.get(reverse("alive_health"))
 
         assert response.status_code == 200

@@ -126,6 +126,8 @@ select = [
     "I",  # isort
     "D",  # pydocstyle
     "S",  # bandit
+    "PT009",  # unittest-style assertions (`self.assertEqual`): use a bare `assert`
+    "PT027",  # `self.assertRaises`: use `pytest.raises`
 ]
 ignore = ["D100", "D101", "D102", "D103", "D104", "D106", "D107", "D203", "D212", ]
 

@@ -1,10 +1,11 @@
+from typing import ClassVar
+
 from django.conf import settings
 from django.test import override_settings
 
 import pytest
 
 from apps.base.templatetags.vite import _get_manifest, vite_asset, vite_hmr_client
-from apps.base.tests import BaseTest
 
 VITE_MANIFEST_FILE = settings.BASE_DIR / "apps" / "base" / "tests" / "vite_manifest.json"
 VITE_OUTPUT_DIR = "dist/"
@@ -13,20 +14,32 @@ VITE_SERVER_PORT = "9999"
 STATIC_URL = "/static/"
 
 
-class BaseViteTest(BaseTest):
-    def setUp(self):
+class ViteTest:
+    """Applies the class's `overrides` to the settings, and reads the manifest afresh in each test."""
+
+    overrides: ClassVar[dict] = {}
+
+    @pytest.fixture(autouse=True)
+    def _settings(self, settings):
+        for name, value in self.overrides.items():
+            setattr(settings, name, value)
+        # The manifest is cached for the process, which would keep the file one test read for the next.
+        _get_manifest.cache_clear()
+        yield
         _get_manifest.cache_clear()
 
 
-@override_settings(VITE_DEV_MODE=False, VITE_MANIFEST_FILE=settings.BASE_DIR / "vite_manifest.json")
-class TestViteAssetNoManifestFile(BaseViteTest):
+class TestViteAssetNoManifestFile(ViteTest):
+    overrides: ClassVar[dict] = {"VITE_DEV_MODE": False, "VITE_MANIFEST_FILE": settings.BASE_DIR / "vite_manifest.json"}
+
     def test_manifest_file_does_not_exist(self):
         with pytest.raises(FileNotFoundError, match="No such file or directory"):
             vite_asset("js/main.js")
 
 
-@override_settings(VITE_DEV_MODE=True, VITE_MANIFEST_FILE=VITE_MANIFEST_FILE)
-class TestViteAssetDevModeOn(BaseViteTest):
+class TestViteAssetDevModeOn(ViteTest):
+    overrides: ClassVar[dict] = {"VITE_DEV_MODE": True, "VITE_MANIFEST_FILE": VITE_MANIFEST_FILE}
+
     def test_js_asset(self):
         result = vite_asset("js/main.js")
         assert result == '<script type="module" src="http://localhost:3000/public/static/dist/js/js/main.js"></script>'
@@ -45,8 +58,9 @@ class TestViteAssetDevModeOn(BaseViteTest):
         assert result == ""
 
 
-@override_settings(VITE_DEV_MODE=False, VITE_MANIFEST_FILE=VITE_MANIFEST_FILE)
-class TestViteAssetDevModeOff(BaseViteTest):
+class TestViteAssetDevModeOff(ViteTest):
+    overrides: ClassVar[dict] = {"VITE_DEV_MODE": False, "VITE_MANIFEST_FILE": VITE_MANIFEST_FILE}
+
     def test_no_js_item(self):
         with pytest.raises(
             Exception,
@@ -112,7 +126,7 @@ class TestViteAssetDevModeOff(BaseViteTest):
         )
 
 
-class TestViteHMRClientTagOn(BaseViteTest):
+class TestViteHMRClientTagOn(ViteTest):
     @override_settings(VITE_DEV_MODE=True)
     def test_vite_hmr_client_dev_mode_on(self):
         result = vite_hmr_client()

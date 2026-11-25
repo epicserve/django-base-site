@@ -1,22 +1,21 @@
 import json
 
-from django.test import TestCase
-
-from apps.accounts.models import User
+from apps.accounts.tests.recipes import make_user
+from apps.base.tests import BaseTest
+from apps.base.tests.sign_in import sign_in
 
 
 def _detail_url(pk: int) -> str:
     return f"/api/users/{pk}/"
 
 
-class TestUserTimezoneAPI(TestCase):
+class TestUserTimezoneAPI(BaseTest):
+    @classmethod
+    def setUpTestData(cls):
+        cls.user = make_user("testuser@example.com", timezone="America/Chicago")
+
     def setUp(self):
-        self.user = User.objects.create_user(
-            username="testuser",
-            password="testpass",  # noqa: S106
-            timezone="America/Chicago",
-        )
-        self.client.force_login(self.user)
+        sign_in(self.client, self.user)
 
     def test_patch_timezone_valid(self):
         resp = self.client.patch(
@@ -24,9 +23,9 @@ class TestUserTimezoneAPI(TestCase):
             data=json.dumps({"timezone": "America/New_York"}),
             content_type="application/json",
         )
-        self.assertEqual(resp.status_code, 200)
+        assert resp.status_code == 200
         self.user.refresh_from_db()
-        self.assertEqual(self.user.timezone, "America/New_York")
+        assert self.user.timezone == "America/New_York"
 
     def test_patch_timezone_invalid(self):
         resp = self.client.patch(
@@ -34,21 +33,18 @@ class TestUserTimezoneAPI(TestCase):
             data=json.dumps({"timezone": "Invalid/Timezone"}),
             content_type="application/json",
         )
-        self.assertEqual(resp.status_code, 400)
+        assert resp.status_code == 400
 
     def test_patch_other_user_forbidden(self):
-        other_user = User.objects.create_user(
-            username="otheruser",
-            password="testpass",  # noqa: S106
-        )
+        other_user = make_user("otheruser@example.com")
         resp = self.client.patch(
             _detail_url(other_user.pk),
             data=json.dumps({"timezone": "America/New_York"}),
             content_type="application/json",
         )
-        self.assertIn(resp.status_code, [403, 404])
+        assert resp.status_code in (403, 404)
 
     def test_get_user_includes_timezone(self):
         resp = self.client.get(_detail_url(self.user.pk))
-        self.assertEqual(resp.status_code, 200)
-        self.assertEqual(resp.json()["timezone"], "America/Chicago")
+        assert resp.status_code == 200
+        assert resp.json()["timezone"] == "America/Chicago"

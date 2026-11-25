@@ -1,32 +1,20 @@
-import pytest
-
-from apps.accounts.models import User
+from apps.accounts.tests.recipes import make_superuser, make_user
+from apps.base.tests import BaseTest
+from apps.base.tests.sign_in import sign_in
 
 APP_CONTEXT_URL = "/api/app-context/"
 HIDE_URL = "/api/impersonation/hide-banner/"
 
 
-@pytest.mark.django_db
-class TestImpersonationBanner:
-    @pytest.fixture(autouse=True)
-    def _setup(self, client):
-        self.client = client
-        self.admin = User.objects.create_superuser(
-            username="leslie",
-            email="leslie@example.com",
-            password="secret",  # noqa: S106
-        )
-        self.jim = User.objects.create_user(
-            username="jim",
-            email="jim@example.com",
-            password="secret",  # noqa: S106
-        )
-        self.pam = User.objects.create_user(
-            username="pam",
-            email="pam@example.com",
-            password="secret",  # noqa: S106
-        )
-        self.client.force_login(self.admin)
+class TestImpersonationBanner(BaseTest):
+    @classmethod
+    def setUpTestData(cls):
+        cls.admin = make_superuser("leslie@example.com")
+        cls.jim = make_user("jim@example.com")
+        cls.pam = make_user("pam@example.com")
+
+    def setUp(self):
+        sign_in(self.client, self.admin)
 
     def _impersonate(self, user):
         resp = self.client.post("/hijack/acquire/", {"user_pk": user.pk, "next": "/"})

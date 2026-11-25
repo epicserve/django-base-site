@@ -7,30 +7,25 @@ organization raised an IntegrityError.
 
 import json
 
-import pytest
-from model_bakery import baker
-
-from apps.accounts.models import User
-from apps.organizations.models import Organization, OrganizationMember
-from apps.organizations.roles import OrgRole
+from apps.accounts.tests.recipes import make_user
+from apps.base.tests import BaseTest
+from apps.base.tests.sign_in import sign_in
+from apps.organizations.tests.recipes import make_org
 from apps.teams.models import Team
+from apps.teams.tests.recipes import make_team
+
+BAD_NAMES = {"blank": "", "only spaces": "   ", "too long": "x" * 101, "taken": "Sales"}
 
 
-@pytest.mark.django_db
-class TestTeamNames:
-    @pytest.fixture(autouse=True)
-    def _setup(self, client):
-        self.org = baker.make(Organization, name="Dunder Mifflin", slug="dunder-mifflin")
-        owner = baker.make(User)
-        baker.make(OrganizationMember, organization=self.org, user=owner, role=OrgRole.OWNER)
-        self.sales = baker.make(Team, organization=self.org, name="Sales")
-        self.client = client
-        self.client.force_login(owner)
-        session = self.client.session
-        session["organization_data"] = json.dumps(
-            {"pk": self.org.pk, "id": self.org.pk, "name": self.org.name, "slug": self.org.slug}
-        )
-        session.save()
+class TestTeamNames(BaseTest):
+    @classmethod
+    def setUpTestData(cls):
+        cls.owner = make_user()
+        cls.org = make_org(cls.owner, name="Dunder Mifflin", slug="dunder-mifflin")
+        cls.sales = make_team(cls.org, "Sales")
+
+    def setUp(self):
+        sign_in(self.client, self.owner, self.org)
 
     def _create(self, name):
         return self.client.post("/api/teams/", data=json.dumps({"name": name}), content_type="application/json")
@@ -40,24 +35,26 @@ class TestTeamNames:
             f"/api/teams/{team.pk}/", data=json.dumps({"name": name}), content_type="application/json"
         )
 
-    @pytest.mark.parametrize("name", ["", "   ", "x" * 101, "Sales"])
-    def test_create_rejects_a_bad_name(self, name):
-        response = self._create(name)
+    def test_create_rejects_a_bad_name(self):
+        for label, name in BAD_NAMES.items():
+            with self.subTest(label=label):
+                response = self._create(name)
 
-        assert response.status_code == 400
-        assert list(response.json()) == ["name"]
-        assert list(Team.objects.values_list("name", flat=True)) == ["Sales"]
+                assert response.status_code == 400
+                assert list(response.json()) == ["name"]
+                assert list(Team.objects.values_list("name", flat=True)) == ["Sales"]
 
-    @pytest.mark.parametrize("name", ["", "   ", "x" * 101, "Sales"])
-    def test_rename_rejects_a_bad_name(self, name):
-        accounting = baker.make(Team, organization=self.org, name="Accounting")
+    def test_rename_rejects_a_bad_name(self):
+        accounting = make_team(self.org, "Accounting")
 
-        response = self._rename(accounting, name)
+        for label, name in BAD_NAMES.items():
+            with self.subTest(label=label):
+                response = self._rename(accounting, name)
 
-        assert response.status_code == 400
-        assert list(response.json()) == ["name"]
-        accounting.refresh_from_db()
-        assert accounting.name == "Accounting"
+                assert response.status_code == 400
+                assert list(response.json()) == ["name"]
+                accounting.refresh_from_db()
+                assert accounting.name == "Accounting"
 
     def test_spaces_around_a_name_are_trimmed(self):
         created = self._create("  Warehouse  ")
@@ -71,7 +68,7 @@ class TestTeamNames:
         assert response.status_code == 200
 
     def test_a_rename_with_a_bad_member_list_saves_nothing(self):
-        outsider = baker.make(User)
+        outsider = make_user()
 
         response = self.client.patch(
             f"/api/teams/{self.sales.pk}/",
@@ -84,7 +81,7 @@ class TestTeamNames:
         assert self.sales.name == "Sales"
 
     def test_another_organization_can_use_the_name(self):
-        baker.make(Team, organization=baker.make(Organization), name="Warehouse")
+        make_team(make_org(), "Warehouse")
 
         response = self._create("Warehouse")
 

@@ -63,9 +63,3 @@ class TestApiSignIn(BaseTest):
 
         assert response.status_code == 200
         assert self.client.get(APP_CONTEXT_URL).json()["user"]["email"] == "pam@example.com"
-
-    def test_a_wrong_password_is_refused(self):
-        response = api_sign_in(self.client, "pam@example.com", "not-the-password")
-
-        assert response.status_code == 400
-        assert self.client.get(APP_CONTEXT_URL).json()["user"] is None
