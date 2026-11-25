@@ -119,21 +119,6 @@ class TestOrganizationMemberViewSet(OrganizationAPITestBase):
         self.assertIn("alice", usernames)
         self.assertNotIn("bob", usernames)
 
-    def test_create_member(self):
-        new_user = User.objects.create_user(
-            username="member",
-            email="member@example.com",
-            password="secret",  # noqa: S106
-        )
-        self._login()
-        resp = self.client.post(
-            "/api/organization-members/",
-            data=json.dumps({"user": new_user.pk, "role": OrgRole.MEMBER}),
-            content_type="application/json",
-        )
-        self.assertEqual(resp.status_code, 201)
-        self.assertTrue(OrganizationMember.objects.filter(organization=self.org, user=new_user).exists())
-
     def test_destroy_member(self):
         new_user = User.objects.create_user(
             username="member",
@@ -147,20 +132,6 @@ class TestOrganizationMemberViewSet(OrganizationAPITestBase):
         resp = self.client.delete(f"/api/organization-members/{membership.pk}/")
         self.assertEqual(resp.status_code, 204)
         self.assertFalse(OrganizationMember.objects.filter(pk=membership.pk).exists())
-
-    def test_search(self):
-        User.objects.create_user(
-            username="searchable",
-            email="searchable@example.com",
-            first_name="Search",
-            last_name="Able",
-            password="secret",  # noqa: S106
-        )
-        self._login()
-        resp = self.client.get("/api/organization-members/search/", {"q": "Searchable"})
-        self.assertEqual(resp.status_code, 200)
-        usernames = [u["username"] for u in resp.json()]
-        self.assertIn("searchable", usernames)
 
 
 class TestOrganizationInviteViewSet(OrganizationAPITestBase):

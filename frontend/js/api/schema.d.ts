@@ -354,24 +354,6 @@ export interface paths {
         /** List Members */
         get: operations["apps_organizations_api_list_members"];
         put?: never;
-        /** Create Member */
-        post: operations["apps_organizations_api_create_member"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/organization-members/search/": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /** Search Members */
-        get: operations["apps_organizations_api_search_members"];
-        put?: never;
         post?: never;
         delete?: never;
         options?: never;
@@ -843,10 +825,8 @@ export interface components {
         };
         /** InviteIn */
         InviteIn: {
-            /** Invitee */
-            invitee?: number | null;
             /** Invitee Email */
-            invitee_email?: string;
+            invitee_email: string;
             role?: components["schemas"]["OrgRole"];
         };
         /** InviteOut */
@@ -898,12 +878,6 @@ export interface components {
             /** Username */
             username: string;
         };
-        /** MemberIn */
-        MemberIn: {
-            role?: components["schemas"]["OrgRole"];
-            /** User */
-            user: number;
-        };
         /** MemberOut */
         MemberOut: {
             /**
@@ -926,30 +900,6 @@ export interface components {
         /** MemberPatchIn */
         MemberPatchIn: {
             role?: components["schemas"]["OrgRole"] | null;
-        };
-        /** MemberSearchOut */
-        MemberSearchOut: {
-            /** Avatar Url */
-            avatar_url?: string | null;
-            /**
-             * Email
-             * @default
-             */
-            email: string;
-            /**
-             * First Name
-             * @default
-             */
-            first_name: string;
-            /**
-             * Last Name
-             * @default
-             */
-            last_name: string;
-            /** Pk */
-            pk: number;
-            /** Username */
-            username: string;
         };
         /** MessageOut */
         MessageOut: {
@@ -2041,52 +1991,6 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["PagedMemberOut"];
-                };
-            };
-        };
-    };
-    apps_organizations_api_create_member: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["MemberIn"];
-            };
-        };
-        responses: {
-            /** @description Created */
-            201: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["MemberOut"];
-                };
-            };
-        };
-    };
-    apps_organizations_api_search_members: {
-        parameters: {
-            query?: {
-                q?: string;
-            };
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description OK */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["MemberSearchOut"][];
                 };
             };
         };

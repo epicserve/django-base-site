@@ -1,7 +1,3 @@
-import re
-
-from django.apps import apps
-from django.conf import settings
 from django.core.exceptions import PermissionDenied, ValidationError
 from django.db import IntegrityError, models, transaction
 from django.db.models import Q
@@ -10,6 +6,7 @@ from django.shortcuts import get_object_or_404
 from ninja import Query, Router, Status
 from ninja.errors import HttpError
 from ninja.pagination import paginate
+from ninja.throttling import UserRateThrottle
 
 from apps.base.ninja_pagination import LegacyPagination
 from apps.base.permissions import require_authenticated, require_org_perm
@@ -18,10 +15,8 @@ from apps.organizations.roles import OrgPerm, OrgRole, can_assign_role, get_org_
 from apps.organizations.schemas import (
     InviteIn,
     InviteOut,
-    MemberIn,
     MemberOut,
     MemberPatchIn,
-    MemberSearchOut,
     OrganizationCreateIn,
     OrganizationCreateOut,
     OrgSelectOut,
@@ -143,6 +138,31 @@ def _require_assignable(request, org, *roles):
         raise PermissionDenied("You can't give, change or remove a role with permissions you don't have.")
 
 
+def _require_permissions_stay_held(org, membership, new_role) -> None:
+    """
+    Raise 400 if changing the member's role would leave one of its permissions with nobody to hold it.
+
+    Giving a role takes every permission it grants (`can_assign_role`), so a permission nobody holds could never be
+    given again. Demoting the last owner would leave nobody who could manage the organization at all. Removing a member
+    can't do this: you can't remove yourself, and whoever removes someone holds every permission their role grants.
+
+    Call it in a transaction. It locks the organization's members, so two owners demoting each other at once can't both
+    succeed.
+    """
+    roles = dict(
+        OrganizationMember.objects.select_for_update().filter(organization=org).order_by("pk").values_list("pk", "role")
+    )
+    current_role = roles.pop(membership.pk, membership.role)
+    held = {perm for role in [*roles.values(), new_role] for perm in role_permissions(role)}
+    lost = [perm for perm in role_permissions(current_role) if perm not in held]
+    if lost:
+        raise HttpError(
+            400,
+            f"Nobody else in the organization can {lost[0].label}. Give someone else the {OrgRole(current_role).label}"
+            " role first.",
+        )
+
+
 def _members_qs(request):
     return (
         OrganizationMember.objects.select_related("user", "organization")
@@ -166,46 +186,6 @@ def list_members(request, q: str | None = Query(None)):
     return qs
 
 
-@members_router.get("/search/", response=list[MemberSearchOut])
-def search_members(request, q: str = Query("")):
-    org = require_org_perm(request, OrgPerm.MANAGE_MEMBERS)
-    user_model = apps.get_model(settings.AUTH_USER_MODEL)
-    qs = []
-    if len(q) > 2:
-        items = [item.strip() for item in re.split(r"\s+", q)]
-        q_obj = Q()
-        for item in items:
-            for fn in ("first_name", "last_name", "username", "email"):
-                q_obj |= Q(**{f"{fn}__icontains": item})
-        qs = user_model.objects.filter(is_active=True).filter(q_obj)
-        qs = qs.exclude(pk__in=OrganizationMember.objects.filter(organization=org).values_list("user_id", flat=True))
-        qs = qs.exclude(
-            pk__in=OrganizationInvite.objects.filter(organization=org)
-            .filter(invitee__isnull=False)
-            .values_list("invitee_id", flat=True)
-        )
-        qs = qs[:10]
-    return [
-        {
-            "pk": u.pk,
-            "first_name": u.first_name,
-            "last_name": u.last_name,
-            "username": u.username,
-            "email": u.email,
-            "avatar_url": u.avatar_url,
-        }
-        for u in qs
-    ]
-
-
-@members_router.post("/", response={201: MemberOut})
-def create_member(request, payload: MemberIn):
-    org = require_org_perm(request, OrgPerm.MANAGE_MEMBERS)
-    _require_assignable(request, org, payload.role)
-    membership = OrganizationMember.objects.create(organization=org, user_id=payload.user, role=payload.role)
-    return Status(201, membership)
-
-
 @members_router.get("/{member_id}/", response=MemberOut)
 def get_member(request, member_id: int):
     require_org_perm(request, OrgPerm.MANAGE_MEMBERS)
@@ -218,8 +198,10 @@ def patch_member(request, member_id: int, payload: MemberPatchIn):
     membership = get_object_or_404(_members_qs(request), pk=member_id)
     if payload.role is not None and payload.role != membership.role:
         _require_assignable(request, org, membership.role, payload.role)
-        membership.role = payload.role
-        membership.save(update_fields=["role", "modified"])
+        with transaction.atomic():
+            _require_permissions_stay_held(org, membership, payload.role)
+            membership.role = payload.role
+            membership.save(update_fields=["role", "modified"])
         if membership.role == OrgRole.OWNER:
             membership.send_owner_email(sending_user=request.user)
     return membership
@@ -242,6 +224,21 @@ def delete_member(request, member_id: int):
 # ---------------------------------------------------------------------------
 
 
+class InviteRateThrottle(UserRateThrottle):
+    """Count one user's invites against a rate, in a bucket of their own for each rate."""
+
+    def __init__(self, rate: str):
+        # The cache key comes from the scope, so two rates sharing one would count each invite twice in one bucket.
+        self.scope = f"organization_invites_{rate}"
+        super().__init__(rate)
+
+
+# Each invite emails an address the sender typed, and anyone can sign up and create an organization, so cap how many
+# invites one user sends: enough to bring in a team at once, not enough to use the site to send spam. Sign-in, sign-up
+# and password resets have allauth's own limits.
+INVITE_THROTTLES = [InviteRateThrottle("30/h"), InviteRateThrottle("100/d")]
+
+
 def _invites_qs(request):
     return (
         OrganizationInvite.objects.select_related("organization", "sender", "invitee")
@@ -257,7 +254,7 @@ def list_invites(request):
     return _invites_qs(request)
 
 
-@invites_router.post("/", response={201: InviteOut})
+@invites_router.post("/", response={201: InviteOut}, throttle=INVITE_THROTTLES)
 def create_invite(request, payload: InviteIn):
     org = require_org_perm(request, OrgPerm.MANAGE_MEMBERS)
     _require_assignable(request, org, payload.role)
@@ -266,7 +263,6 @@ def create_invite(request, payload: InviteIn):
             organization=org,
             sender=request.user,
             invitee_email=payload.invitee_email,
-            invitee_id=payload.invitee,
             role=payload.role,
         )
         transaction.on_commit(invite.send_invite)

@@ -7,12 +7,10 @@ import { showToast } from '../composables/useToast';
 import { userFullName } from '../utils/format';
 import AppModal from '../components/AppModal.vue';
 import ConfirmModal from '../components/ConfirmModal.vue';
-import UserAvatar from '../components/UserAvatar.vue';
 import UserBadge from '../components/UserBadge.vue';
 
 type Member = components['schemas']['MemberOut'];
 type Invite = components['schemas']['InviteOut'];
-type SearchResult = components['schemas']['MemberSearchOut'];
 type Role = components['schemas']['OrgRole'];
 
 // A role the API adds needs a label here, or vue-tsc fails.
@@ -22,13 +20,10 @@ const props = defineProps<{ orgName: string; currentUserId: number }>();
 
 const members = ref<Member[]>([]);
 const invites = ref<Invite[]>([]);
-const searchQuery = ref('');
-const searchResults = ref<SearchResult[]>([]);
 const inviteEmailModalOpen = ref(false);
 const inviteEmail = ref('');
 const inviteEmailError = ref('');
 const confirmRef = ref<InstanceType<typeof ConfirmModal> | null>(null);
-let searchTimeout: ReturnType<typeof setTimeout> | undefined;
 
 async function loadData() {
   try {
@@ -39,39 +34,6 @@ async function loadData() {
     ]);
   } catch {
     showToast('Failed to load data.', 'error');
-  }
-}
-
-async function searchUsers(query: string) {
-  try {
-    searchResults.value = await unwrap(
-      api.GET('/api/organization-members/search/', { params: { query: { q: query } } }),
-    );
-  } catch {
-    showToast('Search failed.', 'error');
-  }
-}
-
-function onSearchInput(e: Event) {
-  clearTimeout(searchTimeout);
-  const query = (e.target as HTMLInputElement).value.trim();
-  if (query.length < 3) {
-    searchResults.value = [];
-    return;
-  }
-  searchTimeout = setTimeout(() => searchUsers(query), 300);
-}
-
-async function inviteUser(userId: number) {
-  try {
-    await unwrap(api.POST('/api/organization-invites/', { body: { invitee: userId } }));
-    showToast('Invitation sent.');
-    searchQuery.value = '';
-    searchResults.value = [];
-    await loadData();
-  } catch (err) {
-    const errors = parseErrors(err);
-    showToast(Object.values(errors).flat().join(' '), 'error');
   }
 }
 
@@ -213,41 +175,14 @@ onMounted(loadData);
     <!-- Invite -->
     <div class="mb-6">
       <h4 class="text-lg font-semibold text-gray-900 dark:text-white mb-3">Invite a Member</h4>
-      <div class="flex gap-2 mb-2 max-w-lg">
-        <input
-          v-model="searchQuery"
-          type="text"
-          placeholder="Search by name, email, or username..."
-          class="flex-1 rounded-md border border-gray-300 px-3 py-2 text-sm shadow-sm focus:border-blue-500 focus:ring-blue-500 dark:bg-gray-800 dark:border-gray-600 dark:text-white"
-          @input="onSearchInput"
-        />
-        <button
-          class="cursor-pointer inline-flex items-center gap-1.5 rounded-md bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700"
-          @click="openInviteByEmailModal"
-        >
-          <EnvelopeIcon class="h-4 w-4" />
-          Invite by Email
-        </button>
-      </div>
-      <div v-if="searchResults.length > 0" class="max-w-lg border border-gray-200 rounded-md dark:border-gray-700">
-        <button
-          v-for="result in searchResults"
-          :key="result.pk"
-          class="cursor-pointer flex items-center gap-2 w-full text-left px-3 py-2 text-sm hover:bg-gray-100 border-b border-gray-100 last:border-0 dark:hover:bg-gray-700 dark:text-gray-300 dark:border-gray-700"
-          @click="inviteUser(result.pk)"
-        >
-          <UserAvatar :src="result.avatar_url || ''" :name="userFullName(result)" fallback="icon" />
-          {{ result.first_name || '' }}
-          {{ result.last_name || '' }}
-          ({{ result.username || result.email || '' }})
-        </button>
-      </div>
-      <p
-        v-if="searchQuery.length >= 3 && searchResults.length === 0"
-        class="text-sm text-gray-500 dark:text-gray-400 mt-1"
+      <p class="text-sm text-gray-500 dark:text-gray-400 mb-3">They'll get an email with a link to join.</p>
+      <button
+        class="cursor-pointer inline-flex items-center gap-1.5 rounded-md bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700"
+        @click="openInviteByEmailModal"
       >
-        No users found.
-      </p>
+        <EnvelopeIcon class="h-4 w-4" />
+        Invite by Email
+      </button>
     </div>
 
     <!-- Pending Invitations -->

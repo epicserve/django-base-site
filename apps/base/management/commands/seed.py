@@ -97,8 +97,7 @@ def _cast(domain: str, names: tuple[tuple[str, str], ...]) -> tuple[SeedLogin, .
     return tuple(SeedLogin(f"{first}.{last}@{domain}".lower(), first, last) for first, last in names)
 
 
-# Everyone else in each organization. Dunder Mifflin's 18 make a 20-member list, long enough to check layout and
-# member search.
+# Everyone else in each organization. Dunder Mifflin's 18 make a 20-member list, long enough to check layout.
 DUNDER_MIFFLIN_CAST = _cast(
     "dundermifflin.example",
     (
