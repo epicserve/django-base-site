@@ -54,6 +54,10 @@ class TestAvatar:
 
     @pytest.mark.parametrize("key", ["Enter", "Space"])
     def test_choose_an_image_with_the_keyboard(self, page: Page, live_server, user, key):
+        # Playwright starts catching file choosers when something listens for them, without waiting until it does.
+        # Listening only from `expect_file_chooser()` missed a chooser opened right away about 1 run in 70, so listen
+        # from the start.
+        page.on("filechooser", lambda chooser: None)
         self._sign_in(page, live_server)
         page.get_by_role("button", name="Change Photo").press("Enter")
         expect(page.get_by_role("dialog", name="Change Profile Photo")).to_be_visible()
