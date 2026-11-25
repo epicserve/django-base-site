@@ -1,6 +1,7 @@
 from datetime import datetime
 
 from ninja import Schema
+from pydantic import ConfigDict
 
 
 class MemberDetailOut(Schema):
@@ -38,10 +39,15 @@ class TeamOut(Schema):
 
 
 class TeamIn(Schema):
+    # A name of only spaces would pass the model's blank check.
+    model_config = ConfigDict(str_strip_whitespace=True)
+
     name: str
     members: list[int] = []
 
 
 class TeamPatchIn(Schema):
+    model_config = ConfigDict(str_strip_whitespace=True)
+
     name: str | None = None
     members: list[int] | None = None

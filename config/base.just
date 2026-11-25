@@ -94,17 +94,12 @@ _require_node_modules:
     rm -f .coverage
     rm -rf htmlcov
 
-# Kill and remove all docker containers
+# Kill and remove this checkout's containers, running or stopped. Found by Compose label, so one-off `docker compose run`
+# containers go too, and other projects' containers, and other worktrees' stacks, are left alone.
 @clean_docker_containers:
-    # kill all stopped containers
-    stopped_containers=$(docker ps | awk '{if (NR!=1) {print $1}}'); \
-    if [[ -n $stopped_containers ]]; then \
-        docker kill $stopped_containers; \
-    fi \
-    # remove all containers
-    containers=$(docker ps -a -q); \
-    if [[ -n $containers ]]; then \
-        docker rm $containers; \
+    containers=$(docker ps -aq --filter "label=com.docker.compose.project=$(just _compose_project)"); \
+    if [ -n "$containers" ]; then \
+        docker rm --force $containers; \
     fi
 
 # Docker images for the project
