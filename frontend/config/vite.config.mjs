@@ -5,7 +5,7 @@ import tailwindcss from '@tailwindcss/vite';
 
 export default defineConfig({
   plugins: [vue(), tailwindcss()],
-  root: resolve(__dirname, '..'),
+  root: resolve(import.meta.dirname, '..'),
   base: '/public/static/dist/js/',
   server: {
     host: '0.0.0.0',
@@ -22,18 +22,23 @@ export default defineConfig({
   resolve: {
     extensions: ['.ts', '.js', '.vue', '.json'],
     alias: {
-      '@': resolve(__dirname, '../js'),
+      '@': resolve(import.meta.dirname, '../js'),
     },
   },
+  // Vitest (`just test_js`) reads this block; Vite ignores it.
+  test: {
+    environment: 'happy-dom',
+    include: ['js/**/*.test.ts'],
+  },
   build: {
-    outDir: resolve(__dirname, '../../public/static/dist/js'),
+    outDir: resolve(import.meta.dirname, '../../public/static/dist/js'),
     assetsDir: '',
     manifest: true,
     emptyOutDir: true,
     target: 'es2015',
     rollupOptions: {
       input: {
-        app: resolve(__dirname, '../js/app.ts'),
+        app: resolve(import.meta.dirname, '../js/app.ts'),
       },
       output: {
         chunkFileNames: undefined,

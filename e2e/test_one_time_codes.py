@@ -28,9 +28,7 @@ class TestOneTimeCodeFields:
         # The field takes a recovery code too, which allauth makes of digits only.
         self._expect_code_field(page.get_by_label("Code", exact=True))
 
-    def test_authenticator_app_setup(self, page: Page, live_server, user):
-        self._sign_in(page, live_server)
-        page.wait_for_url(re.compile(r"^(?!.*/accounts/login/)"), timeout=10000)
-        page.goto(f"{live_server.url}/accounts/security/totp/")
+    def test_authenticator_app_setup(self, page: Page, sign_in, user):
+        sign_in(user, "/accounts/security/totp/")
 
         self._expect_code_field(page.get_by_label("6-Digit Code"))

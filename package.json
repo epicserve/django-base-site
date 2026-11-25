@@ -6,14 +6,18 @@
     "build": "vite build --config frontend/config/vite.config.mjs",
     "preview": "vite preview --config frontend/config/vite.config.mjs",
     "lint-js": "oxfmt --check ./frontend/ && oxlint ./frontend/",
-    "format-js": "oxfmt ./frontend/ && oxlint --fix ./frontend/"
+    "format-js": "oxfmt ./frontend/ && oxlint --fix ./frontend/",
+    "test": "NODE_ENV=test vitest run --config frontend/config/vite.config.mjs"
   },
   "devDependencies": {
+    "@vue/test-utils": "^2.6.0",
+    "happy-dom": "^21.0.4",
     "openapi-typescript": "7.13.0",
     "oxfmt": "0.79.0",
     "oxlint": "1.94.0",
     "typescript": "6.0.3",
     "vite": "^8.3.8",
+    "vitest": "^5.1.2",
     "vue-tsc": "3.3.14"
   },
   "dependencies": {

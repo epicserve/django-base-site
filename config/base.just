@@ -302,10 +302,10 @@ pre_commit: format lint test test_js test_e2e
 @test:
     {{ python_cmd_prefix }} pytest --ds=config.settings.test_runner
 
-# Run the SPA's unit tests (`frontend/js/**/*.test.ts`) with bun's built-in test runner
-@test_js:
-    just _start_msg "Running the SPA's unit tests with bun test"
-    {{ bun_cmd_prefix }} bun test ./frontend/js/
+# Run the SPA's unit and component tests (`frontend/js/**/*.test.ts`) with Vitest
+@test_js *args:
+    just _start_msg "Running the SPA's unit tests with Vitest"
+    {{ bun_cmd_prefix }} bun run test {{ args }}
 
 # Run tests with coverage
 @test_with_coverage:
