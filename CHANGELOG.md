@@ -59,6 +59,7 @@
 * `just lint`, and so CI's Lint job and the pre-push hook, runs Django's deployment checks: `just lint_deploy` runs `manage.py check --deploy --fail-level WARNING` with DEBUG off and no `.env`, so the HTTPS defaults can't quietly regress. Its settings, `config.settings.deploy_check`, silence only `security.W005` and `security.W021`, which ask for HSTS `includeSubDomains` and `preload`. Both reach every subdomain of a project's domain, which the template can't know about, and getting off the preload lists takes months. `check --deploy` in a real deploy still shows them.
 * The install-script job checks that `just clean_docker_containers` removes the new project's containers and leaves a container from outside it running.
 
+* The e2e test that signs in with a two-factor code no longer fails now and then. allauth accepts only the current 30-second window's code, and the test made its code whenever it reached the form, so a code made just before a window ended was rejected if the server checked it in the next one. `current_totp_code()` in `apps/accounts/tests/totp.py` waits for the next window when the current one has less than 5 seconds left, and the MFA unit tests use it too.
 
 ## 2026-11-16
 

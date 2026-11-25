@@ -86,7 +86,7 @@ Use Just for all development tasks. Common ones:
 - Test settings in `config.settings.test_runner`; e2e settings in `config.settings.e2e`.
 - Model Bakery for fixtures.
 - Django Test Plus for additional helpers.
-- pyotp for the TOTP / MFA tests under `apps/accounts/tests/test_mfa_flows.py`.
+- pyotp for the TOTP / MFA tests under `apps/accounts/tests/test_mfa_flows.py`. Make a code with `current_totp_code(secret)` from `apps/accounts/tests/totp.py`, not `pyotp.TOTP(secret).now()`: allauth accepts only the current 30-second window's code, so the helper waits out a window's last 5 seconds rather than make a code that expires before the server checks it.
 - Playwright e2e tests under `e2e/` (auth flow incl. the passkey prompt, invite flow, org settings, avatar upload); `--ignore=e2e` is on `pyproject.toml` `[tool.pytest.ini_options]` so the unit suite stays fast.
 - Coverage configuration in `config/coverage.ini`.
 - `bun test` (built into bun, run by `just test_js`) unit-tests plain TypeScript functions, such as `safeNextUrl()` in `frontend/js/utils/redirect.test.ts`. Put a test beside its module as `<name>.test.ts` and import `describe`, `test`, and `expect` from `bun:test`. `@types/bun` isn't installed, so `frontend/js/bun-test.d.ts` declares the parts the tests use; add to it when a test needs more. Components and flows are covered by the e2e tests instead.
