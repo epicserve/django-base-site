@@ -63,6 +63,7 @@
 * The install-script job checks that `just clean_docker_containers` removes the new project's containers and leaves a container from outside it running.
 
 * The e2e test that signs in with a two-factor code no longer fails now and then. allauth accepts only the current 30-second window's code, and the test made its code whenever it reached the form, so a code made just before a window ended was rejected if the server checked it in the next one. `current_totp_code()` in `apps/accounts/tests/totp.py` waits for the next window when the current one has less than 5 seconds left, and the MFA unit tests use it too.
+* The e2e test that chooses a profile photo with the keyboard no longer fails now and then (about 1 run in 70, on `main` too). Playwright starts catching file choosers when something listens for them, without waiting until it does, so a chooser opened right after `expect_file_chooser()` sometimes went unseen. The test now listens from its start: it passed 400 runs in a row, where the old one failed 3 in 200.
 
 ## 2026-11-16
 
