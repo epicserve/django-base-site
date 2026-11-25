@@ -170,6 +170,7 @@ Key variables:
 - `USE_DEBUGPY=true` — enable remote debugging
 - `MEDIA_S3_*` — Silo / S3 credentials (locally they are also Silo's root user and password). `MEDIA_S3_ENDPOINT_URL` is the Docker-internal hostname (`http://silo:9000`); `MEDIA_S3_URL_ENDPOINT_URL` is the browser-facing one (`http://localhost:9000`). The split is handled by `apps.base.storage.S3MediaStorage`.
 - `ACCOUNT_SIGNUP_OPEN` — bool, gates new registrations.
+- `SENTRY_DSN` — reports errors from Django and Celery to Sentry, tagged with `INSTANCE` as the environment; blank (the default) turns it off. `apps/base/sentry.py` starts it from `BaseConfig.ready()` rather than from settings, so the test, e2e, `api_types` and `deploy_check` settings can set `SENTRY_DSN = ""` and never report, even with a DSN in `.env`. Events leave out who the user is, their IP address (`X-Forwarded-For` included), cookies, and request bodies (`max_request_body_size="never"`); `apps/base/tests/test_sentry.py` checks that. Local variables in a stack trace are still sent, with passwords, tokens and keys filtered, so they can hold personal data; pass `include_local_variables=False` to `sentry_sdk.init()` to drop them. The SDK reads `SENTRY_RELEASE` from the environment itself.
 - `DJANGO_SUPERUSER_USERNAME` / `_EMAIL` / `_PASSWORD` — the superuser. `just create_env` fills them from the 1Password item `op://Private/django-admin` when the `op` CLI is signed in, and otherwise with fallbacks (`admin` / `admin@example.com` / `dev-password`; see `.env.toml`). `just create_superuser` (which `just init` runs on first boot) creates the account via the idempotent `epicenv create-superuser` and skips when they're blank; `just seed` makes the same account its superuser and refuses when they're blank. For production, edit the `just create_superuser` recipe in the top-level `justfile` to pipe credentials from a secrets manager instead of putting them in `.env`.
 
 ## SPA Auth Flow
@@ -208,6 +209,6 @@ Copy `apps/teams/` (about 190 lines): an organization-scoped model, its admin, a
 
 ## Key Dependencies
 
-- **Backend**: Django 6, django-allauth[mfa] (with fido2 for WebAuthn), django-ninja, django-hijack, Pillow, Celery, Redis, PostgreSQL 17, gunicorn, WhiteNoise, django-storages + boto3, django-ses, django-alive, django-maintenance-mode.
+- **Backend**: Django 6, django-allauth[mfa] (with fido2 for WebAuthn), django-ninja, django-hijack, Pillow, Celery, Redis, PostgreSQL 17, gunicorn, WhiteNoise, django-storages + boto3, django-ses, django-alive, django-maintenance-mode, sentry-sdk.
 - **Frontend**: Vue 3, Vue Router 5, Tailwind v4, Vite 8, bun, openapi-fetch, @heroicons/vue, vue-advanced-cropper, reka-ui (modal/toast primitives).
 - **Development**: Docker, pytest, pytest-playwright, pyotp, Ruff, Ty, Oxlint, Oxfmt, djLint, model-bakery, TypeScript, vue-tsc, openapi-typescript.

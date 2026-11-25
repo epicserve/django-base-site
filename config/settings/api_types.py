@@ -23,3 +23,6 @@ STRIPE_WEBHOOK_SECRET = "whsec_generate_api_types"  # noqa: S105 (a placeholder,
 # allauth writes `browser` into each path instead of leaving a `{client}` placeholder.
 HEADLESS_SERVE_SPECIFICATION = True
 HEADLESS_CLIENTS = ("browser",)
+
+# Never report to Sentry, even with SENTRY_DSN in .env.
+SENTRY_DSN = ""
