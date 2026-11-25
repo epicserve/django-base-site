@@ -55,6 +55,7 @@
 
 ### CI
 
+* CI caches what it builds between runs. The Tests and E2E jobs build the images with `docker/bake-action` and keep their layers in GitHub Actions' cache (the Tests job writes it, the E2E job only reads it), and the Lint job caches uv's downloads. With a warm cache, building the images takes about a minute instead of 3–4, installing Python packages in the Lint job takes a second instead of 90, and a run takes about 3m40s instead of 5m20s. Both pytest steps list their 15 slowest tests (`--durations=15`).
 * The Tests job runs `just test_js`, so the SPA's unit tests run on every push and pull request.
 * Jobs install `just` with `extractions/setup-just` instead of `just.systems/install.sh`. With no version given, the script looked up the latest release through GitHub's API without authenticating, and runners share that API's rate limit, so jobs failed at random with a 403.
 * Every action is pinned to a full commit SHA, with its release in a trailing comment, as GitHub's security hardening guide recommends. Dependabot updates both.
