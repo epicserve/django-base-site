@@ -1,6 +1,7 @@
 """Errors go to Sentry when SENTRY_DSN is set, without users' personal details, and nothing is sent when it's blank."""
 
 import importlib
+import json
 import sys
 
 from django.apps import apps as django_apps
@@ -21,9 +22,14 @@ from apps.accounts.models import User
 from apps.base.sentry import init_sentry
 
 
+def _print_invite(invite: dict):
+    raise RuntimeError("Dunder Mifflin is out of paper")
+
+
 @csrf_exempt
 def out_of_paper(request):
-    raise RuntimeError("Dunder Mifflin is out of paper")
+    # What someone typed ends up in a local variable, as it does in most views.
+    _print_invite(json.loads(request.body))
 
 
 urlpatterns = [path("out-of-paper/", out_of_paper)]
@@ -131,6 +137,10 @@ class TestTurnedOn:
         assert status == "500 Internal Server Error"
         (event,) = sent_events
         assert event["exception"]["values"][-1]["value"] == "Dunder Mifflin is out of paper"
+        # The stack trace keeps its functions and lines, without the values of their local variables.
+        frames = event["exception"]["values"][-1]["stacktrace"]["frames"]
+        assert [frame["function"] for frame in frames[-2:]] == ["out_of_paper", "_print_invite"]
+        assert [frame for frame in frames if "vars" in frame] == []
         assert event["environment"] == settings.INSTANCE
         assert event["request"]["url"] == "http://testserver/out-of-paper/"
         assert event["request"]["headers"]["Cookie"] == "[Filtered]"
