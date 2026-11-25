@@ -34,11 +34,14 @@ describe('AppModal', () => {
     expect(closeButton().textContent?.trim()).toBe('');
   });
 
-  test('shows its title and body', async () => {
+  test('is a dialog named by its title', async () => {
     await open();
 
-    expect(document.body.textContent).toContain('Edit Team');
-    expect(document.body.textContent).toContain('Body');
+    const dialog = document.body.querySelector('[role="dialog"]');
+    const titleId = dialog?.getAttribute('aria-labelledby');
+    expect(titleId).toBeTruthy();
+    expect(document.getElementById(titleId ?? '')?.textContent?.trim()).toBe('Edit Team');
+    expect(dialog?.textContent).toContain('Body');
   });
 
   test('emits close when the close button is clicked', async () => {

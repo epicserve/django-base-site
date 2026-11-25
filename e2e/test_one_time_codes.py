@@ -19,9 +19,9 @@ class TestOneTimeCodeFields:
         expect(field).to_have_attribute("autocomplete", "one-time-code")
 
     def test_sign_in(self, page: Page, live_server, user):
-        from allauth.mfa.totp.internal.auth import TOTP, generate_totp_secret
+        from apps.accounts.tests.recipes import make_totp
 
-        TOTP.activate(user, generate_totp_secret())
+        make_totp(user, recovery_codes=False)
         self._sign_in(page, live_server)
         page.wait_for_url(re.compile(r"/accounts/2fa/"), timeout=10000)
 

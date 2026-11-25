@@ -2,33 +2,17 @@
 End-to-end tests for the organization settings pages (/organizations/<slug>/settings/...).
 
 Each tab's API needs a permission that only the owner role grants (apps/organizations/roles.py). The Members and
-Teams tabs load lists that the API paginates (`DEFAULT_PAGE_SIZE` rows per page), so they must follow every page.
+Teams tabs load lists that the API paginates (`DEFAULT_PAGE_SIZE` rows per page), so they must follow every page;
+`getAllResults()` itself is covered in frontend/js/utils/api.test.ts.
 """
 
 import re
-from datetime import timedelta
 
 import pytest
-from model_bakery import baker
 from playwright.sync_api import Page, expect
 
-
-def _sign_in(page: Page, live_server, email: str, next_path: str):
-    page.goto(f"{live_server.url}/accounts/login/?next={next_path}")
-    page.get_by_placeholder("Email").fill(email)
-    page.get_by_placeholder("Password").fill("dundermifflin")
-    page.get_by_role("button", name="Sign In", exact=True).click()
-    page.wait_for_url(re.compile(r"^(?!.*/accounts/login/)"), timeout=10000)
-
-
-@pytest.fixture()
-def org(db, user):
-    from apps.organizations.models import Organization, OrganizationMember
-    from apps.organizations.roles import OrgRole
-
-    org = Organization.objects.create(name="Dunder Mifflin", slug="dunder-mifflin")
-    OrganizationMember.objects.create(organization=org, user=user, role=OrgRole.OWNER, is_primary=True)
-    return org
+MEMBERS_PATH = "/organizations/dunder-mifflin/settings/members/"
+TEAMS_PATH = "/organizations/dunder-mifflin/settings/teams/"
 
 
 @pytest.fixture()
@@ -39,83 +23,71 @@ def more_than_a_page():
 
 
 @pytest.fixture()
-def employees(org, more_than_a_page):
-    from apps.accounts.models import User
-    from apps.organizations.models import OrganizationMember
+def dwight(org):
+    from apps.accounts.tests.recipes import make_user
+    from apps.organizations.tests.recipes import make_member
 
-    users = User.objects.bulk_create(
-        User(username=f"employee{i:03d}", email=f"employee{i:03d}@dundermifflin.com", first_name="Employee")
-        for i in range(more_than_a_page)
-    )
-    OrganizationMember.objects.bulk_create(OrganizationMember(organization=org, user=u) for u in users)
-    return users
+    return make_member(org, make_user("dwight.schrute@dundermifflin.com", first_name="Dwight", last_name="Schrute"))
 
 
 class TestMembersTab:
-    MEMBERS_PATH = "/organizations/dunder-mifflin/settings/members/"
+    def test_lists_every_page(self, page: Page, live_server, sign_in, org, user, more_than_a_page, subtests):
+        from apps.accounts.models import User
+        from apps.organizations.models import OrganizationInvite, OrganizationMember
+        from apps.teams.models import Team
 
-    def test_lists_members_past_the_first_page(self, page: Page, live_server, employees, more_than_a_page):
-        _sign_in(page, live_server, "michael.scott@dundermifflin.com", self.MEMBERS_PATH)
-
-        expect(page.get_by_text(re.compile(r"^employee\d+@dundermifflin\.com$"))).to_have_count(more_than_a_page)
-
-    def test_lists_invites_past_the_first_page(self, page: Page, live_server, org, user, more_than_a_page):
-        from apps.organizations.models import OrganizationInvite
-
+        employees = User.objects.bulk_create(
+            User(username=f"employee{i:03d}", email=f"employee{i:03d}@dundermifflin.com", first_name="Employee")
+            for i in range(more_than_a_page)
+        )
+        OrganizationMember.objects.bulk_create(OrganizationMember(organization=org, user=u) for u in employees)
         OrganizationInvite.objects.bulk_create(
             OrganizationInvite(
                 organization=org, sender=user, invitee_email=f"guest{i:03d}@dundermifflin.com", key=f"{i:032d}"
             )
             for i in range(more_than_a_page)
         )
+        Team.objects.bulk_create(Team(organization=org, name=f"Team {i:03d}") for i in range(more_than_a_page))
+        sign_in(user, MEMBERS_PATH)
 
-        _sign_in(page, live_server, "michael.scott@dundermifflin.com", self.MEMBERS_PATH)
+        with subtests.test("members"):
+            expect(page.get_by_text(re.compile(r"^employee\d+@dundermifflin\.com$"))).to_have_count(more_than_a_page)
 
-        expect(page.get_by_text(re.compile(r"^guest\d+@dundermifflin\.com$"))).to_have_count(more_than_a_page)
+        with subtests.test("invites"):
+            expect(page.get_by_text(re.compile(r"^guest\d+@dundermifflin\.com$"))).to_have_count(more_than_a_page)
 
-    def test_badges_expired_invites(self, page: Page, live_server, org, user):
-        from django.utils import timezone
+        with subtests.test("teams"):
+            page.goto(f"{live_server.url}{TEAMS_PATH}")
+            expect(page.get_by_text(re.compile(r"^Team \d{3}$"))).to_have_count(more_than_a_page)
 
-        from apps.organizations.models import OrganizationInvite
+    def test_invites(self, page: Page, sign_in, org, user, subtests):
+        from apps.accounts.tests.recipes import make_user
+        from apps.organizations.tests.recipes import make_invite
 
-        OrganizationInvite.objects.create(organization=org, sender=user, invitee_email="jim.halpert@dundermifflin.com")
-        expired = OrganizationInvite.objects.create(
-            organization=org, sender=user, invitee_email="pam.beesly@dundermifflin.com"
-        )
-        OrganizationInvite.objects.filter(pk=expired.pk).update(
-            created=timezone.now() - timedelta(days=OrganizationInvite.expired_in_days + 1)
-        )
+        make_invite(org, user, email="jim.halpert@dundermifflin.com")
+        make_invite(org, user, email="pam.beesly@dundermifflin.com", expired=True)
+        dwight = make_user("dwight.schrute@dundermifflin.com", first_name="Dwight", last_name="Schrute")
+        make_invite(org, user, invitee=dwight)
+        sign_in(user, MEMBERS_PATH)
 
-        _sign_in(page, live_server, "michael.scott@dundermifflin.com", self.MEMBERS_PATH)
+        with subtests.test("badges pending and expired invites"):
+            pending_row = page.get_by_role("row").filter(has_text="jim.halpert@dundermifflin.com")
+            expired_row = page.get_by_role("row").filter(has_text="pam.beesly@dundermifflin.com")
+            expect(pending_row.get_by_text("Pending", exact=True)).to_be_visible()
+            expect(expired_row.get_by_text("Expired", exact=True)).to_be_visible()
+            expect(expired_row.get_by_text("Pending", exact=True)).to_have_count(0)
 
-        pending_row = page.get_by_role("row").filter(has_text="jim.halpert@dundermifflin.com")
-        expired_row = page.get_by_role("row").filter(has_text="pam.beesly@dundermifflin.com")
-        expect(pending_row.get_by_text("Pending", exact=True)).to_be_visible()
-        expect(expired_row.get_by_text("Expired", exact=True)).to_be_visible()
-        expect(expired_row.get_by_text("Pending", exact=True)).to_have_count(0)
-
-    def test_names_invitees_who_have_an_account(self, page: Page, live_server, org, user):
-        from apps.accounts.models import User
-        from apps.organizations.models import OrganizationInvite
-
-        invitee = baker.make(User, email="dwight.schrute@dundermifflin.com", first_name="Dwight", last_name="Schrute")
-        OrganizationInvite.objects.create(organization=org, sender=user, invitee=invitee)
-
-        _sign_in(page, live_server, "michael.scott@dundermifflin.com", self.MEMBERS_PATH)
-
-        invite_row = page.get_by_role("row").filter(has_text="dwight.schrute@dundermifflin.com")
-        expect(invite_row.get_by_text("Dwight Schrute", exact=True)).to_be_visible()
+        with subtests.test("names an invitee who has an account"):
+            invite_row = page.get_by_role("row").filter(has_text="dwight.schrute@dundermifflin.com")
+            expect(invite_row.get_by_text("Dwight Schrute", exact=True)).to_be_visible()
 
 
 class TestChangeRole:
-    def test_an_owner_makes_a_member_an_owner(self, page: Page, live_server, org):
-        from apps.accounts.models import User
+    def test_an_owner_makes_a_member_an_owner(self, page: Page, sign_in, org, user, dwight):
         from apps.organizations.models import OrganizationMember
         from apps.organizations.roles import OrgRole
 
-        dwight = baker.make(User, email="dwight.schrute@dundermifflin.com", first_name="Dwight", last_name="Schrute")
-        OrganizationMember.objects.create(organization=org, user=dwight, role=OrgRole.MEMBER)
-        _sign_in(page, live_server, "michael.scott@dundermifflin.com", TestMembersTab.MEMBERS_PATH)
+        sign_in(user, MEMBERS_PATH)
         row = page.get_by_role("row", name=re.compile("dwight.schrute@dundermifflin.com"))
         expect(row.get_by_text("Member", exact=True)).to_be_visible()
 
@@ -128,44 +100,19 @@ class TestChangeRole:
         assert OrganizationMember.objects.get(organization=org, user=dwight).role == OrgRole.OWNER
 
 
-class TestTeamsTab:
-    def test_lists_teams_past_the_first_page(self, page: Page, live_server, org, more_than_a_page):
-        from apps.teams.models import Team
-
-        Team.objects.bulk_create(Team(organization=org, name=f"Team {i:03d}") for i in range(more_than_a_page))
-
-        _sign_in(page, live_server, "michael.scott@dundermifflin.com", "/organizations/dunder-mifflin/settings/teams/")
-
-        expect(page.get_by_text(re.compile(r"^Team \d{3}$"))).to_have_count(more_than_a_page)
-
-
 class TestNonOwner:
-    @pytest.fixture()
-    def member(self, org):
-        from allauth.account.models import EmailAddress
-
-        from apps.accounts.models import User
-        from apps.organizations.models import OrganizationMember
-
-        member = baker.make(User, email="dwight.schrute@dundermifflin.com", first_name="Dwight", last_name="Schrute")
-        member.set_password("dundermifflin")
-        member.save()
-        EmailAddress.objects.create(user=member, email=member.email, verified=True, primary=True)
-        OrganizationMember.objects.create(organization=org, user=member, is_primary=True)
-        return member
-
-    def test_org_menu_hides_settings_link(self, page: Page, live_server, member):
-        _sign_in(page, live_server, member.email, "/")
+    def test_org_menu_hides_settings_link(self, page: Page, sign_in, dwight):
+        sign_in(dwight, "/")
 
         page.get_by_role("button", name="Dunder Mifflin").click()
 
         expect(page.get_by_role("link", name="Switch Company")).to_be_visible()
         expect(page.get_by_role("link", name="Settings", exact=True)).to_have_count(0)
 
-    @pytest.mark.parametrize("tab", ["general", "members", "teams"])
-    def test_settings_redirect_home(self, page: Page, live_server, member, tab):
+    def test_settings_redirect_home(self, page: Page, live_server, sign_in, dwight):
         # The settings APIs are owner-only; a member who types the URL used to get "No members." and an invite form.
-        _sign_in(page, live_server, member.email, f"/organizations/dunder-mifflin/settings/{tab}/")
+        # frontend/js/utils/routeGuard.test.ts covers every tab; this checks the router uses it.
+        sign_in(dwight, MEMBERS_PATH)
 
         expect(page).to_have_url(f"{live_server.url}/")
         expect(page.get_by_text("Invite a Member")).to_have_count(0)

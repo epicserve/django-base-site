@@ -28,32 +28,13 @@ window.addEventListener('pagehide', () => {
 
 
 @pytest.fixture()
-def _login(page: Page, live_server, user):
-    """Log in as the test user and wait for redirect to complete."""
-    page.goto(f"{live_server.url}/accounts/login/")
-    page.get_by_placeholder("Email").fill("michael.scott@dundermifflin.com")
-    page.get_by_placeholder("Password").fill("dundermifflin")
-    page.get_by_role("button", name="Sign In", exact=True).click()
-    page.wait_for_url(f"{live_server.url}/", timeout=10000)
+def _signed_in(sign_in, user):
+    sign_in(user, "/")
 
 
 class TestLogin:
-    def test_login_page_renders(self, page: Page, live_server):
-        page.goto(f"{live_server.url}/accounts/login/")
-
-        expect(page.get_by_placeholder("Email")).to_be_visible()
-        expect(page.get_by_placeholder("Password")).to_be_visible()
-        expect(page.get_by_role("button", name="Sign In", exact=True)).to_be_visible()
-
-    def test_invalid_credentials_rejected(self, page: Page, live_server, user):
-        page.goto(f"{live_server.url}/accounts/login/")
-
-        page.get_by_placeholder("Email").fill("michael.scott@dundermifflin.com")
-        page.get_by_placeholder("Password").fill("wrongpassword")
-        page.get_by_role("button", name="Sign In", exact=True).click()
-
-        error_pattern = re.compile(r"email address.*not correct|unable to log in", re.IGNORECASE)
-        expect(page.get_by_text(error_pattern)).to_be_visible()
+    # A wrong password is refused by the API in apps/accounts/tests/test_auth_flows.py, and the form shows its error on
+    # the password field in e2e/test_form_errors.py.
 
     def test_login_with_valid_credentials(self, page: Page, live_server, user):
         page.goto(f"{live_server.url}/accounts/login/")
@@ -78,7 +59,7 @@ class TestLogin:
 
 
 class TestLogout:
-    @pytest.mark.usefixtures("_login")
+    @pytest.mark.usefixtures("_signed_in")
     def test_logout_redirects_to_login(self, page: Page, live_server):
         page.goto(f"{live_server.url}/accounts/logout/")
 
@@ -86,7 +67,7 @@ class TestLogout:
         expect(page.get_by_placeholder("Email")).to_be_visible()
         expect(page.get_by_role("button", name="Sign In", exact=True)).to_be_visible()
 
-    @pytest.mark.usefixtures("_login")
+    @pytest.mark.usefixtures("_signed_in")
     def test_logout_cancels_the_timezone_check(self, page: Page, live_server):
         # The timezone check waits for an idle moment. It used to stay scheduled after logging out, then throw because
         # the user was gone. The stub runs it at unload even though it's cancelled, so the check's own guard is covered.
@@ -138,10 +119,9 @@ class TestSignInLoadsTheAppContextOnce:
         assert len(requests) == 1
 
     def test_two_factor(self, page: Page, live_server, user):
-        from allauth.mfa.totp.internal.auth import TOTP, generate_totp_secret
+        from apps.accounts.tests.recipes import make_totp
 
-        secret = generate_totp_secret()
-        TOTP.activate(user, secret)
+        secret = make_totp(user, recovery_codes=False)
         page.goto(f"{live_server.url}/accounts/login/")
         page.get_by_placeholder("Email").fill("michael.scott@dundermifflin.com")
         page.get_by_placeholder("Password").fill("dundermifflin")
