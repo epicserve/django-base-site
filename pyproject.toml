@@ -22,6 +22,7 @@ dependencies = [
     "psycopg2-binary~=2.9",
     "python-json-logger~=4.1",
     "redis>=7.1,<9.0",  # needed for celery
+    "sentry-sdk~=2.75",  # reports errors when SENTRY_DSN is set
     "stripe>=14,<18",
     "whitenoise~=6.7",
 ]

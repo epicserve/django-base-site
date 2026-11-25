@@ -16,3 +16,6 @@ SILENCED_SYSTEM_CHECKS = [
     # off them takes months, so it's each project's decision for its own domain.
     "security.W021",
 ]
+
+# Never report to Sentry, even with SENTRY_DSN in .env.
+SENTRY_DSN = ""

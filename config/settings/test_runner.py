@@ -32,3 +32,6 @@ SECURE_SSL_REDIRECT = False
 SESSION_COOKIE_SECURE = False
 CSRF_COOKIE_SECURE = False
 SECURE_HSTS_SECONDS = 0
+
+# Never report to Sentry, even with SENTRY_DSN in .env.
+SENTRY_DSN = ""

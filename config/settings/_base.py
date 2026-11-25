@@ -38,6 +38,8 @@ SECRET_KEY = env("SECRET_KEY")
 DEBUG = env.bool("DEBUG", default=False)
 
 INSTANCE = env("INSTANCE", default="dev")
+# Errors from Django and Celery go to Sentry when this is set, tagged with INSTANCE (see apps/base/sentry.py).
+SENTRY_DSN = env("SENTRY_DSN", default="")
 
 ALLOWED_HOSTS: list[str] = env.list("ALLOWED_HOSTS", default=[])
 CSRF_TRUSTED_ORIGINS = env.list("CSRF_TRUSTED_ORIGINS", default=[])
