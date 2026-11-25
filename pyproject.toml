@@ -50,6 +50,7 @@ dev = [
     "readable-log-formatter",
     "ruff",
     "ruff-lsp",
+    "pytest-xdist~=3.8",
 ]
 
 [tool.ty]

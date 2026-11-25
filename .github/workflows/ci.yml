@@ -106,7 +106,7 @@ jobs:
       - name: Run the SPA's unit tests
         run: just test_js
       - name: Run tests
-        run: ${{ env.DOCKER_COMPOSE_PREFIX }} pytest --cov --ds=config.settings.test_runner --durations=15
+        run: ${{ env.DOCKER_COMPOSE_PREFIX }} pytest --cov --ds=config.settings.test_runner --durations=15 -n auto
   e2e:
     name: E2E tests
     services:
@@ -162,4 +162,4 @@ jobs:
       - name: Build frontend assets
         run: just build_frontend
       - name: Run Playwright e2e tests
-        run: ${{ env.DOCKER_COMPOSE_PREFIX }} pytest e2e/ --ds=config.settings.e2e --durations=15
+        run: ${{ env.DOCKER_COMPOSE_PREFIX }} pytest e2e/ --ds=config.settings.e2e --durations=15 -n auto
