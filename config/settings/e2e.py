@@ -1,5 +1,5 @@
 from ._base import *  # noqa: F403, F401
-from ._base import BASE_DIR
+from ._base import BASE_DIR, content_security_policy
 
 PASSWORD_HASHERS = ("django.contrib.auth.hashers.MD5PasswordHasher",)
 
@@ -25,6 +25,8 @@ CELERY_TASK_EAGER_PROPAGATES = True
 # Use pre-built production assets instead of the Vite dev server
 VITE_DEV_MODE = False
 VITE_MANIFEST_FILE = BASE_DIR / "public" / "static" / "dist" / "js" / ".vite" / "manifest.json"
+# _base.py built the policy with the Vite dev server allowed when DEBUG is on, so build it again for the built assets.
+SECURE_CSP_REPORT_ONLY = content_security_policy(vite_dev_mode=False)
 
 # The CI e2e job runs the web container with --no-deps, so Silo isn't
 # available; swap the default storage to an in-memory backend so any test
