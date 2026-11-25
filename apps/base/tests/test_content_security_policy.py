@@ -1,8 +1,8 @@
 """
-Every response carries a report-only Content-Security-Policy, and the SPA shell's inline script carries its nonce.
+Every response carries an enforced Content-Security-Policy, and the SPA shell's inline script carries its nonce.
 
-Browsers report, without blocking, anything the policy doesn't allow. `e2e/test_content_security_policy.py` loads the
-pages in a browser and fails on any report.
+Browsers block anything the policy doesn't allow. `e2e/test_content_security_policy.py` loads the pages in a browser
+and fails on any violation.
 """
 
 import re
@@ -42,34 +42,32 @@ def policy_for(monkeypatch):
             monkeypatch.delenv(name, raising=False)
         for name, value in environ.items():
             monkeypatch.setenv(name, value)
-        return runpy.run_path(str(BASE_SETTINGS))["SECURE_CSP_REPORT_ONLY"]
+        return runpy.run_path(str(BASE_SETTINGS))["SECURE_CSP"]
 
     return load
 
 
 @pytest.mark.django_db
 class TestTheHeader:
-    def test_the_spa_shell_reports_without_enforcing(self):
+    def test_the_spa_shell_enforces_the_policy(self):
         response = Client().get("/accounts/login/")
 
-        assert CSP.HEADER_REPORT_ONLY in response
-        assert CSP.HEADER_ENFORCE not in response
+        assert CSP.HEADER_ENFORCE in response
+        assert CSP.HEADER_REPORT_ONLY not in response
 
     def test_the_theme_script_carries_the_policys_nonce(self):
         response = Client().get("/accounts/login/")
 
         (nonce,) = re.findall(r'<script nonce="([^"]+)">', response.content.decode())
         script_src = next(
-            directive
-            for directive in response[CSP.HEADER_REPORT_ONLY].split("; ")
-            if directive.startswith("script-src ")
+            directive for directive in response[CSP.HEADER_ENFORCE].split("; ") if directive.startswith("script-src ")
         )
         assert f"'nonce-{nonce}'" in script_src.split()
 
     def test_each_response_has_its_own_nonce(self):
         client = Client()
 
-        first, second = (client.get("/accounts/login/")[CSP.HEADER_REPORT_ONLY] for _ in range(2))
+        first, second = (client.get("/accounts/login/")[CSP.HEADER_ENFORCE] for _ in range(2))
 
         assert first != second
 

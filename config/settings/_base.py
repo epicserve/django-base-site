@@ -593,6 +593,5 @@ def content_security_policy(*, vite_dev_mode: bool) -> dict[str, list[str]]:
     return policy
 
 
-# Report-only: browsers report what the policy would block, in the console, without blocking it. Once a deployment's
-# pages report nothing, enforce it by setting SECURE_CSP to the policy instead of SECURE_CSP_REPORT_ONLY.
-SECURE_CSP_REPORT_ONLY = content_security_policy(vite_dev_mode=VITE_DEV_MODE)
+# Enforced: browsers block what the policy doesn't allow. e2e/test_content_security_policy.py fails on any violation.
+SECURE_CSP = content_security_policy(vite_dev_mode=VITE_DEV_MODE)

@@ -1,8 +1,8 @@
 """
-The pages break no part of the Content-Security-Policy, so it can be enforced.
+The pages break no part of the Content-Security-Policy.
 
-The policy is report-only: a browser runs whatever it doesn't allow, and fires a `securitypolicyviolation` event. These
-tests fail on any such event, so a change that needs a new source has to add it to `content_security_policy()` in
+A browser blocks whatever the policy doesn't allow, and fires a `securitypolicyviolation` event. These tests fail on
+any such event, so a change that needs a new source has to add it to `content_security_policy()` in
 config/settings/_base.py. They load the built assets; the Vite dev server's allowances are checked by hand.
 """
 

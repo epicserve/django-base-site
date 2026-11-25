@@ -26,7 +26,7 @@ CELERY_TASK_EAGER_PROPAGATES = True
 VITE_DEV_MODE = False
 VITE_MANIFEST_FILE = BASE_DIR / "public" / "static" / "dist" / "js" / ".vite" / "manifest.json"
 # _base.py built the policy with the Vite dev server allowed when DEBUG is on, so build it again for the built assets.
-SECURE_CSP_REPORT_ONLY = content_security_policy(vite_dev_mode=False)
+SECURE_CSP = content_security_policy(vite_dev_mode=False)
 
 # The CI e2e job runs the web container with --no-deps, so Silo isn't
 # available; swap the default storage to an in-memory backend so any test

@@ -188,7 +188,8 @@ class TestPasskeyPrompt:
 
     @staticmethod
     def _requests(page: Page, count: int):
-        page.wait_for_function(f"window.__credentialRequests.length === {count}")
+        # A function, not an expression: Playwright runs an expression through eval(), which the CSP blocks.
+        page.wait_for_function("count => window.__credentialRequests.length === count", arg=count)
         return page.evaluate("window.__credentialRequests")
 
     def test_offers_passkeys_through_autofill(self, page: Page, live_server):
