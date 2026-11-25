@@ -15,9 +15,10 @@ def init_sentry() -> None:
         dsn=settings.SENTRY_DSN,
         environment=settings.INSTANCE,
         integrations=[DjangoIntegration(), CeleryIntegration()],
-        # Request bodies hold what people type, such as the email addresses they invite. Without `data_collection` (or
-        # the older `send_default_pii`), Sentry already leaves out who the user is, their IP address, and cookies.
-        # Local variables in a stack trace are still sent, with passwords, tokens and keys filtered.
+        # Request bodies hold what people type, such as the email addresses they invite, and so do local variables once
+        # a view has read it: Sentry filters only names like password, token and key. Without `data_collection` (or the
+        # older `send_default_pii`), Sentry already leaves out who the user is, their IP address, and cookies.
         # apps/base/tests/test_sentry.py checks all of that.
         max_request_body_size="never",
+        include_local_variables=False,
     )
