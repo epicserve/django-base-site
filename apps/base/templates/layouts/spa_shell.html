@@ -4,7 +4,7 @@
 <html lang="en" class="h-full" data-theme="light">
   <head>
     <!-- Apply saved theme before CSS loads to prevent flash -->
-    <script>
+    <script nonce="{{ csp_nonce }}">
       (function() {
         var stored = localStorage.getItem('theme') || 'auto';
         var theme = stored === 'auto' ?

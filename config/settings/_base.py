@@ -12,6 +12,9 @@ import contextlib
 import re
 import socket
 from pathlib import Path
+from urllib.parse import urlsplit
+
+from django.utils.csp import CSP
 
 from celery.schedules import crontab
 from epicenv import Env
@@ -104,6 +107,7 @@ MIDDLEWARE = [
     "allauth.account.middleware.AccountMiddleware",
     "django_alive.middleware.healthcheck_bypass_host_check",
     "django.middleware.security.SecurityMiddleware",
+    "django.middleware.csp.ContentSecurityPolicyMiddleware",
     "whitenoise.middleware.WhiteNoiseMiddleware",
     "django.contrib.sessions.middleware.SessionMiddleware",
     "django.middleware.common.CommonMiddleware",
@@ -126,6 +130,7 @@ TEMPLATES = [
         "APP_DIRS": True,
         "OPTIONS": {
             "context_processors": [
+                "django.template.context_processors.csp",
                 "django.template.context_processors.debug",
                 "django.template.context_processors.request",
                 "django.contrib.auth.context_processors.auth",
@@ -533,3 +538,59 @@ MAINTENANCE_MODE_STATE_BACKEND_FALLBACK_VALUE = True
 VITE_DEV_MODE = env.bool("VITE_DEV_MODE", default=DEBUG)
 # The host port of the Vite dev server (the `frontend` service), which differs per git worktree (scripts/worktree).
 VITE_SERVER_PORT = env("HOST_PORT_VITE", default="3000")
+
+
+# CONTENT SECURITY POLICY
+def _origin(url: str) -> str | None:
+    """Return the scheme and host of an absolute URL, or None for a path on this site."""
+    parts = urlsplit(url)
+    return f"{parts.scheme}://{parts.netloc}" if parts.scheme and parts.netloc else None
+
+
+# Where the browser loads uploads such as avatars from: Silo in development, S3 or another S3-compatible store in
+# production, or this site when they're kept on disk. If yours come from somewhere else, such as a CDN or a regional S3
+# host, add it to img-src.
+if "s3boto3" in DEFAULT_FILE_STORAGE_BACKEND.lower():
+    _MEDIA_SOURCE = _origin(MEDIA_S3_URL_ENDPOINT_URL or MEDIA_S3_ENDPOINT_URL) or (
+        f"https://{MEDIA_S3_BUCKET_NAME}.s3.amazonaws.com"
+    )
+else:
+    # A full URL only with MediaS3Storage, whose S3 host every bucket shares, so allow the bucket's path, not the host.
+    _MEDIA_SOURCE = MEDIA_URL if _origin(MEDIA_URL) else None
+# The same goes for static files, scripts included.
+_ASSET_SOURCES = [STATIC_URL] if _origin(STATIC_URL) else []
+
+
+def content_security_policy(*, vite_dev_mode: bool) -> dict[str, list[str]]:
+    """Return the Content-Security-Policy for this site, allowing the Vite dev server when `vite_dev_mode` is on."""
+    media_sources = [_MEDIA_SOURCE] if _MEDIA_SOURCE else []
+    policy: dict[str, list[str]] = {
+        "default-src": [CSP.SELF],
+        # The nonce is for the inline script in spa_shell.html that sets the theme before the stylesheet loads.
+        "script-src": [CSP.SELF, CSP.NONCE, *_ASSET_SOURCES],
+        # app.css imports IBM Plex Sans and JetBrains Mono from Google Fonts.
+        "style-src": [CSP.SELF, "https://fonts.googleapis.com", *_ASSET_SOURCES],
+        "font-src": [CSP.SELF, "https://fonts.gstatic.com", *_ASSET_SOURCES],
+        # data: is the blank favicon and the avatar cropper's copy of the chosen image.
+        "img-src": [CSP.SELF, "data:", *_ASSET_SOURCES, *media_sources],
+        "connect-src": [CSP.SELF],
+        "object-src": [CSP.NONE],
+        "base-uri": [CSP.SELF],
+        "form-action": [CSP.SELF],
+        "frame-ancestors": [CSP.NONE],
+    }
+    if vite_dev_mode:
+        # The Vite dev server serves the SPA's modules and assets, adds its styles as <style> elements (hence
+        # 'unsafe-inline', in development only), and reloads the page over a websocket.
+        vite = f"http://localhost:{VITE_SERVER_PORT}"
+        policy["script-src"].append(vite)
+        policy["style-src"] += [vite, CSP.UNSAFE_INLINE]
+        policy["font-src"].append(vite)
+        policy["img-src"].append(vite)
+        policy["connect-src"] += [vite, f"ws://localhost:{VITE_SERVER_PORT}"]
+    return policy
+
+
+# Report-only: browsers report what the policy would block, in the console, without blocking it. Once a deployment's
+# pages report nothing, enforce it by setting SECURE_CSP to the policy instead of SECURE_CSP_REPORT_ONLY.
+SECURE_CSP_REPORT_ONLY = content_security_policy(vite_dev_mode=VITE_DEV_MODE)
