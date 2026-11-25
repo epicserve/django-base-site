@@ -192,11 +192,11 @@ Key variables:
 
 ## Adding a Feature
 
-Copy `apps/teams/` (about 160 lines): an organization-scoped model, its admin, a ninja router, and a settings tab in the SPA (`frontend/js/views/settings/TeamsView.vue` and `frontend/js/apps/ManageTeamsApp.vue`). Its `tests/test_api.py` is the older `TestCase` style, so write new tests like `apps/organizations/tests/test_roles.py` instead. A feature usually needs each of these:
+Copy `apps/teams/` (about 190 lines): an organization-scoped model, its admin, a ninja router, and a settings tab in the SPA (`frontend/js/views/settings/TeamsView.vue` and `frontend/js/apps/ManageTeamsApp.vue`). Its `tests/test_api.py` is the older `TestCase` style, so write new tests like its `tests/test_team_names.py` instead. A feature usually needs each of these:
 
 - **App and model**: add the app to `INSTALLED_APPS` in `config/settings/_base.py`. Give the model a `ForeignKey` to `organizations.Organization` and a queryset built on `FilterByOrganizationMixin` (`apps/organizations/managers.py`), and read rows through `.filter_by_org(request)` so one organization never sees another's. `just lint` fails on a missing migration.
 - **Who can call it**: start each ninja route with `require_org_perm(request, OrgPerm.X)` (`apps/base/permissions.py`) for an action a role grants, or `require_org_selected(request)` for one any member can take. Outside a route, use `has_org_perm(user, org, perm)`. A new kind of action gets its own `OrgPerm` (see Multi-Tenant Scaffolding).
-- **Schemas**: every route needs a `response=` schema. Check input in the schema, or with the model's `clean_fields()`, so a bad value gets a field error rather than a 500 (`create_organization` in `apps/organizations/api.py` does both).
+- **Schemas**: every route needs a `response=` schema. Check input in the schema, or with the model's `clean_fields()`, so a bad value gets a field error rather than a 500. Teams does both: `TeamIn` trims spaces from the name, and `_save_team` in `apps/teams/api.py` runs `clean_fields()` and turns a name already in use into a field error.
 - **Router**: register it in `config/api.py` with `api.add_router(...)`, then run `just generate_api_types` and commit `frontend/js/api/*.d.ts`.
 - **SPA**: add the page to `frontend/js/router.ts`. An organization settings tab also goes in `TABS` in `frontend/js/utils/orgSettings.ts`, with the permission it takes. Show controls with `appStore.can(perm)`.
 - **Notifications**: a model that `notify(..., target=obj)` points at goes in `NOTIFICATIONS_TARGET_MODELS` (`"app_label.ModelName"`), so deleting a row deletes its notifications. A new kind of notification gets a category in `NOTIFICATIONS_CATEGORIES`.
