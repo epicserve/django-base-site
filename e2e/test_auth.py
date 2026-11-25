@@ -3,6 +3,8 @@ import re
 import pytest
 from playwright.sync_api import Page, expect
 
+from apps.accounts.tests.totp import current_totp_code
+
 # Holds requestIdleCallback callbacks until the page unloads, the latest a busy browser could run them. It then
 # records how many were requested and cancelled, and runs every one, cancelled or not, recording any error. Results
 # go to sessionStorage, which outlives the navigation.
@@ -136,7 +138,6 @@ class TestSignInLoadsTheAppContextOnce:
         assert len(requests) == 1
 
     def test_two_factor(self, page: Page, live_server, user):
-        import pyotp
         from allauth.mfa.totp.internal.auth import TOTP, generate_totp_secret
 
         secret = generate_totp_secret()
@@ -148,7 +149,7 @@ class TestSignInLoadsTheAppContextOnce:
         page.wait_for_url(re.compile(r"/accounts/2fa/"), timeout=10000)
         requests = watch_app_context_requests(page)
 
-        page.get_by_label("Code", exact=True).fill(pyotp.TOTP(secret).now())
+        page.get_by_label("Code", exact=True).fill(current_totp_code(secret))
         page.get_by_role("button", name="Continue").click()
 
         page.wait_for_url(f"{live_server.url}/", timeout=10000)

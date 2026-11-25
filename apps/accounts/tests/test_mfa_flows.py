@@ -1,6 +1,5 @@
 """Happy-path coverage for the allauth headless MFA endpoints (TOTP + recovery codes)."""
 
-import pyotp
 import pytest
 from allauth.account.models import EmailAddress
 from allauth.mfa.models import Authenticator
@@ -8,6 +7,7 @@ from allauth.mfa.recovery_codes.internal.auth import RecoveryCodes
 from allauth.mfa.totp.internal.auth import TOTP, generate_totp_secret
 
 from apps.accounts.models import User
+from apps.accounts.tests.totp import current_totp_code
 
 
 @pytest.fixture()
@@ -49,7 +49,7 @@ def test_totp_activate_then_login_requires_code(client, verified_user, mailoutbo
 
     setup = client.get("/_allauth/browser/v1/account/authenticators/totp").json()
     secret = setup["meta"]["secret"]
-    code = pyotp.TOTP(secret).now()
+    code = current_totp_code(secret)
 
     activate = client.post(
         "/_allauth/browser/v1/account/authenticators/totp",
@@ -78,7 +78,7 @@ def test_totp_activate_then_login_requires_code(client, verified_user, mailoutbo
     assert any(f["id"] == "mfa_authenticate" for f in flows)
 
     # Submitting the TOTP code completes the login
-    code = pyotp.TOTP(secret).now()
+    code = current_totp_code(secret)
     finish = client.post(
         "/_allauth/browser/v1/auth/2fa/authenticate",
         data={"code": code},
@@ -134,7 +134,7 @@ def test_authenticators_list(client, verified_user):
     )
     client.post(
         "/_allauth/browser/v1/auth/2fa/authenticate",
-        data={"code": pyotp.TOTP(secret).now()},
+        data={"code": current_totp_code(secret)},
         content_type="application/json",
     )
 
