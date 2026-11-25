@@ -1,8 +1,9 @@
 from apps.accounts.models import User
 from apps.accounts.tests.recipes import make_user
 from apps.base.tests import BaseTest
+from apps.organizations.models import OrganizationInvite
 from apps.organizations.roles import OrgPerm
-from apps.organizations.tests.recipes import make_member, make_org
+from apps.organizations.tests.recipes import make_invite, make_member, make_org
 
 
 class TestOrganizationMembershipProperties(BaseTest):
@@ -35,3 +36,26 @@ class TestOrganizationMembershipProperties(BaseTest):
         assert list(self.org.members_with_perm(OrgPerm.MANAGE_BILLING)) == [self.owner]
         assert list(self.other_org.members_with_perm(OrgPerm.MANAGE_BILLING)) == [self.other_owner]
         assert User.objects.filter(pk__in=[self.owner.pk, self.other_owner.pk]).count() == 2
+
+
+class TestOrganizationInvite(BaseTest):
+    @classmethod
+    def setUpTestData(cls):
+        cls.owner = make_user()
+        cls.org = make_org(cls.owner)
+
+    def test_save_makes_a_key(self):
+        invite = make_invite(self.org, self.owner)
+
+        assert len(invite.key) == 32
+        assert make_invite(self.org, self.owner).key != invite.key
+
+    def test_save_keeps_a_key_it_was_given(self):
+        invite = OrganizationInvite(
+            organization=self.org, sender=self.owner, invitee_email="jim@example.com", key="k" * 32
+        )
+
+        invite.save()
+
+        invite.refresh_from_db()
+        assert invite.key == "k" * 32

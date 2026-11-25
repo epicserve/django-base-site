@@ -174,6 +174,24 @@ class TestEventHandlers(BaseTest):
         assert self.subscription.status == SubscriptionStatus.CANCELED
         assert self.subscription.canceled_at is not None
 
+    def test_subscription_deleted_with_no_one_to_tell(self):
+        # An organization can lose its last owner, so no one manages billing; the cancellation still has to land.
+        org = make_org(name="Vance Refrigeration")
+        subscription = make_subscription(org, plan_key="pro", status=SubscriptionStatus.ACTIVE)
+        event = {
+            "id": "evt_del_unowned",
+            "type": "customer.subscription.deleted",
+            "data": {"object": {"id": subscription.stripe_subscription_id}},
+        }
+
+        response = _deliver(event)
+
+        assert response.status_code == 200
+        subscription.refresh_from_db()
+        assert subscription.status == SubscriptionStatus.CANCELED
+        assert not Notification.objects.exists()
+        assert mail.outbox == []
+
     def test_payment_failed_email_ends_the_sentence_once(self):
         # A name that already ends in a period ("Inc.") used to get a second one.
         self.enterContext(mock.patch("apps.notifications.services.notify", return_value=[]))
