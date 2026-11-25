@@ -51,7 +51,11 @@ urlpatterns += [
 ]
 
 if settings.DEBUG is True:
+    urlpatterns.insert(0, path("admin/doc/", include("django.contrib.admindocs.urls")))
+
+# The settings install the toolbar only when DEBUG is on at startup. A test that turns DEBUG on later doesn't install
+# it, and importing its URLs without it fails.
+if "debug_toolbar" in settings.INSTALLED_APPS:
     import debug_toolbar
 
     urlpatterns.insert(0, path("__debug__/", include(debug_toolbar.urls)))
-    urlpatterns.insert(1, path("admin/doc/", include("django.contrib.admindocs.urls")))
