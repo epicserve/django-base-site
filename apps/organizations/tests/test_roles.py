@@ -11,7 +11,6 @@ from ninja.errors import HttpError
 
 from apps.accounts.recipes import make_user
 from apps.base.tests import BaseTest
-from apps.base.tests.sign_in import sign_in
 from apps.billing.api import create_checkout, create_portal, get_subscription
 from apps.billing.schemas import CheckoutIn
 from apps.organizations.models import OrganizationInvite, OrganizationMember
@@ -83,7 +82,7 @@ class TestRoutesCheckTheirPermission(DunderMifflinTest):
         return request
 
     def test_a_role_opens_only_the_routes_its_permissions_cover(self):
-        sign_in(self.client, self.member, self.org)
+        self.sign_in(self.member, self.org)
 
         for granted in OrgPerm:
             with self.subTest(granted=granted), _grant_members(granted):
@@ -132,7 +131,7 @@ class TestRoutesCheckTheirPermission(DunderMifflinTest):
 
 class TestCurrentOrgPermissions(DunderMifflinTest):
     def test_app_context_lists_the_roles_permissions(self):
-        sign_in(self.client, self.member, self.org)
+        self.sign_in(self.member, self.org)
 
         current = self.client.get("/api/app-context/").json()["org"]
 
@@ -141,7 +140,7 @@ class TestCurrentOrgPermissions(DunderMifflinTest):
     def test_a_role_change_shows_up_without_switching_organizations(self):
         # The session once cached `is_owner` from when the organization was selected, so a demoted owner kept the
         # owner UI until they switched organizations or signed in again.
-        sign_in(self.client, self.owner, self.org)
+        self.sign_in(self.owner, self.org)
         assert self.client.get("/api/app-context/").json()["org"]["role"] == OrgRole.OWNER
 
         OrganizationMember.objects.filter(organization=self.org, user=self.owner).update(role=OrgRole.MEMBER)
@@ -149,7 +148,7 @@ class TestCurrentOrgPermissions(DunderMifflinTest):
         assert self.client.get("/api/app-context/").json()["org"]["permissions"] == []
 
     def test_a_session_saved_before_roles_keeps_its_organization(self):
-        sign_in(self.client, self.owner, self.org)
+        self.sign_in(self.owner, self.org)
         # Sessions saved before roles also cached `is_owner` with the organization. That key is what this test is about,
         # so the session is edited by hand.
         session = self.client.session
@@ -162,7 +161,7 @@ class TestCurrentOrgPermissions(DunderMifflinTest):
 
     def test_an_unrecognized_role_returns_no_permissions(self):
         OrganizationMember.objects.filter(organization=self.org, user=self.member).update(role="removed_role")
-        sign_in(self.client, self.member, self.org)
+        self.sign_in(self.member, self.org)
 
         response = self.client.get("/api/app-context/")
 
@@ -173,7 +172,7 @@ class TestCurrentOrgPermissions(DunderMifflinTest):
 
 class TestChangeRole(DunderMifflinTest):
     def setUp(self):
-        sign_in(self.client, self.owner, self.org)
+        self.sign_in(self.owner, self.org)
 
     def _patch(self, membership, role):
         return self.client.patch(
@@ -217,7 +216,7 @@ class TestInviteRole(DunderMifflinTest):
         cls.invite = make_invite(cls.org, cls.owner, email="jim@example.com", role=OrgRole.OWNER)
 
     def setUp(self):
-        sign_in(self.client, self.invitee)
+        self.sign_in(self.invitee)
 
     def _accept(self):
         return self.client.post(f"/api/invite-by-key/{self.invite.key}/accept/")
@@ -249,7 +248,7 @@ class TestRoleGrantsAreBounded(DunderMifflinTest):
 
     def test_cant_promote_a_member_to_owner(self):
         jim = self._membership(make_member(self.org, role=OrgRole.MEMBER))
-        sign_in(self.client, self.member, self.org)
+        self.sign_in(self.member, self.org)
 
         response = self.client.patch(
             f"/api/organization-members/{jim.pk}/",
@@ -263,7 +262,7 @@ class TestRoleGrantsAreBounded(DunderMifflinTest):
 
     def test_cant_demote_or_remove_an_owner(self):
         membership = self._membership(self.owner)
-        sign_in(self.client, self.member, self.org)
+        self.sign_in(self.member, self.org)
 
         demote = self.client.patch(
             f"/api/organization-members/{membership.pk}/",
@@ -277,7 +276,7 @@ class TestRoleGrantsAreBounded(DunderMifflinTest):
         assert membership.role == OrgRole.OWNER
 
     def test_invites_a_member_but_not_an_owner(self):
-        sign_in(self.client, self.member, self.org)
+        self.sign_in(self.member, self.org)
 
         as_member = self._post("/api/organization-invites/", {"invitee_email": "jim@example.com"})
         as_owner = self._post("/api/organization-invites/", {"invitee_email": "pam@example.com", "role": OrgRole.OWNER})
@@ -288,7 +287,7 @@ class TestRoleGrantsAreBounded(DunderMifflinTest):
     def test_cancels_a_member_invite_but_not_an_owner_invite(self):
         member_invite = make_invite(self.org, self.owner, email="jim@example.com", role=OrgRole.MEMBER)
         owner_invite = make_invite(self.org, self.owner, email="pam@example.com", role=OrgRole.OWNER)
-        sign_in(self.client, self.member, self.org)
+        self.sign_in(self.member, self.org)
 
         cancel_member = self.client.delete(f"/api/organization-invites/{member_invite.pk}/")
         cancel_owner = self.client.delete(f"/api/organization-invites/{owner_invite.pk}/")
@@ -300,7 +299,7 @@ class TestRoleGrantsAreBounded(DunderMifflinTest):
     def test_an_owner_invite_it_sent_grants_member(self):
         invite = make_invite(self.org, self.member, email="jim@example.com", role=OrgRole.OWNER)
         jim = make_user("jim@example.com")
-        sign_in(self.client, jim)
+        self.sign_in(jim)
 
         assert self.client.post(f"/api/invite-by-key/{invite.key}/accept/").status_code == 200
 

@@ -3,7 +3,6 @@ import logging
 
 from apps.accounts.recipes import make_superuser, make_user
 from apps.base.tests import BaseTest
-from apps.base.tests.sign_in import sign_in
 from apps.notifications.models import Notification
 from apps.organizations.recipes import make_member, make_org
 
@@ -22,7 +21,7 @@ class TestSendTestNotification(BaseTest):
         logger = logging.getLogger("django.request")
         self.addCleanup(logger.setLevel, logger.level)
         logger.setLevel(logging.ERROR)
-        sign_in(self.client, self.sender, self.org)
+        self.sign_in(self.sender, self.org)
 
     def _post(self, data):
         return self.client.post(URL, data=json.dumps(data), content_type="application/json")

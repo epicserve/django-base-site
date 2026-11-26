@@ -6,7 +6,6 @@ from PIL import Image
 
 from apps.accounts.recipes import make_user
 from apps.base.tests import BaseTest
-from apps.base.tests.sign_in import sign_in
 
 URL = "/api/avatar/"
 
@@ -23,7 +22,7 @@ class TestAvatarAPI(BaseTest):
         cls.user = make_user("user@example.com")
 
     def setUp(self):
-        sign_in(self.client, self.user)
+        self.sign_in(self.user)
         self.addCleanup(self._delete_avatar_files)
 
     def _delete_avatar_files(self):

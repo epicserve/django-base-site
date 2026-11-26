@@ -2,7 +2,6 @@ from django.test import override_settings
 
 from apps.accounts.recipes import make_user
 from apps.base.tests import BaseTest
-from apps.base.tests.sign_in import sign_in
 from apps.base.utils.timezones import get_timezone_label
 from apps.organizations.recipes import make_org
 from apps.organizations.roles import OrgPerm, OrgRole
@@ -56,7 +55,7 @@ class TestAppContext(BaseTest):
 
     @override_settings(DEBUG=True)
     def test_signed_in(self):
-        sign_in(self.client, self.user, self.org)
+        self.sign_in(self.user, self.org)
         orgs = [{"id": self.org.pk, "name": "Scranton", "slug": "scranton"}]
 
         assert self._get() == {
@@ -94,7 +93,7 @@ class TestAppContext(BaseTest):
 
     def test_signed_in_without_an_org(self):
         self.org.delete()
-        sign_in(self.client, self.user)
+        self.sign_in(self.user)
 
         data = self._get()
 
@@ -116,7 +115,7 @@ class TestAppContext(BaseTest):
             ("without an organization", make_user("toby@example.com")),
         ]:
             with self.subTest(label):
-                sign_in(self.client, user)
+                self.sign_in(user)
 
                 assert self._get()["billing"] == {
                     **BILLING_DISABLED,

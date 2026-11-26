@@ -21,7 +21,6 @@ import config.settings._base
 from apps.accounts.recipes import make_user
 from apps.base.sentry import init_sentry
 from apps.base.tests import BaseTest
-from apps.base.tests.sign_in import sign_in
 
 
 def _print_invite(invite: dict):
@@ -132,7 +131,7 @@ class TestErrorReports(BaseTest):
 
     def test_an_error_in_a_view_is_reported_without_personal_details(self):
         init_sentry()
-        sign_in(self.client, self.michael)
+        self.sign_in(self.michael)
         session_key = self.client.session.session_key
 
         status = _post_through_wsgi(

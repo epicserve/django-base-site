@@ -10,7 +10,6 @@ import config.urls
 from apps.accounts.recipes import make_user
 from apps.base.debug_toolbar import ENABLED_COOKIE, show_toolbar
 from apps.base.tests import BaseTest
-from apps.base.tests.sign_in import sign_in
 
 
 @pytest.fixture()
@@ -53,7 +52,7 @@ class TestAppContextDebugFlag(BaseTest):
         cls.jim = make_user("jim@example.com")
 
     def setUp(self):
-        sign_in(self.client, self.jim)
+        self.sign_in(self.jim)
 
     @override_settings(DEBUG=True)
     def test_reports_debug_on(self):

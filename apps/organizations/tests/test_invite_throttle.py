@@ -37,7 +37,7 @@ class TestInviteThrottle(BaseTest):
         for throttle in INVITE_THROTTLES:
             self.enterContext(patch.object(throttle, "timer", lambda: self.now))
         self.addresses = (f"guest{n}@example.com" for n in count())
-        sign_in(self.client, self.michael, self.org)
+        self.sign_in(self.michael, self.org)
 
     def _invite(self, client=None):
         return (client or self.client).post(

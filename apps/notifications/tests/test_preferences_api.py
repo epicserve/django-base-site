@@ -5,7 +5,6 @@ from django.test import override_settings
 
 from apps.accounts.recipes import make_user
 from apps.base.tests import BaseTest
-from apps.base.tests.sign_in import sign_in
 from apps.notifications.models import NotificationPreference
 from apps.notifications.recipes import COMMENTS_CATEGORY
 
@@ -27,7 +26,7 @@ class TestPreferencesAPI(BaseTest):
         logger = logging.getLogger("django.request")
         self.addCleanup(logger.setLevel, logger.level)
         logger.setLevel(logging.ERROR)
-        sign_in(self.client, self.user)
+        self.sign_in(self.user)
 
     def _patch(self, url, data):
         return self.client.patch(url, data=json.dumps(data), content_type="application/json")

@@ -1,6 +1,6 @@
 from apps.accounts.recipes import make_user
 from apps.base.tests import BaseTest
-from apps.base.tests.sign_in import api_sign_in, sign_in
+from apps.base.tests.sign_in import api_sign_in
 from apps.organizations.recipes import make_member, make_org
 from apps.organizations.roles import OrgRole
 
@@ -23,7 +23,7 @@ class TestSignIn(BaseTest):
         return response.json()
 
     def test_selects_the_primary_organization(self):
-        sign_in(self.client, self.pam)
+        self.sign_in(self.pam)
 
         context = self._app_context()
         assert context["user"]["email"] == "pam@example.com"
@@ -31,14 +31,14 @@ class TestSignIn(BaseTest):
         assert context["org"]["role"] == OrgRole.OWNER
 
     def test_selects_the_organization_given(self):
-        sign_in(self.client, self.pam, self.stamford)
+        self.sign_in(self.pam, self.stamford)
 
         context = self._app_context()
         assert context["org"]["slug"] == "stamford"
         assert context["org"]["role"] == OrgRole.MEMBER
 
     def test_selects_none_without_a_membership(self):
-        sign_in(self.client, self.toby)
+        self.sign_in(self.toby)
 
         context = self._app_context()
         assert context["user"]["email"] == "toby@example.com"
@@ -46,7 +46,7 @@ class TestSignIn(BaseTest):
 
     def test_records_a_password_sign_in_for_allauth(self):
         # allauth reads this record to decide whether a change, like adding a passkey, needs the password again.
-        sign_in(self.client, self.pam)
+        self.sign_in(self.pam)
 
         response = self.client.get(SESSION_URL)
         assert response.status_code == 200

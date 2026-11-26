@@ -118,7 +118,7 @@ Test each behavior once, at the cheapest layer that can observe it faithfully:
 ### Signing In
 
 - Only tests of signing in itself sign in through allauth (`api_sign_in(client, email)` in `apps/base/tests/sign_in.py`) or the form (e2e).
-- Every other Python test uses `sign_in(self.client, user, org=None)`, which force-logs in, selects `org` (default: the user's primary organization) in the session, and records a password sign-in so allauth doesn't ask for the password again before adding a passkey or setting up two-factor authentication.
+- Every other Python test uses `self.sign_in(user, org=None)` on `BaseTest` (for another client, `sign_in(client, user, org)` from `apps/base/tests/sign_in.py`), which force-logs in, selects `org` (default: the user's primary organization) in the session, and records a password sign-in so allauth doesn't ask for the password again before adding a passkey or setting up two-factor authentication.
 - Every other e2e test uses the `sign_in` fixture, `sign_in(user, "/path/", org=None)`: it builds the same session and hands the browser its cookie, so the first page the browser loads is the one under test.
 
 ### Consolidating Tests

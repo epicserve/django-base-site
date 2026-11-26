@@ -9,7 +9,6 @@ import json
 
 from apps.accounts.recipes import make_user
 from apps.base.tests import BaseTest
-from apps.base.tests.sign_in import sign_in
 from apps.organizations.recipes import make_org
 from apps.teams.models import Team
 from apps.teams.recipes import make_team
@@ -25,7 +24,7 @@ class TestTeamNames(BaseTest):
         cls.sales = make_team(cls.org, "Sales")
 
     def setUp(self):
-        sign_in(self.client, self.owner, self.org)
+        self.sign_in(self.owner, self.org)
 
     def _create(self, name):
         return self.client.post("/api/teams/", data=json.dumps({"name": name}), content_type="application/json")

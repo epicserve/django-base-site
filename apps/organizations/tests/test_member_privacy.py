@@ -11,7 +11,6 @@ import json
 
 from apps.accounts.recipes import make_user
 from apps.base.tests import BaseTest
-from apps.base.tests.sign_in import sign_in
 from apps.organizations.models import OrganizationInvite, OrganizationMember
 from apps.organizations.recipes import make_org
 
@@ -28,7 +27,7 @@ class TestMembersApiTellsNothingAboutOutsiders(BaseTest):
         cls.org = make_org(cls.ryan, name="Ryan Started a Company", slug="wuphf")
 
     def setUp(self):
-        sign_in(self.client, self.ryan, self.org)
+        self.sign_in(self.ryan, self.org)
 
     def _post(self, url, data):
         return self.client.post(url, data=json.dumps(data), content_type="application/json")

@@ -2,7 +2,6 @@ import json
 
 from apps.accounts.recipes import make_user
 from apps.base.tests import BaseTest
-from apps.base.tests.sign_in import sign_in
 from apps.organizations.recipes import make_org
 from apps.teams.models import Team
 from apps.teams.recipes import make_team
@@ -21,7 +20,7 @@ class TestTeamAPI(BaseTest):
         cls.org = make_org(cls.owner)
 
     def setUp(self):
-        sign_in(self.client, self.owner, self.org)
+        self.sign_in(self.owner, self.org)
 
     def test_list(self):
         team = make_team(self.org, "Engineering")

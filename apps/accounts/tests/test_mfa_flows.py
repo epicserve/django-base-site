@@ -5,7 +5,7 @@ from allauth.mfa.models import Authenticator
 from apps.accounts.recipes import make_totp, make_user
 from apps.accounts.tests.totp import current_totp_code
 from apps.base.tests import BaseTest
-from apps.base.tests.sign_in import api_sign_in, sign_in
+from apps.base.tests.sign_in import api_sign_in
 
 TOTP_URL = "/_allauth/browser/v1/account/authenticators/totp"
 TWO_FACTOR_URL = "/_allauth/browser/v1/auth/2fa/authenticate"
@@ -85,7 +85,7 @@ class TestWithTotp(BaseTest):
         assert used not in unused_after
 
     def test_authenticators_list(self):
-        sign_in(self.client, self.user)
+        self.sign_in(self.user)
 
         resp = self.client.get("/_allauth/browser/v1/account/authenticators")
         assert resp.status_code == 200, resp.content

@@ -2,7 +2,6 @@ import json
 
 from apps.accounts.recipes import make_user
 from apps.base.tests import BaseTest
-from apps.base.tests.sign_in import sign_in
 
 
 def _detail_url(pk: int) -> str:
@@ -15,7 +14,7 @@ class TestUserTimezoneAPI(BaseTest):
         cls.user = make_user("testuser@example.com", timezone="America/Chicago")
 
     def setUp(self):
-        sign_in(self.client, self.user)
+        self.sign_in(self.user)
 
     def test_patch_timezone_valid(self):
         resp = self.client.patch(

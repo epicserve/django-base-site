@@ -16,7 +16,7 @@ from allauth.account.models import EmailAddress, EmailConfirmationHMAC
 
 from apps.accounts.recipes import make_user
 from apps.base.tests import BaseTest
-from apps.base.tests.sign_in import api_sign_in, sign_in
+from apps.base.tests.sign_in import api_sign_in
 
 
 def _extract_key_from_email(body: str) -> str:
@@ -87,7 +87,7 @@ class TestSetPrimaryEmail(BaseTest):
         and PUT → resend-verification, so the SPA must use PATCH or the click
         silently re-sends a verification email instead of changing the primary.
         """
-        sign_in(self.client, self.user)
+        self.sign_in(self.user)
         response = self.client.patch(
             "/_allauth/browser/v1/account/email",
             data=json.dumps({"email": self.secondary.email, "primary": True}),

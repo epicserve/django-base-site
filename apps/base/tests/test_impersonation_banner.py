@@ -1,6 +1,5 @@
 from apps.accounts.recipes import make_superuser, make_user
 from apps.base.tests import BaseTest
-from apps.base.tests.sign_in import sign_in
 
 APP_CONTEXT_URL = "/api/app-context/"
 HIDE_URL = "/api/impersonation/hide-banner/"
@@ -14,7 +13,7 @@ class TestImpersonationBanner(BaseTest):
         cls.pam = make_user("pam@example.com")
 
     def setUp(self):
-        sign_in(self.client, self.admin)
+        self.sign_in(self.admin)
 
     def _impersonate(self, user):
         resp = self.client.post("/hijack/acquire/", {"user_pk": user.pk, "next": "/"})

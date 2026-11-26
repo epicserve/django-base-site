@@ -7,7 +7,6 @@ import pytest
 from apps.accounts.recipes import make_user
 from apps.base.tests import BaseTest
 from apps.base.tests.mail import record_queued_emails, use_failing_mail_server
-from apps.base.tests.sign_in import sign_in
 from apps.organizations.models import Organization, OrganizationInvite, OrganizationMember
 from apps.organizations.recipes import make_invite, make_member, make_org
 from apps.organizations.roles import OrgPerm, OrgRole
@@ -24,7 +23,7 @@ class OrganizationAPITestBase(BaseTest):
         make_member(cls.org, cls.owner, role=OrgRole.OWNER, is_primary=False)
 
     def setUp(self):
-        sign_in(self.client, self.owner, self.org)
+        self.sign_in(self.owner, self.org)
 
 
 class TestOrganizationViewSet(OrganizationAPITestBase):
@@ -206,7 +205,7 @@ class TestCreateOrganization(BaseTest):
         cls.kevin = make_user("kevin@example.com")
 
     def setUp(self):
-        sign_in(self.client, self.kevin)
+        self.sign_in(self.kevin)
 
     def _create(self, slug):
         resp = self.client.post(
@@ -249,7 +248,7 @@ class TestDeclineInvite(BaseTest):
         return self.client.post(f"/api/invite-by-key/{invite.key}/decline/")
 
     def test_the_invitee_declines(self):
-        sign_in(self.client, self.invitee)
+        self.sign_in(self.invitee)
 
         response = self._decline(self.invite)
 
@@ -258,7 +257,7 @@ class TestDeclineInvite(BaseTest):
         assert not OrganizationMember.objects.filter(user=self.invitee).exists()
 
     def test_someone_else_cannot_decline_it(self):
-        sign_in(self.client, self.invitee)
+        self.sign_in(self.invitee)
 
         response = self._decline(self.other_invite)
 
@@ -272,6 +271,6 @@ class TestDeclineInvite(BaseTest):
         assert OrganizationInvite.objects.count() == 2
 
     def test_an_unknown_key(self):
-        sign_in(self.client, self.invitee)
+        self.sign_in(self.invitee)
 
         assert self._decline(OrganizationInvite(key="abc123notarealkey")).status_code == 404

@@ -5,7 +5,6 @@ from django.utils import timezone
 
 from apps.accounts.recipes import make_user
 from apps.base.tests import BaseTest
-from apps.base.tests.sign_in import sign_in
 from apps.notifications.models import Notification
 from apps.notifications.recipes import make_notification
 from apps.organizations.recipes import make_member, make_org
@@ -56,7 +55,7 @@ class TestNotificationAPI(BaseTest):
         self._make(1, org=self.other_org, title="mine in other")
         self._make(1, recipient=self.other_user, title="bob's")
 
-        sign_in(self.client, self.user)
+        self.sign_in(self.user)
         resp = self.client.get(LIST_URL)
         assert resp.status_code == 200
         body = resp.json()
@@ -67,7 +66,7 @@ class TestNotificationAPI(BaseTest):
     def test_unread_count(self):
         self._make(3)
         self._make(2, read_at=timezone.now())
-        sign_in(self.client, self.user)
+        self.sign_in(self.user)
         resp = self.client.get(UNREAD_URL)
         assert resp.status_code == 200
         assert resp.json()["count"] == 3
@@ -75,7 +74,7 @@ class TestNotificationAPI(BaseTest):
     def test_filter_unread(self):
         self._make(2)
         self._make(1, read_at=timezone.now())
-        sign_in(self.client, self.user)
+        self.sign_in(self.user)
         resp = self.client.get(LIST_URL, {"is_read": "false"})
         assert resp.json()["count"] == 2
         resp = self.client.get(LIST_URL, {"is_read": "true"})
@@ -84,7 +83,7 @@ class TestNotificationAPI(BaseTest):
     def test_mark_read_sets_read_at(self):
         [n] = self._make(1)
         assert n.read_at is None
-        sign_in(self.client, self.user)
+        self.sign_in(self.user)
         resp = self._patch_json(_detail_url(n.pk), {"is_read": True})
         assert resp.status_code == 200
         n.refresh_from_db()
@@ -95,21 +94,21 @@ class TestNotificationAPI(BaseTest):
 
     def test_delete_one(self):
         [n] = self._make(1)
-        sign_in(self.client, self.user)
+        self.sign_in(self.user)
         resp = self.client.delete(_detail_url(n.pk))
         assert resp.status_code == 204
         assert Notification.objects.count() == 0
 
     def test_cannot_act_on_other_users_notification(self):
         [n] = self._make(1, recipient=self.other_user)
-        sign_in(self.client, self.user)
+        self.sign_in(self.user)
         resp = self.client.delete(_detail_url(n.pk))
         assert resp.status_code == 404
         assert Notification.objects.count() == 1
 
     def test_bulk_mark_read_by_ids(self):
         unread = self._make(3)
-        sign_in(self.client, self.user)
+        self.sign_in(self.user)
         ids = [n.pk for n in unread[:2]]
         resp = self._post_json(BULK_URL, {"action": "mark_read", "ids": ids})
         assert resp.status_code == 200
@@ -119,7 +118,7 @@ class TestNotificationAPI(BaseTest):
     def test_bulk_mark_all_unread(self):
         self._make(3)
         self._make(2, recipient=self.other_user)
-        sign_in(self.client, self.user)
+        self.sign_in(self.user)
         resp = self._post_json(BULK_URL, {"action": "mark_read", "all_unread": True})
         assert resp.status_code == 200
         assert resp.json()["updated"] == 3
@@ -129,7 +128,7 @@ class TestNotificationAPI(BaseTest):
     def test_bulk_delete(self):
         mine = self._make(3)
         self._make(1, recipient=self.other_user)
-        sign_in(self.client, self.user)
+        self.sign_in(self.user)
         ids = [n.pk for n in mine]
         resp = self._post_json(BULK_URL, {"action": "delete", "ids": ids})
         assert resp.status_code == 200
@@ -138,18 +137,18 @@ class TestNotificationAPI(BaseTest):
 
     def test_bulk_delete_cannot_touch_other_users(self):
         [theirs] = self._make(1, recipient=self.other_user)
-        sign_in(self.client, self.user)
+        self.sign_in(self.user)
         resp = self._post_json(BULK_URL, {"action": "delete", "ids": [theirs.pk]})
         assert resp.status_code == 200
         assert resp.json()["deleted"] == 0
         assert Notification.objects.filter(pk=theirs.pk).exists()
 
     def test_bulk_requires_valid_action(self):
-        sign_in(self.client, self.user)
+        self.sign_in(self.user)
         resp = self._post_json(BULK_URL, {"action": "nonsense", "ids": [1]})
         assert resp.status_code == 400
 
     def test_bulk_requires_ids_when_not_all_unread(self):
-        sign_in(self.client, self.user)
+        self.sign_in(self.user)
         resp = self._post_json(BULK_URL, {"action": "mark_read"})
         assert resp.status_code == 400

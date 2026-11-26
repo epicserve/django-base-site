@@ -14,7 +14,6 @@ import pytest
 
 from apps.accounts.recipes import make_user
 from apps.base.tests import BaseTest
-from apps.base.tests.sign_in import sign_in
 from apps.organizations.models import Organization, OrganizationMember
 from apps.organizations.recipes import make_org
 
@@ -29,7 +28,7 @@ class TestCreateOrganizationValidation(BaseTest):
         cls.kevin = make_user("kevin@example.com")
 
     def setUp(self):
-        sign_in(self.client, self.kevin)
+        self.sign_in(self.kevin)
 
     def _post(self, name, slug):
         return self.client.post(
@@ -123,7 +122,7 @@ class TestUpdateSettingsValidation(BaseTest):
         cls.org = make_org(cls.owner, name="Acme", slug="acme", billing_email="billing@example.com")
 
     def setUp(self):
-        sign_in(self.client, self.owner, self.org)
+        self.sign_in(self.owner, self.org)
 
     def _patch(self, billing_email):
         return self.client.patch(

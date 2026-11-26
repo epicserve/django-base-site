@@ -11,7 +11,6 @@ from unittest.mock import patch
 
 from apps.accounts.recipes import make_user
 from apps.base.tests import BaseTest
-from apps.base.tests.sign_in import sign_in
 from apps.organizations.models import OrganizationMember
 from apps.organizations.recipes import make_member, make_org
 from apps.organizations.roles import ROLE_PERMISSIONS, OrgPerm, OrgRole
@@ -29,7 +28,7 @@ class TestTheLastOwnerStays(BaseTest):
         cls.michael = _membership(cls.org, "michael@example.com", OrgRole.OWNER)
 
     def setUp(self):
-        sign_in(self.client, self.michael.user, self.org)
+        self.sign_in(self.michael.user, self.org)
 
     def _set_role(self, membership, role):
         return self.client.patch(
