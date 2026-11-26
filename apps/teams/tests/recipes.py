@@ -1,17 +1,5 @@
-"""Test data for teams."""
+"""Test data for teams. `make_team` lives in `apps.teams.recipes`, because `manage.py seed` uses it too."""
 
-from collections.abc import Iterable
-from itertools import count
+from apps.teams.recipes import make_team
 
-from apps.accounts.models import User
-from apps.organizations.models import Organization
-from apps.teams.models import Team
-
-_numbers = count(1)
-
-
-def make_team(org: Organization, name: str | None = None, members: Iterable[User] = ()) -> Team:
-    """Make a team in `org` with `members`, who should already be members of the organization."""
-    team = Team.objects.create(organization=org, name=name or f"Team {next(_numbers)}")
-    team.members.add(*members)
-    return team
+__all__ = ["make_team"]

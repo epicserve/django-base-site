@@ -22,8 +22,7 @@ Rerunning is safe. Each run creates whatever seeded rows are missing and
 restores the seeded fields (names, roles, passwords, the superuser's flags) on
 the ones that exist. It also removes MFA authenticators (TOTP, passkeys,
 recovery codes) from the seeded users, so a seeded login always signs in with
-the password alone. Apart
-from that it never deletes anything created by hand:
+the password alone. Apart from that it never deletes anything created by hand:
 
 - Team members are only added, never removed.
 - `is_primary` (on memberships and email addresses) is only set when a row is
@@ -31,29 +30,26 @@ from that it never deletes anything created by hand:
 - An invite whose invitee has since joined the organization is skipped, since
   accepting an invite deletes it and creates the membership.
 
-Invites are looked up by organization and email and created only when missing:
-`OrganizationInvite.save()` runs `full_clean()`, whose duplicate check rejects
-re-saving an existing invite, so `update_or_create` can't be used for them.
+Every row is built with the same recipes the tests use (`apps/<app>/recipes.py`),
+called with `update=True`, so seeded data and test data can't drift apart.
 """
 
 from dataclasses import dataclass
-from datetime import timedelta
 
 from django.conf import settings
-from django.contrib.auth.hashers import make_password
 from django.core.management.base import BaseCommand, CommandError
 from django.db import DEFAULT_DB_ALIAS, connections, transaction
 from django.db.migrations.executor import MigrationExecutor
 from django.db.models import Q
-from django.utils import timezone
 
-from allauth.account.models import EmailAddress
 from allauth.mfa.models import Authenticator
 
 from apps.accounts.models import User
-from apps.organizations.models import Organization, OrganizationInvite, OrganizationMember
+from apps.accounts.recipes import make_user
+from apps.organizations.models import Organization, OrganizationInvite
+from apps.organizations.recipes import make_invite, make_member, make_org
 from apps.organizations.roles import OrgRole
-from apps.teams.models import Team
+from apps.teams.recipes import make_team
 
 # Deliberately well-known: the command only runs with DEBUG on against a local database, and agents need it to
 # sign in. The superuser doesn't use it.
@@ -261,11 +257,9 @@ class Command(BaseCommand):
                 self.stdout.write(f"    {invite.invitee_email.ljust(width)}  {state:<7}  {url}")
 
     def _seed_users(self, superuser_username: str, superuser_email: str, superuser_password: str) -> dict[str, User]:
-        # Hash once: the default hasher is deliberately slow, and every seeded user but the superuser shares it.
-        password = make_password(SEED_PASSWORD)
         users = {}
         for login in (*LOGINS, *FILLERS):
-            users[login.email] = self._seed_user(login.email, login, password=password, is_superuser=False)
+            users[login.email] = self._seed_user(login.email, login, password=SEED_PASSWORD, is_superuser=False)
 
         # Matching on the username alone would create a second account with the same email.
         taken = (
@@ -282,7 +276,7 @@ class Command(BaseCommand):
             superuser_email,
             SUPERUSER_LOGIN,
             username=superuser_username,
-            password=make_password(superuser_password),
+            password=superuser_password,
             is_superuser=True,
         )
 
@@ -294,66 +288,40 @@ class Command(BaseCommand):
 
     @staticmethod
     def _seed_user(email: str, login: SeedLogin, *, password: str, is_superuser: bool, username: str = "") -> User:
-        user, _ = User.objects.update_or_create(
+        return make_user(
+            email,
             username=username or email,
-            defaults={
-                "email": email,
-                "first_name": login.first_name,
-                "last_name": login.last_name,
-                "is_active": True,
-                "is_staff": is_superuser,
-                "is_superuser": is_superuser,
-                "password": password,
-            },
+            password=password,
+            first_name=login.first_name,
+            last_name=login.last_name,
+            is_active=True,
+            is_staff=is_superuser,
+            is_superuser=is_superuser,
+            update=True,
         )
-        has_primary = EmailAddress.objects.filter(user=user, primary=True).exclude(email=email).exists()
-        EmailAddress.objects.update_or_create(
-            user=user,
-            email=email,
-            defaults={"verified": True},
-            create_defaults={"verified": True, "primary": not has_primary},
-        )
-        return user
 
     def _seed_organizations(self) -> dict[str, Organization]:
-        orgs = {}
-        for slug, name in ORGANIZATIONS:
-            orgs[slug], _ = Organization.objects.update_or_create(slug=slug, defaults={"name": name})
-        return orgs
+        return {slug: make_org(name=name, slug=slug, update=True) for slug, name in ORGANIZATIONS}
 
     def _seed_memberships(self, users: dict[str, User], orgs: dict[str, Organization]) -> None:
         for slug, email, role, is_primary in MEMBERSHIPS:
-            user = users[email]
-            has_primary = OrganizationMember.objects.filter(user=user, is_primary=True).exists()
-            OrganizationMember.objects.update_or_create(
-                organization=orgs[slug],
-                user=user,
-                defaults={"role": role},
-                create_defaults={"role": role, "is_primary": is_primary and not has_primary},
-            )
+            # True means "if they have no primary membership yet", which is make_member's own rule.
+            make_member(orgs[slug], users[email], role=role, is_primary=None if is_primary else False, update=True)
 
     def _seed_teams(self, users: dict[str, User], orgs: dict[str, Organization]) -> None:
         for slug, name, emails in TEAMS:
-            team, _ = Team.objects.get_or_create(organization=orgs[slug], name=name)
-            team.members.add(*(users[email] for email in emails))
+            make_team(orgs[slug], name, [users[email] for email in emails], update=True)
 
     def _seed_invites(self, users: dict[str, User], orgs: dict[str, Organization]) -> list[OrganizationInvite]:
         invites = []
-        now = timezone.now()
         for slug, sender_email, email, is_expired in INVITES:
             org = orgs[slug]
             if org.organizationmember_set.filter(user__email__iexact=email).exists():
                 self.stdout.write(f"{email} is already a member of {org}, skipping their invite.")
                 continue
-            invite = OrganizationInvite.objects.filter(organization=org, invitee_email=email).first()
-            if invite is None:
-                invite = OrganizationInvite(
-                    organization=org, sender=users[sender_email], invitee=users.get(email), invitee_email=email
+            invites.append(
+                make_invite(
+                    org, users[sender_email], email=email, invitee=users.get(email), expired=is_expired, update=True
                 )
-                invite.save()
-            # `created` is auto_now_add, so backdate (or refresh) it with an update that skips save().
-            created = now - timedelta(days=OrganizationInvite.expired_in_days + 1) if is_expired else now
-            OrganizationInvite.objects.filter(pk=invite.pk).update(created=created)
-            invite.created = created
-            invites.append(invite)
+            )
         return invites
