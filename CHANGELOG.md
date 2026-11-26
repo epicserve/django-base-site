@@ -37,7 +37,6 @@
 ### Fixed
 
 * Saving an organization invite that already exists no longer fails with "There is already a pending invitation". The duplicate check in `OrganizationInvite.clean()` counted the invite itself.
-
 * A built SPA (production, and the e2e suite) loads its stylesheet. `{% vite_asset 'js/app.ts' %}` emitted only the entry's script, and in a build the CSS that `app.ts` imports is a separate file no script loads, so every page rendered without Tailwind's styles. The Vite dev server injects the CSS from the script, which is why it only showed up in a build. The tag now links the entry's CSS, and that of the chunks it imports, before the script, as Vite's backend integration guide describes. An e2e test checks a Tailwind style on the built page. Until now the e2e suite ran against unstyled pages, so it never saw that `TimezoneDetectModal` opened on every signed-in page: Playwright's browser runs in UTC, and the e2e users are on `User.timezone`'s default, `America/Chicago`. With styles, the modal's backdrop took every click and failed 18 tests, so the e2e browser now runs in that timezone.
 * A mail server that's down no longer turns these into failures, because sending moved to the Celery worker. Each has a test that fails on the old code:
   * Inviting someone answered with a 500, though the invite had been saved.
