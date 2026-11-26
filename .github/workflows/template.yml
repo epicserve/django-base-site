@@ -9,6 +9,29 @@ on:
     branches:
       - main
   pull_request:
+    # It takes about 4 minutes, longer than ci.yml, so a pull request runs it only when it changes something this job
+    # checks: the installer, the files it edits or deletes, the Docker images and compose stack it boots, and what
+    # `just seed` runs. Every push to main runs it, which catches the rest, such as a new reference to a deleted file.
+    paths:
+      - .github/workflows/template.yml
+      - scripts/**
+      - config/**
+      - justfile
+      - compose.yml
+      - .dockerignore
+      - .env.toml
+      - pyproject.toml
+      - uv.lock
+      - package.json
+      - bun.lock
+      - .gitignore
+      - .githooks/**
+      - .claude/**
+      - .agents/**
+      - AGENTS.md
+      - apps/*/migrations/**
+      - apps/*/management/**
+      - apps/*/recipes.py
   workflow_dispatch:
 
 concurrency:
@@ -178,7 +201,8 @@ jobs:
         # it: the generated .env, the compose services and their healthchecks,
         # and web's startup (migrate + ensure_s3_bucket against Silo). The
         # project's code itself is tested by ci.yml's Tests job, so pytest
-        # doesn't run here. web has no healthcheck, so poll the API until it
+        # doesn't run here. ci.yml runs on the runner, not in these images, so
+        # this is the only job that builds and boots them. web has no healthcheck, so poll the API until it
         # answers.
         run: |
           docker compose up --wait -d web || { docker compose ps; docker compose logs; exit 1; }
