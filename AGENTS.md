@@ -83,7 +83,7 @@ Use Just for all development tasks. Common ones:
 ## Testing
 
 - Run `just verify` before calling work done. It doesn't run the e2e suite, so also run `just test_e2e` when a change touches the SPA or a flow the e2e tests cover.
-- pytest with pytest-django and Django Test Plus (`BaseTest`). Test data comes from each app's recipes (see Test Data). Test settings are `config.settings.test_runner`; e2e settings are `config.settings.e2e`. Coverage configuration is in `config/coverage.ini`.
+- pytest with pytest-django. Database test classes subclass `BaseTest` (`apps/base/tests/_base.py`), Django's `TestCase` plus a `sign_in` method. Test data comes from each app's recipes (see Test Data). Test settings are `config.settings.test_runner`; e2e settings are `config.settings.e2e`. Coverage configuration is in `config/coverage.ini`.
 - Playwright e2e tests are under `e2e/`. `--ignore=e2e` in `pyproject.toml`'s `[tool.pytest.ini_options]` keeps them out of `just test`.
 - Vitest (run by `just test_js`) unit-tests the SPA's TypeScript and components. Put a test beside its module as `<name>.test.ts` and import `describe`, `test`, `expect` (and `vi` for mocks) from `vitest`. It runs under happy-dom with the Vite config's `@` alias; mount a component with `mount()` from `@vue/test-utils`.
 - `frontend/js/utils/api.type-test.ts` holds type-level regression tests: `@ts-expect-error` lines for API bugs that shipped before the types existed, next to the same calls written correctly. `vue-tsc` fails if one stops being an error. Add one when the types should have caught a bug.

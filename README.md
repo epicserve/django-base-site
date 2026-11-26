@@ -73,7 +73,6 @@ These first-party apps under `apps/` are the foundation for any B2B SaaS built o
 * [Pytest Django](https://pytest-django.readthedocs.io/en/latest/index.html) - Django plugin for Pytest
 * [Pytest-cov](https://pytest-cov.readthedocs.io) - Code coverage
 * [Pytest Playwright](https://playwright.dev/python/docs/test-runners) - End-to-end tests live under `e2e/` and run against a dedicated `config.settings.e2e` settings module with pre-built Vite assets.
-* [Django Test Plus](https://github.com/revsys/django-test-plus/) - Helper functions to write tests faster
 * [pyotp](https://github.com/pyauth/pyotp) - Used in the MFA / TOTP test suite
 
 ### 🐛 Debugging Support

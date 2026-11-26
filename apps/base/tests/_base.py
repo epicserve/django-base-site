@@ -1,6 +1,4 @@
-from django.test import Client
-
-from test_plus.test import TestCase
+from django.test import Client, TestCase
 
 from apps.accounts.models import User
 from apps.base.tests import sign_in as sign_in_module
