@@ -17,14 +17,14 @@ from playwright.sync_api import Page, expect
 
 @pytest.fixture()
 def invite(org, user):
-    from apps.organizations.tests.recipes import make_invite
+    from apps.organizations.recipes import make_invite
 
     return make_invite(org, user, email="jim.halpert@dundermifflin.com")
 
 
 @pytest.fixture()
 def invitee(db):
-    from apps.accounts.tests.recipes import make_user
+    from apps.accounts.recipes import make_user
 
     return make_user("jim.halpert@dundermifflin.com", first_name="Jim", last_name="Halpert")
 
@@ -32,7 +32,7 @@ def invitee(db):
 class TestInviteFlow:
     def test_the_invite_page(self, page: Page, live_server, org, user, invite, subtests):
         # Each case only reads, so they share one browser and database.
-        from apps.organizations.tests.recipes import make_invite
+        from apps.organizations.recipes import make_invite
 
         with subtests.test("an anonymous visitor sees the organization and sender"):
             page.goto(f"{live_server.url}/organizations/invite/{invite.key}/accept/")

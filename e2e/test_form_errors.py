@@ -32,9 +32,9 @@ class TestFieldErrors:
 
     def test_every_form(self, page: Page, live_server, sign_in, user, org, subtests):
         # Every submission here is refused, so none of them changes what the next one sees.
-        from apps.accounts.tests.recipes import make_user
+        from apps.accounts.recipes import make_user
         from apps.organizations.models import Organization
-        from apps.organizations.tests.recipes import make_member
+        from apps.organizations.recipes import make_member
 
         sign_in(user, "/accounts/email/")
 

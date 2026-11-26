@@ -1,13 +1,13 @@
 from django.db.models.signals import post_delete
 from django.test import override_settings
 
-from apps.accounts.tests.recipes import make_user
+from apps.accounts.recipes import make_user
 from apps.base.tests import BaseTest
 from apps.notifications.models import Notification
 from apps.notifications.services import notify
 from apps.notifications.signals import _delete_notifications_for_target, connect_target_receivers
 from apps.organizations.models import Organization
-from apps.organizations.tests.recipes import make_org
+from apps.organizations.recipes import make_org
 
 
 # Use a model that already exists in the project (Organization) as a stand-in target so we don't need a fixture model.

@@ -9,11 +9,11 @@ through ids got every email.
 
 import json
 
-from apps.accounts.tests.recipes import make_user
+from apps.accounts.recipes import make_user
 from apps.base.tests import BaseTest
 from apps.base.tests.sign_in import sign_in
 from apps.organizations.models import OrganizationInvite, OrganizationMember
-from apps.organizations.tests.recipes import make_org
+from apps.organizations.recipes import make_org
 
 OUTSIDER_EMAIL = "jan.levinson@corporate.example"
 

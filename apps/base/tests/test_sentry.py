@@ -18,7 +18,7 @@ import sentry_sdk
 from sentry_sdk.transport import Transport
 
 import config.settings._base
-from apps.accounts.tests.recipes import make_user
+from apps.accounts.recipes import make_user
 from apps.base.sentry import init_sentry
 from apps.base.tests import BaseTest
 from apps.base.tests.sign_in import sign_in

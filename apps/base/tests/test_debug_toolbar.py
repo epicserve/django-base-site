@@ -7,7 +7,7 @@ from django.urls import clear_url_caches
 import pytest
 
 import config.urls
-from apps.accounts.tests.recipes import make_user
+from apps.accounts.recipes import make_user
 from apps.base.debug_toolbar import ENABLED_COOKIE, show_toolbar
 from apps.base.tests import BaseTest
 from apps.base.tests.sign_in import sign_in

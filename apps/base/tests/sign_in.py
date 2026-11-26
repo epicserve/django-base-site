@@ -11,7 +11,7 @@ from django.test import Client
 from allauth.account.internal.flows.login import record_authentication
 
 from apps.accounts.models import User
-from apps.accounts.tests.recipes import TEST_PASSWORD
+from apps.accounts.recipes import TEST_PASSWORD
 from apps.organizations.models import Organization, OrganizationMember
 from apps.organizations.session import remove_org, save_org_data
 

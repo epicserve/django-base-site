@@ -3,8 +3,8 @@ from django.test import override_settings
 from apps.base.tests import BaseTest
 from apps.billing.access import org_feature_value, org_has_feature
 from apps.billing.constants import SubscriptionStatus
-from apps.billing.tests.recipes import BILLING_SETTINGS, make_subscription
-from apps.organizations.tests.recipes import make_org
+from apps.billing.recipes import BILLING_SETTINGS, make_subscription
+from apps.organizations.recipes import make_org
 
 
 @override_settings(**BILLING_SETTINGS)

@@ -1,9 +1,9 @@
 """
-Build users. The tests use these (through `apps.accounts.tests.recipes`), and so does `manage.py seed`.
+Build users for tests and for `manage.py seed`.
 
-A recipe creates a new row unless it's given `update=True`, which looks the row up and brings it back to what the
-recipe says instead, so the seed command can be rerun. Tests leave it off, so a test that builds the same row twice
-fails rather than quietly changing a row another test shares.
+Every app keeps its recipes in `apps/<app>/recipes.py`. A recipe creates a new row unless it's given `update=True`,
+which looks the row up and brings it back to what the recipe says instead, so the seed command can be rerun. Tests
+leave it off, so a test that builds the same row twice fails rather than quietly changing a row another test shares.
 """
 
 from functools import cache
@@ -13,6 +13,8 @@ from django.conf import settings
 from django.contrib.auth.hashers import make_password
 
 from allauth.account.models import EmailAddress
+from allauth.mfa.recovery_codes.internal.auth import RecoveryCodes
+from allauth.mfa.totp.internal.auth import TOTP, generate_totp_secret
 
 from apps.accounts.models import User
 
@@ -60,3 +62,17 @@ def make_user(
 def make_superuser(email: str | None = None, **fields) -> User:
     """Make a staff superuser, otherwise like `make_user`."""
     return make_user(email, is_staff=True, is_superuser=True, **fields)
+
+
+def make_totp(user: User, *, recovery_codes: bool = True) -> str:
+    """
+    Turn on two-factor authentication for `user` with an authenticator app, and return its TOTP secret.
+
+    Setting it up in the app also makes recovery codes; `recovery_codes=False` leaves them out. Sign in with
+    `current_totp_code(secret)` from `apps.accounts.tests.totp`.
+    """
+    secret = generate_totp_secret()
+    TOTP.activate(user, secret)
+    if recovery_codes:
+        RecoveryCodes.activate(user)
+    return secret

@@ -9,15 +9,15 @@ from django.test import RequestFactory
 import pytest
 from ninja.errors import HttpError
 
-from apps.accounts.tests.recipes import make_user
+from apps.accounts.recipes import make_user
 from apps.base.tests import BaseTest
 from apps.base.tests.sign_in import sign_in
 from apps.billing.api import create_checkout, create_portal, get_subscription
 from apps.billing.schemas import CheckoutIn
 from apps.organizations.models import OrganizationInvite, OrganizationMember
+from apps.organizations.recipes import make_invite, make_member, make_org
 from apps.organizations.roles import ROLE_PERMISSIONS, OrgPerm, OrgRole, get_org_role, has_org_perm, role_permissions
 from apps.organizations.session import MockedOrg
-from apps.organizations.tests.recipes import make_invite, make_member, make_org
 
 
 def _grant_members(*perms):

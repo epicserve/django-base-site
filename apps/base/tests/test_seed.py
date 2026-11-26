@@ -15,7 +15,7 @@ from allauth.account.models import EmailAddress
 from allauth.mfa.models import Authenticator
 
 from apps.accounts.models import User
-from apps.accounts.tests.recipes import make_totp, make_user
+from apps.accounts.recipes import make_totp, make_user
 from apps.base.management.commands import seed
 from apps.base.management.commands.seed import DUNDER_MIFFLIN_CAST, FILLERS, LOGINS, PAWNEE_CAST, SEED_PASSWORD
 from apps.base.tests import BaseTest

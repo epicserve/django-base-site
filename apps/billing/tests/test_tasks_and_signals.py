@@ -14,16 +14,16 @@ from django.utils import timezone
 
 import pytest
 
-from apps.accounts.tests.recipes import make_user
+from apps.accounts.recipes import make_user
 from apps.base.tests import BaseTest
 from apps.base.tests.mail import record_queued_emails, use_failing_mail_server
 from apps.billing.constants import SubscriptionStatus
+from apps.billing.recipes import BILLING_SETTINGS, make_subscription
 from apps.billing.tasks import check_trials_ending, reconcile_subscriptions
-from apps.billing.tests.recipes import BILLING_SETTINGS, make_subscription
 from apps.notifications.models import Notification
 from apps.organizations.models import Organization, OrganizationMember
+from apps.organizations.recipes import make_member, make_org
 from apps.organizations.roles import OrgRole
-from apps.organizations.tests.recipes import make_member, make_org
 
 
 class TestTasksBillingDisabled:

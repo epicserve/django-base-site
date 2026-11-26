@@ -1,4 +1,4 @@
-from apps.accounts.tests.recipes import make_superuser, make_user
+from apps.accounts.recipes import make_superuser, make_user
 from apps.base.tests import BaseTest
 from apps.base.tests.sign_in import sign_in
 

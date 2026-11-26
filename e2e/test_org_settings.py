@@ -24,8 +24,8 @@ def more_than_a_page():
 
 @pytest.fixture()
 def dwight(org):
-    from apps.accounts.tests.recipes import make_user
-    from apps.organizations.tests.recipes import make_member
+    from apps.accounts.recipes import make_user
+    from apps.organizations.recipes import make_member
 
     return make_member(org, make_user("dwight.schrute@dundermifflin.com", first_name="Dwight", last_name="Schrute"))
 
@@ -61,8 +61,8 @@ class TestMembersTab:
             expect(page.get_by_text(re.compile(r"^Team \d{3}$"))).to_have_count(more_than_a_page)
 
     def test_invites(self, page: Page, sign_in, org, user, subtests):
-        from apps.accounts.tests.recipes import make_user
-        from apps.organizations.tests.recipes import make_invite
+        from apps.accounts.recipes import make_user
+        from apps.organizations.recipes import make_invite
 
         make_invite(org, user, email="jim.halpert@dundermifflin.com")
         make_invite(org, user, email="pam.beesly@dundermifflin.com", expired=True)

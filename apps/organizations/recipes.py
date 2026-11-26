@@ -1,8 +1,7 @@
 """
 Build organizations, members and invites.
 
-The tests use these (through `apps.organizations.tests.recipes`), and so does `manage.py seed`, which passes
-`update=True` (see `apps.accounts.recipes`).
+The tests use these, and so does `manage.py seed`, which passes `update=True` (see `apps.accounts.recipes`).
 """
 
 from datetime import timedelta

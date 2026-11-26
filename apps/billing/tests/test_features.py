@@ -1,5 +1,5 @@
 from apps.billing.features import get_feature, get_features
-from apps.billing.tests.recipes import BILLING_FEATURES
+from apps.billing.recipes import BILLING_FEATURES
 
 
 class TestFeatureRegistry:

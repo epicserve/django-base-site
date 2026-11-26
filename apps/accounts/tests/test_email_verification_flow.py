@@ -14,7 +14,7 @@ from django.test import override_settings
 
 from allauth.account.models import EmailAddress, EmailConfirmationHMAC
 
-from apps.accounts.tests.recipes import make_user
+from apps.accounts.recipes import make_user
 from apps.base.tests import BaseTest
 from apps.base.tests.sign_in import api_sign_in, sign_in
 

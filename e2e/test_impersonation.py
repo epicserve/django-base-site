@@ -10,7 +10,7 @@ from playwright.sync_api import Page, expect
 
 @pytest.fixture()
 def superuser(db):
-    from apps.accounts.tests.recipes import make_superuser
+    from apps.accounts.recipes import make_superuser
 
     return make_superuser("leslie.knope@pawnee.example", username="leslie", first_name="Leslie", last_name="Knope")
 

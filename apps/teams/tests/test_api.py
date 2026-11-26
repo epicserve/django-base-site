@@ -1,11 +1,11 @@
 import json
 
-from apps.accounts.tests.recipes import make_user
+from apps.accounts.recipes import make_user
 from apps.base.tests import BaseTest
 from apps.base.tests.sign_in import sign_in
-from apps.organizations.tests.recipes import make_org
+from apps.organizations.recipes import make_org
 from apps.teams.models import Team
-from apps.teams.tests.recipes import make_team
+from apps.teams.recipes import make_team
 
 LIST_URL = "/api/teams/"
 

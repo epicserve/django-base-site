@@ -8,7 +8,7 @@ from apps.billing.plans import (
     price_id_for,
     resolve_plan_by_price_id,
 )
-from apps.billing.tests.recipes import FREE_PLAN, PRO_PLAN
+from apps.billing.recipes import FREE_PLAN, PRO_PLAN
 
 
 class TestPlanRegistry:

@@ -10,7 +10,7 @@ from django.test import override_settings
 import pytest
 
 from apps.accounts.models import User
-from apps.accounts.tests.recipes import make_user
+from apps.accounts.recipes import make_user
 from apps.base.tests import BaseTest
 from apps.base.tests.mail import record_queued_emails, use_failing_mail_server
 from apps.base.tests.sign_in import api_sign_in

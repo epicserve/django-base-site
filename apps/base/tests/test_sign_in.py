@@ -1,8 +1,8 @@
-from apps.accounts.tests.recipes import make_user
+from apps.accounts.recipes import make_user
 from apps.base.tests import BaseTest
 from apps.base.tests.sign_in import api_sign_in, sign_in
+from apps.organizations.recipes import make_member, make_org
 from apps.organizations.roles import OrgRole
-from apps.organizations.tests.recipes import make_member, make_org
 
 APP_CONTEXT_URL = "/api/app-context/"
 SESSION_URL = "/_allauth/browser/v1/auth/session"

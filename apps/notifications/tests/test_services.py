@@ -5,13 +5,13 @@ from django.utils import timezone
 
 import pytest
 
-from apps.accounts.tests.recipes import make_user
+from apps.accounts.recipes import make_user
 from apps.base.tests import BaseTest
 from apps.notifications.models import Notification, NotificationPreference
+from apps.notifications.recipes import COMMENTS_CATEGORY, make_notification
 from apps.notifications.services import notify
 from apps.notifications.tasks import purge_expired
-from apps.notifications.tests.recipes import COMMENTS_CATEGORY, make_notification
-from apps.organizations.tests.recipes import make_member, make_org
+from apps.organizations.recipes import make_member, make_org
 
 
 class TestNotify(BaseTest):

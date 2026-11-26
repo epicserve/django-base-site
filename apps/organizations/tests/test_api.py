@@ -4,13 +4,13 @@ from django.core import mail
 
 import pytest
 
-from apps.accounts.tests.recipes import make_user
+from apps.accounts.recipes import make_user
 from apps.base.tests import BaseTest
 from apps.base.tests.mail import record_queued_emails, use_failing_mail_server
 from apps.base.tests.sign_in import sign_in
 from apps.organizations.models import Organization, OrganizationInvite, OrganizationMember
+from apps.organizations.recipes import make_invite, make_member, make_org
 from apps.organizations.roles import OrgPerm, OrgRole
-from apps.organizations.tests.recipes import make_invite, make_member, make_org
 
 
 class OrganizationAPITestBase(BaseTest):

@@ -9,12 +9,12 @@ Members tab disables Change Role on your own row, so only the API allowed it.
 import json
 from unittest.mock import patch
 
-from apps.accounts.tests.recipes import make_user
+from apps.accounts.recipes import make_user
 from apps.base.tests import BaseTest
 from apps.base.tests.sign_in import sign_in
 from apps.organizations.models import OrganizationMember
+from apps.organizations.recipes import make_member, make_org
 from apps.organizations.roles import ROLE_PERMISSIONS, OrgPerm, OrgRole
-from apps.organizations.tests.recipes import make_member, make_org
 
 
 def _membership(org, email, role):

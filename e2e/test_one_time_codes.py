@@ -19,7 +19,7 @@ class TestOneTimeCodeFields:
         expect(field).to_have_attribute("autocomplete", "one-time-code")
 
     def test_sign_in(self, page: Page, live_server, user):
-        from apps.accounts.tests.recipes import make_totp
+        from apps.accounts.recipes import make_totp
 
         make_totp(user, recovery_codes=False)
         self._sign_in(page, live_server)

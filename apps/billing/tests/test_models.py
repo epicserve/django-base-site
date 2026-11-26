@@ -1,9 +1,9 @@
 from apps.base.tests import BaseTest
 from apps.billing.constants import SubscriptionStatus
 from apps.billing.models import Subscription
-from apps.billing.tests.recipes import make_customer
+from apps.billing.recipes import make_customer
 from apps.organizations.models import Organization
-from apps.organizations.tests.recipes import make_org
+from apps.organizations.recipes import make_org
 
 
 class TestBillingCustomer(BaseTest):

@@ -11,9 +11,9 @@ from django.test import override_settings
 from apps.base.tests import BaseTest
 from apps.billing.constants import BillingCycle, SubscriptionStatus
 from apps.billing.models import Subscription
+from apps.billing.recipes import BILLING_SETTINGS, make_customer, make_subscription
 from apps.billing.services import sync_subscription_from_stripe
-from apps.billing.tests.recipes import BILLING_SETTINGS, make_customer, make_subscription
-from apps.organizations.tests.recipes import make_org
+from apps.organizations.recipes import make_org
 
 
 def _payload(*, customer="cus_1", sub_id="sub_1", price_id="price_pro_monthly", status="active", quantity=3):

@@ -1,8 +1,7 @@
 """
 Build teams.
 
-The tests use this (through `apps.teams.tests.recipes`), and so does `manage.py seed`, which passes `update=True`
-(see `apps.accounts.recipes`).
+The tests use this, and so does `manage.py seed`, which passes `update=True` (see `apps.accounts.recipes`).
 """
 
 from collections.abc import Iterable

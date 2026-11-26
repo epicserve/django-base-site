@@ -7,7 +7,7 @@ from django.core.mail import EmailMessage, EmailMultiAlternatives
 import pytest
 from kombu.exceptions import OperationalError
 
-from apps.accounts.tests.recipes import make_user
+from apps.accounts.recipes import make_user
 from apps.base.tasks import send_email_message
 from apps.base.tests import BaseTest
 from apps.base.tests.mail import record_queued_emails, use_failing_mail_server

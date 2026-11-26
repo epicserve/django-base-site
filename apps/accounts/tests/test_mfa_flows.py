@@ -2,7 +2,7 @@
 
 from allauth.mfa.models import Authenticator
 
-from apps.accounts.tests.recipes import make_totp, make_user
+from apps.accounts.recipes import make_totp, make_user
 from apps.accounts.tests.totp import current_totp_code
 from apps.base.tests import BaseTest
 from apps.base.tests.sign_in import api_sign_in, sign_in

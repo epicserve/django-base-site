@@ -35,7 +35,7 @@ PASSWORD = "dundermifflin"  # noqa: S105
 
 @pytest.fixture()
 def user(db):
-    from apps.accounts.tests.recipes import make_user
+    from apps.accounts.recipes import make_user
 
     return make_user("michael.scott@dundermifflin.com", password=PASSWORD, first_name="Michael", last_name="Scott")
 
@@ -43,7 +43,7 @@ def user(db):
 @pytest.fixture()
 def org(user):
     """Dunder Mifflin, owned by `user`, as their primary organization."""
-    from apps.organizations.tests.recipes import make_org
+    from apps.organizations.recipes import make_org
 
     return make_org(user, name="Dunder Mifflin", slug="dunder-mifflin")
 

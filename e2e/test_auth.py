@@ -119,7 +119,7 @@ class TestSignInLoadsTheAppContextOnce:
         assert len(requests) == 1
 
     def test_two_factor(self, page: Page, live_server, user):
-        from apps.accounts.tests.recipes import make_totp
+        from apps.accounts.recipes import make_totp
 
         secret = make_totp(user, recovery_codes=False)
         page.goto(f"{live_server.url}/accounts/login/")

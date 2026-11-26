@@ -17,15 +17,15 @@ from django.test import RequestFactory, override_settings
 import pytest
 import stripe
 
-from apps.accounts.tests.recipes import make_user
+from apps.accounts.recipes import make_user
 from apps.base.tests import BaseTest
 from apps.base.tests.mail import record_queued_emails, use_failing_mail_server
 from apps.billing.constants import WEBHOOK_MAX_FAILURES, SubscriptionStatus
 from apps.billing.models import WebhookEvent
-from apps.billing.tests.recipes import BILLING_SETTINGS, make_customer, make_subscription
+from apps.billing.recipes import BILLING_SETTINGS, make_customer, make_subscription
 from apps.billing.webhooks import stripe_webhook
 from apps.notifications.models import Notification
-from apps.organizations.tests.recipes import make_org
+from apps.organizations.recipes import make_org
 
 
 def _post(event: dict):

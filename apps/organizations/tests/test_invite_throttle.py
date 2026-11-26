@@ -11,12 +11,12 @@ from unittest.mock import patch
 from django.core.cache import cache
 from django.test import Client, override_settings
 
-from apps.accounts.tests.recipes import make_user
+from apps.accounts.recipes import make_user
 from apps.base.tests import BaseTest
 from apps.base.tests.sign_in import sign_in
 from apps.organizations.api import INVITE_THROTTLES
 from apps.organizations.models import OrganizationInvite
-from apps.organizations.tests.recipes import make_org
+from apps.organizations.recipes import make_org
 
 HOUR = 60 * 60
 

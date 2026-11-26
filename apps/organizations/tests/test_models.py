@@ -3,11 +3,11 @@ from django.core.exceptions import ValidationError
 import pytest
 
 from apps.accounts.models import User
-from apps.accounts.tests.recipes import make_user
+from apps.accounts.recipes import make_user
 from apps.base.tests import BaseTest
 from apps.organizations.models import OrganizationInvite
+from apps.organizations.recipes import make_invite, make_member, make_org
 from apps.organizations.roles import OrgPerm, OrgRole
-from apps.organizations.tests.recipes import make_invite, make_member, make_org
 
 
 class TestOrganizationMembershipProperties(BaseTest):

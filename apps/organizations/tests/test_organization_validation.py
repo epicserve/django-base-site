@@ -12,11 +12,11 @@ from django.db import IntegrityError
 
 import pytest
 
-from apps.accounts.tests.recipes import make_user
+from apps.accounts.recipes import make_user
 from apps.base.tests import BaseTest
 from apps.base.tests.sign_in import sign_in
 from apps.organizations.models import Organization, OrganizationMember
-from apps.organizations.tests.recipes import make_org
+from apps.organizations.recipes import make_org
 
 BLANK = "This field cannot be blank."
 INVALID_SLUG = "Enter a valid name consisting of letters, numbers, underscores or hyphens."

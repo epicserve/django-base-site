@@ -1,11 +1,11 @@
 from django.test import override_settings
 
-from apps.accounts.tests.recipes import make_user
+from apps.accounts.recipes import make_user
 from apps.base.tests import BaseTest
 from apps.base.tests.sign_in import sign_in
 from apps.base.utils.timezones import get_timezone_label
+from apps.organizations.recipes import make_org
 from apps.organizations.roles import OrgPerm, OrgRole
-from apps.organizations.tests.recipes import make_org
 from config.api import api
 
 APP_CONTEXT_URL = "/api/app-context/"
