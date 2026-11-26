@@ -1,12 +1,16 @@
+from django.core.exceptions import ValidationError
+
 import pytest
-from model_bakery import baker
 
 from apps.accounts.models import User
+from apps.accounts.recipes import make_user
+from apps.base.tests import BaseTest
+from apps.organizations.models import OrganizationInvite
+from apps.organizations.recipes import make_invite, make_member, make_org
 from apps.organizations.roles import OrgPerm, OrgRole
 
 
-@pytest.mark.django_db
-class TestOrganizationMembershipProperties:
+class TestOrganizationMembershipProperties(BaseTest):
     """
     Regression coverage for `members` and `members_with_perm`.
 
@@ -14,38 +18,63 @@ class TestOrganizationMembershipProperties:
     OrganizationMember pks. They filter on `user_id`.
     """
 
-    def test_members_with_perm_returns_the_users_whose_role_grants_it(self):
-        org = baker.make("organizations.Organization")
-        owner = baker.make("accounts.User")
-        member = baker.make("accounts.User")
-        baker.make("organizations.OrganizationMember", organization=org, user=owner, role=OrgRole.OWNER)
-        baker.make("organizations.OrganizationMember", organization=org, user=member, role=OrgRole.MEMBER)
+    @classmethod
+    def setUpTestData(cls):
+        # Extra users first, so user pks and member pks diverge: joining on the wrong column would match the wrong rows.
+        for _ in range(3):
+            make_user()
+        cls.owner = make_user()
+        cls.member = make_user()
+        cls.org = make_org(cls.owner)
+        make_member(cls.org, cls.member)
+        cls.other_owner = make_user()
+        cls.other_org = make_org(cls.other_owner)
 
-        assert list(org.members_with_perm(OrgPerm.MANAGE_BILLING)) == [owner]
+    def test_members_with_perm_returns_the_users_whose_role_grants_it(self):
+        assert list(self.org.members_with_perm(OrgPerm.MANAGE_BILLING)) == [self.owner]
 
     def test_members_returns_all_users(self):
-        org = baker.make("organizations.Organization")
-        owner = baker.make("accounts.User")
-        member = baker.make("accounts.User")
-        baker.make("organizations.OrganizationMember", organization=org, user=owner, role=OrgRole.OWNER)
-        baker.make("organizations.OrganizationMember", organization=org, user=member, role=OrgRole.MEMBER)
-
-        assert set(org.members) == {owner, member}
+        assert set(self.org.members) == {self.owner, self.member}
 
     def test_members_with_perm_does_not_leak_across_orgs(self):
-        """
-        Build a deliberate pk skew and confirm the query still resolves.
+        assert list(self.org.members_with_perm(OrgPerm.MANAGE_BILLING)) == [self.owner]
+        assert list(self.other_org.members_with_perm(OrgPerm.MANAGE_BILLING)) == [self.other_owner]
+        assert User.objects.filter(pk__in=[self.owner.pk, self.other_owner.pk]).count() == 2
 
-        Insert extra users so user pks and member pks diverge: joining on the wrong column would match the wrong rows.
-        """
-        baker.make("accounts.User", _quantity=3)
-        org_a = baker.make("organizations.Organization")
-        org_b = baker.make("organizations.Organization")
-        user_a = baker.make("accounts.User")
-        user_b = baker.make("accounts.User")
-        baker.make("organizations.OrganizationMember", organization=org_a, user=user_a, role=OrgRole.OWNER)
-        baker.make("organizations.OrganizationMember", organization=org_b, user=user_b, role=OrgRole.OWNER)
 
-        assert list(org_a.members_with_perm(OrgPerm.MANAGE_BILLING)) == [user_a]
-        assert list(org_b.members_with_perm(OrgPerm.MANAGE_BILLING)) == [user_b]
-        assert User.objects.filter(pk__in=[user_a.pk, user_b.pk]).count() == 2
+class TestOrganizationInvite(BaseTest):
+    @classmethod
+    def setUpTestData(cls):
+        cls.owner = make_user()
+        cls.org = make_org(cls.owner)
+
+    def test_save_makes_a_key(self):
+        invite = make_invite(self.org, self.owner)
+
+        assert len(invite.key) == 32
+        assert make_invite(self.org, self.owner).key != invite.key
+
+    def test_save_keeps_a_key_it_was_given(self):
+        invite = OrganizationInvite(
+            organization=self.org, sender=self.owner, invitee_email="jim@example.com", key="k" * 32
+        )
+
+        invite.save()
+
+        invite.refresh_from_db()
+        assert invite.key == "k" * 32
+
+    def test_saving_an_invite_again_is_not_a_duplicate_of_itself(self):
+        invite = make_invite(self.org, self.owner, email="jim@example.com")
+
+        invite.role = OrgRole.OWNER
+        invite.save()
+
+        invite.refresh_from_db()
+        assert invite.role == OrgRole.OWNER
+
+    def test_a_second_invite_for_the_same_email_is_still_refused(self):
+        make_invite(self.org, self.owner, email="jim@example.com")
+
+        with pytest.raises(ValidationError):
+            make_invite(self.org, self.owner, email="jim@example.com")

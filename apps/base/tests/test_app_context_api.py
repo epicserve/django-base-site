@@ -1,11 +1,9 @@
-import json
+from django.test import override_settings
 
-import pytest
-from model_bakery import baker
-
-from apps.accounts.models import User
+from apps.accounts.recipes import make_user
+from apps.base.tests import BaseTest
 from apps.base.utils.timezones import get_timezone_label
-from apps.organizations.models import OrganizationMember
+from apps.organizations.recipes import make_org
 from apps.organizations.roles import OrgPerm, OrgRole
 from config.api import api
 
@@ -23,36 +21,16 @@ BILLING_DISABLED = {
 }
 
 
-@pytest.mark.django_db
-class TestAppContext:
+@override_settings(SITE_NAME="Dunder Mifflin", INSTANCE="dev", ACCOUNT_SIGNUP_OPEN=True)
+class TestAppContext(BaseTest):
     """`/api/app-context/` goes through `AppContextOut`, which validates and serializes the response."""
 
-    @pytest.fixture(autouse=True)
-    def _setup(self, client, settings):
-        self.client = client
-        settings.SITE_NAME = "Dunder Mifflin"
-        settings.INSTANCE = "dev"
-        settings.ACCOUNT_SIGNUP_OPEN = True
-        self.user = User.objects.create_user(
-            username="pam",
-            email="pam@example.com",
-            password="secret",  # noqa: S106
-            first_name="Pam",
-            last_name="Beesly",
-            timezone="America/New_York",
+    @classmethod
+    def setUpTestData(cls):
+        cls.user = make_user(
+            "pam@example.com", username="pam", first_name="Pam", last_name="Beesly", timezone="America/New_York"
         )
-        self.org = baker.make("organizations.Organization", name="Scranton", slug="scranton")
-        OrganizationMember.objects.create(organization=self.org, user=self.user, role=OrgRole.OWNER, is_primary=True)
-
-    def _sign_in(self, org=None):
-        # force_login's request has no `user`, so the login signal doesn't select the primary org; set it directly.
-        self.client.force_login(self.user)
-        if org is not None:
-            session = self.client.session
-            session["organization_data"] = json.dumps({"pk": org.pk, "id": org.pk, "name": org.name, "slug": org.slug})
-            session["org_member_count"] = "1"
-            session["org_owner_count"] = "1"
-            session.save()
+        cls.org = make_org(cls.user, name="Scranton", slug="scranton")
 
     def _get(self):
         resp = self.client.get(APP_CONTEXT_URL)
@@ -75,9 +53,9 @@ class TestAppContext:
             "billing": BILLING_DISABLED,
         }
 
-    def test_signed_in(self, settings):
-        settings.DEBUG = True
-        self._sign_in(self.org)
+    @override_settings(DEBUG=True)
+    def test_signed_in(self):
+        self.sign_in(self.user, self.org)
         orgs = [{"id": self.org.pk, "name": "Scranton", "slug": "scranton"}]
 
         assert self._get() == {
@@ -115,7 +93,7 @@ class TestAppContext:
 
     def test_signed_in_without_an_org(self):
         self.org.delete()
-        self._sign_in()
+        self.sign_in(self.user)
 
         data = self._get()
 
@@ -123,21 +101,28 @@ class TestAppContext:
         assert data["org"] is None
         assert data["organizations"] == []
 
-    def test_billing_enabled(self, settings):
-        settings.BILLING_ENABLED = True
-        settings.STRIPE_PUBLISHABLE_KEY = "pk_test_123"
-        settings.BILLING_FEATURES = [
+    @override_settings(
+        BILLING_ENABLED=True,
+        STRIPE_PUBLISHABLE_KEY="pk_test_123",
+        BILLING_FEATURES=[
             {"key": "teams", "label": "Teams", "type": "bool", "default": False},
             {"key": "seats", "label": "Seats", "type": "limit", "default": 3},
-        ]
-        self._sign_in()
+        ],
+    )
+    def test_billing_enabled(self):
+        for label, user in [
+            ("with an organization", self.user),
+            ("without an organization", make_user("toby@example.com")),
+        ]:
+            with self.subTest(label):
+                self.sign_in(user)
 
-        assert self._get()["billing"] == {
-            **BILLING_DISABLED,
-            "enabled": True,
-            "publishable_key": "pk_test_123",
-            "features": {"teams": False, "seats": 3},
-        }
+                assert self._get()["billing"] == {
+                    **BILLING_DISABLED,
+                    "enabled": True,
+                    "publishable_key": "pk_test_123",
+                    "features": {"teams": False, "seats": 3},
+                }
 
 
 class TestApiResponseSchemas:

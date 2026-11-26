@@ -17,12 +17,10 @@ def _sign_in(page: Page):
 
 
 class TestWhenTheSessionEnds:
-    def test_the_next_api_call_sends_you_to_sign_in_and_back(self, page: Page, live_server, user):
+    def test_the_next_api_call_sends_you_to_sign_in_and_back(self, page: Page, live_server, sign_in, user):
         from django.contrib.sessions.models import Session
 
-        page.goto(f"{live_server.url}/accounts/login/?next=/notifications/")
-        _sign_in(page)
-        page.wait_for_url(f"{live_server.url}/notifications/", timeout=10000)
+        sign_in(user, "/notifications/")
         expect(page.get_by_role("button", name=re.compile(r"^Notifications"))).to_be_visible()
 
         Session.objects.all().delete()

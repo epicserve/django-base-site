@@ -47,7 +47,6 @@ def policy_for(monkeypatch):
     return load
 
 
-@pytest.mark.django_db
 class TestTheHeader:
     def test_the_spa_shell_enforces_the_policy(self):
         response = Client().get("/accounts/login/")

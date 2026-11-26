@@ -1,7 +1,6 @@
 """End-to-end tests for the profile photo on /accounts/general/, a multipart upload through the typed API client."""
 
 import io
-import re
 
 import pytest
 from PIL import Image
@@ -15,20 +14,11 @@ def _png() -> bytes:
 
 
 class TestAvatar:
-    def _sign_in(self, page: Page, live_server):
-        # Sign-in skips `?next=` for /accounts/* pages, so go to the page afterwards.
-        page.goto(f"{live_server.url}/accounts/login/")
-        page.get_by_placeholder("Email").fill("michael.scott@dundermifflin.com")
-        page.get_by_placeholder("Password").fill("dundermifflin")
-        page.get_by_role("button", name="Sign In", exact=True).click()
-        page.wait_for_url(re.compile(r"^(?!.*/accounts/login/)"), timeout=10000)
-        page.goto(f"{live_server.url}/accounts/general/")
-
-    def test_upload_and_remove(self, page: Page, live_server, user):
+    def test_upload_and_remove(self, page: Page, sign_in, user):
         # The e2e settings keep uploads in memory, which nothing serves, and UserAvatar falls back to initials when its
         # image fails to load. So answer requests for the uploaded thumbnail with an image.
         page.route("**/avatars/thumbnails/**", lambda route: route.fulfill(body=_png(), content_type="image/png"))
-        self._sign_in(page, live_server)
+        sign_in(user, "/accounts/general/")
         # The avatar on the user menu button reads the app store, which the cropper updates after a save or remove.
         header_photo = page.locator('[data-dropdown="nav"] > button img')
         expect(header_photo).to_have_count(0)
@@ -53,12 +43,12 @@ class TestAvatar:
         assert not user.avatar_thumbnail
 
     @pytest.mark.parametrize("key", ["Enter", "Space"])
-    def test_choose_an_image_with_the_keyboard(self, page: Page, live_server, user, key):
+    def test_choose_an_image_with_the_keyboard(self, page: Page, sign_in, user, key):
         # Playwright starts catching file choosers when something listens for them, without waiting until it does.
         # Listening only from `expect_file_chooser()` missed a chooser opened right away about 1 run in 70, so listen
         # from the start.
         page.on("filechooser", lambda chooser: None)
-        self._sign_in(page, live_server)
+        sign_in(user, "/accounts/general/")
         page.get_by_role("button", name="Change Photo").press("Enter")
         expect(page.get_by_role("dialog", name="Change Profile Photo")).to_be_visible()
         choose_label = page.locator("label", has_text="Choose an Image")

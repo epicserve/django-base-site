@@ -1,239 +1,161 @@
 import json
-from datetime import timedelta
 
-from django.contrib.auth import user_logged_in
 from django.core import mail
-from django.test import TestCase
-from django.utils import timezone
 
 import pytest
-from model_bakery import baker
 
-from apps.accounts.models import User
+from apps.accounts.recipes import make_user
+from apps.base.tests import BaseTest
 from apps.base.tests.mail import record_queued_emails, use_failing_mail_server
 from apps.organizations.models import Organization, OrganizationInvite, OrganizationMember
+from apps.organizations.recipes import make_invite, make_member, make_org
 from apps.organizations.roles import OrgPerm, OrgRole
-from apps.organizations.signals import user_logged_in_receiver
 
 
-class OrganizationAPITestBase(TestCase):
+class OrganizationAPITestBase(BaseTest):
+    """Acme, whose owner is signed in with it selected."""
+
     @classmethod
-    def setUpClass(cls):
-        user_logged_in.disconnect(user_logged_in_receiver)
-        super().setUpClass()
+    def setUpTestData(cls):
+        cls.owner = make_user("owner@example.com")
+        cls.org = make_org(name="Acme", billing_email="owner@example.com")
+        # Not primary, so `test_set_primary` has something to change.
+        make_member(cls.org, cls.owner, role=OrgRole.OWNER, is_primary=False)
 
     def setUp(self):
-        self.user = User.objects.create_user(
-            username="owner",
-            email="owner@example.com",
-            password="secret",  # noqa: S106
-        )
-        self.org = baker.make("organizations.Organization", name="Acme", billing_email="owner@example.com")
-        baker.make("organizations.OrganizationMember", organization=self.org, user=self.user, role=OrgRole.OWNER)
-
-    def _login(self):
-        self.client.force_login(self.user)
-        session = self.client.session
-        session["organization_data"] = json.dumps(
-            {"pk": self.org.pk, "id": self.org.pk, "name": self.org.name, "slug": self.org.slug}
-        )
-        session.save()
+        self.sign_in(self.owner, self.org)
 
 
 class TestOrganizationViewSet(OrganizationAPITestBase):
     def test_create(self):
-        self._login()
         resp = self.client.post(
             "/api/organizations/",
             data=json.dumps({"name": "New Co", "slug": "new-co"}),
             content_type="application/json",
         )
-        self.assertEqual(resp.status_code, 201)
+        assert resp.status_code == 201
         new_org = Organization.objects.get(slug="new-co")
-        self.assertEqual(new_org.organizationmember_set.get(user=self.user).role, OrgRole.OWNER)
+        assert new_org.organizationmember_set.get(user=self.owner).role == OrgRole.OWNER
 
     def test_switch_list(self):
-        other = baker.make("organizations.Organization", name="Other Co")
-        baker.make("organizations.OrganizationMember", organization=other, user=self.user, role=OrgRole.MEMBER)
-        self._login()
+        other = make_org(name="Other Co")
+        make_member(other, self.owner, role=OrgRole.MEMBER)
         resp = self.client.get("/api/organizations/switch-list/")
-        self.assertEqual(resp.status_code, 200)
+        assert resp.status_code == 200
         slugs = {o["slug"] for o in resp.json()}
-        self.assertEqual(slugs, {self.org.slug, other.slug})
+        assert slugs == {self.org.slug, other.slug}
 
     def test_select(self):
-        self._login()
         resp = self.client.post(f"/api/organizations/{self.org.slug}/select/")
-        self.assertEqual(resp.status_code, 200)
-        self.assertEqual(resp.json()["slug"], self.org.slug)
-        self.assertEqual(resp.json()["role"], OrgRole.OWNER)
-        self.assertIn(OrgPerm.MANAGE_MEMBERS, resp.json()["permissions"])
+        assert resp.status_code == 200
+        assert resp.json()["slug"] == self.org.slug
+        assert resp.json()["role"] == OrgRole.OWNER
+        assert OrgPerm.MANAGE_MEMBERS in resp.json()["permissions"]
 
     def test_set_primary(self):
-        self._login()
         resp = self.client.post(f"/api/organizations/{self.org.slug}/set-primary/")
-        self.assertEqual(resp.status_code, 200)
-        self.assertTrue(resp.json()["is_primary"])
-        membership = OrganizationMember.objects.get(organization=self.org, user=self.user)
-        self.assertTrue(membership.is_primary)
+        assert resp.status_code == 200
+        assert resp.json()["is_primary"]
+        membership = OrganizationMember.objects.get(organization=self.org, user=self.owner)
+        assert membership.is_primary
 
     def test_signout(self):
-        self._login()
         resp = self.client.post("/api/organizations/signout/")
-        self.assertEqual(resp.status_code, 200)
-        self.assertTrue(resp.json()["success"])
-        self.assertNotIn("organization_data", self.client.session)
+        assert resp.status_code == 200
+        assert resp.json()["success"]
+        assert "organization_data" not in self.client.session
 
 
 class TestOrganizationMemberViewSet(OrganizationAPITestBase):
     def test_list(self):
-        self._login()
         resp = self.client.get("/api/organization-members/")
-        self.assertEqual(resp.status_code, 200)
-        results = resp.json()["results"] if isinstance(resp.json(), dict) and "results" in resp.json() else resp.json()
-        self.assertEqual(len(results), 1)
-        self.assertEqual(results[0]["user"]["id"], self.user.pk)
+        assert resp.status_code == 200
+        results = resp.json()["results"]
+        assert len(results) == 1
+        assert results[0]["user"]["id"] == self.owner.pk
 
     def test_list_q_search(self):
-        match = User.objects.create_user(
-            username="alice",
-            first_name="Alice",
-            last_name="Wonder",
-            email="alice@example.com",
-            password="x",  # noqa: S106
-        )
-        baker.make("organizations.OrganizationMember", organization=self.org, user=match)
-        miss = User.objects.create_user(
-            username="bob",
-            first_name="Bob",
-            last_name="Builder",
-            email="bob@example.com",
-            password="x",  # noqa: S106
-        )
-        baker.make("organizations.OrganizationMember", organization=self.org, user=miss)
-        self._login()
+        make_member(self.org, make_user("alice@example.com", username="alice", first_name="Alice", last_name="Wonder"))
+        make_member(self.org, make_user("bob@example.com", username="bob", first_name="Bob", last_name="Builder"))
         resp = self.client.get("/api/organization-members/", {"q": "alice"})
-        self.assertEqual(resp.status_code, 200)
+        assert resp.status_code == 200
         results = resp.json()["results"]
         usernames = {r["user"]["username"] for r in results}
-        self.assertIn("alice", usernames)
-        self.assertNotIn("bob", usernames)
+        assert "alice" in usernames
+        assert "bob" not in usernames
 
     def test_destroy_member(self):
-        new_user = User.objects.create_user(
-            username="member",
-            email="member@example.com",
-            password="secret",  # noqa: S106
-        )
-        membership = baker.make(
-            "organizations.OrganizationMember", organization=self.org, user=new_user, role=OrgRole.MEMBER
-        )
-        self._login()
+        new_user = make_member(self.org, make_user("member@example.com"), role=OrgRole.MEMBER)
+        membership = OrganizationMember.objects.get(organization=self.org, user=new_user)
         resp = self.client.delete(f"/api/organization-members/{membership.pk}/")
-        self.assertEqual(resp.status_code, 204)
-        self.assertFalse(OrganizationMember.objects.filter(pk=membership.pk).exists())
+        assert resp.status_code == 204
+        assert not OrganizationMember.objects.filter(pk=membership.pk).exists()
 
 
 class TestOrganizationInviteViewSet(OrganizationAPITestBase):
     def test_list(self):
-        invite = baker.make(
-            "organizations.OrganizationInvite",
-            organization=self.org,
-            sender=self.user,
-            invitee_email="guest@example.com",
-        )
-        self._login()
+        invite = make_invite(self.org, self.owner, email="guest@example.com")
         resp = self.client.get("/api/organization-invites/")
-        self.assertEqual(resp.status_code, 200)
-        results = resp.json()["results"] if isinstance(resp.json(), dict) and "results" in resp.json() else resp.json()
-        ids = {r["pk"] for r in results}
-        self.assertIn(invite.pk, ids)
+        assert resp.status_code == 200
+        ids = {r["pk"] for r in resp.json()["results"]}
+        assert invite.pk in ids
 
     def test_create_invite(self):
-        self._login()
-        mail.outbox = []
         with self.captureOnCommitCallbacks(execute=True):
             resp = self.client.post(
                 "/api/organization-invites/",
                 data=json.dumps({"invitee_email": "guest@example.com", "role": OrgRole.MEMBER}),
                 content_type="application/json",
             )
-        self.assertEqual(resp.status_code, 201)
-        self.assertEqual(OrganizationInvite.objects.filter(organization=self.org).count(), 1)
-        self.assertEqual(len(mail.outbox), 1)
-        self.assertIn("guest@example.com", mail.outbox[0].to)
+        assert resp.status_code == 201
+        assert OrganizationInvite.objects.filter(organization=self.org).count() == 1
+        assert len(mail.outbox) == 1
+        assert "guest@example.com" in mail.outbox[0].to
 
     def test_destroy_invite(self):
-        invite = baker.make(
-            "organizations.OrganizationInvite",
-            organization=self.org,
-            sender=self.user,
-            invitee_email="guest@example.com",
-        )
-        self._login()
+        invite = make_invite(self.org, self.owner, email="guest@example.com")
         resp = self.client.delete(f"/api/organization-invites/{invite.pk}/")
-        self.assertEqual(resp.status_code, 204)
-        self.assertFalse(OrganizationInvite.objects.filter(pk=invite.pk).exists())
+        assert resp.status_code == 204
+        assert not OrganizationInvite.objects.filter(pk=invite.pk).exists()
 
 
 class TestOrganizationSettingsViewSet(OrganizationAPITestBase):
     def test_retrieve_settings(self):
-        self._login()
         resp = self.client.get("/api/organization-settings/")
-        self.assertEqual(resp.status_code, 200)
-        self.assertEqual(resp.json()["billing_email"], "owner@example.com")
+        assert resp.status_code == 200
+        assert resp.json()["billing_email"] == "owner@example.com"
 
     def test_update_settings(self):
-        self._login()
         resp = self.client.patch(
             "/api/organization-settings/update_settings/",
             data=json.dumps({"billing_email": "billing@example.com"}),
             content_type="application/json",
         )
-        self.assertEqual(resp.status_code, 200)
+        assert resp.status_code == 200
         self.org.refresh_from_db()
-        self.assertEqual(self.org.billing_email, "billing@example.com")
+        assert self.org.billing_email == "billing@example.com"
 
 
-@pytest.fixture()
-def owner_client(client):
-    owner = baker.make(User, email="owner@example.com")
-    org = baker.make(Organization, name="Acme")
-    baker.make(OrganizationMember, organization=org, user=owner, role=OrgRole.OWNER)
-    client.force_login(owner)
-    session = client.session
-    session["organization_data"] = json.dumps({"pk": org.pk, "id": org.pk, "name": org.name, "slug": org.slug})
-    session.save()
-    client.org, client.owner = org, owner
-    return client
-
-
-@pytest.mark.django_db
-class TestInviteList:
+class TestInviteList(OrganizationAPITestBase):
     """What the Members tab's invite list needs from the API."""
 
-    def test_list_reports_expired_invites(self, owner_client):
-        org, owner = owner_client.org, owner_client.owner
-        pending = OrganizationInvite.objects.create(organization=org, sender=owner, invitee_email="new@example.com")
-        expired = OrganizationInvite.objects.create(organization=org, sender=owner, invitee_email="old@example.com")
-        OrganizationInvite.objects.filter(pk=expired.pk).update(
-            created=timezone.now() - timedelta(days=OrganizationInvite.expired_in_days + 1)
-        )
+    def test_list_reports_expired_invites(self):
+        pending = make_invite(self.org, self.owner, email="new@example.com")
+        expired = make_invite(self.org, self.owner, email="old@example.com", expired=True)
 
-        resp = owner_client.get("/api/organization-invites/")
+        resp = self.client.get("/api/organization-invites/")
 
         assert resp.status_code == 200
         is_expired = {invite["pk"]: invite["is_expired"] for invite in resp.json()["results"]}
         assert is_expired == {pending.pk: False, expired.pk: True}
 
-    def test_list_includes_the_invitee(self, owner_client):
+    def test_list_includes_the_invitee(self):
         # The tab shows an invitee's name and avatar; it used to get only the user id and showed a blank name.
-        org, owner = owner_client.org, owner_client.owner
-        invitee = baker.make(User, email="jim@example.com", first_name="Jim", last_name="Halpert")
-        OrganizationInvite.objects.create(organization=org, sender=owner, invitee=invitee)
-        OrganizationInvite.objects.create(organization=org, sender=owner, invitee_email="new@example.com")
+        invitee = make_user("jim@example.com", first_name="Jim", last_name="Halpert")
+        make_invite(self.org, self.owner, invitee=invitee)
+        make_invite(self.org, self.owner, email="new@example.com")
 
-        resp = owner_client.get("/api/organization-invites/")
+        resp = self.client.get("/api/organization-invites/")
 
         assert resp.status_code == 200
         invitees = {invite["invitee_email"]: invite["invitee"] for invite in resp.json()["results"]}
@@ -250,62 +172,105 @@ class TestInviteList:
         }
 
 
-@pytest.mark.django_db
-class TestCreateInviteEmail:
-    def test_a_mail_outage_doesnt_fail_the_invite(
-        self, owner_client, settings, monkeypatch, django_capture_on_commit_callbacks
-    ):
-        # The invite was saved, then sending its email inline answered with a 500.
-        use_failing_mail_server(settings)
-        queued = record_queued_emails(monkeypatch)
+class TestCreateInviteEmail(OrganizationAPITestBase):
+    @pytest.fixture(autouse=True)
+    def _pytest_fixtures(self, monkeypatch, settings):
+        self.monkeypatch = monkeypatch
+        self.settings_fixture = settings
 
-        with django_capture_on_commit_callbacks(execute=True):
-            resp = owner_client.post(
+    def test_a_mail_outage_doesnt_fail_the_invite(self):
+        # The invite was saved, then sending its email inline answered with a 500.
+        use_failing_mail_server(self.settings_fixture)
+        queued = record_queued_emails(self.monkeypatch)
+
+        with self.captureOnCommitCallbacks(execute=True):
+            resp = self.client.post(
                 "/api/organization-invites/",
                 data=json.dumps({"invitee_email": "guest@example.com", "role": OrgRole.MEMBER}),
                 content_type="application/json",
             )
 
         assert resp.status_code == 201
-        assert OrganizationInvite.objects.filter(
-            organization=owner_client.org, invitee_email="guest@example.com"
-        ).exists()
+        assert OrganizationInvite.objects.filter(organization=self.org, invitee_email="guest@example.com").exists()
         [message] = queued
         assert message["to"] == ["guest@example.com"]
         assert "/organizations/invite/" in message["body"]
 
 
-@pytest.mark.django_db
-class TestCreateOrganization:
+class TestCreateOrganization(BaseTest):
     """`POST /api/organizations/`: the creator owns the new organization, which is primary only if nothing else is."""
 
-    @pytest.fixture()
-    def signed_in_client(self, client):
-        client.user = baker.make(User, email="kevin@example.com")
-        client.force_login(client.user)
-        return client
+    @classmethod
+    def setUpTestData(cls):
+        cls.kevin = make_user("kevin@example.com")
 
-    def _create(self, client, slug):
-        resp = client.post(
+    def setUp(self):
+        self.sign_in(self.kevin)
+
+    def _create(self, slug):
+        resp = self.client.post(
             "/api/organizations/",
             data=json.dumps({"name": slug.title(), "slug": slug}),
             content_type="application/json",
         )
         assert resp.status_code == 201
-        return OrganizationMember.objects.get(user=client.user, organization__slug=slug)
+        return OrganizationMember.objects.get(user=self.kevin, organization__slug=slug)
 
-    def test_first_organization_is_primary(self, signed_in_client):
-        membership = self._create(signed_in_client, "first-co")
+    def test_first_organization_is_primary(self):
+        membership = self._create("first-co")
 
         assert membership.role == OrgRole.OWNER
         assert membership.is_primary
 
-    def test_keeps_the_existing_primary(self, signed_in_client):
+    def test_keeps_the_existing_primary(self):
         # Sign-in opens the primary organization, so creating another one shouldn't move it, or leave two.
-        first = self._create(signed_in_client, "first-co")
-        second = self._create(signed_in_client, "second-co")
+        first = self._create("first-co")
+        second = self._create("second-co")
 
         first.refresh_from_db()
         assert first.is_primary
         assert not second.is_primary
-        assert OrganizationMember.objects.filter(user=signed_in_client.user, is_primary=True).count() == 1
+        assert OrganizationMember.objects.filter(user=self.kevin, is_primary=True).count() == 1
+
+
+class TestDeclineInvite(BaseTest):
+    """Declining an invite from its link consumes it, but only for the address it was sent to."""
+
+    @classmethod
+    def setUpTestData(cls):
+        cls.owner = make_user("michael@example.com")
+        cls.org = make_org(cls.owner, name="Dunder Mifflin")
+        cls.invitee = make_user("jim@example.com")
+        cls.invite = make_invite(cls.org, cls.owner, email="Jim@Example.com")
+        cls.other_invite = make_invite(cls.org, cls.owner, email="pam@example.com")
+
+    def _decline(self, invite):
+        return self.client.post(f"/api/invite-by-key/{invite.key}/decline/")
+
+    def test_the_invitee_declines(self):
+        self.sign_in(self.invitee)
+
+        response = self._decline(self.invite)
+
+        assert (response.status_code, response.json()) == (200, {"success": True})
+        assert list(OrganizationInvite.objects.all()) == [self.other_invite]
+        assert not OrganizationMember.objects.filter(user=self.invitee).exists()
+
+    def test_someone_else_cannot_decline_it(self):
+        self.sign_in(self.invitee)
+
+        response = self._decline(self.other_invite)
+
+        assert response.status_code == 403
+        assert OrganizationInvite.objects.count() == 2
+
+    def test_a_signed_out_visitor_cannot_decline_it(self):
+        response = self._decline(self.invite)
+
+        assert response.status_code == 401
+        assert OrganizationInvite.objects.count() == 2
+
+    def test_an_unknown_key(self):
+        self.sign_in(self.invitee)
+
+        assert self._decline(OrganizationInvite(key="abc123notarealkey")).status_code == 404

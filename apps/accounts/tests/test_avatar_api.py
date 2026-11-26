@@ -1,11 +1,11 @@
 import io
 
 from django.core.files.uploadedfile import SimpleUploadedFile
-from django.test import TestCase
 
 from PIL import Image
 
-from apps.accounts.models import User
+from apps.accounts.recipes import make_user
+from apps.base.tests import BaseTest
 
 URL = "/api/avatar/"
 
@@ -16,32 +16,38 @@ def _make_png_bytes(size=(512, 512), color="red"):
     return buf.getvalue()
 
 
-class TestAvatarAPI(TestCase):
+class TestAvatarAPI(BaseTest):
+    @classmethod
+    def setUpTestData(cls):
+        cls.user = make_user("user@example.com")
+
     def setUp(self):
-        self.user = User.objects.create_user(
-            username="user",
-            email="user@example.com",
-            password="secret",  # noqa: S106
-        )
+        self.sign_in(self.user)
+        self.addCleanup(self._delete_avatar_files)
+
+    def _delete_avatar_files(self):
+        # Rolling back the test's transaction leaves the uploaded files in storage.
+        self.user.refresh_from_db()
+        for image in (self.user.avatar_original, self.user.avatar_thumbnail):
+            if image:
+                image.delete(save=False)
 
     def test_upload_avatar(self):
-        self.client.force_login(self.user)
         upload = SimpleUploadedFile("avatar.png", _make_png_bytes(), content_type="image/png")
         resp = self.client.post(URL, {"image": upload})
-        self.assertEqual(resp.status_code, 200)
-        self.assertIn("avatar_url", resp.json())
+        assert resp.status_code == 200
+        assert "avatar_url" in resp.json()
         self.user.refresh_from_db()
-        self.assertTrue(bool(self.user.avatar_thumbnail))
+        assert self.user.avatar_thumbnail
 
     def test_delete_avatar(self):
-        self.client.force_login(self.user)
         upload = SimpleUploadedFile("avatar.png", _make_png_bytes(), content_type="image/png")
         self.client.post(URL, {"image": upload})
         self.user.refresh_from_db()
-        self.assertTrue(bool(self.user.avatar_thumbnail))
+        assert self.user.avatar_thumbnail
 
         resp = self.client.delete(URL)
-        self.assertEqual(resp.status_code, 204)
+        assert resp.status_code == 204
         self.user.refresh_from_db()
-        self.assertFalse(bool(self.user.avatar_thumbnail))
-        self.assertFalse(bool(self.user.avatar_original))
+        assert not self.user.avatar_thumbnail
+        assert not self.user.avatar_original

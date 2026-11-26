@@ -19,18 +19,16 @@ class TestOneTimeCodeFields:
         expect(field).to_have_attribute("autocomplete", "one-time-code")
 
     def test_sign_in(self, page: Page, live_server, user):
-        from allauth.mfa.totp.internal.auth import TOTP, generate_totp_secret
+        from apps.accounts.recipes import make_totp
 
-        TOTP.activate(user, generate_totp_secret())
+        make_totp(user, recovery_codes=False)
         self._sign_in(page, live_server)
         page.wait_for_url(re.compile(r"/accounts/2fa/"), timeout=10000)
 
         # The field takes a recovery code too, which allauth makes of digits only.
         self._expect_code_field(page.get_by_label("Code", exact=True))
 
-    def test_authenticator_app_setup(self, page: Page, live_server, user):
-        self._sign_in(page, live_server)
-        page.wait_for_url(re.compile(r"^(?!.*/accounts/login/)"), timeout=10000)
-        page.goto(f"{live_server.url}/accounts/security/totp/")
+    def test_authenticator_app_setup(self, page: Page, sign_in, user):
+        sign_in(user, "/accounts/security/totp/")
 
         self._expect_code_field(page.get_by_label("6-Digit Code"))

@@ -9,28 +9,25 @@ through ids got every email.
 
 import json
 
-import pytest
-from model_bakery import baker
-
-from apps.accounts.models import User
-from apps.organizations.models import Organization, OrganizationInvite, OrganizationMember
+from apps.accounts.recipes import make_user
+from apps.base.tests import BaseTest
+from apps.organizations.models import OrganizationInvite, OrganizationMember
+from apps.organizations.recipes import make_org
 
 OUTSIDER_EMAIL = "jan.levinson@corporate.example"
 
 
-@pytest.mark.django_db
-class TestMembersApiTellsNothingAboutOutsiders:
-    @pytest.fixture(autouse=True)
-    def _setup(self, client):
-        self.outsider = baker.make(
-            User, username="jan", first_name="Jan", last_name="Levinson", email=OUTSIDER_EMAIL, is_active=True
-        )
-        # Nothing special about this user: anyone who signs up can create an organization and own it.
-        self.client = client
-        self.client.force_login(baker.make(User, email="ryan@example.com"))
-        created = self._post("/api/organizations/", {"name": "Ryan Started a Company", "slug": "wuphf"})
-        assert created.status_code == 201
-        self.org = Organization.objects.get(slug="wuphf")
+class TestMembersApiTellsNothingAboutOutsiders(BaseTest):
+    @classmethod
+    def setUpTestData(cls):
+        cls.outsider = make_user(OUTSIDER_EMAIL, username="jan", first_name="Jan", last_name="Levinson")
+        # Nothing special about this user: anyone who signs up can create an organization and own it, as
+        # `TestCreateOrganization` in test_api.py checks through the API.
+        cls.ryan = make_user("ryan@example.com")
+        cls.org = make_org(cls.ryan, name="Ryan Started a Company", slug="wuphf")
+
+    def setUp(self):
+        self.sign_in(self.ryan, self.org)
 
     def _post(self, url, data):
         return self.client.post(url, data=json.dumps(data), content_type="application/json")
@@ -40,12 +37,13 @@ class TestMembersApiTellsNothingAboutOutsiders:
         assert OUTSIDER_EMAIL not in body
         assert "Levinson" not in body
 
-    @pytest.mark.parametrize("query", ["jan", "Levinson", "corporate.example", OUTSIDER_EMAIL])
-    def test_search_finds_no_one(self, query):
-        response = self.client.get("/api/organization-members/search/", {"q": query})
+    def test_search_finds_no_one(self):
+        for query in ["jan", "Levinson", "corporate.example", OUTSIDER_EMAIL]:
+            with self.subTest(query=query):
+                response = self.client.get("/api/organization-members/search/", {"q": query})
 
-        assert response.status_code != 200
-        self._assert_says_nothing_about_the_outsider(response)
+                assert response.status_code != 200
+                self._assert_says_nothing_about_the_outsider(response)
 
     def test_cant_add_a_user_by_id(self):
         response = self._post("/api/organization-members/", {"user": self.outsider.pk})

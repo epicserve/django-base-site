@@ -11,13 +11,9 @@ ROUTER_PUSH = "path => document.querySelector('#app').__vue_app__.config.globalP
 
 class TestScrollOnNavigation:
     @pytest.fixture(autouse=True)
-    def _sign_in(self, page: Page, live_server, user):
+    def _sign_in(self, page: Page, sign_in, user):
         page.set_viewport_size(VIEWPORT)
-        page.goto(f"{live_server.url}/accounts/login/")
-        page.get_by_placeholder("Email").fill("michael.scott@dundermifflin.com")
-        page.get_by_placeholder("Password").fill("dundermifflin")
-        page.get_by_role("button", name="Sign In", exact=True).click()
-        page.wait_for_url(f"{live_server.url}/", timeout=10000)
+        sign_in(user, "/")
         expect(self._included(page)).to_be_attached()
 
     @staticmethod

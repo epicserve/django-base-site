@@ -1,4 +1,4 @@
-import { describe, expect, test } from 'bun:test';
+import { describe, expect, test } from 'vitest';
 import { initAppStore, type AppStore, type OrgPerm } from '../stores/app';
 import { isOrgSettingsTab, orgSettingsTabs } from './orgSettings';
 

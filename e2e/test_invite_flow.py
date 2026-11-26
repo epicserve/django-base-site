@@ -12,113 +12,52 @@ The page is a Vue route served via SPAView; invite metadata loads from
 import re
 
 import pytest
-from model_bakery import baker
 from playwright.sync_api import Page, expect
 
 
 @pytest.fixture()
-def org(db, user):
-    from apps.organizations.models import Organization, OrganizationMember
-    from apps.organizations.roles import OrgRole
+def invite(org, user):
+    from apps.organizations.recipes import make_invite
 
-    org = Organization.objects.create(name="Dunder Mifflin", slug="dunder-mifflin")
-    OrganizationMember.objects.create(organization=org, user=user, role=OrgRole.OWNER)
-    return org
-
-
-@pytest.fixture()
-def invite(db, org, user):
-    from apps.organizations.models import OrganizationInvite
-
-    return OrganizationInvite.objects.create(
-        organization=org,
-        sender=user,
-        invitee_email="jim.halpert@dundermifflin.com",
-    )
-
-
-@pytest.fixture()
-def expired_invite(db, org, user):
-    from datetime import timedelta
-
-    from django.utils import timezone
-
-    from apps.organizations.models import OrganizationInvite
-
-    inv = OrganizationInvite.objects.create(
-        organization=org,
-        sender=user,
-        invitee_email="pam.beesly@dundermifflin.com",
-    )
-    OrganizationInvite.objects.filter(pk=inv.pk).update(
-        created=timezone.now() - timedelta(days=inv.expired_in_days + 1)
-    )
-    inv.refresh_from_db()
-    return inv
+    return make_invite(org, user, email="jim.halpert@dundermifflin.com")
 
 
 @pytest.fixture()
 def invitee(db):
-    from allauth.account.models import EmailAddress
+    from apps.accounts.recipes import make_user
 
-    from apps.accounts.models import User
-
-    user = baker.make(
-        User,
-        email="jim.halpert@dundermifflin.com",
-        first_name="Jim",
-        last_name="Halpert",
-    )
-    user.set_password("dundermifflin")
-    user.save()
-    EmailAddress.objects.create(user=user, email=user.email, verified=True, primary=True)
-    return user
+    return make_user("jim.halpert@dundermifflin.com", first_name="Jim", last_name="Halpert")
 
 
 class TestInviteFlow:
-    def test_invite_page_shows_org_and_sender(self, page: Page, live_server, invite):
-        page.goto(f"{live_server.url}/organizations/invite/{invite.key}/accept/")
+    def test_the_invite_page(self, page: Page, live_server, org, user, invite, subtests):
+        # Each case only reads, so they share one browser and database.
+        from apps.organizations.recipes import make_invite
 
-        expect(page.get_by_text("You're Invited!")).to_be_visible()
-        expect(page.get_by_text("Dunder Mifflin")).to_be_visible()
-        # Anonymous visitor sees the create-account / sign-in CTAs
-        expect(page.get_by_role("button", name="Create an Account to Join")).to_be_visible()
-        expect(page.get_by_role("button", name="I Already Have an Account")).to_be_visible()
+        with subtests.test("an anonymous visitor sees the organization and sender"):
+            page.goto(f"{live_server.url}/organizations/invite/{invite.key}/accept/")
 
-    @pytest.mark.parametrize(
-        ("org_name", "sentence_end"),
-        [("Dunder Mifflin", "Dunder Mifflin."), ("Dunder Mifflin Inc.", "Dunder Mifflin Inc.")],
-    )
-    def test_org_name_ends_the_sentence_once(self, page: Page, live_server, invite, org_name, sentence_end):
-        # A name that already ends in a period ("Inc.") used to get a second one.
-        invite.organization.name = org_name
-        invite.organization.save()
+            expect(page.get_by_text("You're Invited!")).to_be_visible()
+            # The period comes from sentencePeriod(), which frontend/js/utils/format.test.ts covers for a name that
+            # already ends in one.
+            sentence = page.get_by_text("invited you to join")
+            expect(sentence).to_have_text("Michael Scott invited you to join Dunder Mifflin.")
+            expect(page.get_by_role("button", name="Create an Account to Join")).to_be_visible()
+            expect(page.get_by_role("button", name="I Already Have an Account")).to_be_visible()
 
-        page.goto(f"{live_server.url}/organizations/invite/{invite.key}/accept/")
+        with subtests.test("an unknown key"):
+            page.goto(f"{live_server.url}/organizations/invite/abc123notarealkey/accept/")
 
-        expect(page.get_by_text("invited you to join")).to_have_text(
-            f"Michael Scott invited you to join {sentence_end}"
-        )
+            expect(page.get_by_text("Invitation Unavailable")).to_be_visible()
 
-    def test_invalid_key_shows_unavailable(self, page: Page, live_server, db):
-        page.goto(f"{live_server.url}/organizations/invite/abc123notarealkey/accept/")
+        with subtests.test("an expired invite"):
+            expired = make_invite(org, user, email="pam.beesly@dundermifflin.com", expired=True)
+            page.goto(f"{live_server.url}/organizations/invite/{expired.key}/accept/")
 
-        expect(page.get_by_text("Invitation Unavailable")).to_be_visible()
+            expect(page.get_by_text("Invitation Expired")).to_be_visible()
 
-    def test_expired_invite_shown_as_expired(self, page: Page, live_server, expired_invite):
-        page.goto(f"{live_server.url}/organizations/invite/{expired_invite.key}/accept/")
-
-        expect(page.get_by_text("Invitation Expired")).to_be_visible()
-
-    def test_existing_user_can_accept(self, page: Page, live_server, invite, invitee):
-        # Sign in as the invitee, then visit the accept link.
-        page.goto(f"{live_server.url}/accounts/login/")
-        page.get_by_placeholder("Email").fill("jim.halpert@dundermifflin.com")
-        page.get_by_placeholder("Password").fill("dundermifflin")
-        page.get_by_role("button", name="Sign In", exact=True).click()
-        page.wait_for_url(f"{live_server.url}/", timeout=10000)
-
-        page.goto(f"{live_server.url}/organizations/invite/{invite.key}/accept/")
+    def test_existing_user_can_accept(self, page: Page, sign_in, invite, invitee):
+        sign_in(invitee, f"/organizations/invite/{invite.key}/accept/")
         expect(page.get_by_text("You're Invited!")).to_be_visible()
 
         page.get_by_role("button", name="Accept Invitation").click()
@@ -131,15 +70,9 @@ class TestInviteFlow:
         assert not OrganizationInvite.objects.filter(pk=invite.pk).exists()
         assert OrganizationMember.objects.filter(organization=invite.organization, user=invitee).exists()
 
-    def test_decline_consumes_invite(self, page: Page, live_server, invite, invitee):
-        # Sign in as the invitee so the Decline button is visible.
-        page.goto(f"{live_server.url}/accounts/login/")
-        page.get_by_placeholder("Email").fill("jim.halpert@dundermifflin.com")
-        page.get_by_placeholder("Password").fill("dundermifflin")
-        page.get_by_role("button", name="Sign In", exact=True).click()
-        page.wait_for_url(f"{live_server.url}/", timeout=10000)
-
-        page.goto(f"{live_server.url}/organizations/invite/{invite.key}/accept/")
+    def test_decline_consumes_invite(self, page: Page, sign_in, invite, invitee):
+        # Signed in as the invitee, so the Decline button shows.
+        sign_in(invitee, f"/organizations/invite/{invite.key}/accept/")
         expect(page.get_by_text("You're Invited!")).to_be_visible()
 
         page.get_by_role("button", name="Decline").click()
@@ -151,10 +84,6 @@ class TestInviteFlow:
         assert not OrganizationInvite.objects.filter(pk=invite.pk).exists()
 
     def test_unauthenticated_accept_redirects_to_login(self, page: Page, live_server, invite):
-        page.goto(f"{live_server.url}/accounts/login/")
-        # Confirm baseline: the login page rendered.
-        expect(page.get_by_placeholder("Email")).to_be_visible()
-
         # Visit the invite page as an anonymous visitor and click the
         # "I Already Have an Account" path; we expect to land on login with
         # the invite URL preserved as ?next=.

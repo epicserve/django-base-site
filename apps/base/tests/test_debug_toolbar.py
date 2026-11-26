@@ -1,7 +1,15 @@
+import importlib
+
+from django.conf import settings
+from django.test import override_settings
+from django.urls import clear_url_caches
+
 import pytest
 
-from apps.accounts.models import User
+import config.urls
+from apps.accounts.recipes import make_user
 from apps.base.debug_toolbar import ENABLED_COOKIE, show_toolbar
+from apps.base.tests import BaseTest
 
 
 @pytest.fixture()
@@ -38,19 +46,45 @@ class TestShowToolbar:
         assert show_toolbar(local_request) is False
 
 
-@pytest.mark.django_db
-class TestAppContextDebugFlag:
-    @pytest.fixture(autouse=True)
-    def _login(self, client):
-        client.force_login(User.objects.create_user(username="jim", password="secret"))  # noqa: S106
-        self.client = client
+class TestAppContextDebugFlag(BaseTest):
+    @classmethod
+    def setUpTestData(cls):
+        cls.jim = make_user("jim@example.com")
 
-    def test_reports_debug_on(self, settings):
-        settings.DEBUG = True
+    def setUp(self):
+        self.sign_in(self.jim)
 
+    @override_settings(DEBUG=True)
+    def test_reports_debug_on(self):
         assert self.client.get("/api/app-context/").json()["debug"] is True
 
-    def test_reports_debug_off(self, settings):
-        settings.DEBUG = False
-
+    @override_settings(DEBUG=False)
+    def test_reports_debug_off(self):
         assert self.client.get("/api/app-context/").json()["debug"] is False
+
+
+class TestToolbarUrls:
+    """
+    The toolbar's URLs come with its app, which the settings install only when DEBUG is on at startup.
+
+    They used to come with DEBUG itself, so a test that turned DEBUG on (test_seed) and was the first to load the
+    URLconf imported the toolbar without its app installed, and every request failed.
+    """
+
+    @pytest.fixture(autouse=True)
+    def _reload_urls_after(self):
+        yield
+        clear_url_caches()
+        importlib.reload(config.urls)
+
+    def _patterns(self) -> list[str]:
+        clear_url_caches()
+        return [str(pattern.pattern) for pattern in importlib.reload(config.urls).urlpatterns]
+
+    def test_left_out_while_the_app_isnt_installed(self):
+        apps = [app for app in settings.INSTALLED_APPS if app != "debug_toolbar"]
+        with override_settings(DEBUG=True, INSTALLED_APPS=apps):
+            patterns = self._patterns()
+
+        assert "__debug__/" not in patterns
+        assert "admin/doc/" in patterns

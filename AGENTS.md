@@ -47,7 +47,7 @@ Use Just for all development tasks. Common ones:
 
 **Testing:**
 - `just test` - pytest (Django + ninja API tests)
-- `just test_js` - `bun test` for the SPA's unit tests (`frontend/js/**/*.test.ts`)
+- `just test_js` - Vitest for the SPA's unit and component tests (`frontend/js/**/*.test.ts`)
 - `just test_with_coverage` - pytest --cov, opens HTML report
 - `just test_e2e [args]` - `bun run build` then pytest e2e/ with `--ds=config.settings.e2e`. Excluded from `just test` via `--ignore=e2e` in `pyproject.toml`.
 
@@ -83,19 +83,49 @@ Use Just for all development tasks. Common ones:
 ## Testing
 
 - Run `just verify` before calling work done. It doesn't run the e2e suite, so also run `just test_e2e` when a change touches the SPA or a flow the e2e tests cover.
-- pytest with pytest-django.
-- Test settings in `config.settings.test_runner`; e2e settings in `config.settings.e2e`.
-- Model Bakery for fixtures.
-- Django Test Plus for additional helpers.
-- pyotp for the TOTP / MFA tests under `apps/accounts/tests/test_mfa_flows.py`. Make a code with `current_totp_code(secret)` from `apps/accounts/tests/totp.py`, not `pyotp.TOTP(secret).now()`: allauth accepts only the current 30-second window's code, so the helper waits out a window's last 5 seconds rather than make a code that expires before the server checks it.
-- Playwright e2e tests under `e2e/` (auth flow incl. the passkey prompt, invite flow, org settings, avatar upload); `--ignore=e2e` is on `pyproject.toml` `[tool.pytest.ini_options]` so the unit suite stays fast.
-- Coverage configuration in `config/coverage.ini`.
-- `bun test` (built into bun, run by `just test_js`) unit-tests plain TypeScript functions, such as `safeNextUrl()` in `frontend/js/utils/redirect.test.ts`. Put a test beside its module as `<name>.test.ts` and import `describe`, `test`, and `expect` from `bun:test`. `@types/bun` isn't installed, so `frontend/js/bun-test.d.ts` declares the parts the tests use; add to it when a test needs more. Components and flows are covered by the e2e tests instead.
+- pytest with pytest-django. Database test classes subclass `BaseTest` (`apps/base/tests/_base.py`), Django's `TestCase` plus a `sign_in` method. Test data comes from each app's recipes (see Test Data). Test settings are `config.settings.test_runner`; e2e settings are `config.settings.e2e`. Coverage configuration is in `config/coverage.ini`.
+- Playwright e2e tests are under `e2e/`. `--ignore=e2e` in `pyproject.toml`'s `[tool.pytest.ini_options]` keeps them out of `just test`.
+- Vitest (run by `just test_js`) unit-tests the SPA's TypeScript and components. Put a test beside its module as `<name>.test.ts` and import `describe`, `test`, `expect` (and `vi` for mocks) from `vitest`. It runs under happy-dom with the Vite config's `@` alias; mount a component with `mount()` from `@vue/test-utils`.
 - `frontend/js/utils/api.type-test.ts` holds type-level regression tests: `@ts-expect-error` lines for API bugs that shipped before the types existed, next to the same calls written correctly. `vue-tsc` fails if one stops being an error. Add one when the types should have caught a bug.
+- pyotp for the TOTP / MFA tests under `apps/accounts/tests/test_mfa_flows.py`. Turn on two-factor authentication with `make_totp(user)` (`apps/accounts/recipes.py`), which returns the secret. Make a code with `current_totp_code(secret)` from `apps/accounts/tests/totp.py`, not `pyotp.TOTP(secret).now()`: allauth accepts only the current 30-second window's code, so the helper waits out a window's last 5 seconds rather than make a code that expires before the server checks it.
 - Every `apps.*` management command must import cleanly; `apps/base/tests/test_management_commands.py` loads them all, since `ty` ignores unresolved imports.
 - To check a UI change in the browser, follow the `run-app` skill ([.agents/skills/run-app/SKILL.md](.agents/skills/run-app/SKILL.md)): start the stack, `just seed`, then sign in as a seeded login with Playwright.
-- CI (`.github/workflows/ci.yml`) runs `just lint`, `just test_js`, the pytest suite, and the Playwright e2e suite on pushes to `main` and on pull requests. The Tests and E2E jobs build the images with `docker/bake-action` from `compose.yml` and keep their layers in GitHub Actions' cache: the Tests job writes it and the E2E job only reads it. The Lint job caches uv's downloads with `astral-sh/setup-uv`. Both pytest steps print their 15 slowest tests (`--durations=15`). Dependabot (`.github/dependabot.yml`) opens weekly dependency PRs; the `/weekly-maintenance` skill reviews and merges them.
+- CI (`.github/workflows/ci.yml`) runs `just lint`, `just test_js`, the pytest suite, and the Playwright e2e suite on pushes to `main` and on pull requests. All three jobs run on the runner, not in the compose containers: they install Python packages with `astral-sh/setup-uv`, whose cache makes that take seconds, set `PYTHON_CMD_PREFIX`, `PYTHON_CMD_PREFIX_WITH_DEPS` and `BUN_CMD_PREFIX` to empty, and use a Postgres service container. The E2E job installs Playwright's Chromium with `playwright install chromium --with-deps`. Building the web image took 3–6 minutes whenever `uv.lock` changed, so only the Template workflow builds and boots the images. Both pytest steps run on every core with pytest-xdist (`-n auto`) and print their 15 slowest tests (`--durations=15`); pass `-n 4` to `just test_e2e` to do the same locally. Dependabot (`.github/dependabot.yml`) opens weekly dependency PRs; the `/weekly-maintenance` skill reviews and merges them.
 - Workflows install `just` with `extractions/setup-just`, not the `just.systems` install script, which fails on GitHub's API rate limit. Pin every action to a full commit SHA with its release in a trailing comment (`uses: actions/checkout@<sha> # v7.0.1`), as GitHub's hardening guide recommends; Dependabot updates both.
+
+### Choosing a Layer
+
+Test each behavior once, at the cheapest layer that can observe it faithfully:
+
+- **Vitest, no mounting:** a plain TypeScript function or composable (state changes, data transforms, API coordination, router guard decisions). When logic in a component is hard to test, move it into a composable or a `utils/` function and test that.
+- **Vitest + `@vue/test-utils`:** a component whose rendered output, ARIA attributes or emits are its contract, such as `FormField` or `AppModal`. Don't mount a whole view to reach logic a composable test could cover.
+- **pytest with the Django test client:** server behavior, such as permissions, validation and its error messages, response shapes, emails, and redirects the server decides.
+- **Playwright:** only what needs a real browser: wiring across components and the API, router navigation, CSP enforcement, WebAuthn, focus, scroll and layout, and the file chooser. Keep one representative browser test per flow; cover its cases and permission matrix at a cheaper layer.
+
+### Test Data
+
+- A test class that touches the database subclasses `BaseTest` (`apps.base.tests`) and builds the rows its tests share once, in `setUpTestData`. A test builds only the rows it alone needs. `apps/base/tests/test_sign_in.py` is the example to copy.
+- Each test rolls back to a savepoint, and Django gives it its own copy of every attribute `setUpTestData` set, so a test can change shared rows and objects freely. What a rollback doesn't undo stays changed: caches, files in storage, module globals, and signal connections. Undo those in the test.
+- `setUpTestData` runs before any per-test fixture. A setting that must hold while the class data is built goes on the class (`@override_settings(...)`); a patch goes in `setUpClass` with `cls.enterClassContext(...)` before `super().setUpClass()`. Reach the `settings`, `monkeypatch`, `caplog` and other pytest fixtures a test body needs through an autouse fixture on the class that stores them on `self`.
+- Build data with the recipes in `apps/<app>/recipes.py`: `make_user`, `make_superuser` and `make_totp` (accounts), `make_org`, `make_member` and `make_invite` (organizations), `make_team` (teams), and the billing and notifications recipes. e2e fixtures use them too. When a test needs a kind of object no recipe makes, add a recipe rather than build it inline in a second file.
+- Recipes live in app code, not under `tests/`, because `just seed` uses some of them (`make_user`, `make_superuser`, `make_org`, `make_member`, `make_invite`, `make_team`) and a management command can't import from a test package. Each creates a new row unless passed `update=True`, which the seed command passes so it can rerun: the row is looked up and given the recipe's values. Tests never pass it, so building the same row twice fails instead of changing a row another test shares. A change to what a seeded row looks like goes in the recipe, not in `seed.py`.
+- Build only the graph the assertions need, and give negative controls explicit values that can't match by chance.
+- A test that doesn't touch the database is a plain `class TestX:` with no DB mark. No module-level test functions, and use bare `assert`, never `self.assertEqual` and the like (Ruff's `PT009` and `PT027`). `apps/base/tests/test_test_style.py` fails on a module-level test function or a `django_db` mark under `apps/`.
+- Cases: a `BaseTest` class loops over them with `self.subTest(...)`, since pytest can't parametrize a `TestCase`. A plain class uses `@pytest.mark.parametrize` when each case needs fresh setup, and pytest's `subtests` fixture when the cases share one.
+- CI runs tests in parallel (pytest-xdist), so each worker runs a different subset in a different order. A test can't count on another having run first, such as one that loads the URLconf or connects a signal.
+- Every e2e test is transactional (`live_server` flushes the database after each one), so `setUpTestData` doesn't apply there. Build its data with recipes in fixtures, starting from `e2e/conftest.py`'s `user` and `org`.
+
+### Signing In
+
+- Only tests of signing in itself sign in through allauth (`api_sign_in(client, email)` in `apps/base/tests/sign_in.py`) or the form (e2e).
+- Every other Python test uses `self.sign_in(user, org=None)` on `BaseTest` (for another client, `sign_in(client, user, org)` from `apps/base/tests/sign_in.py`), which force-logs in, selects `org` (default: the user's primary organization) in the session, and records a password sign-in so allauth doesn't ask for the password again before adding a passkey or setting up two-factor authentication.
+- Every other e2e test uses the `sign_in` fixture, `sign_in(user, "/path/", org=None)`: it builds the same session and hands the browser its cookie, so the first page the browser loads is the one under test.
+
+### Consolidating Tests
+
+- Put scenarios that share expensive setup and can't break each other in one test, each in a labeled subtest. Keep a separate test when one scenario's writes would break another, or when a later step needs an earlier one to have passed.
+- Keep every assertion when merging or moving tests, including the inverse: that what shouldn't change or match didn't. A pull request that moves or deletes a test names the test that covers it now.
+- CI prints the 15 slowest tests of each pytest run (`--durations=15`). Check them before adding a slow test.
 
 <!-- template-only:start -->
 
@@ -106,7 +136,7 @@ These exist only in the Django Base Site template. `scripts/start_new_project` r
 - `README.md`, `CHANGELOG.md`, `LICENSE.md`, `docs/`, `zensical.toml`, `config/docs.just`, `.readthedocs.yaml`, `scripts/start_new_project`.
 - `config/template.just`, which holds `clean_extra_files` itself, so the recipe doesn't linger in new projects.
 - The docs site's dev dependencies (`zensical`, `mkdocs-linkcheck`), removed from `pyproject.toml` and `uv.lock` with `uv remove`.
-- `.github/workflows/template.yml` — the "Tests install script" job: runs `scripts/start_new_project` and checks the generated project (CI and Dependabot kept, docs tooling and its dependencies gone, no dead links or `just` recipes in its AGENTS.md, nothing else pointing at the deleted files, images pullable, `.claude/settings.json` committed and `.claude/settings.local.json` ignored), then boots it with `docker compose up`, checks `/api/app-context/` responds, runs `just seed` twice, and signs in as a seeded login and as the superuser from the generated `.env`. It doesn't run pytest; `ci.yml`'s Tests job covers the code.
+- `.github/workflows/template.yml` — the "Tests install script" job: runs `scripts/start_new_project` and checks the generated project (CI and Dependabot kept, docs tooling and its dependencies gone, no dead links or `just` recipes in its AGENTS.md, nothing else pointing at the deleted files, images pullable, `.claude/settings.json` committed and `.claude/settings.local.json` ignored), then boots it with `docker compose up`, checks `/api/app-context/` responds, runs `just seed` twice, and signs in as a seeded login and as the superuser from the generated `.env`. It doesn't run pytest; `ci.yml`'s Tests job covers the code. It's the only job that builds the Docker images. A pull request runs it only when it touches a path in the workflow's `paths` list (the installer, the files it edits, the images and compose stack, and what `just seed` runs), and every push to `main` runs it; add a path there when this job starts checking something new.
 - Blocks of this file wrapped in `<!-- template-only:start -->` / `<!-- template-only:end -->` markers, each on a line of its own. Put anything that only applies to the template (docs site, release notes, the install script) inside such a block, and don't link to the files above from outside one.
 
 <!-- template-only:end -->
@@ -195,7 +225,7 @@ Key variables:
 
 ## Adding a Feature
 
-Copy `apps/teams/` (about 190 lines): an organization-scoped model, its admin, a ninja router, and a settings tab in the SPA (`frontend/js/views/settings/TeamsView.vue` and `frontend/js/apps/ManageTeamsApp.vue`). Its `tests/test_api.py` is the older `TestCase` style, so write new tests like its `tests/test_team_names.py` instead. A feature usually needs each of these:
+Copy `apps/teams/` (about 190 lines): an organization-scoped model, its admin, a ninja router, and a settings tab in the SPA (`frontend/js/views/settings/TeamsView.vue` and `frontend/js/apps/ManageTeamsApp.vue`). Write its tests the way the Testing section describes; `apps/base/tests/test_sign_in.py` is a short example. A feature usually needs each of these:
 
 - **App and model**: add the app to `INSTALLED_APPS` in `config/settings/_base.py`. Give the model a `ForeignKey` to `organizations.Organization` and a queryset built on `FilterByOrganizationMixin` (`apps/organizations/managers.py`), and read rows through `.filter_by_org(request)` so one organization never sees another's. `just lint` fails on a missing migration.
 - **Who can call it**: start each ninja route with `require_org_perm(request, OrgPerm.X)` (`apps/base/permissions.py`) for an action a role grants, or `require_org_selected(request)` for one any member can take. Outside a route, use `has_org_perm(user, org, perm)`. A new kind of action gets its own `OrgPerm` (see Multi-Tenant Scaffolding).
@@ -205,10 +235,10 @@ Copy `apps/teams/` (about 190 lines): an organization-scoped model, its admin, a
 - **Notifications**: a model that `notify(..., target=obj)` points at goes in `NOTIFICATIONS_TARGET_MODELS` (`"app_label.ModelName"`), so deleting a row deletes its notifications. A new kind of notification gets a category in `NOTIFICATIONS_CATEGORIES`.
 - **Paid features**: declare the feature in `BILLING_FEATURES`, decorate the route with `requires_feature("key")` (`apps/billing/access.py`), and wrap the UI in `FeatureGate` or `useFeature()`. All of them let everything through when `BILLING_ENABLED` is off.
 - **Settings**: read each new setting with `env(...)` in `config/settings/_base.py` and declare it in `.env.toml` (see Environment Configuration). `apps/base/tests/test_env_schema.py` fails on one that's read but not declared.
-- **Tests**: class-based pytest under `apps/<app>/tests/`, and an e2e test under `e2e/` for a new page or flow. Run `just verify`, and `just test_e2e` when the SPA changed.
+- **Tests**: `BaseTest` classes with `setUpTestData` and recipes under `apps/<app>/tests/` (see Testing), Vitest tests for new components and composables, and an e2e test under `e2e/` for a new page or flow. Run `just verify`, and `just test_e2e` when the SPA changed.
 
 ## Key Dependencies
 
 - **Backend**: Django 6, django-allauth[mfa] (with fido2 for WebAuthn), django-ninja, django-hijack, Pillow, Celery, Redis, PostgreSQL 17, gunicorn, WhiteNoise, django-storages + boto3, django-ses, django-alive, django-maintenance-mode, sentry-sdk.
 - **Frontend**: Vue 3, Vue Router 5, Tailwind v4, Vite 8, bun, openapi-fetch, @heroicons/vue, vue-advanced-cropper, reka-ui (modal/toast primitives).
-- **Development**: Docker, pytest, pytest-playwright, pyotp, Ruff, Ty, Oxlint, Oxfmt, djLint, model-bakery, TypeScript, vue-tsc, openapi-typescript.
+- **Development**: Docker, pytest, pytest-playwright, pyotp, Ruff, Ty, Oxlint, Oxfmt, djLint, TypeScript, vue-tsc, openapi-typescript.

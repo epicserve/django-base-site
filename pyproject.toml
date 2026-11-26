@@ -32,13 +32,10 @@ dev = [
     "debugpy",
     "django-debug-toolbar",
     "django-stubs",
-    "django-test-plus",
     # importlib-metadata is a dependency of djlint there is a PR to upgrade it in this issue (https://github.com/Riverside-Healthcare/djLint/pull/504) from 5.2.0 to 6.0.0
     "djlint",
-    "ipdb",
     "mkdocs-linkcheck",
     "zensical",
-    "model-bakery",
     "pyotp",
     "pytest~=9.0",
     "pytest-cov~=7.0",
@@ -49,7 +46,7 @@ dev = [
     "ty",
     "readable-log-formatter",
     "ruff",
-    "ruff-lsp",
+    "pytest-xdist~=3.8",
 ]
 
 [tool.ty]
@@ -126,6 +123,8 @@ select = [
     "I",  # isort
     "D",  # pydocstyle
     "S",  # bandit
+    "PT009",  # unittest-style assertions (`self.assertEqual`): use a bare `assert`
+    "PT027",  # `self.assertRaises`: use `pytest.raises`
 ]
 ignore = ["D100", "D101", "D102", "D103", "D104", "D106", "D107", "D203", "D212", ]
 

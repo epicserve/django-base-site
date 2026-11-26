@@ -8,22 +8,12 @@ from apps.billing.plans import (
     price_id_for,
     resolve_plan_by_price_id,
 )
-
-PLAN_FREE = {"key": "free", "name": "Free", "is_free": True, "is_default": True}
-PLAN_PRO = {
-    "key": "pro",
-    "name": "Pro",
-    "monthly_price_id": "price_pro_monthly",
-    "annual_price_id": "price_pro_annual",
-    "trial_days": 14,
-    "seat_based": True,
-    "features": {"max_team_count": 10, "advanced_reporting": True},
-}
+from apps.billing.recipes import FREE_PLAN, PRO_PLAN
 
 
 class TestPlanRegistry:
     def test_get_plan_returns_normalized_dataclass(self, settings):
-        settings.BILLING_PLANS = [PLAN_FREE, PLAN_PRO]
+        settings.BILLING_PLANS = [FREE_PLAN, PRO_PLAN]
         plan = get_plan("pro")
         assert plan is not None
         assert plan.key == "pro"
@@ -32,21 +22,21 @@ class TestPlanRegistry:
         assert plan.features == {"max_team_count": 10, "advanced_reporting": True}
 
     def test_get_plan_missing_returns_none(self, settings):
-        settings.BILLING_PLANS = [PLAN_FREE]
+        settings.BILLING_PLANS = [FREE_PLAN]
         assert get_plan("does-not-exist") is None
 
     def test_get_plans_returns_all_in_order(self, settings):
-        settings.BILLING_PLANS = [PLAN_FREE, PLAN_PRO]
+        settings.BILLING_PLANS = [FREE_PLAN, PRO_PLAN]
         assert [p.key for p in get_plans()] == ["free", "pro"]
 
     def test_get_default_plan_prefers_is_default(self, settings):
-        settings.BILLING_PLANS = [PLAN_PRO, PLAN_FREE]
+        settings.BILLING_PLANS = [PRO_PLAN, FREE_PLAN]
         default_plan = get_default_plan()
         assert default_plan is not None
         assert default_plan.key == "free"
 
     def test_get_default_plan_falls_back_to_first_free(self, settings):
-        settings.BILLING_PLANS = [PLAN_PRO, dict(PLAN_FREE, is_default=False)]
+        settings.BILLING_PLANS = [PRO_PLAN, dict(FREE_PLAN, is_default=False)]
         default_plan = get_default_plan()
         assert default_plan is not None
         assert default_plan.key == "free"
@@ -56,23 +46,23 @@ class TestPlanRegistry:
         assert get_default_plan() is None
 
     def test_get_free_plan(self, settings):
-        settings.BILLING_PLANS = [PLAN_PRO, PLAN_FREE]
+        settings.BILLING_PLANS = [PRO_PLAN, FREE_PLAN]
         free_plan = get_free_plan()
         assert free_plan is not None
         assert free_plan.key == "free"
 
     def test_price_id_for_monthly(self, settings):
-        settings.BILLING_PLANS = [PLAN_PRO]
+        settings.BILLING_PLANS = [PRO_PLAN]
         plan = get_plan("pro")
         assert price_id_for(plan, "monthly") == "price_pro_monthly"
 
     def test_price_id_for_annual(self, settings):
-        settings.BILLING_PLANS = [PLAN_PRO]
+        settings.BILLING_PLANS = [PRO_PLAN]
         plan = get_plan("pro")
         assert price_id_for(plan, "annual") == "price_pro_annual"
 
     def test_price_id_for_unknown_cycle_raises(self, settings):
-        settings.BILLING_PLANS = [PLAN_PRO]
+        settings.BILLING_PLANS = [PRO_PLAN]
         plan = get_plan("pro")
         with pytest.raises(ValueError, match="Unknown billing cycle"):
             price_id_for(plan, "weekly")
@@ -84,7 +74,7 @@ class TestPlanRegistry:
             price_id_for(plan, "monthly")
 
     def test_resolve_plan_by_price_id(self, settings):
-        settings.BILLING_PLANS = [PLAN_FREE, PLAN_PRO]
+        settings.BILLING_PLANS = [FREE_PLAN, PRO_PLAN]
         monthly = resolve_plan_by_price_id("price_pro_monthly")
         annual = resolve_plan_by_price_id("price_pro_annual")
         assert monthly is not None

@@ -1,14 +1,10 @@
 import json
 
-from django.contrib.auth import user_logged_in
-from django.test import TestCase
-
-from model_bakery import baker
-
-from apps.accounts.models import User
-from apps.organizations.roles import OrgRole
-from apps.organizations.signals import user_logged_in_receiver
+from apps.accounts.recipes import make_user
+from apps.base.tests import BaseTest
+from apps.organizations.recipes import make_org
 from apps.teams.models import Team
+from apps.teams.recipes import make_team
 
 LIST_URL = "/api/teams/"
 
@@ -17,81 +13,77 @@ def _detail_url(pk: int) -> str:
     return f"/api/teams/{pk}/"
 
 
-class TestTeamAPI(TestCase):
+class TestTeamAPI(BaseTest):
     @classmethod
-    def setUpClass(cls):
-        user_logged_in.disconnect(user_logged_in_receiver)
-        super().setUpClass()
+    def setUpTestData(cls):
+        cls.owner = make_user()
+        cls.org = make_org(cls.owner)
 
     def setUp(self):
-        self.user = User.objects.create_user(username="owner", password="secret")  # noqa: S106
-        self.org = baker.make("organizations.Organization")
-        baker.make("organizations.OrganizationMember", organization=self.org, user=self.user, role=OrgRole.OWNER)
-
-    def _login(self):
-        self.client.force_login(self.user)
-        session = self.client.session
-        session["organization_data"] = json.dumps(
-            {"pk": self.org.pk, "id": self.org.pk, "name": self.org.name, "slug": self.org.slug}
-        )
-        session.save()
+        self.sign_in(self.owner, self.org)
 
     def test_list(self):
-        team = baker.make("teams.Team", name="Engineering", organization=self.org)
-        baker.make("teams.Team", name="Other Org Team")
-        self._login()
+        team = make_team(self.org, "Engineering")
+        make_team(make_org(), "Other Org Team")
         resp = self.client.get(LIST_URL)
-        self.assertEqual(resp.status_code, 200)
+        assert resp.status_code == 200
         body = resp.json()
-        self.assertEqual(len(body["results"]), 1)
-        self.assertEqual(body["results"][0]["id"], team.pk)
-        self.assertEqual(body["count"], 1)
-        self.assertEqual(body["current_page_num"], 1)
+        assert len(body["results"]) == 1
+        assert body["results"][0]["id"] == team.pk
+        assert body["count"] == 1
+        assert body["current_page_num"] == 1
 
     def test_list_q_search(self):
-        baker.make("teams.Team", name="Engineering", organization=self.org)
-        baker.make("teams.Team", name="Designers", organization=self.org)
-        self._login()
+        make_team(self.org, "Engineering")
+        make_team(self.org, "Designers")
         resp = self.client.get(LIST_URL, {"q": "design"})
         names = [r["name"] for r in resp.json()["results"]]
-        self.assertEqual(names, ["Designers"])
+        assert names == ["Designers"]
 
     def test_create(self):
-        self._login()
         resp = self.client.post(
             LIST_URL,
-            data=json.dumps({"name": "Engineering", "members": [self.user.pk]}),
+            data=json.dumps({"name": "Engineering", "members": [self.owner.pk]}),
             content_type="application/json",
         )
-        self.assertEqual(resp.status_code, 201)
-        self.assertEqual(Team.objects.count(), 1)
+        assert resp.status_code == 201
+        assert Team.objects.count() == 1
         team = Team.objects.get()
-        self.assertEqual(team.name, "Engineering")
-        self.assertEqual(team.organization, self.org)
-        self.assertIn(self.user, team.members.all())
+        assert team.name == "Engineering"
+        assert team.organization == self.org
+        assert self.owner in team.members.all()
+
+    def test_create_rejects_someone_outside_the_organization(self):
+        # The members picker only offers members, but one can leave before the form is saved.
+        outsider = make_user()
+        resp = self.client.post(
+            LIST_URL,
+            data=json.dumps({"name": "Engineering", "members": [self.owner.pk, outsider.pk]}),
+            content_type="application/json",
+        )
+        assert resp.status_code == 400
+        assert resp.json() == {"members": [f"User id {outsider.pk} is not a member of this organization."]}
+        assert not Team.objects.exists()
 
     def test_retrieve(self):
-        team = baker.make("teams.Team", name="Engineering", organization=self.org)
-        self._login()
+        team = make_team(self.org, "Engineering")
         resp = self.client.get(_detail_url(team.pk))
-        self.assertEqual(resp.status_code, 200)
-        self.assertEqual(resp.json()["name"], "Engineering")
+        assert resp.status_code == 200
+        assert resp.json()["name"] == "Engineering"
 
     def test_update(self):
-        team = baker.make("teams.Team", name="Engineering", organization=self.org)
-        self._login()
+        team = make_team(self.org, "Engineering")
         resp = self.client.patch(
             _detail_url(team.pk),
             data=json.dumps({"name": "Platform"}),
             content_type="application/json",
         )
-        self.assertEqual(resp.status_code, 200)
+        assert resp.status_code == 200
         team.refresh_from_db()
-        self.assertEqual(team.name, "Platform")
+        assert team.name == "Platform"
 
     def test_destroy(self):
-        team = baker.make("teams.Team", name="Engineering", organization=self.org)
-        self._login()
+        team = make_team(self.org, "Engineering")
         resp = self.client.delete(_detail_url(team.pk))
-        self.assertEqual(resp.status_code, 204)
-        self.assertFalse(Team.objects.filter(pk=team.pk).exists())
+        assert resp.status_code == 204
+        assert not Team.objects.filter(pk=team.pk).exists()

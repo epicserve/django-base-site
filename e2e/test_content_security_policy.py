@@ -45,20 +45,11 @@ class TestNoPageBreaksThePolicy:
 
         assert violations == []
 
-    def test_signed_in_pages(self, page: Page, live_server, user, violations):
-        from apps.organizations.models import Organization, OrganizationMember
-        from apps.organizations.roles import OrgRole
-
-        org = Organization.objects.create(name="Dunder Mifflin", slug="dunder-mifflin")
-        OrganizationMember.objects.create(organization=org, user=user, role=OrgRole.OWNER, is_primary=True)
-        page.goto(f"{live_server.url}/accounts/login/")
-        page.get_by_placeholder("Email").fill("michael.scott@dundermifflin.com")
-        page.get_by_placeholder("Password").fill("dundermifflin")
-        page.get_by_role("button", name="Sign In", exact=True).click()
-        page.wait_for_url(f"{live_server.url}/", timeout=10000)
+    def test_signed_in_pages(self, page: Page, live_server, sign_in, user, org, violations):
+        sign_in(user, "/")
+        page.wait_for_load_state("networkidle")
 
         for path in [
-            "/",
             "/notifications/",
             "/accounts/general/",
             "/accounts/email/",

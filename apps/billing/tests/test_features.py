@@ -1,28 +1,24 @@
 from apps.billing.features import get_feature, get_features
-
-FEATURES = [
-    {"key": "teams", "label": "Teams", "type": "bool", "default": False},
-    {"key": "max_team_count", "label": "Team count", "type": "limit", "default": 1},
-]
+from apps.billing.recipes import BILLING_FEATURES
 
 
 class TestFeatureRegistry:
     def test_get_feature(self, settings):
-        settings.BILLING_FEATURES = FEATURES
-        f = get_feature("teams")
+        settings.BILLING_FEATURES = BILLING_FEATURES
+        f = get_feature("advanced_reporting")
         assert f is not None
-        assert f.key == "teams"
+        assert f.key == "advanced_reporting"
         assert f.type == "bool"
         assert f.default is False
 
     def test_get_feature_missing(self, settings):
-        settings.BILLING_FEATURES = FEATURES
+        settings.BILLING_FEATURES = BILLING_FEATURES
         assert get_feature("ghost") is None
 
     def test_get_features(self, settings):
-        settings.BILLING_FEATURES = FEATURES
+        settings.BILLING_FEATURES = BILLING_FEATURES
         keys = [f.key for f in get_features()]
-        assert keys == ["teams", "max_team_count"]
+        assert keys == ["max_team_count", "advanced_reporting"]
 
     def test_default_type_is_bool(self, settings):
         settings.BILLING_FEATURES = [{"key": "x", "label": "X", "default": True}]

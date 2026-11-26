@@ -16,7 +16,7 @@ SPA_ENTRY = "js/app.ts"
 class TestSpaEntry:
     def test_vite_builds_the_entry(self):
         vite_config = (settings.BASE_DIR / "frontend" / "config" / "vite.config.mjs").read_text()
-        assert f"app: resolve(__dirname, '../{SPA_ENTRY}')" in vite_config
+        assert f"app: resolve(import.meta.dirname, '../{SPA_ENTRY}')" in vite_config
         assert (settings.BASE_DIR / "frontend" / SPA_ENTRY).is_file()
 
     def test_spa_shell_loads_the_entry(self):

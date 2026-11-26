@@ -6,44 +6,38 @@ Inviting someone emails whatever address the sender typed, and anyone can sign u
 
 import json
 from itertools import count
+from unittest.mock import patch
 
 from django.core.cache import cache
-from django.test import Client
+from django.test import Client, override_settings
 
-import pytest
-from model_bakery import baker
-
-from apps.accounts.models import User
+from apps.accounts.recipes import make_user
+from apps.base.tests import BaseTest
+from apps.base.tests.sign_in import sign_in
 from apps.organizations.api import INVITE_THROTTLES
-from apps.organizations.models import Organization, OrganizationInvite, OrganizationMember
-from apps.organizations.roles import OrgRole
+from apps.organizations.models import OrganizationInvite
+from apps.organizations.recipes import make_org
 
 HOUR = 60 * 60
 
 
-@pytest.mark.django_db
-class TestInviteThrottle:
-    @pytest.fixture(autouse=True)
-    def _setup(self, client, settings, monkeypatch):
-        # Test settings use a dummy cache, which remembers nothing, so nothing would ever be throttled.
-        settings.CACHES = {"default": {"BACKEND": "django.core.cache.backends.locmem.LocMemCache"}}
+# Test settings use a dummy cache, which remembers nothing, so nothing would ever be throttled.
+@override_settings(CACHES={"default": {"BACKEND": "django.core.cache.backends.locmem.LocMemCache"}})
+class TestInviteThrottle(BaseTest):
+    @classmethod
+    def setUpTestData(cls):
+        cls.michael = make_user("michael@example.com")
+        cls.org = make_org(cls.michael)
+
+    def setUp(self):
+        # The cache isn't rolled back, and michael keeps his pk from test to test, so his counts would carry over.
         cache.clear()
+        self.addCleanup(cache.clear)
         self.now = 1_000_000.0
         for throttle in INVITE_THROTTLES:
-            monkeypatch.setattr(throttle, "timer", lambda: self.now)
+            self.enterContext(patch.object(throttle, "timer", lambda: self.now))
         self.addresses = (f"guest{n}@example.com" for n in count())
-        self.client = client
-        self.michael = self._owner(client, "michael@example.com")
-
-    def _owner(self, client, email):
-        user = baker.make(User, email=email)
-        org = baker.make(Organization, slug=email.split("@")[0])
-        baker.make(OrganizationMember, organization=org, user=user, role=OrgRole.OWNER)
-        client.force_login(user)
-        session = client.session
-        session["organization_data"] = json.dumps({"pk": org.pk, "id": org.pk, "name": org.name, "slug": org.slug})
-        session.save()
-        return user
+        self.sign_in(self.michael, self.org)
 
     def _invite(self, client=None):
         return (client or self.client).post(
@@ -86,8 +80,8 @@ class TestInviteThrottle:
 
     def test_each_user_has_their_own_limit(self):
         self._invite_many(30)
-        jan_client = Client()
-        self._owner(jan_client, "jan@example.com")
+        jan = make_user("jan@example.com")
+        jan_client = sign_in(Client(), jan, make_org(jan))
 
         assert self._invite().status_code == 429
         assert self._invite(jan_client).status_code == 201

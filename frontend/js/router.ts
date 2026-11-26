@@ -1,6 +1,6 @@
 import { createRouter as createVueRouter, createWebHistory, type Router } from 'vue-router';
 import type { AppStore } from './stores/app';
-import { isOrgSettingsTab, orgSettingsTabs } from './utils/orgSettings';
+import { guardRoute } from './utils/routeGuard';
 import { scrollBehavior } from './utils/scrollBehavior';
 
 declare module 'vue-router' {
@@ -232,30 +232,7 @@ export function createRouter(appStore: AppStore): Router {
 
   router.beforeEach(async (to) => {
     if (appStore.contextReady) await appStore.contextReady;
-    if (to.meta.requiresAuth && !appStore.isAuthenticated) {
-      return { name: 'login', query: { next: to.fullPath } };
-    }
-    if (to.meta.guest && appStore.isAuthenticated) {
-      return { name: 'home' };
-    }
-    if (to.meta.staffOnly && !appStore.user?.is_staff) {
-      return { name: 'home' };
-    }
-    if (to.meta.superuserOnly && !appStore.user?.is_superuser) {
-      return { name: 'home' };
-    }
-    if (isOrgSettingsTab(to.name)) {
-      // Also hides the Billing tab when BILLING_ENABLED is false.
-      const tabs = orgSettingsTabs(appStore);
-      if (!tabs.some((tab) => tab.name === to.name)) {
-        return tabs[0] ? { name: tabs[0].name, params: to.params } : { name: 'home' };
-      }
-    }
-    // When BILLING_ENABLED is false, hide the pricing page so users don't land on a dead route.
-    if (to.name === 'pricing' && !appStore.billing.enabled) {
-      return appStore.isAuthenticated ? { name: 'home' } : { name: 'login' };
-    }
-    return true;
+    return guardRoute(to, appStore);
   });
 
   router.onError((err: unknown, to) => {

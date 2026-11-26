@@ -7,31 +7,28 @@ Members tab disables Change Role on your own row, so only the API allowed it.
 """
 
 import json
+from unittest.mock import patch
 
-import pytest
-from model_bakery import baker
-
-from apps.accounts.models import User
-from apps.organizations.models import Organization, OrganizationMember
+from apps.accounts.recipes import make_user
+from apps.base.tests import BaseTest
+from apps.organizations.models import OrganizationMember
+from apps.organizations.recipes import make_member, make_org
 from apps.organizations.roles import ROLE_PERMISSIONS, OrgPerm, OrgRole
 
 
-@pytest.mark.django_db
-class TestTheLastOwnerStays:
-    @pytest.fixture(autouse=True)
-    def _setup(self, client):
-        self.org = baker.make(Organization, name="Dunder Mifflin", slug="dunder-mifflin")
-        self.michael = self._member("michael@example.com", OrgRole.OWNER)
-        self.client = client
-        self.client.force_login(self.michael.user)
-        session = self.client.session
-        session["organization_data"] = json.dumps(
-            {"pk": self.org.pk, "id": self.org.pk, "name": self.org.name, "slug": self.org.slug}
-        )
-        session.save()
+def _membership(org, email, role):
+    user = make_member(org, make_user(email), role=role)
+    return OrganizationMember.objects.get(organization=org, user=user)
 
-    def _member(self, email, role):
-        return baker.make(OrganizationMember, organization=self.org, user=baker.make(User, email=email), role=role)
+
+class TestTheLastOwnerStays(BaseTest):
+    @classmethod
+    def setUpTestData(cls):
+        cls.org = make_org(name="Dunder Mifflin", slug="dunder-mifflin")
+        cls.michael = _membership(cls.org, "michael@example.com", OrgRole.OWNER)
+
+    def setUp(self):
+        self.sign_in(self.michael.user, self.org)
 
     def _set_role(self, membership, role):
         return self.client.patch(
@@ -44,7 +41,7 @@ class TestTheLastOwnerStays:
         return dict(OrganizationMember.objects.values_list("user__email", "role"))
 
     def test_the_last_owner_cant_demote_themselves(self):
-        self._member("dwight@example.com", OrgRole.MEMBER)
+        _membership(self.org, "dwight@example.com", OrgRole.MEMBER)
 
         response = self._set_role(self.michael, OrgRole.MEMBER)
 
@@ -56,7 +53,7 @@ class TestTheLastOwnerStays:
         assert self._roles() == {"michael@example.com": OrgRole.OWNER, "dwight@example.com": OrgRole.MEMBER}
 
     def test_an_owner_can_step_down_while_another_owner_stays(self):
-        jan = self._member("jan@example.com", OrgRole.OWNER)
+        jan = _membership(self.org, "jan@example.com", OrgRole.OWNER)
 
         assert self._set_role(self.michael, OrgRole.MEMBER).status_code == 200
 
@@ -64,7 +61,7 @@ class TestTheLastOwnerStays:
         assert jan.role == OrgRole.OWNER
 
     def test_demoting_the_other_owner_leaves_you_the_last(self):
-        jan = self._member("jan@example.com", OrgRole.OWNER)
+        jan = _membership(self.org, "jan@example.com", OrgRole.OWNER)
 
         demote_jan = self._set_role(jan, OrgRole.MEMBER)
         demote_self = self._set_role(self.michael, OrgRole.MEMBER)
@@ -72,12 +69,12 @@ class TestTheLastOwnerStays:
         assert (demote_jan.status_code, demote_self.status_code) == (200, 400)
         assert self._roles() == {"michael@example.com": OrgRole.OWNER, "jan@example.com": OrgRole.MEMBER}
 
-    def test_another_role_that_holds_only_some_permissions_isnt_enough(self, monkeypatch):
+    def test_another_role_that_holds_only_some_permissions_isnt_enough(self):
         # Stands in for an admin role a project might add. Admins couldn't make an owner, so billing would be lost.
-        monkeypatch.setitem(ROLE_PERMISSIONS, OrgRole.MEMBER, frozenset({OrgPerm.MANAGE_MEMBERS, OrgPerm.MANAGE_TEAMS}))
-        self._member("dwight@example.com", OrgRole.MEMBER)
+        _membership(self.org, "dwight@example.com", OrgRole.MEMBER)
 
-        response = self._set_role(self.michael, OrgRole.MEMBER)
+        with patch.dict(ROLE_PERMISSIONS, {OrgRole.MEMBER: frozenset({OrgPerm.MANAGE_MEMBERS, OrgPerm.MANAGE_TEAMS})}):
+            response = self._set_role(self.michael, OrgRole.MEMBER)
 
         assert response.status_code == 400
         assert "manage the organization's settings" in response.json()["detail"]
