@@ -1,8 +1,12 @@
+from django.core.exceptions import ValidationError
+
+import pytest
+
 from apps.accounts.models import User
 from apps.accounts.tests.recipes import make_user
 from apps.base.tests import BaseTest
 from apps.organizations.models import OrganizationInvite
-from apps.organizations.roles import OrgPerm
+from apps.organizations.roles import OrgPerm, OrgRole
 from apps.organizations.tests.recipes import make_invite, make_member, make_org
 
 
@@ -59,3 +63,18 @@ class TestOrganizationInvite(BaseTest):
 
         invite.refresh_from_db()
         assert invite.key == "k" * 32
+
+    def test_saving_an_invite_again_is_not_a_duplicate_of_itself(self):
+        invite = make_invite(self.org, self.owner, email="jim@example.com")
+
+        invite.role = OrgRole.OWNER
+        invite.save()
+
+        invite.refresh_from_db()
+        assert invite.role == OrgRole.OWNER
+
+    def test_a_second_invite_for_the_same_email_is_still_refused(self):
+        make_invite(self.org, self.owner, email="jim@example.com")
+
+        with pytest.raises(ValidationError):
+            make_invite(self.org, self.owner, email="jim@example.com")

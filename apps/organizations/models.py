@@ -154,7 +154,9 @@ class OrganizationInvite(OrganizationRoleMixin, TimeStampModelMixin):
                 sender=self.sender,
                 invitee=self.invitee,
                 invitee_email=self.invitee_email,
-            ).exists()
+            )
+            .exclude(pk=self.pk)
+            .exists()
             is True
         ):
             if self.invitee is not None:
