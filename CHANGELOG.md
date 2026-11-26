@@ -30,6 +30,7 @@
 
 ### Removed
 
+* model-bakery, a dev dependency nothing used: tests build their data with each app's recipes (`apps/<app>/recipes.py`).
 * The placeholder `add` Celery task in `apps/base/tasks.py`.
 * The `[tool.bandit]` block in `pyproject.toml`. Nothing read it: bandit isn't installed, and Ruff's `S` rules run its checks.
 * `Organization.is_owner()`, `.owners` and `.regular_members` (use `has_org_perm()` and `members_with_perm()`), and `require_org_owner` (use `require_org_perm`). Two unused pieces that read ownership are gone too: `OrganizationForm` and the `get_org_js_object` template tag.

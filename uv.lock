@@ -775,7 +775,6 @@ dev = [
     { name = "djlint" },
     { name = "ipdb" },
     { name = "mkdocs-linkcheck" },
-    { name = "model-bakery" },
     { name = "pyotp" },
     { name = "pytest" },
     { name = "pytest-cov" },
@@ -824,7 +823,6 @@ dev = [
     { name = "djlint" },
     { name = "ipdb" },
     { name = "mkdocs-linkcheck" },
-    { name = "model-bakery" },
     { name = "pyotp" },
     { name = "pytest", specifier = "~=9.0" },
     { name = "pytest-cov", specifier = "~=7.0" },
@@ -1622,18 +1620,6 @@ dependencies = [
 sdist = { url = "https://files.pythonhosted.org/packages/7e/f7/1a3e4add133371662484b7f1b6470c658a16fbef19ffb013d96236d7f053/mkdocs_linkcheck-1.0.6.tar.gz", hash = "sha256:908ca6f370eee0b55b5337142e2f092f1a0af9e50ab3046712b4baefdc989672", size = 12179, upload-time = "2021-08-20T20:38:20.379Z" }
 wheels = [
     { url = "https://files.pythonhosted.org/packages/74/87/240a21533662ba227ec683adcc187ec3a64e927ccf0c35f0d3b1b2fd331c/mkdocs_linkcheck-1.0.6-py3-none-any.whl", hash = "sha256:70dceae090101778002d949dc7b55f56eeb0c294bd9053fb6b197c26591665b1", size = 19759, upload-time = "2021-08-20T20:38:18.87Z" },
-]
-
-[[package]]
-name = "model-bakery"
-version = "1.24.2"
-source = { registry = "https://pypi.org/simple" }
-dependencies = [
-    { name = "django" },
-]
-sdist = { url = "https://files.pythonhosted.org/packages/b2/39/a5c5e2263e6d4448c255ee19b1e5ffb8dcd1edf57f8b2391116e3724bb8a/model_bakery-1.24.2.tar.gz", hash = "sha256:de9ffb98acaaf558aa5522425db7f2a714358ef3d98d318b3a37c837a61932e3", size = 30314, upload-time = "2026-10-06T15:53:09.058Z" }
-wheels = [
-    { url = "https://files.pythonhosted.org/packages/79/a6/cada15b3d9e1e9505179b5701c95b47d5ac662b86bac0f28e7eda1e4a832/model_bakery-1.24.2-py3-none-any.whl", hash = "sha256:1823831965ad99edc83ff0dd009fe15a88e91f0ed8573cadb5a52d77b30b2a60", size = 32676, upload-time = "2026-10-06T15:53:07.845Z" },
 ]
 
 [[package]]

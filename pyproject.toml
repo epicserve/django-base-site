@@ -38,7 +38,6 @@ dev = [
     "ipdb",
     "mkdocs-linkcheck",
     "zensical",
-    "model-bakery",
     "pyotp",
     "pytest~=9.0",
     "pytest-cov~=7.0",
