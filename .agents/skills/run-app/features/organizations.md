@@ -11,7 +11,7 @@ Both `requiresAuth`:
 | `/organizations/switch/` | `org-switch` |
 | `/organizations/create/` | `org-create` |
 
-The header's organization control ([app-shell.md](app-shell.md)) leads to both. With an organization selected, its name opens a menu with "Switch Company" and "Create Organization". With none selected, it's a "Switch Organization" link, or "Create Organization" for someone in no organization. The small-screen menu has the same items.
+The header's organization control ([app-shell.md](app-shell.md)) leads to both. With an organization selected, its name opens a menu with "Switch Organization" and "Create Organization". With none selected, it's a "Switch Organization" link, or "Create Organization" for someone in no organization. The small-screen menu has the same items.
 
 ## Login and Data
 
@@ -20,12 +20,12 @@ The header's organization control ([app-shell.md](app-shell.md)) leads to both. 
 
 ## Switching
 
-As the owner, open "Switch Company" (`frontend/js/views/OrgSwitchView.vue`):
+As the owner, open "Switch Organization" (`frontend/js/views/OrgSwitchView.vue`):
 
 1. Each organization is a button named after it, with "Current" on the selected one. "Personal Space", the first row, clears the selection.
 2. Click "Pawnee Parks and Recreation". The app selects it and goes to `/`, and the header shows its name.
 
-"Make Primary" on a row makes it the one selected at sign-in ("Primary company updated."). The primary one shows a "Primary" button instead, which removes it. Every other row has its own "Make Primary", and the rows aren't list items, so find the organization's button first and take the "Make Primary" in the same parent element.
+"Make Primary" on a row makes it the one selected at sign-in ("Primary organization updated."). The primary one shows a "Primary" button instead, which removes it. Every other row has its own "Make Primary", and the rows aren't list items, so find the organization's button first and take the "Make Primary" in the same parent element.
 
 ## Creating
 
@@ -40,12 +40,6 @@ The creator becomes its owner. It becomes their primary organization only if the
 
 - **Signing in, and starting or stopping impersonation, select the user's primary organization**, or none (`apps/organizations/signals.py`). The selection lives in the session (`apps/organizations/session.py`).
 
-## Known Issues
-
-Tracked in the template's [django-base-site#1424](https://github.com/epicserve/django-base-site/issues/1424), item 3.
-
-- **The labels mix "Company" and "Organization"** ("Switch Company" in the menu and on the page, "Switch Organization" as the link), so match the exact text.
-
 ## Cleanup
 
 - **Primary:** seeding never changes it. Note which organization was primary before, and set it back with "Make Primary".
@@ -55,6 +49,6 @@ Tracked in the template's [django-base-site#1424](https://github.com/epicserve/d
 
 - The views above, and `apps/organizations/api.py` for switching, selecting, setting the primary and creating.
 - `e2e/test_form_errors.py`: creating a blank organization, and one with a taken account name.
-- `e2e/test_org_settings.py::TestNonOwner::test_org_menu_hides_settings_link`: the organization menu.
-- No e2e test drives the switch page.
+- `e2e/test_org_settings.py::TestNonOwner::test_org_menu_hides_settings_link`: the organization menu, and that its "Switch Organization" opens the switch page.
+- No e2e test switches organizations or sets the primary one.
 - pytest: `apps/organizations/tests/test_api.py`
