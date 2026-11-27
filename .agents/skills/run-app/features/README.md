@@ -1,14 +1,24 @@
 # Feature map
 
-One file per user-facing feature, so a bug report, even a vague one or just a screenshot, leads to the right screen, route, login and steps. Each file says what the feature does, how to reach it (its routes in `frontend/js/router.ts`, the menus that lead there, the permission it takes), which seeded login shows it, the text to select and wait for, and the e2e tests that cover it.
+One file per user-facing feature, so a bug report, even a vague one or just a screenshot, leads to the right screen, route, login and steps. Read this file, then only the feature files your task needs. A journey that crosses features is in [cross-cutting-flows.md](cross-cutting-flows.md).
 
-`apps/base/tests/test_feature_map.py` fails when a route in `frontend/js/router.ts` appears in no file here, when a file isn't listed below, or when a file names an e2e test that doesn't exist. A new page gets a file, or a section in one.
+Each feature file covers, as far as its feature needs:
+
+1. **Routes:** the routes and how to reach them.
+2. **Login and data:** the login, permissions, settings and data the feature needs.
+3. **A representative flow**, with what to expect at each step. It names the text to select and wait for in that flow, not every message on the page; the view's source has the rest.
+4. **Pitfalls and known issues:** browser behavior that gets in the way, and the app's known bugs, each with its workaround and where it's tracked.
+5. **Cleanup:** what the flow leaves behind, and how to undo it.
+6. **Source and tests:** where the feature lives and which tests cover it.
+
+`apps/base/tests/test_feature_map.py` fails when a route in `frontend/js/router.ts` appears in no file here, when a file isn't listed below, when a relative link is broken, or when a file names a path that doesn't exist or an e2e test pytest wouldn't find. Name a test by its pytest node ID: `e2e/test_auth.py::TestLogin::test_login_with_valid_credentials`, or the file alone when all of it is relevant. A new page gets a file, or a section in one.
 
 ## Before you start
 
 - `just doctor` passes: the stack is this checkout's, every service is up, and `just seed` has run (see [SKILL.md](../SKILL.md)).
 - `APP` is set from `scripts/worktree urls`, as in SKILL.md step 1. Mailpit is at the `Mailpit:` URL it prints.
 - You know which login to use. Each file names one; the table in SKILL.md step 3 lists them all. To switch, open `$APP/accounts/logout/` first.
+- For an invite, run `just seed` first. Seeded invites expire 7 days after the last run, and `just doctor` doesn't check them. Rerunning gives each pending invite its 7 days again.
 - No modal or toast is open, and the page has finished loading (wait for its heading).
 
 ## Driving conventions
@@ -20,6 +30,18 @@ One file per user-facing feature, so a bug report, even a vague one or just a sc
 - **`wait_for_function` takes a function, not an expression:** `page.wait_for_function("n => window.items.length === n", arg=3)`. The Content-Security-Policy has no `'unsafe-eval'`, so a bare expression string fails.
 - **Labels are Title Case** (see AGENTS.md "UI copy"), so a button is "Send Invite", not "Send invite". Messages, toasts and hints are sentence case, such as "Invitation sent.".
 - **Some actions use the browser's `confirm()` or `prompt()`** (removing an email address, regenerating recovery codes, renaming or removing a passkey). Accept them with `page.once("dialog", ...)` before clicking.
+- **Keep the browser in the user's timezone.** Give the browser context `timezone_id="America/Chicago"`, the seeded logins' timezone, as `e2e/conftest.py` does. In any other timezone the "Your Timezone Has Changed" modal opens, and its backdrop blocks every click until it's answered ([app-shell.md](app-shell.md)).
+
+## Cleaning up
+
+`just seed` isn't a reset. Each run creates the seeded rows that are missing, gives the seeded logins back their names, passwords and roles, removes their two-factor authentication and passkeys, and gives each pending invite its 7 days again. It leaves alone:
+
+- **Memberships.** It never removes one, and it skips the invite of anyone who has since joined that organization.
+- **Whatever a flow created:** organizations, accounts, teams, invites, notifications, email addresses and avatars.
+- **Choices users make in the app:** which email address and which organization is primary, and the user's timezone.
+- **Settings.** A change to `.env`, such as `ACCOUNT_SIGNUP_OPEN` or the billing keys, stays until you undo it and restart the services that read it.
+
+Each feature file's Cleanup section says what its flow leaves behind. Before changing a choice that seeding keeps, note its value, and set it back afterwards. Use a fresh address or name on the next run rather than one an earlier run used, unless you removed what that run made.
 
 ## What stays manual
 
