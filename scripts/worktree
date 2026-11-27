@@ -11,7 +11,8 @@
 #   scripts/worktree urls        Print this worktree's URLs and ports
 #
 # Every `${HOST_PORT_*:-default}` in compose.yml gets the first free port above its default. A port is taken when
-# another worktree's .env uses it, a Docker container publishes it (running or not), or something listens on it.
+# another worktree's .env uses it, a Docker container publishes it (running or not), or something listens on it. Setups
+# take turns choosing ports and writing .env (a lock in the git directory), so two at once can't choose the same ones.
 #
 # Written for bash 3.2, so it runs on stock macOS.
 
@@ -115,6 +116,45 @@ allocate_ports() {
     done <<EOF
 $(port_defaults)
 EOF
+}
+
+# A lock shared by every worktree of this repository, so concurrent setups choose ports one at a time. mkdir is atomic
+# and, unlike flock, on stock macOS. The holder's PID goes inside, so a lock left by a setup that died can be cleared.
+lock_dir=''
+lock_held=''
+acquire_lock() {
+    local git_dir holder waited=0
+    git_dir=$(cd "$root" && cd "$(git rev-parse --git-common-dir)" && pwd)
+    lock_dir="$git_dir/worktree-setup.lock"
+    trap release_lock EXIT
+    until mkdir "$lock_dir" 2>/dev/null; do
+        holder=$(cat "$lock_dir/pid" 2>/dev/null || true)
+        # Stale when its holder is gone, or when it has had no PID for a minute (the holder died before writing it).
+        # Rename it first, so two waiters can't both clear it and one delete the lock the other just took.
+        if { [ -n "$holder" ] && ! kill -0 "$holder" 2>/dev/null; } ||
+            { [ -z "$holder" ] && [ -n "$(find "$lock_dir" -maxdepth 0 -mmin +1 2>/dev/null)" ]; }; then
+            if mv "$lock_dir" "$lock_dir.stale.$$" 2>/dev/null; then
+                warn "Cleared a lock left by a setup that didn't finish: $lock_dir"
+                rm -rf "$lock_dir.stale.$$"
+            fi
+            continue
+        fi
+        if [ "$waited" -ge 3000 ]; then
+            die "Gave up after 5 minutes waiting for another worktree's setup to choose its ports. If none is running," \
+                "delete $lock_dir and try again."
+        fi
+        [ "$waited" -gt 0 ] || info "Waiting for another worktree's setup to choose its ports"
+        sleep 0.1
+        waited=$((waited + 1))
+    done
+    lock_held=1
+    echo "$$" >"$lock_dir/pid"
+}
+
+release_lock() {
+    [ -n "$lock_held" ] || return 0
+    rm -rf "$lock_dir"
+    lock_held=''
 }
 
 # The branch name as a Compose project suffix: "feature/Auth" -> "feature-auth".
@@ -229,7 +269,10 @@ setup() {
         return 0
     fi
 
+    # Choose the ports and write .env under the lock, so the next setup sees them taken. The slow copy runs after it.
+    acquire_lock
     write_env "$(project_name "$primary")-$(branch_slug)" "$(allocate_ports)"
+    release_lock
     info "Wrote .env for this worktree's own stack"
     # WhiteNoise warns when STATIC_ROOT is missing, and pytest makes warnings errors. `just build` fills it in the main
     # checkout; with DEBUG on, Vite serves the assets, so an empty one will do here.

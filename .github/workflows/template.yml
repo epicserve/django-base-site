@@ -217,6 +217,35 @@ jobs:
             || { echo "ERROR: expected the error to say to run scripts/worktree setup"; exit 1; }
           git worktree remove ../no-setup
           git branch -q -D no-setup
+      - name: Verify concurrent scripts/worktree setups choose different ports
+        working-directory: ${{ env.BUILD_DIR }}
+        # Two worktrees set up seconds apart (parallel agents running `wt switch --create`) both got the same web and
+        # debugpy ports: each chose its ports before the other had written its .env. Run several setups at once and
+        # check that no two worktrees share a port. A docker that always fails stands in for the real one, so setup
+        # skips the volume copy (which needs the images this job hasn't built yet) and only chooses ports.
+        run: |
+          mkdir -p ../race-bin
+          printf '#!/bin/sh\nexit 1\n' > ../race-bin/docker
+          chmod +x ../race-bin/docker
+          count=6
+          for i in $(seq 1 ${count}); do git worktree add -q "../race-${i}" -b "race-${i}"; done
+          pids=()
+          for i in $(seq 1 ${count}); do
+            (cd "../race-${i}" && PATH="$(cd ../race-bin && pwd):${PATH}" scripts/worktree setup > ../race-${i}.log 2>&1) &
+            pids+=($!)
+          done
+          status=0
+          for i in $(seq 1 ${count}); do
+            wait "${pids[$((i - 1))]}" || { echo "ERROR: scripts/worktree setup failed in race-${i}:"; cat "../race-${i}.log"; status=1; }
+            grep -q '^HOST_PORT_WEB=' "../race-${i}/.env" 2>/dev/null \
+              || { echo "ERROR: race-${i} has no HOST_PORT_WEB in its .env"; status=1; }
+          done
+          for i in $(seq 1 ${count}); do echo "race-${i}: $(grep -h '^HOST_PORT_' "../race-${i}/.env" 2>/dev/null | xargs)"; done
+          duplicates=$(for i in $(seq 1 ${count}); do sed -n 's/^HOST_PORT_[A-Z0-9_]*=//p' "../race-${i}/.env" 2>/dev/null; done | sort | uniq -d)
+          [ -z "${duplicates}" ] || { echo "ERROR: more than one worktree got port(s): $(echo ${duplicates})"; status=1; }
+          for i in $(seq 1 ${count}); do git worktree remove --force "../race-${i}"; git branch -q -D "race-${i}"; done
+          rm -rf ../race-bin ../race-*.log
+          exit ${status}
       - name: Build docker images
         working-directory: ${{ env.BUILD_DIR }}
         run: docker compose build web frontend

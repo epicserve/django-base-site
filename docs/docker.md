@@ -114,7 +114,7 @@ The first time, Worktrunk asks you to approve the project's hooks, and it rememb
 
 `scripts/worktree setup` is the pre-start hook. It:
 
-- copies the main checkout's `.env` and adds the worktree's own `COMPOSE_PROJECT_NAME` (`<main project>-<branch>`) and a port for every `HOST_PORT_*` variable in `compose.yml`. Each gets the first port above its default that no other worktree's `.env` uses, no Docker container publishes, and nothing is listening on. `SITE_DOMAIN` and `MEDIA_S3_URL_ENDPOINT_URL` follow those ports, and the session cookie gets its own name, since browsers share cookies across every port on `localhost`.
+- copies the main checkout's `.env` and adds the worktree's own `COMPOSE_PROJECT_NAME` (`<main project>-<branch>`) and a port for every `HOST_PORT_*` variable in `compose.yml`. Each gets the first port above its default that no other worktree's `.env` uses, no Docker container publishes, and nothing is listening on. Setups take turns choosing ports and writing `.env`, so worktrees created at the same moment, such as by parallel agents, can't get the same ones. `SITE_DOMAIN` and `MEDIA_S3_URL_ENDPOINT_URL` follow those ports, and the session cookie gets its own name, since browsers share cookies across every port on `localhost`.
 - copies the main checkout's `postgres_data` and `silo_data` volumes into the worktree's, so it starts with the same logins, organizations, and uploads. If the main checkout's `db` and `silo` are running, they stop for the few seconds the copy takes.
 - prints the worktree's URLs. `scripts/worktree urls` prints them again.
 
