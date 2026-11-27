@@ -9,7 +9,7 @@ export interface paths {
             cookie?: never;
         };
         /** App Context */
-        get: operations["apps_base_api_app_context"];
+        get: operations["apps_site_api_app_context"];
         put?: never;
         post?: never;
         delete?: never;
@@ -143,7 +143,7 @@ export interface paths {
         get?: never;
         put?: never;
         /** Hide Impersonation Banner */
-        post: operations["apps_base_api_hide_impersonation_banner"];
+        post: operations["apps_site_api_hide_impersonation_banner"];
         delete?: never;
         options?: never;
         head?: never;
@@ -546,7 +546,7 @@ export interface paths {
         get?: never;
         put?: never;
         /** Send Test Notification */
-        post: operations["apps_base_api_send_test_notification"];
+        post: operations["apps_site_api_send_test_notification"];
         delete?: never;
         options?: never;
         head?: never;
@@ -561,7 +561,7 @@ export interface paths {
             cookie?: never;
         };
         /** Test Notifications Staff Users */
-        get: operations["apps_base_api_test_notifications_staff_users"];
+        get: operations["apps_site_api_test_notifications_staff_users"];
         put?: never;
         post?: never;
         delete?: never;
@@ -630,7 +630,7 @@ export interface paths {
             cookie?: never;
         };
         /** Get Version */
-        get: operations["apps_base_api_get_version"];
+        get: operations["apps_site_api_get_version"];
         put?: never;
         post?: never;
         delete?: never;
@@ -1439,7 +1439,7 @@ export interface components {
 }
 export type $defs = Record<string, never>;
 export interface operations {
-    apps_base_api_app_context: {
+    apps_site_api_app_context: {
         parameters: {
             query?: never;
             header?: never;
@@ -1616,7 +1616,7 @@ export interface operations {
             };
         };
     };
-    apps_base_api_hide_impersonation_banner: {
+    apps_site_api_hide_impersonation_banner: {
         parameters: {
             query?: never;
             header?: never;
@@ -2331,7 +2331,7 @@ export interface operations {
             };
         };
     };
-    apps_base_api_send_test_notification: {
+    apps_site_api_send_test_notification: {
         parameters: {
             query?: never;
             header?: never;
@@ -2355,7 +2355,7 @@ export interface operations {
             };
         };
     };
-    apps_base_api_test_notifications_staff_users: {
+    apps_site_api_test_notifications_staff_users: {
         parameters: {
             query?: never;
             header?: never;
@@ -2469,7 +2469,7 @@ export interface operations {
             };
         };
     };
-    apps_base_api_get_version: {
+    apps_site_api_get_version: {
         parameters: {
             query?: never;
             header?: never;
