@@ -189,12 +189,12 @@ export function createRouter(appStore: AppStore): Router {
         meta: { requiresAuth: true },
       },
 
-      // Impersonation (staff only)
+      // Impersonation (superuser only, like its search API and HIJACK_PERMISSION_CHECK)
       {
         path: '/impersonate/',
         name: 'impersonate',
         component: () => import('./views/ImpersonateSearchView.vue'),
-        meta: { requiresAuth: true, staffOnly: true },
+        meta: { requiresAuth: true, superuserOnly: true },
       },
 
       // Test notifications (superuser only)

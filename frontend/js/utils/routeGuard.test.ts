@@ -1,5 +1,6 @@
 import { describe, expect, test } from 'vitest';
 import type { RouteMeta } from 'vue-router';
+import { createRouter } from '../router';
 import { initAppStore, type AppStore, type AppUser, type OrgPerm } from '../stores/app';
 import { guardRoute, type GuardedRoute } from './routeGuard';
 
@@ -68,7 +69,7 @@ describe('guardRoute', () => {
   });
 
   test('lets only staff open staff pages', () => {
-    const to = route('impersonate', { requiresAuth: true, staffOnly: true });
+    const to = route('staff-page', { requiresAuth: true, staffOnly: true });
 
     expect(guardRoute(to, store())).toEqual({ name: 'home' });
     expect(guardRoute(to, store({ staff: true }))).toBe(true);
@@ -79,6 +80,15 @@ describe('guardRoute', () => {
 
     expect(guardRoute(to, store({ staff: true }))).toEqual({ name: 'home' });
     expect(guardRoute(to, store({ superuser: true }))).toBe(true);
+  });
+
+  test('lets only superusers open the impersonate page', () => {
+    // Its search API and django-hijack need a superuser; a staff user used to get a page where every search failed.
+    // Read the real route's meta, so the test fails if router.ts gates the page on the wrong flag.
+    const to = route('impersonate', createRouter(store()).resolve('/impersonate/').meta, '/impersonate/');
+
+    expect(guardRoute(to, store({ staff: true }))).toEqual({ name: 'home' });
+    expect(guardRoute(to, store({ staff: true, superuser: true }))).toBe(true);
   });
 
   for (const tab of ['org-settings-general', 'org-settings-members', 'org-settings-teams']) {
