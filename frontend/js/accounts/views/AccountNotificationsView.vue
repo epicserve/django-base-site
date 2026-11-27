@@ -73,12 +73,14 @@ onMounted(load);
               Category
             </th>
             <th
+              id="channel-in_app"
               scope="col"
               class="px-4 py-2 text-center text-xs font-semibold uppercase tracking-wide text-gray-500 dark:text-gray-400"
             >
               In-App
             </th>
             <th
+              id="channel-email"
               scope="col"
               class="px-4 py-2 text-center text-xs font-semibold uppercase tracking-wide text-gray-500 dark:text-gray-400"
             >
@@ -89,7 +91,7 @@ onMounted(load);
         <tbody class="divide-y divide-gray-200 bg-white dark:divide-gray-700 dark:bg-gray-900">
           <tr v-for="cat in categories" :key="cat.key">
             <td class="px-4 py-3 align-top">
-              <div class="text-sm font-medium text-gray-900 dark:text-white">
+              <div :id="`category-${cat.key}`" class="text-sm font-medium text-gray-900 dark:text-white">
                 {{ cat.label }}
               </div>
               <div v-if="cat.description" class="mt-0.5 text-xs text-gray-500 dark:text-gray-400">
@@ -100,6 +102,7 @@ onMounted(load);
               <input
                 type="checkbox"
                 class="h-4 w-4 cursor-pointer rounded border-gray-300 text-blue-600 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700"
+                :aria-labelledby="`category-${cat.key} channel-in_app`"
                 :checked="cat.in_app"
                 :disabled="saving[`${cat.key}:in_app`]"
                 @change="toggle(cat, 'in_app')"
@@ -109,6 +112,7 @@ onMounted(load);
               <input
                 type="checkbox"
                 class="h-4 w-4 cursor-pointer rounded border-gray-300 text-blue-600 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700"
+                :aria-labelledby="`category-${cat.key} channel-email`"
                 :checked="cat.email"
                 :disabled="saving[`${cat.key}:email`]"
                 @change="toggle(cat, 'email')"

@@ -11,7 +11,7 @@ class TestFormLabels:
         )
         assert unattached == []
 
-    def test_every_form(self, page: Page, live_server, sign_in, user, org, subtests):
+    def test_every_form(self, page: Page, live_server, sign_in, user, org, subtests, settings):
         # A superuser, for the test notification form.
         user.is_staff = user.is_superuser = True
         user.save()
@@ -35,6 +35,17 @@ class TestFormLabels:
             page.get_by_role("button", name="Add Team").click()
             expect(page.get_by_label("Name", exact=True)).to_be_visible()
             expect(page.get_by_label("Members", exact=True)).to_have_attribute("placeholder", "Add members...")
+            self._expect_every_label_names_an_input(page)
+
+        with subtests.test("notification preferences"):
+            from apps.notifications.recipes import COMMENTS_CATEGORY
+
+            # None are declared out of the box, and with none the page has no checkboxes.
+            settings.NOTIFICATIONS_CATEGORIES = [COMMENTS_CATEGORY]
+            page.goto(f"{live_server.url}/accounts/notifications/")
+            # Each checkbox is named by its row's category and its column's channel.
+            expect(page.get_by_role("checkbox", name="Comments In-App", exact=True)).to_be_checked()
+            expect(page.get_by_role("checkbox", name="Comments Email", exact=True)).to_be_checked()
             self._expect_every_label_names_an_input(page)
 
         with subtests.test("test notification form"):

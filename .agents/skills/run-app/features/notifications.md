@@ -32,14 +32,8 @@ The bell opens on "Unread" when there are unread ones, and shares the page's sel
 
 - **The bell and the page have rows with the same names.** On `/notifications/`, scope locators to `get_by_role("main")`.
 - **The count updates on a timer.** The bell polls every 20 seconds while the tab is visible, and again when it becomes visible. A notification made from a shell shows up then, as a toast with its title, not at once. Dispatch `visibilitychange` to check sooner.
-- **No preferences out of the box.** `NOTIFICATIONS_CATEGORIES` is empty in `config/settings/_base.py`, so the preferences page says "No notification preferences are configured yet.".
+- **No preferences out of the box.** `NOTIFICATIONS_CATEGORIES` is empty in `config/settings/_base.py`, so the preferences page says "No notification preferences are configured yet.". Once there are some, each checkbox is named by its category and channel, such as "Comments In-App" and "Comments Email".
 - **What sends them today:** Test Notifications, the Stripe webhooks, and the trial-ending reminder. Invites and teams send email only.
-
-## Known Issues
-
-Tracked in the template's [django-base-site#1424](https://github.com/epicserve/django-base-site/issues/1424), item 3.
-
-- **The preference checkboxes have no labels**, once there are categories. Select them by their row in the table (Category, In-App, Email).
 
 ## Cleanup
 
@@ -49,4 +43,5 @@ Notifications stay until deleted, and seeding doesn't touch them. Delete the one
 
 - `frontend/js/components/AppNotificationBell.vue`, `frontend/js/views/NotificationsView.vue`, `frontend/js/accounts/views/AccountNotificationsView.vue`. `notify()` and email delivery: `apps/notifications/services.py`.
 - `e2e/test_notifications.py`: the unread count, the page following the bell, and new notifications arriving.
+- `e2e/test_form_labels.py::TestFormLabels::test_every_form`: the preference checkboxes' names.
 - pytest: `apps/notifications/tests/`
