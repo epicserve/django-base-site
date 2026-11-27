@@ -56,4 +56,5 @@ Tracked in the template's [django-base-site#1424](https://github.com/epicserve/d
 - `e2e/test_impersonation.py`: the banner, hiding it, and stopping from it.
 - `e2e/test_content_security_policy.py::TestNoPageBreaksThePolicy::test_the_admin`
 - `e2e/test_form_labels.py`: the test notification form.
+- `e2e/test_dev_tool_links.py::TestDevToolLinks::test_links_use_this_stacks_ports`: the "Mailpit" and "Silo Admin" links.
 - pytest: `apps/base/tests/test_impersonation_banner.py`, `apps/base/tests/test_test_notifications_api.py`, `apps/base/tests/test_debug_toolbar.py`, `apps/base/tests/test_app_context_api.py` (the Mailpit and Silo ports)
