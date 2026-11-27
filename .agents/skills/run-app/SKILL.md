@@ -99,7 +99,7 @@ It lasts for the life of the tab. Enroll under `/accounts/security/passkeys/`. O
 
 ## 5. Check the change
 
-- Find the feature in the [feature map](features/README.md). Read its index, then only the feature files the task needs: each gives the feature's routes, the login and data it needs, a representative flow, its pitfalls, how to clean up, and the source and tests behind it. Start there for a bug report too, even a vague one or a screenshot.
+- Find the feature in the [feature map](features/README.md). Read its index, then only the feature files the task needs: each gives the feature's routes, the login and data it needs, a representative flow, its pitfalls, how to clean up, and the source and tests behind it. For a bug report, even a vague one or a screenshot, follow the [`fix-bug` skill](../fix-bug/SKILL.md), which starts there.
 - Open the changed route, take a screenshot, and read the console for errors and the network log for failed requests. The SPA's routes are in `frontend/js/router.ts`.
 - Common pages: `/`, `/organizations/<slug>/settings/{general,members,teams}/`, `/accounts/general/`, `/accounts/security/`, `/notifications/`.
 - Emails (invites sent from the app, password reset, email verification) land in Mailpit, at the `Mailpit:` URL `scripts/worktree urls` prints (`http://localhost:8025` in the main checkout). The `worker` service sends them, and it doesn't reload on code changes: after changing a Celery task, run `docker compose restart worker`.

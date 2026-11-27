@@ -1,6 +1,6 @@
 # Feature map
 
-One file per user-facing feature, so a bug report, even a vague one or just a screenshot, leads to the right screen, route, login and steps. Read this file, then only the feature files your task needs. A journey that crosses features is in [cross-cutting-flows.md](cross-cutting-flows.md).
+One file per user-facing feature, so a bug report, even a vague one or just a screenshot, leads to the right screen, route, login and steps. Read this file, then only the feature files your task needs. A journey that crosses features is in [cross-cutting-flows.md](cross-cutting-flows.md). The [`fix-bug` skill](../../fix-bug/SKILL.md) starts from here to reproduce a bug and fix it.
 
 Each feature file covers, as far as its feature needs:
 
