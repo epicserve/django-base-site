@@ -16,12 +16,12 @@ from allauth.mfa.models import Authenticator
 
 from apps.accounts.models import User
 from apps.accounts.recipes import make_totp, make_user
-from apps.base.management.commands import seed
-from apps.base.management.commands.seed import DUNDER_MIFFLIN_CAST, FILLERS, LOGINS, PAWNEE_CAST, SEED_PASSWORD
 from apps.base.tests import BaseTest
 from apps.base.tests.sign_in import api_sign_in
 from apps.organizations.models import Organization, OrganizationInvite, OrganizationMember
 from apps.organizations.roles import OrgRole
+from apps.site.management.commands import seed
+from apps.site.management.commands.seed import DUNDER_MIFFLIN_CAST, FILLERS, LOGINS, PAWNEE_CAST, SEED_PASSWORD
 from apps.teams.models import Team
 
 RUN_APP_SKILL = Path(settings.BASE_DIR) / ".agents" / "skills" / "run-app" / "SKILL.md"

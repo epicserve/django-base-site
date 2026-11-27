@@ -27,28 +27,17 @@ def send_email(
     subject: str,
     base_template_name: str,
     context: dict,
-    category: str = "",
 ):
     """
     Render a templated multipart email and queue it for a Celery worker to send (see `queue_email`).
 
-    When `category` is set and `recipients` is a list of User instances,
-    recipients with the email channel disabled for that category are filtered
-    out (see apps.notifications.categories.should_send). When `recipients` is
-    a list of email strings, no filtering is done — the caller is responsible
-    for honoring preferences.
+    `recipients` is a list of User instances or of email strings. To leave out the users who turned off email for a
+    notification category, send it with `apps.notifications.email.send_email` instead.
     """
     context["subject"] = subject
     user_model = get_user_model()
 
     if recipients and isinstance(recipients[0], user_model):
-        if category:
-            from apps.notifications.categories import filter_recipients
-            from apps.notifications.constants import NotificationChannel
-
-            recipients = filter_recipients(recipients, category, NotificationChannel.EMAIL)
-        if not recipients:
-            return
         recipients = [get_user_email(user) for user in recipients]
 
     text_message = render_to_string(f"{base_template_name}.txt", context=context)

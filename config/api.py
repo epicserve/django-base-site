@@ -6,7 +6,6 @@ from ninja import NinjaAPI
 from ninja.security import django_auth
 
 from apps.accounts.api import avatar_router, users_router
-from apps.base.api import router as base_router
 from apps.base.errors import register_error_handlers
 from apps.notifications.api import router as notifications_router
 from apps.organizations.api import (
@@ -22,6 +21,7 @@ from apps.organizations.api import (
 from apps.organizations.api import (
     settings_router as org_settings_router,
 )
+from apps.site.api import router as site_router
 from apps.teams.api import router as teams_router
 
 api = NinjaAPI(
@@ -34,7 +34,7 @@ api = NinjaAPI(
 
 register_error_handlers(api)
 
-api.add_router("/", base_router)
+api.add_router("/", site_router)
 api.add_router("/avatar/", avatar_router)
 api.add_router("/organization-invites/", org_invites_router)
 api.add_router("/invite-by-key/", public_invites_router)

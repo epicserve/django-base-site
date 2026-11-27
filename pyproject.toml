@@ -47,6 +47,7 @@ dev = [
     "readable-log-formatter",
     "ruff",
     "pytest-xdist~=3.8",
+    "import-linter>=2.17",
 ]
 
 [tool.ty]
@@ -146,6 +147,44 @@ extend-immutable-calls = ["ninja.Query", "ninja.File", "ninja.Form", "ninja.Body
 
 [tool.ruff.lint.isort]
 section-order = ["future", "standard-library", "django", "third-party", "first-party", "local-folder", ]
+
+[tool.importlinter]
+# `just lint` runs these contracts (`lint-imports`). AGENTS.md's "App Layers" section says what each app may import.
+root_packages = ["apps"]
+
+[[tool.importlinter.contracts]]
+id = "layers"
+name = "Each app imports only the apps in the layers below it"
+type = "layers"
+containers = ["apps"]
+# Top to bottom. Apps on one line split by `|` are independent: neither imports the other. A new feature app goes on
+# the line with teams (`teams | projects`); `exhaustive` fails on an app that isn't listed.
+layers = [
+    "site",
+    "teams",
+    "billing",
+    "notifications",
+    "organizations",
+    "accounts",
+    "base",
+]
+exhaustive = true
+ignore_imports = [
+    # BaseTest and the sign_in helpers sign in a user and select their organization, so base's tests may use users
+    # and organizations. Nothing higher.
+    "apps.base.tests.** -> apps.accounts.**",
+    "apps.base.tests.** -> apps.organizations.**",
+]
+
+[[tool.importlinter.contracts]]
+id = "billing"
+name = "Other apps reach billing only through apps.billing.access"
+type = "protected"
+protected_modules = ["apps.billing"]
+allowed_importers = ["apps.billing"]
+ignore_imports = [
+    "apps.** -> apps.billing.access",
+]
 
 [tool.uv]
 # Skip releases less than 7 days old. To take one sooner, add the package to

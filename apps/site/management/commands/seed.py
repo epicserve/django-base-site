@@ -209,7 +209,7 @@ class Command(BaseCommand):
             raise CommandError(
                 f"seed only runs against a local database, not {host!r}: it creates a superuser and logins with a "
                 "well-known password. If that host is local, add it to LOCAL_DB_HOSTS in "
-                "apps/base/management/commands/seed.py."
+                "apps/site/management/commands/seed.py."
             )
         credentials = tuple(getattr(settings, name, "") for name in SUPERUSER_SETTINGS)
         if not all(credentials):

@@ -51,7 +51,7 @@ The superuser is the account in `DJANGO_SUPERUSER_USERNAME` / `_EMAIL` / `_PASSW
 
 Dunder Mifflin (`dunder-mifflin`) gets 18 more members such as `jim.halpert@dundermifflin.example`, and Pawnee Parks and Recreation (`pawnee-parks`) gets the Parks crew such as `ron.swanson@pawnee.example`. Teams: Sales and Party Planning Committee at Dunder Mifflin, Harvest Festival at Pawnee. Dunder Mifflin has three invites: pending for `user@example.com`, pending for `holly.flax@dundermifflin.example` (no account), and expired for `todd.packer@dundermifflin.example`. Everyone else gets an email on a reserved `.example` domain, so nothing seeded can reach a real inbox.
 
-The command (`seed`) only runs with `DEBUG` on, against a local database (localhost, a Unix socket, or the compose `db` service; see `LOCAL_DB_HOSTS` in `apps/base/management/commands/seed.py`), and with the `DJANGO_SUPERUSER_*` values set. It's safe to rerun: it restores the seeded rows, passwords and the superuser's flags, and removes any MFA (TOTP, passkeys) you enrolled on a seeded login so the password alone signs in again. Otherwise it never deletes anything you created by hand, so an invite you've accepted stays accepted.
+The command (`seed`) only runs with `DEBUG` on, against a local database (localhost, a Unix socket, or the compose `db` service; see `LOCAL_DB_HOSTS` in `apps/site/management/commands/seed.py`), and with the `DJANGO_SUPERUSER_*` values set. It's safe to rerun: it restores the seeded rows, passwords and the superuser's flags, and removes any MFA (TOTP, passkeys) you enrolled on a seeded login so the password alone signs in again. Otherwise it never deletes anything you created by hand, so an invite you've accepted stays accepted.
 
 ## Debugging
 

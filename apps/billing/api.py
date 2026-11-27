@@ -5,7 +5,6 @@ from django.conf import settings
 from ninja import Router
 from ninja.errors import HttpError
 
-from apps.base.permissions import require_org_perm
 from apps.billing.features import get_features
 from apps.billing.models import Subscription
 from apps.billing.plans import get_default_plan, get_plan, get_plans
@@ -18,6 +17,7 @@ from apps.billing.schemas import (
     SubscriptionOut,
 )
 from apps.billing.services import create_checkout_session, create_portal_session
+from apps.organizations.permissions import require_org_perm
 from apps.organizations.roles import OrgPerm
 
 router = Router(tags=["billing"])

@@ -9,8 +9,9 @@ from ninja.pagination import paginate
 from ninja.throttling import UserRateThrottle
 
 from apps.base.ninja_pagination import LegacyPagination
-from apps.base.permissions import require_authenticated, require_org_perm
+from apps.base.permissions import require_authenticated
 from apps.organizations.models import Organization, OrganizationInvite, OrganizationMember
+from apps.organizations.permissions import require_org_perm
 from apps.organizations.roles import OrgPerm, OrgRole, can_assign_role, get_org_role, role_permissions
 from apps.organizations.schemas import (
     InviteIn,

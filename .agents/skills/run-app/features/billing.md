@@ -40,5 +40,5 @@ The pricing page's plan buttons depend on who's looking: "Owner-Only" (disabled)
 
 - `frontend/js/views/PricingView.vue`, `frontend/js/views/settings/BillingView.vue`. The API and webhook: `apps/billing/`.
 - No e2e tests: billing is off in the e2e settings.
-- pytest: `apps/billing/tests/`, `apps/base/tests/test_app_context_api.py`
+- pytest: `apps/billing/tests/`, `apps/site/tests/test_app_context_api.py`, `apps/billing/tests/test_roles.py`
 - Vitest: `frontend/js/utils/routeGuard.test.ts`, `frontend/js/utils/orgSettings.test.ts`

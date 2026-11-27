@@ -1,6 +1,6 @@
 from ninja import Schema
 
-from apps.billing.schemas import BillingSummaryOut
+from apps.billing.access import BillingSummaryOut
 from apps.organizations.schemas import OrgSelectOut
 
 

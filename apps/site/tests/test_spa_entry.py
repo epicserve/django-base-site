@@ -6,8 +6,8 @@ from django.conf import settings
 
 import pytest
 
-from apps.base.api import _get_app_version
 from apps.base.templatetags.vite import _get_manifest
+from apps.site.api import _get_app_version
 
 # The entry's path under frontend/, which is also its key in Vite's manifest.
 SPA_ENTRY = "js/app.ts"
