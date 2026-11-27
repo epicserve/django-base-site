@@ -11,7 +11,7 @@ Tools for staff and superusers: the Django admin, impersonating another user, se
 | `/admin/` | Django admin, server-rendered | `is_staff` |
 | `/hijack/acquire/`, `/hijack/release/` | django-hijack, form POSTs | superuser |
 
-The user menu has "Django Admin", and for a superuser who isn't impersonating, "Impersonate User" and "Test Notifications". Outside production a superuser also gets "Mailpit" and "Silo Admin" ([app-shell.md](app-shell.md) says why not to use them in a worktree).
+The user menu has "Django Admin", and for a superuser who isn't impersonating, "Impersonate User" and "Test Notifications". Outside production a superuser also gets "Mailpit" and "Silo Admin", which open this stack's, on the ports `scripts/worktree urls` prints (`HOST_PORT_MAILPIT` and `HOST_PORT_SILO_CONSOLE`, sent in `/api/app-context/` as `devToolPorts`).
 
 ## Login and Data
 
@@ -50,5 +50,6 @@ User menu → "Debug Toolbar" (DEBUG only) sets the `debug_toolbar` cookie and r
 - `e2e/test_impersonation.py`: the banner, hiding it, and stopping from it.
 - `e2e/test_content_security_policy.py::TestNoPageBreaksThePolicy::test_the_admin`
 - `e2e/test_form_labels.py`: the test notification form.
+- `e2e/test_dev_tool_links.py::TestDevToolLinks::test_links_use_this_stacks_ports`: the "Mailpit" and "Silo Admin" links.
 - Vitest: `frontend/js/utils/routeGuard.test.ts` (who may open `/impersonate/`).
-- pytest: `apps/base/tests/test_impersonation_banner.py`, `apps/base/tests/test_test_notifications_api.py`, `apps/base/tests/test_debug_toolbar.py`
+- pytest: `apps/base/tests/test_impersonation_banner.py`, `apps/base/tests/test_test_notifications_api.py`, `apps/base/tests/test_debug_toolbar.py`, `apps/base/tests/test_app_context_api.py` (the Mailpit and Silo ports)

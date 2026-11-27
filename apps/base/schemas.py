@@ -30,6 +30,13 @@ class AppUserOut(Schema):
     organizations: list[OrgSummaryOut]
 
 
+class DevToolPortsOut(Schema):
+    """The host ports of the local Mailpit and Silo consoles, which differ in each git worktree's stack."""
+
+    mailpit: int
+    silo_console: int
+
+
 class AppContextOut(Schema):
     """Everything the SPA shell needs on load. Keys are camelCase because the SPA's app store reads them as-is."""
 
@@ -44,6 +51,8 @@ class AppContextOut(Schema):
     signupOpen: bool
     version: str
     billing: BillingSummaryOut
+    # Only for a superuser, the one who gets the "Mailpit" and "Silo Admin" menu links.
+    devToolPorts: DevToolPortsOut | None = None
 
 
 class StaffUserOut(Schema):

@@ -24,6 +24,8 @@ CELERY_TASK_EAGER_PROPAGATES = True
 # A git worktree's .env moves these to its own ports (scripts/worktree). Tests expect the defaults.
 SESSION_COOKIE_NAME = "sessionid"
 VITE_SERVER_PORT = "3000"
+MAILPIT_PORT = 8025
+SILO_CONSOLE_PORT = 9001
 
 # These default on when DEBUG is off, as it is in CI, and off with a developer's DEBUG=on. The test client speaks plain
 # HTTP, so SECURE_SSL_REDIRECT would answer every request with a redirect to https://. Pin all of them off so tests

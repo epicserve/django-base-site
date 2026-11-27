@@ -8,6 +8,7 @@ export type CurrentOrg = Schemas['OrgSelectOut'];
 export type OrgPerm = Schemas['OrgPerm'];
 export type OrgSummary = Schemas['OrgSummaryOut'];
 export type BillingSummary = Schemas['BillingSummaryOut'];
+export type DevToolPorts = Schemas['DevToolPortsOut'];
 export type FeatureValue = BillingSummary['features'][string];
 
 export interface AppStore {
@@ -24,6 +25,8 @@ export interface AppStore {
   version: string | null;
   updateAvailable: boolean;
   billing: BillingSummary;
+  /** The host ports of this stack's Mailpit and Silo consoles, sent only to a superuser. */
+  devToolPorts: DevToolPorts | null;
   /** The first `fetchContext()`, which the router waits for before its guards read the user. */
   contextReady: Promise<void> | null;
   readonly isAuthenticated: boolean;
@@ -72,6 +75,7 @@ export function initAppStore(): AppStore {
       cancel_at_period_end: false,
       features: {},
     },
+    devToolPorts: null,
     contextReady: null,
 
     isAuthenticated: computed(() => appStore.user !== null),
@@ -113,6 +117,7 @@ export function initAppStore(): AppStore {
           appStore.debug = data.debug;
           appStore.signupOpen = data.signupOpen;
           appStore.billing = data.billing;
+          appStore.devToolPorts = data.devToolPorts ?? null;
           if (appStore.version === null) {
             appStore.version = data.version;
           } else if (data.version && data.version !== appStore.version) {

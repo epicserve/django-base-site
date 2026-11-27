@@ -540,6 +540,9 @@ MAINTENANCE_MODE_STATE_BACKEND_FALLBACK_VALUE = True
 VITE_DEV_MODE = env.bool("VITE_DEV_MODE", default=DEBUG)
 # The host port of the Vite dev server (the `frontend` service), which differs per git worktree (scripts/worktree).
 VITE_SERVER_PORT = env("HOST_PORT_VITE", default="3000")
+# The host ports of the Mailpit and Silo web consoles, which the superuser's "Mailpit" and "Silo Admin" menu links open.
+MAILPIT_PORT = env.int("HOST_PORT_MAILPIT", default=8025)
+SILO_CONSOLE_PORT = env.int("HOST_PORT_SILO_CONSOLE", default=9001)
 
 
 # CONTENT SECURITY POLICY

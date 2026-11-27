@@ -1,6 +1,6 @@
 from django.test import override_settings
 
-from apps.accounts.recipes import make_user
+from apps.accounts.recipes import make_superuser, make_user
 from apps.base.tests import BaseTest
 from apps.base.utils.timezones import get_timezone_label
 from apps.organizations.recipes import make_org
@@ -51,6 +51,7 @@ class TestAppContext(BaseTest):
             "debug": False,
             "signupOpen": True,
             "billing": BILLING_DISABLED,
+            "devToolPorts": None,
         }
 
     @override_settings(DEBUG=True)
@@ -89,7 +90,21 @@ class TestAppContext(BaseTest):
             "debug": True,
             "signupOpen": True,
             "billing": BILLING_DISABLED,
+            "devToolPorts": None,
         }
+
+    # A git worktree's stack publishes Mailpit and Silo on its own host ports (scripts/worktree), which the superuser's
+    # "Mailpit" and "Silo Admin" menu links need. Nobody else sees those links, so nobody else gets the ports.
+    @override_settings(MAILPIT_PORT=8031, SILO_CONSOLE_PORT=9013)
+    def test_dev_tool_ports(self):
+        for label, user, ports in [
+            ("superuser", make_superuser("jan@example.com", username="jan"), {"mailpit": 8031, "silo_console": 9013}),
+            ("not a superuser", self.user, None),
+        ]:
+            with self.subTest(label):
+                self.sign_in(user)
+
+                assert self._get()["devToolPorts"] == ports
 
     def test_signed_in_without_an_org(self):
         self.org.delete()
