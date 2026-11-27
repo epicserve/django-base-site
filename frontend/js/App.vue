@@ -8,7 +8,7 @@ import { pageMounted } from '@/utils/scrollBehavior';
 const appStore = useAppStore();
 const route = useRoute();
 
-// Routes with `meta.publicChrome` (e.g. /pricing) bring their own MarketingLayout
+// Routes with `meta.publicChrome` (e.g. /pricing) draw their own header
 // and should not be wrapped in AppLayout even when the user is authenticated.
 const useAppLayout = computed(() => appStore.isAuthenticated && !route.meta?.publicChrome);
 
