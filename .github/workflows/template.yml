@@ -322,7 +322,7 @@ jobs:
         run: |
           docker compose exec -T -u root -e UV_CACHE_DIR=/tmp/uv-cache web \
             uv pip uninstall --python /opt/venv/bin/python pytest-xdist
-          docker compose exec -T frontend rm -rf node_modules/vitest
+          docker compose exec -T -u root frontend rm -rf node_modules/vitest
           if output=$(just doctor 2>&1); then
             echo "${output}"
             echo "ERROR: just doctor passed with pytest-xdist and vitest missing"
