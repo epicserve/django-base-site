@@ -82,7 +82,8 @@ def _get_css_asset(filename: str):
     if vite_settings.VITE_DEV_MODE is True:
         return ""
     file_data = _get_file_data(filename)
-    hashed_filename = file_data.get("css", [None])[0]  # type: ignore
+    css_files = file_data.get("css")
+    hashed_filename = css_files[0] if isinstance(css_files, list) and css_files else None
     return _get_css_link(hashed_filename)
 
 
