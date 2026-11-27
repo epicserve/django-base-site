@@ -30,8 +30,8 @@ def notify(
 
     Producer apps call this; they never touch the model directly. When
     `category` is set and a recipient has the in_app channel disabled for that
-    category, that recipient is skipped (the email-side primitive is in
-    `apps.base.utils.email.send_email` and gates separately).
+    category, that recipient is skipped (the email side is
+    `apps.notifications.email.send_email`, which gates separately).
 
     When `organization` is set, every recipient must be a member of that org —
     a `ValueError` is raised otherwise. The list-API filters cross-org

@@ -3,7 +3,7 @@ from django.db import models
 
 class NotificationChannel(models.TextChoices):
     """
-    Delivery channels recognized by `notify()`, `send_email()`, and the prefs API.
+    Delivery channels recognized by `notify()`, `apps.notifications.email.send_email()`, and the prefs API.
 
     Use these constants when declaring `default_channels` in
     `settings.NOTIFICATIONS_CATEGORIES` so the valid set is discoverable and

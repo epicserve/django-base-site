@@ -71,7 +71,7 @@ def _on_subscription_deleted(event):
     sub.canceled_at = timezone.now()
     sub.save(update_fields=["status", "canceled_at", "modified"])
 
-    from apps.base.utils.email import send_email
+    from apps.notifications.email import send_email
     from apps.notifications.services import notify
 
     billing_managers = list(sub.organization.members_with_perm(OrgPerm.MANAGE_BILLING))
@@ -107,7 +107,7 @@ def _on_payment_failed(event):
     if customer is None:
         return
 
-    from apps.base.utils.email import send_email
+    from apps.notifications.email import send_email
     from apps.notifications.services import notify
 
     org = customer.organization

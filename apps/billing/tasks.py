@@ -19,9 +19,9 @@ def check_trials_ending() -> int:
     if not getattr(settings, "BILLING_ENABLED", False):
         return 0
 
-    from apps.base.utils.email import send_email
     from apps.billing.constants import SubscriptionStatus
     from apps.billing.models import Subscription
+    from apps.notifications.email import send_email
     from apps.notifications.services import notify
 
     now = timezone.now()

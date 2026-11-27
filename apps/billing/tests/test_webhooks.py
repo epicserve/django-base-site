@@ -160,7 +160,7 @@ class TestEventHandlers(BaseTest):
         # Don't actually send emails or notify in this test — the handler imports
         # them lazily, so we patch the symbols at the point of use.
         self.enterContext(mock.patch("apps.notifications.services.notify", return_value=[]))
-        self.enterContext(mock.patch("apps.base.utils.email.send_email", return_value=None))
+        self.enterContext(mock.patch("apps.notifications.email.send_email", return_value=None))
         event = {
             "id": "evt_del",
             "type": "customer.subscription.deleted",
