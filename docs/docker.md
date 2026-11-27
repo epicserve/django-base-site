@@ -145,6 +145,7 @@ The first time, Worktrunk asks you to approve the project's hooks, and it rememb
 | `just start`                                | `docker compose up`                                               |
 | `just start_with_debugpy`                   | Same with `USE_DEBUGPY=true` for remote debugging                 |
 | `just stop`                                 | `docker compose down -t 0`                                        |
+| `just doctor`                               | Read-only check that this checkout's stack is up, healthy, migrated and seeded |
 | `just build`                                | Rebuild images, drop the node_modules volume, re-collectstatic    |
 | `docker compose ps`                         | List running services                                             |
 | `docker compose logs -f <service>`          | Tail logs for a service                                           |

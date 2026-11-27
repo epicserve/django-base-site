@@ -190,7 +190,17 @@ INVITES = (
 class Command(BaseCommand):
     help = "Create known dev logins, organizations, teams and invites (DEBUG only, idempotent)."
 
+    def add_arguments(self, parser):
+        parser.add_argument(
+            "--check",
+            action="store_true",
+            help="Change nothing; fail unless the seeded logins and organizations exist (`just doctor` runs this).",
+        )
+
     def handle(self, *args, **options):
+        if options["check"]:
+            self._check()
+            return
         if not settings.DEBUG:
             raise CommandError(f"seed only runs with DEBUG on: every seeded login uses the password {SEED_PASSWORD!r}.")
         # Checked before the first query, so a remote database is never touched.
@@ -255,6 +265,20 @@ class Command(BaseCommand):
                 state = "expired" if invite.is_expired else "pending"
                 url = f"{settings.SITE_URL}{invite.accept_invite_url}"
                 self.stdout.write(f"    {invite.invitee_email.ljust(width)}  {state:<7}  {url}")
+
+    def _check(self) -> None:
+        """Fail, naming what's missing, unless the logins and organizations `seed` makes exist. Reads only."""
+        emails = [login.email for login in LOGINS]
+        found = {email.lower() for email in User.objects.filter(email__in=emails).values_list("email", flat=True)}
+        missing = [email for email in emails if email.lower() not in found]
+        superuser_username = getattr(settings, "DJANGO_SUPERUSER_USERNAME", "")
+        if superuser_username and not User.objects.filter(username=superuser_username, is_superuser=True).exists():
+            missing.append(f"the superuser {superuser_username!r}")
+        slugs = {slug for slug, _ in ORGANIZATIONS}
+        missing += sorted(slugs - set(Organization.objects.filter(slug__in=slugs).values_list("slug", flat=True)))
+        if missing:
+            raise CommandError(f"Not seeded: {', '.join(missing)} missing. Run just seed.")
+        self.stdout.write("The seeded logins and organizations exist.")
 
     def _seed_users(self, superuser_username: str, superuser_email: str, superuser_password: str) -> dict[str, User]:
         users = {}

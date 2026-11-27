@@ -39,7 +39,15 @@ If it never answers, read `docker compose logs web`.
 just seed
 ```
 
-It prints the logins and each seeded invite's accept URL. It's safe to rerun: it restores the seeded rows, resets the seeded passwords, and removes any MFA (TOTP, passkeys) from the seeded logins so the password alone signs in. Apart from that it never deletes anything created by hand. It refuses unless `DEBUG` is on in `.env`, against a database that isn't local, when `DJANGO_SUPERUSER_USERNAME` / `_EMAIL` / `_PASSWORD` aren't set in `.env`, and while migrations are still running (wait for step 1, then retry). Its error says which.
+Then check the stack:
+
+```bash
+just doctor
+```
+
+It changes nothing. It confirms the stack belongs to this checkout, then checks every service is running and healthy, the app and Vite answer, no migrations are pending, and the seeded logins exist. It exits non-zero and says how to fix whatever is wrong. Don't drive the app until it passes, and run it again first whenever something looks off: a blank page, a missing email, a login that fails.
+
+`just seed` prints the logins and each seeded invite's accept URL. It's safe to rerun: it restores the seeded rows, resets the seeded passwords, and removes any MFA (TOTP, passkeys) from the seeded logins so the password alone signs in. Apart from that it never deletes anything created by hand. It refuses unless `DEBUG` is on in `.env`, against a database that isn't local, when `DJANGO_SUPERUSER_USERNAME` / `_EMAIL` / `_PASSWORD` aren't set in `.env`, and while migrations are still running (wait for step 1, then retry). Its error says which.
 
 ## 3. Pick a login
 

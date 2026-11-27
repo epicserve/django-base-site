@@ -167,6 +167,10 @@ jobs:
         # instead, and still install them once the project has been `git init`-ed.
         run: |
           test ! -e .git || { echo "ERROR: expected a fresh project without .git"; exit 1; }
+          # `just doctor` reads the URLs from scripts/worktree, so it has to work before `git init` too.
+          output=$(scripts/worktree urls) || { echo "ERROR: scripts/worktree urls failed without a Git repository"; exit 1; }
+          echo "${output}" | grep -q '^App: *http://localhost:8000/$' \
+            || { echo "ERROR: expected the app on port 8000 without a Git repository:"; echo "${output}"; exit 1; }
           output=$(just install_hooks 2>&1) || { echo "ERROR: just install_hooks failed without a Git repository:"; echo "${output}"; exit 1; }
           echo "${output}"
           echo "${output}" | grep -q "Skipping Git hooks" || { echo "ERROR: expected install_hooks to print its skip note"; exit 1; }
@@ -247,6 +251,22 @@ jobs:
           docker compose ps -a
           docker compose logs web
           exit 1
+      - name: Verify just doctor fails before just seed, and names it
+        working-directory: ${{ env.BUILD_DIR }}
+        # `just doctor` tells an agent whether the stack is ready to drive (#1424). It needs every service, so start
+        # the rest of the stack. With everything up but nothing seeded, the seed check is the only one that may fail.
+        run: |
+          docker compose up --wait -d || { docker compose ps -a; docker compose logs; exit 1; }
+          for attempt in $(seq 1 60); do curl -fs -o /dev/null http://localhost:8000/api/app-context/ && break; sleep 2; done
+          if output=$(just doctor 2>&1); then
+            echo "${output}"
+            echo "ERROR: just doctor passed before just seed ran"
+            exit 1
+          fi
+          echo "${output}"
+          echo "${output}" | grep -q "Run just seed." || { echo "ERROR: expected just doctor to say to run just seed"; exit 1; }
+          failures=$(echo "${output}" | grep -c "✗" || true)
+          [ "${failures}" = 1 ] || { echo "ERROR: expected only the seed check to fail, but ${failures} did"; exit 1; }
       - name: Seed the new project and sign in as seeded users
         working-directory: ${{ env.BUILD_DIR }}
         # `just seed` gives agents known logins to check UI changes with (#1365).
@@ -272,6 +292,28 @@ jobs:
           }
           sign_in owner@example.com dev-password
           sign_in "$(sed -n 's/^DJANGO_SUPERUSER_EMAIL=//p' .env)" "$(sed -n 's/^DJANGO_SUPERUSER_PASSWORD=//p' .env)"
+      - name: Verify just doctor passes, and refuses a worktree that wasn't set up
+        working-directory: ${{ env.BUILD_DIR }}
+        # In a worktree made with `git worktree add`, which skips Worktrunk's hooks, the ports would be the main
+        # checkout's, so doctor would check the main checkout's healthy stack in place of the worktree's. It has to
+        # fail there before checking anything.
+        run: |
+          just doctor || { docker compose ps -a; docker compose logs; exit 1; }
+          git worktree add -q ../doctor-no-setup -b doctor-no-setup
+          if output=$(cd ../doctor-no-setup && just doctor 2>&1); then
+            echo "${output}"
+            echo "ERROR: just doctor passed in a worktree that was never set up"
+            exit 1
+          fi
+          echo "${output}"
+          echo "${output}" | grep -q "scripts/worktree setup" \
+            || { echo "ERROR: expected just doctor to say to run scripts/worktree setup"; exit 1; }
+          if echo "${output}" | grep -q "is running"; then
+            echo "ERROR: just doctor checked the main checkout's services from the worktree"
+            exit 1
+          fi
+          git worktree remove ../doctor-no-setup
+          git branch -q -D doctor-no-setup
       - name: Verify just clean_docker_containers removes only this project's containers
         working-directory: ${{ env.BUILD_DIR }}
         # It used to kill and remove every container on the machine. A container from outside the project, started
