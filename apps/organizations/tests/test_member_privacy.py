@@ -5,6 +5,10 @@ Any signed-in user can create an organization and manage its members, so these r
 Member search matched any active user's name, username or email and returned their email. Adding a member by user id
 put that user in the organization without an invite and returned their email. So did inviting by user id. Counting
 through ids got every email.
+
+One exception is on purpose: while sign-up is closed, inviting an address without an account is refused, since they
+couldn't join, so the answer says whether the address has one. The invite throttle caps how many addresses one user can
+try.
 """
 
 import json
