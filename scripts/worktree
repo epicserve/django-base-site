@@ -188,6 +188,15 @@ copy_data() {
 
 urls() {
     local env="$root/.env" var default value
+    # The defaults are the main checkout's ports. In a worktree that was never set up, printing them would point at the
+    # main checkout's stack, which then answers in place of this one's.
+    if [ "$root" != "$primary" ]; then
+        [ -n "$(port_defaults)" ] || die "This branch's compose.yml publishes fixed ports, so this worktree can't run" \
+            "a stack of its own. Rebase it onto main, then run scripts/worktree setup."
+        [ -n "$(env_read "$env" HOST_PORT_WEB)" ] || die "This worktree isn't set up: $env has no HOST_PORT_WEB, so" \
+            "its ports would be the main checkout's. Run scripts/worktree setup here. Make worktrees with" \
+            "wt switch --create <branch> so it runs on its own."
+    fi
     while read -r var default; do
         value=$(env_read "$env" "$var")
         printf -v "$var" '%s' "${value:-$default}"

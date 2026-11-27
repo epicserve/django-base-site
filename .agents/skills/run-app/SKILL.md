@@ -7,11 +7,15 @@ description: Start this project's Docker stack, seed known dev logins with `just
 
 ## 1. Start the stack
 
-In a git worktree the stack runs on its own ports, listed by `scripts/worktree urls` (the `HOST_PORT_*` values in its `.env`). The main checkout uses the defaults: the app on 8000, Vite on 3000, Mailpit on 8025. Set the app's base URL once and use it below:
+Each git worktree runs its own stack, on its own ports. Make a worktree with `wt switch --create <branch>` ([Worktrunk](https://worktrunk.dev)), never `git worktree add`: its hooks run `scripts/worktree setup`, which writes the worktree's `.env` with those ports and copies the main checkout's data. In a worktree made another way, run `scripts/worktree setup` inside it first.
+
+`scripts/worktree urls` lists this checkout's URLs and ports. The main checkout uses the defaults: the app on 8000, Vite on 3000, Mailpit on 8025. Set the app's base URL from it once and use it below:
 
 ```bash
-APP="http://localhost:$(sed -n 's/^HOST_PORT_WEB=//p' .env 2>/dev/null | tail -n 1 | grep . || echo 8000)"
+APP=$(scripts/worktree urls | sed -n 's|^App: *\(http://[^/]*\)/$|\1|p') && [ -n "$APP" ] && echo "$APP"
 ```
+
+If that fails, stop and do what its error says. In a worktree that was never set up, every other way of picking a port gives the main checkout's, and its stack answers in place of this one's, so you'd be checking `main`'s code.
 
 ```bash
 docker compose up --wait -d
@@ -89,7 +93,7 @@ It lasts for the life of the tab. Enroll under `/accounts/security/passkeys/`. O
 
 - Open the changed route, take a screenshot, and read the console for errors and the network log for failed requests. The SPA's routes are in `frontend/js/router.ts`.
 - Common pages: `/`, `/organizations/<slug>/settings/{general,members,teams}/`, `/accounts/general/`, `/accounts/security/`, `/notifications/`.
-- Emails (invites sent from the app, password reset, email verification) land in Mailpit at `http://localhost:8025` (`HOST_PORT_MAILPIT` in a worktree). The `worker` service sends them, and it doesn't reload on code changes: after changing a Celery task, run `docker compose restart worker`.
+- Emails (invites sent from the app, password reset, email verification) land in Mailpit, at the `Mailpit:` URL `scripts/worktree urls` prints (`http://localhost:8025` in the main checkout). The `worker` service sends them, and it doesn't reload on code changes: after changing a Celery task, run `docker compose restart worker`.
 
 ## 6. Keep it
 
