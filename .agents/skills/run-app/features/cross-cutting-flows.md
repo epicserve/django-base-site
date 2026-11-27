@@ -6,7 +6,7 @@ Journeys that span features. Each lists its steps, the end state to wait for at 
 
 Covers [invites.md](invites.md), [organization-settings.md](organization-settings.md) and [sign-in-and-sign-up.md](sign-in-and-sign-up.md).
 
-**Before you start:** signup is closed unless `ACCOUNT_SIGNUP_OPEN` is on. Set `ACCOUNT_SIGNUP_OPEN=on` in `.env` and run `docker compose restart web`. Pick an address no earlier run used, such as `david.wallace@dundermifflin.example`.
+**Before you start:** signup is closed unless `ACCOUNT_SIGNUP_OPEN` is on, and while it's closed, inviting an address that has no account is refused. Set `ACCOUNT_SIGNUP_OPEN=on` in `.env` and run `docker compose restart web`. Pick an address no earlier run used, such as `david.wallace@dundermifflin.example`.
 
 1. **Send the invite.** Sign in as `owner@example.com`. On `/organizations/dunder-mifflin/settings/members/`, click "Invite by Email" and invite the address. Wait for "Invitation sent." and the address under "Pending Invitations".
 2. **Find the email.** In Mailpit, open the newest message, "Invite from Michael Scott". If it hasn't arrived, check `worker` is running (`just doctor`) and read `docker compose logs worker`.

@@ -21,8 +21,11 @@ from apps.organizations.recipes import make_org
 HOUR = 60 * 60
 
 
-# Test settings use a dummy cache, which remembers nothing, so nothing would ever be throttled.
-@override_settings(CACHES={"default": {"BACKEND": "django.core.cache.backends.locmem.LocMemCache"}})
+# Test settings use a dummy cache, which remembers nothing, so nothing would ever be throttled. Sign-up is open, so
+# inviting the addresses below, which have no account, isn't refused for that (see test_api.py).
+@override_settings(
+    CACHES={"default": {"BACKEND": "django.core.cache.backends.locmem.LocMemCache"}}, ACCOUNT_SIGNUP_OPEN=True
+)
 class TestInviteThrottle(BaseTest):
     @classmethod
     def setUpTestData(cls):
