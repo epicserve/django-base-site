@@ -48,7 +48,7 @@ features.
 * [Custom User Model][custom_user_model] - Extends `AbstractUser` with per-user `timezone` (auto-detected from the browser via middleware) and avatar fields (uploaded to Silo/S3 with crop data).
 * [Django Allauth](http://www.intenct.nl/projects/django-allauth/) (headless) - JSON auth API with full MFA support: TOTP, recovery codes, and WebAuthn passkeys (via [`fido2`](https://github.com/Yubico/python-fido2)).
 * [Django Ninja](https://django-ninja.dev/) - Fast type-safe API framework powering `/api/app-context/`, the user/avatar endpoints, organizations, teams, and the public invite flow.
-* [Django Hijack](https://github.com/django-hijack/django-hijack) - Staff impersonation with a SPA-driven user search, gated by a `staff_only` permission check.
+* [Django Hijack](https://github.com/django-hijack/django-hijack) - Superuser impersonation with a SPA-driven user search, gated by a `superuser_only` permission check.
 * [Celery](http://docs.celeryproject.org/) - Most popular task runner for running asynchronous tasks in the background.
 * [Gunicorn](https://gunicorn.org/) - Production WSGI server (4 workers × 2 threads), configured at `gunicorn.conf.py`.
 * [WhiteNoise](https://whitenoise.readthedocs.io/) - Serves Vite-hashed assets in production with `Cache-Control: max-age=31536000, immutable`.
@@ -98,7 +98,7 @@ These first-party apps under `apps/` are the foundation for any B2B SaaS built o
 * [Vite 8](https://vitejs.dev/) - Frontend build tool. Hashed-asset cache + manifest support so WhiteNoise can serve them with immutable headers.
 * [bun](https://bun.sh/) - Fast JS toolchain (replaces npm). The `frontend` Docker service is built from `oven/bun:1`.
 * [@heroicons/vue](https://github.com/tailwindlabs/heroicons), [vue-advanced-cropper](https://norserium.github.io/vue-advanced-cropper/), [reka-ui](https://reka-ui.com/) - UI primitives.
-* Account settings (General, Email, Password change, Security with TOTP / recovery codes / passkeys, Notifications), org settings (General, Members + Invites, Teams, Billing), notification bell with polling and a `/notifications/` archive page, public `/pricing/` page, Test Notifications and Impersonate views (superuser/staff).
+* Account settings (General, Email, Password change, Security with TOTP / recovery codes / passkeys, Notifications), org settings (General, Members + Invites, Teams, Billing), notification bell with polling and a `/notifications/` archive page, public `/pricing/` page, Test Notifications and Impersonate views (superuser only).
 
 ### 💳 Billing (opt-in)
 
