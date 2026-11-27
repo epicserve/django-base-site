@@ -101,6 +101,11 @@ def app_context(request):
         "signupOpen": getattr(settings, "ACCOUNT_SIGNUP_OPEN", False),
         "version": _get_app_version(),
         "billing": org_billing_summary(org_instance),
+        "devToolPorts": (
+            {"mailpit": settings.MAILPIT_PORT, "silo_console": settings.SILO_CONSOLE_PORT}
+            if user.is_superuser
+            else None
+        ),
     }
 
 

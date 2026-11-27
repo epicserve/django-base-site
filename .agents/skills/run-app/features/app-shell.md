@@ -41,12 +41,6 @@ Any seeded login. `owner@example.com` has an organization; `user@example.com` ha
 
 - **The timezone prompt** ("Your Timezone Has Changed", with "Keep Current" and "Update Timezone") opens when the browser's timezone differs from the user's, and its backdrop blocks every click until it's answered. Give the browser context the user's timezone (`timezone_id="America/Chicago"` for a seeded login), as `e2e/conftest.py` does. It doesn't open on guest pages, on the two-factor and reauthentication pages, or while impersonating.
 
-## Known Issues
-
-Tracked in the template's [django-base-site#1424](https://github.com/epicserve/django-base-site/issues/1424), item 3.
-
-- **The "Mailpit" and "Silo Admin" menu links** use the default ports (8025, 9001), so in a worktree they open the main checkout's. Use the URLs from `scripts/worktree urls`.
-
 ## Cleanup
 
 The theme is kept in the browser's `localStorage`, so a new browser context starts fresh. Answering the timezone prompt with "Update Timezone" changes the user's timezone; see [account-settings.md](account-settings.md) to set it back.

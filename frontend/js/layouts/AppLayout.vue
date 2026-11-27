@@ -37,9 +37,13 @@ const orgDropdownOpen = ref(false);
 const userDropdownOpen = ref(false);
 const mobileMenuOpen = ref(false);
 
-const devToolHost = computed(() => window.location.hostname || 'localhost');
-const mailpitUrl = computed(() => `http://${devToolHost.value}:8025/`);
-const siloUrl = computed(() => `http://${devToolHost.value}:9001/`);
+// The superuser's links to this stack's Mailpit and Silo consoles, whose ports differ in each git worktree.
+const devToolUrls = computed(() => {
+  const ports = appStore.devToolPorts;
+  if (!ports) return null;
+  const host = window.location.hostname || 'localhost';
+  return { mailpit: `http://${host}:${ports.mailpit}/`, silo: `http://${host}:${ports.silo_console}/` };
+});
 const debugToolbarOn = isDebugToolbarOn();
 
 function closeAllDropdowns() {
@@ -252,10 +256,10 @@ onUnmounted(() => {
                     <EnvelopeIcon class="h-4 w-4 text-gray-400 dark:text-gray-500" />
                     Test Notifications
                   </RouterLink>
-                  <template v-if="appStore.user.is_superuser && appStore.instance !== 'prod'">
+                  <template v-if="appStore.user.is_superuser && appStore.instance !== 'prod' && devToolUrls">
                     <a
                       class="cursor-pointer flex items-center gap-2 px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-700"
-                      :href="mailpitUrl"
+                      :href="devToolUrls.mailpit"
                       target="_blank"
                       rel="noopener"
                     >
@@ -264,7 +268,7 @@ onUnmounted(() => {
                     </a>
                     <a
                       class="cursor-pointer flex items-center gap-2 px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-700"
-                      :href="siloUrl"
+                      :href="devToolUrls.silo"
                       target="_blank"
                       rel="noopener"
                     >
@@ -470,10 +474,10 @@ onUnmounted(() => {
             <EnvelopeIcon class="h-4 w-4 text-gray-400 dark:text-gray-500" />
             Test Notifications
           </RouterLink>
-          <template v-if="appStore.user.is_superuser && appStore.instance !== 'prod'">
+          <template v-if="appStore.user.is_superuser && appStore.instance !== 'prod' && devToolUrls">
             <a
               class="cursor-pointer flex items-center gap-2 rounded px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-700"
-              :href="mailpitUrl"
+              :href="devToolUrls.mailpit"
               target="_blank"
               rel="noopener"
             >
@@ -482,7 +486,7 @@ onUnmounted(() => {
             </a>
             <a
               class="cursor-pointer flex items-center gap-2 rounded px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-700"
-              :href="siloUrl"
+              :href="devToolUrls.silo"
               target="_blank"
               rel="noopener"
             >

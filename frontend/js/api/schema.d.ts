@@ -654,6 +654,7 @@ export interface components {
              * @default false
              */
             debug: boolean;
+            devToolPorts?: components["schemas"]["DevToolPortsOut"] | null;
             /** Instance */
             instance: string;
             org: components["schemas"]["OrgSelectOut"] | null;
@@ -767,6 +768,16 @@ export interface components {
         CheckoutOut: {
             /** Checkout Url */
             checkout_url: string;
+        };
+        /**
+         * DevToolPortsOut
+         * @description The host ports of the local Mailpit and Silo consoles, which differ in each git worktree's stack.
+         */
+        DevToolPortsOut: {
+            /** Mailpit */
+            mailpit: number;
+            /** Silo Console */
+            silo_console: number;
         };
         /** FeatureOut */
         FeatureOut: {
