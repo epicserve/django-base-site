@@ -56,4 +56,4 @@ Tracked in the template's [django-base-site#1424](https://github.com/epicserve/d
 - `e2e/test_impersonation.py`: the banner, hiding it, and stopping from it.
 - `e2e/test_content_security_policy.py::TestNoPageBreaksThePolicy::test_the_admin`
 - `e2e/test_form_labels.py`: the test notification form.
-- pytest: `apps/base/tests/test_impersonation_banner.py`, `apps/base/tests/test_test_notifications_api.py`, `apps/base/tests/test_debug_toolbar.py`
+- pytest: `apps/site/tests/test_impersonation_banner.py`, `apps/site/tests/test_test_notifications_api.py`, `apps/base/tests/test_debug_toolbar.py`
