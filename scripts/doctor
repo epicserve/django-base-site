@@ -118,6 +118,43 @@ if is_running frontend; then
     fi
 fi
 
+# --- Dependencies ------------------------------------------------------------------------------------------------
+# The images are shared by every checkout and built only by just build, so a package added since the last build is
+# missing from them: pytest fails on a flag its plugin adds, or vue-tsc can't find a module.
+
+if is_running web; then
+    # --active checks the image's /opt/venv rather than a project .venv. The cache goes to /tmp: the app user can't
+    # write the default one.
+    if output=$(dc exec -T -e UV_CACHE_DIR=/tmp/uv-cache web uv sync --frozen --active --check 2>&1); then
+        ok "web's Python packages match uv.lock"
+    else
+        fail "web's Python packages don't match uv.lock: its image is older than the lock file" \
+            "Rebuild the images with just build, then restart the stack with just start."
+        # What's missing first, then what the lock file dropped.
+        { echo "$output" | grep -E '^ \+ '; echo "$output" | grep -E '^ - '; } | head -n 10 | indent
+    fi
+else
+    note "Skipped the Python package check, since web isn't running"
+fi
+
+if is_running frontend; then
+    # bun has no check mode (`bun install --dry-run` reports nothing missing), so look for each package itself. This
+    # catches a package added to package.json, not a version bump.
+    # shellcheck disable=SC2016 # The $ is JavaScript's, not the shell's.
+    script='const p = require("./package.json"); const fs = require("fs");
+const missing = Object.keys({...p.dependencies, ...p.devDependencies})
+  .filter((name) => !fs.existsSync(`node_modules/${name}/package.json`));
+if (missing.length) { console.log(missing.join(" ")); process.exit(1); }'
+    if output=$(dc exec -T frontend bun -e "$script" 2>&1); then
+        ok "node_modules has every package in package.json"
+    else
+        fail "node_modules is missing packages from package.json: $output" \
+            "Install them with docker compose exec frontend bun install --frozen-lockfile, or rebuild with just build."
+    fi
+else
+    note "Skipped the node_modules check, since frontend isn't running"
+fi
+
 # --- The database ------------------------------------------------------------------------------------------------
 
 if is_running web; then

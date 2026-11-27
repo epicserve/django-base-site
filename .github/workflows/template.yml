@@ -314,6 +314,25 @@ jobs:
           fi
           git worktree remove ../doctor-no-setup
           git branch -q -D doctor-no-setup
+      - name: Verify just doctor fails when the images are older than the lock files
+        working-directory: ${{ env.BUILD_DIR }}
+        # Every checkout shares the images, and only just build rebuilds them, so a package added since then is
+        # missing: pytest didn't know -n after pytest-xdist was added, and vue-tsc couldn't find vitest. Remove one
+        # package from each to stand in for that. The next step removes the containers.
+        run: |
+          docker compose exec -T -u root -e UV_CACHE_DIR=/tmp/uv-cache web \
+            uv pip uninstall --python /opt/venv/bin/python pytest-xdist
+          docker compose exec -T -u root frontend rm -rf node_modules/vitest
+          if output=$(just doctor 2>&1); then
+            echo "${output}"
+            echo "ERROR: just doctor passed with pytest-xdist and vitest missing"
+            exit 1
+          fi
+          echo "${output}"
+          echo "${output}" | grep -q "don't match uv.lock" || { echo "ERROR: expected the Python package check to fail"; exit 1; }
+          echo "${output}" | grep -q "+ pytest-xdist" || { echo "ERROR: expected it to name pytest-xdist"; exit 1; }
+          echo "${output}" | grep -q "missing packages from package.json: vitest" \
+            || { echo "ERROR: expected the node_modules check to name vitest"; exit 1; }
       - name: Verify just clean_docker_containers removes only this project's containers
         working-directory: ${{ env.BUILD_DIR }}
         # It used to kill and remove every container on the machine. A container from outside the project, started
