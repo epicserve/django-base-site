@@ -88,6 +88,7 @@ INSTALLED_APPS = [
     "apps.teams",
     "apps.notifications",
     "apps.billing",
+    "apps.site",
     "maintenance_mode",
     "allauth",
     "allauth.account",

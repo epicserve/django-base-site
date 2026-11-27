@@ -7,7 +7,6 @@ from ninja.errors import HttpError
 
 from apps.accounts.models import User
 from apps.base.permissions import require_superuser
-from apps.base.schemas import AppContextOut, MessageOut, StaffUserOut, VersionOut
 from apps.base.templatetags.vite import _get_manifest, vite_settings
 from apps.base.utils.email import send_email
 from apps.base.utils.timezones import get_timezone_label
@@ -16,6 +15,7 @@ from apps.notifications.services import notify
 from apps.organizations.models import Organization, OrganizationMember
 from apps.organizations.roles import get_org_role, role_permissions
 from apps.organizations.session import get_member_count, get_owner_count
+from apps.site.schemas import AppContextOut, MessageOut, StaffUserOut, VersionOut
 
 router = Router(tags=["app"])
 

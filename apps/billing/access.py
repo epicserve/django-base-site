@@ -1,5 +1,9 @@
 """
-Feature-gating helpers.
+Feature-gating helpers, and billing's interface for the rest of the project.
+
+Other apps reach billing only through this module (import-linter's billing contract in pyproject.toml), so
+billing's models, Stripe calls and webhooks can change without touching them. `config/` still mounts billing's
+router and webhook.
 
 Resolution order for `org_feature_value(org, feature_key)`:
 
@@ -22,9 +26,12 @@ from typing import Any
 from django.conf import settings
 from django.core.exceptions import PermissionDenied
 
-from apps.base.permissions import require_org_selected
 from apps.billing.features import get_feature
 from apps.billing.plans import get_default_plan, get_plan
+
+# Re-exported for the app-context schema (apps/site/schemas.py), which shows `org_billing_summary()` to the SPA.
+from apps.billing.schemas import BillingSummaryOut as BillingSummaryOut
+from apps.organizations.permissions import require_org_selected
 
 
 def _resolve_plan(org):

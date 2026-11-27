@@ -6,8 +6,8 @@ from ninja import Query, Router, Status
 from ninja.pagination import paginate
 
 from apps.base.ninja_pagination import LegacyPagination
-from apps.base.permissions import require_org_perm
 from apps.organizations.models import OrganizationMember
+from apps.organizations.permissions import require_org_perm
 from apps.organizations.roles import OrgPerm
 from apps.teams.models import Team
 from apps.teams.schemas import TeamIn, TeamOut, TeamPatchIn

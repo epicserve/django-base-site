@@ -3,20 +3,12 @@ from unittest.mock import patch
 
 from django.contrib.auth.models import AnonymousUser
 from django.core import mail
-from django.core.exceptions import PermissionDenied
-from django.test import RequestFactory
-
-import pytest
-from ninja.errors import HttpError
 
 from apps.accounts.recipes import make_user
 from apps.base.tests import BaseTest
-from apps.billing.api import create_checkout, create_portal, get_subscription
-from apps.billing.schemas import CheckoutIn
 from apps.organizations.models import OrganizationInvite, OrganizationMember
 from apps.organizations.recipes import make_invite, make_member, make_org
 from apps.organizations.roles import ROLE_PERMISSIONS, OrgPerm, OrgRole, get_org_role, has_org_perm, role_permissions
-from apps.organizations.session import MockedOrg
 
 
 def _grant_members(*perms):
@@ -63,8 +55,7 @@ class TestHasOrgPerm(DunderMifflinTest):
         assert not any(has_org_perm(self.member, self.org, perm) for perm in OrgPerm)
 
 
-# One read-only route for each permission. Billing's router is mounted only with BILLING_ENABLED, which test settings
-# leave off, so its route is called directly.
+# One read-only route for each permission. Billing's routes are checked in apps/billing/tests/test_roles.py.
 ROUTES = {
     OrgPerm.MANAGE_SETTINGS: "/api/organization-settings/",
     OrgPerm.MANAGE_MEMBERS: "/api/organization-members/",
@@ -75,12 +66,6 @@ ROUTES = {
 class TestRoutesCheckTheirPermission(DunderMifflinTest):
     """Give the member role one permission at a time: exactly the routes that need it open up."""
 
-    def _billing_request(self, method, path):
-        request = getattr(RequestFactory(), method)(path)
-        request.user = self.member
-        request.org = MockedOrg(pk=self.org.pk, id=self.org.pk, name=self.org.name, slug=self.org.slug)
-        return request
-
     def test_a_role_opens_only_the_routes_its_permissions_cover(self):
         self.sign_in(self.member, self.org)
 
@@ -89,44 +74,6 @@ class TestRoutesCheckTheirPermission(DunderMifflinTest):
                 statuses = {perm: self.client.get(url).status_code for perm, url in ROUTES.items()}
 
                 assert statuses == {perm: 200 if perm == granted else 403 for perm in ROUTES}
-
-    def test_billing_needs_manage_billing(self):
-        for granted in OrgPerm:
-            with self.subTest(granted=granted), _grant_members(granted):
-                request = self._billing_request("get", "/api/billing/subscription/")
-
-                if granted == OrgPerm.MANAGE_BILLING:
-                    get_subscription(request)
-                else:
-                    with pytest.raises(PermissionDenied):
-                        get_subscription(request)
-
-    def test_billing_checkout_needs_manage_billing(self):
-        for granted in OrgPerm:
-            with self.subTest(granted=granted), _grant_members(granted):
-                request = self._billing_request("post", "/api/billing/checkout/")
-                payload = CheckoutIn(plan_key="nonexistent", billing_cycle="monthly")
-
-                if granted == OrgPerm.MANAGE_BILLING:
-                    with pytest.raises(HttpError) as exc_info:
-                        create_checkout(request, payload)
-                    assert exc_info.value.status_code == 404
-                else:
-                    with pytest.raises(PermissionDenied):
-                        create_checkout(request, payload)
-
-    def test_billing_portal_needs_manage_billing(self):
-        for granted in OrgPerm:
-            with self.subTest(granted=granted), _grant_members(granted):
-                request = self._billing_request("post", "/api/billing/portal/")
-
-                if granted == OrgPerm.MANAGE_BILLING:
-                    with pytest.raises(HttpError) as exc_info:
-                        create_portal(request)
-                    assert exc_info.value.status_code == 409
-                else:
-                    with pytest.raises(PermissionDenied):
-                        create_portal(request)
 
 
 class TestCurrentOrgPermissions(DunderMifflinTest):
