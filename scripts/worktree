@@ -30,8 +30,13 @@ die() {
 }
 usage() { sed -n '3,14p' "$0" | sed 's/^# \{0,1\}//'; }
 
-root=$(git rev-parse --show-toplevel)
-primary=$(git worktree list --porcelain | sed -n '1s/^worktree //p')
+if root=$(git rev-parse --show-toplevel 2>/dev/null); then
+    primary=$(git worktree list --porcelain | sed -n '1s/^worktree //p')
+else
+    # Not a git repository yet, such as a new project before `git init`: the checkout is its own main checkout.
+    root=$(cd "$(dirname "$0")/.." && pwd)
+    primary=$root
+fi
 
 require_worktree() {
     [ "$root" != "$primary" ] || die "Run this in a worktree, not in the main checkout ($primary)."

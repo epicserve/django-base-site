@@ -103,6 +103,36 @@ class TestSeedDevGuards(SeedTest):
         assert not User.objects.filter(username=SUPERUSER_USERNAME).exists()
 
 
+class TestSeedCheck(SeedTest):
+    # `just doctor` runs `seed --check`. It runs with DEBUG off too, since it changes nothing.
+    def test_fails_before_seeding_and_changes_nothing(self):
+        make_user("owner@example.com")
+        with pytest.raises(CommandError, match="Not seeded: ") as error:
+            call_command("seed", "--check", stdout=StringIO())
+        message = str(error.value)
+        assert "owner@example.com" not in message
+        assert "member@example.com" in message
+        assert f"the superuser {SUPERUSER_USERNAME!r}" in message
+        assert "dunder-mifflin" in message
+        assert "Run just seed." in message
+        assert User.objects.count() == 1
+        assert not Organization.objects.exists()
+
+    def test_passes_once_seeded(self):
+        with self.settings(DEBUG=True):
+            _seed()
+        out = StringIO()
+        call_command("seed", "--check", stdout=out)
+        assert "The seeded logins and organizations exist." in out.getvalue()
+
+    def test_fails_when_the_superuser_is_missing(self):
+        with self.settings(DEBUG=True):
+            _seed()
+        User.objects.filter(username=SUPERUSER_USERNAME).update(is_superuser=False)
+        with pytest.raises(CommandError, match=f"Not seeded: the superuser {SUPERUSER_USERNAME!r} missing"):
+            call_command("seed", "--check", stdout=StringIO())
+
+
 @override_settings(DEBUG=True)
 class TestSeedDevData(SeedTest):
     @classmethod

@@ -277,6 +277,10 @@ pre_commit: format lint test test_js test_e2e
     {{ python_cmd_prefix }} pytest --ds=config.settings.test_runner -x --ff -q
     just test_js
 
+# Check, without changing anything, that this checkout's stack is up, healthy, migrated and seeded
+@doctor:
+    scripts/doctor
+
 # Create known dev logins, organizations, teams and invites (DEBUG only; safe to rerun)
 @seed: _ensure_web
     just _start_msg "Seeding development data"

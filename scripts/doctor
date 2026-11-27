@@ -1,0 +1,144 @@
+#!/usr/bin/env bash
+#
+# Check that the Docker stack in front of you belongs to this checkout and is ready to drive. Read-only: it starts,
+# stops, and changes nothing. `just doctor` runs it.
+#
+# It reports which checkout this is (the main checkout or a worktree), its Compose project and URLs, each service's
+# state and health, whether the app and Vite answer, pending migrations, and whether `just seed` has run. It exits
+# non-zero when anything is wrong, and says how to fix each problem.
+#
+# Written for bash 3.2, so it runs on stock macOS.
+
+set -uo pipefail
+
+if [ -t 1 ]; then
+    GREEN=$'\033[32m' YELLOW=$'\033[33m' RED=$'\033[31m' RESET=$'\033[0m'
+else
+    GREEN='' YELLOW='' RED='' RESET=''
+fi
+failed=0
+ok() { printf '%s✓%s %s\n' "$GREEN" "$RESET" "$*"; }
+note() { printf '%s-%s %s\n' "$YELLOW" "$RESET" "$*"; }
+fail() {
+    printf '%s✗ %s%s\n' "$RED" "$1" "$RESET"
+    shift
+    local line
+    for line in "$@"; do printf '    %s\n' "$line"; done
+    failed=1
+}
+# Print every line of a command's output, indented.
+indent() { sed 's/^/    /'; }
+
+here=$(cd "$(dirname "$0")/.." && pwd)
+cd "$here" || exit 1
+
+# --- Which checkout, and which stack -----------------------------------------------------------------------------
+
+if ! urls=$(scripts/worktree urls 2>&1); then
+    # Everything below would check another checkout's stack, so stop here. (Its error is uncolored: stdout isn't a tty.)
+    fail "This checkout has no stack of its own" "$urls"
+    exit 1
+fi
+url_of() { echo "$urls" | sed -n "s|^$1: *\(http://[^/]*\)/\$|\1|p"; }
+app=$(url_of App)
+vite=$(url_of Vite)
+project=$(echo "$urls" | sed -n 's/^Compose project: *//p')
+
+root=$(git rev-parse --show-toplevel 2>/dev/null || echo "$here")
+primary=$(git worktree list --porcelain 2>/dev/null | sed -n '1s/^worktree //p')
+if [ -n "$primary" ] && [ "$root" != "$primary" ]; then
+    ok "A worktree of $primary"
+else
+    ok "The main checkout"
+fi
+ok "Compose project $project"
+echo "$urls" | grep -v '^Compose project:' | indent
+
+# Name the project, so a COMPOSE_PROJECT_NAME exported by another checkout's shell can't point this at its stack.
+dc() { docker compose -p "$project" "$@"; }
+
+# --- Services ----------------------------------------------------------------------------------------------------
+
+if ! command -v docker >/dev/null 2>&1 || ! docker info >/dev/null 2>&1; then
+    fail "Docker isn't running" "Start Docker, then run just start."
+    exit 1
+fi
+
+services=$(dc config --services 2>/dev/null)
+if [ -z "$services" ]; then
+    fail "docker compose config failed" "Run docker compose config to see why."
+    exit 1
+fi
+# Leave out one-off containers (`docker compose run`, named <project>-<service>-run-<id>), which `just lint` and
+# `just test_js` start: one of those running says nothing about the service itself.
+states=$(dc ps -a --format '{{.Name}} {{.Service}} {{.State}} {{.Health}}' 2>/dev/null |
+    awk '$1 !~ /-run-[0-9a-f]+$/ { $1 = ""; sub(/^ /, ""); print }')
+running=''
+for service in $services; do
+    read -r state health <<EOF
+$(echo "$states" | awk -v s="$service" '$1 == s { print $2, $3; exit }')
+EOF
+    case "${state:-}" in
+        running)
+            case "${health:-}" in
+                '' | healthy)
+                    running="$running $service"
+                    ok "$service is running${health:+ and healthy}"
+                    ;;
+                starting) fail "$service is still starting" "Wait for it, then rerun just doctor." ;;
+                *) fail "$service is $health" "Read docker compose logs $service." ;;
+            esac
+            ;;
+        '') fail "$service isn't created" "Start the stack with just start (or docker compose up --wait -d)." ;;
+        *) fail "$service is $state" "Start the stack with just start, and read docker compose logs $service if it stops again." ;;
+    esac
+    if [ "$service" = worker ] && [ "${state:-}" != running ]; then
+        printf '    %s\n' "Every email is sent from the worker, so none arrive in Mailpit without it."
+    fi
+done
+is_running() { case " $running " in *" $1 "*) true ;; *) false ;; esac; }
+
+# --- The app and Vite answer -------------------------------------------------------------------------------------
+
+if is_running web; then
+    if curl -fsS -m 10 -o /dev/null "$app/api/app-context/" 2>/dev/null; then
+        ok "The app answers at $app/api/app-context/"
+    else
+        fail "The app doesn't answer at $app/api/app-context/" \
+            "web runs migrate on startup, so wait a moment and rerun just doctor. If it still fails, read docker compose logs web."
+    fi
+fi
+if is_running frontend; then
+    # The dev server serves everything under Vite's `base`, so ask for its client script there.
+    base=$(sed -n "s|^ *base: *['\"]\(.*\)['\"],*\$|\1|p" frontend/config/vite.config.mjs | head -n 1)
+    if curl -fsS -m 10 -o /dev/null "$vite${base:-/}@vite/client" 2>/dev/null; then
+        ok "Vite answers at $vite/"
+    else
+        fail "Vite doesn't answer at $vite/" "Pages load blank without it. Read docker compose logs frontend."
+    fi
+fi
+
+# --- The database ------------------------------------------------------------------------------------------------
+
+if is_running web; then
+    if output=$(dc exec -T web ./manage.py migrate --check 2>&1); then
+        ok "No migrations are pending"
+    else
+        fail "Migrations are pending, or the check failed" \
+            "web runs migrate on startup, so wait a moment and rerun just doctor. If it still fails, read docker compose logs web."
+        echo "$output" | tail -n 5 | indent
+    fi
+    if output=$(dc exec -T web ./manage.py seed --check 2>&1); then
+        ok "just seed has run: the seeded logins exist"
+    else
+        fail "The seeded logins are missing" "$(echo "$output" | grep -m1 'Not seeded' || echo "$output" | tail -n 1)"
+    fi
+else
+    note "Skipped the migration and seed checks, since web isn't running"
+fi
+
+if [ "$failed" -ne 0 ]; then
+    printf '\n%sThe stack isn'"'"'t ready. Fix the problems above, then rerun just doctor.%s\n' "$RED" "$RESET"
+    exit 1
+fi
+printf '\n%sThe stack is ready: sign in at %s/accounts/login/%s\n' "$GREEN" "$app" "$RESET"
