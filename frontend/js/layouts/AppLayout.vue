@@ -173,7 +173,11 @@ onUnmounted(() => {
 
             <!-- User dropdown -->
             <div class="relative" data-dropdown="nav">
-              <button class="flex cursor-pointer items-center p-1.5" @click.stop="toggleUserDropdown">
+              <button
+                class="flex cursor-pointer items-center p-1.5"
+                aria-label="User Menu"
+                @click.stop="toggleUserDropdown"
+              >
                 <UserAvatar
                   v-if="appStore.user"
                   :src="appStore.user.avatar_url || ''"

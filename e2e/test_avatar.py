@@ -20,7 +20,10 @@ class TestAvatar:
         page.route("**/avatars/thumbnails/**", lambda route: route.fulfill(body=_png(), content_type="image/png"))
         sign_in(user, "/accounts/general/")
         # The avatar on the user menu button reads the app store, which the cropper updates after a save or remove.
-        header_photo = page.locator('[data-dropdown="nav"] > button img')
+        # The button is named whether it shows initials or the photo, whose alt text is empty.
+        user_menu = page.get_by_role("button", name="User Menu", exact=True)
+        header_photo = user_menu.locator("img")
+        expect(user_menu).to_be_visible()
         expect(header_photo).to_have_count(0)
 
         page.get_by_role("button", name="Change Photo").click()

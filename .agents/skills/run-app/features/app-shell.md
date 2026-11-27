@@ -18,7 +18,7 @@ Any seeded login. `owner@example.com` has an organization; `user@example.com` ha
 ## What's on Screen
 
 - **Home:** the heading "Hi {first name}, let's build something.", and "Open Django Admin" for staff.
-- **Header**, left to right: the site name (a link to `/`), the bell ([notifications.md](notifications.md)), the organization control ([organizations.md](organizations.md)), and the avatar button that opens the user menu.
+- **Header**, left to right: the site name (a link to `/`), the bell ([notifications.md](notifications.md)), the organization control ([organizations.md](organizations.md)), and the avatar button, "User Menu", that opens the user menu.
 - **User menu:** "Account Settings", the theme buttons ("Light Theme", "Dark Theme", "Auto Theme", with `aria-pressed`) and "Sign Out" for everyone. Staff and superusers get more ([staff.md](staff.md)), and "Debug Toolbar" shows only with DEBUG on.
 - **Small screens:** below Tailwind's `lg` breakpoint, a menu button ("Open Menu" / "Close Menu") replaces the header controls and repeats their items.
 - **Toasts:** bottom right, in the region "Notifications (F8)", for 4 seconds (5 for a new notification).
@@ -45,7 +45,6 @@ Any seeded login. `owner@example.com` has an organization; `user@example.com` ha
 
 Tracked in the template's [django-base-site#1424](https://github.com/epicserve/django-base-site/issues/1424), item 3.
 
-- **The avatar button has no accessible name.** Click it by position (after the bell and the organization control), or open `/accounts/general/` directly.
 - **The "Mailpit" and "Silo Admin" menu links** use the default ports (8025, 9001), so in a worktree they open the main checkout's. Use the URLs from `scripts/worktree urls`.
 
 ## Cleanup
@@ -56,5 +55,6 @@ The theme is kept in the browser's `localStorage`, so a new browser context star
 
 - `frontend/js/App.vue` (which layout wraps a page), `frontend/js/layouts/AppLayout.vue` (the header and menus), `frontend/js/views/HomeView.vue`.
 - `e2e/test_auth.py::TestLogout::test_logout_cancels_the_timezone_check`
+- `e2e/test_avatar.py::TestAvatar::test_upload_and_remove`: the "User Menu" button, with initials and with a photo
 - `e2e/test_scroll.py`, `e2e/test_styles.py`, `e2e/test_content_security_policy.py`
 - Vitest: `frontend/js/utils/routeGuard.test.ts`
