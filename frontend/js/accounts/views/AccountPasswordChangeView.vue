@@ -14,8 +14,13 @@ const errors = ref<Record<string, string[]>>({});
 const loading = ref(false);
 
 async function onSubmit() {
-  loading.value = true;
   errors.value = {};
+  // allauth's headless API takes only the new password, so the confirmation is checked here.
+  if (newPassword1.value !== newPassword2.value) {
+    errors.value = { new_password2: ["The passwords don't match."] };
+    return;
+  }
+  loading.value = true;
   try {
     await authApi.changePassword({
       current_password: oldPassword.value,
