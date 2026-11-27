@@ -5,7 +5,8 @@ import re
 
 from django.conf import settings
 
-SKILL_DIR = settings.BASE_DIR / ".agents" / "skills" / "run-app"
+SKILLS_DIR = settings.BASE_DIR / ".agents" / "skills"
+SKILL_DIR = SKILLS_DIR / "run-app"
 FEATURES_DIR = SKILL_DIR / "features"
 ROUTER = settings.BASE_DIR / "frontend" / "js" / "router.ts"
 # Spelled with its directory: the template's install-script job fails on a bare reference to the template's own
@@ -74,9 +75,10 @@ class TestFeatureMap:
         assert unlisted == []
 
     def test_relative_links_resolve(self):
+        # Every skill, not just the map: fix-bug sends an agent through run-app and the map by relative link.
         broken = [
-            f"{path.name}: {target}"
-            for path in FEATURES_DIR.glob("*.md")
+            f"{path.relative_to(SKILLS_DIR)}: {target}"
+            for path in SKILLS_DIR.rglob("*.md")
             for target in re.findall(r"\]\(([^)]+)\)", path.read_text())
             if not re.match(r"(https?:|mailto:|#)", target) and not (path.parent / target.split("#")[0]).exists()
         ]
