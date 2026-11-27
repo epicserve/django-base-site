@@ -47,7 +47,7 @@ just doctor
 
 It changes nothing. It confirms the stack belongs to this checkout, then checks every service is running and healthy, the app and Vite answer, no migrations are pending, and the seeded logins exist. It exits non-zero and says how to fix whatever is wrong. Don't drive the app until it passes, and run it again first whenever something looks off: a blank page, a missing email, a login that fails.
 
-`just seed` prints the logins and each seeded invite's accept URL. It's safe to rerun: it restores the seeded rows, resets the seeded passwords, and removes any MFA (TOTP, passkeys) from the seeded logins so the password alone signs in. Apart from that it never deletes anything created by hand. It refuses unless `DEBUG` is on in `.env`, against a database that isn't local, when `DJANGO_SUPERUSER_USERNAME` / `_EMAIL` / `_PASSWORD` aren't set in `.env`, and while migrations are still running (wait for step 1, then retry). Its error says which.
+`just seed` prints the logins and each seeded invite's accept URL. It's safe to rerun: it restores the seeded rows, resets the seeded passwords, removes any MFA (TOTP, passkeys) from the seeded logins so the password alone signs in, and gives each pending invite its 7 days again. Apart from that it never deletes anything created by hand, so it isn't a reset: the feature map's [cleanup notes](features/README.md#cleaning-up) say what it leaves. It refuses unless `DEBUG` is on in `.env`, against a database that isn't local, when `DJANGO_SUPERUSER_USERNAME` / `_EMAIL` / `_PASSWORD` aren't set in `.env`, and while migrations are still running (wait for step 1, then retry). Its error says which.
 
 ## 3. Pick a login
 
@@ -66,7 +66,7 @@ The rest of the seeded data:
 
 - Dunder Mifflin (`dunder-mifflin`) has 20 members, for checking long lists. The other 18 are logins such as `jim.halpert@dundermifflin.example`, with the same password. Pawnee Parks and Recreation (`pawnee-parks`) has the Parks crew, such as `ron.swanson@pawnee.example`.
 - Teams: Sales and Party Planning Committee at Dunder Mifflin, Harvest Festival at Pawnee.
-- Invites to Dunder Mifflin: `user@example.com` (pending), `holly.flax@dundermifflin.example` (pending, no account), `todd.packer@dundermifflin.example` (expired). `just seed` prints their accept URLs because seeded invites send no email.
+- Invites to Dunder Mifflin: `user@example.com` (pending), `holly.flax@dundermifflin.example` (pending, no account), `todd.packer@dundermifflin.example` (expired). `just seed` prints their accept URLs because seeded invites send no email. The pending ones expire 7 days after the last `just seed`, and `just doctor` doesn't check them, so run `just seed` before checking an invite.
 
 ## 4. Sign in
 
@@ -99,6 +99,7 @@ It lasts for the life of the tab. Enroll under `/accounts/security/passkeys/`. O
 
 ## 5. Check the change
 
+- Find the feature in the [feature map](features/README.md). Read its index, then only the feature files the task needs: each gives the feature's routes, the login and data it needs, a representative flow, its pitfalls, how to clean up, and the source and tests behind it. Start there for a bug report too, even a vague one or a screenshot.
 - Open the changed route, take a screenshot, and read the console for errors and the network log for failed requests. The SPA's routes are in `frontend/js/router.ts`.
 - Common pages: `/`, `/organizations/<slug>/settings/{general,members,teams}/`, `/accounts/general/`, `/accounts/security/`, `/notifications/`.
 - Emails (invites sent from the app, password reset, email verification) land in Mailpit, at the `Mailpit:` URL `scripts/worktree urls` prints (`http://localhost:8025` in the main checkout). The `worker` service sends them, and it doesn't reload on code changes: after changing a Celery task, run `docker compose restart worker`.
