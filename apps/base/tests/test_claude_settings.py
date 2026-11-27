@@ -32,3 +32,13 @@ class TestClaudeSettings:
             assert ":*" not in specifier[:-2], rule
             # A rule on Bash's `command` parameter would be bypassed by a compound command, so Claude Code ignores it.
             assert not specifier.startswith("command:"), rule
+
+    def test_worktrees_go_through_worktrunk(self):
+        # Claude Code makes its own worktrees (`--worktree`, subagents with `isolation: "worktree"`) with
+        # `git worktree add`, which skips Worktrunk's hooks, so the worktree has no .env and its stack would use the
+        # main checkout's ports. Worktrunk's plugin replaces that with `wt switch --create` through Claude Code's
+        # WorktreeCreate and WorktreeRemove hooks.
+        claude_settings = json.loads(SETTINGS_FILE.read_text())
+        marketplace = claude_settings["extraKnownMarketplaces"]["worktrunk"]["source"]
+        assert marketplace == {"source": "github", "repo": "max-sixty/worktrunk"}
+        assert claude_settings["enabledPlugins"]["worktrunk@worktrunk"] is True

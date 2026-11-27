@@ -189,6 +189,30 @@ jobs:
           fi
           git -c core.excludesFile=/dev/null check-ignore -q .claude/settings.local.json \
             || { echo "ERROR: .gitignore doesn't ignore .claude/settings.local.json"; exit 1; }
+      - name: Verify scripts/worktree urls refuses a worktree that wasn't set up
+        working-directory: ${{ env.BUILD_DIR }}
+        # A worktree made with `git worktree add` (as Claude Code's own worktrees are) skips Worktrunk's hooks, so it
+        # has no .env. `scripts/worktree urls` used to print the default ports there with no warning, and the run-app
+        # skill fell back to 8000 too. Those are the main checkout's ports, so an agent checked main's running stack in
+        # place of the branch's. The project has no commit yet, so make one to branch from. --no-verify skips the
+        # pre-commit hook, which formats with tools this job hasn't installed; the commit never leaves the runner.
+        run: |
+          git add -A
+          git -c user.name=CI -c user.email=ci@example.com commit -q --no-verify -m "Initial commit"
+          output=$(scripts/worktree urls) || { echo "ERROR: scripts/worktree urls failed in the main checkout"; exit 1; }
+          echo "${output}" | grep -q '^App: *http://localhost:8000/$' \
+            || { echo "ERROR: expected the main checkout's app on port 8000:"; echo "${output}"; exit 1; }
+          git worktree add -q ../no-setup -b no-setup
+          if output=$(cd ../no-setup && scripts/worktree urls 2>&1); then
+            echo "ERROR: scripts/worktree urls succeeded in a worktree that was never set up:"
+            echo "${output}"
+            exit 1
+          fi
+          echo "${output}"
+          echo "${output}" | grep -q "scripts/worktree setup" \
+            || { echo "ERROR: expected the error to say to run scripts/worktree setup"; exit 1; }
+          git worktree remove ../no-setup
+          git branch -q -D no-setup
       - name: Build docker images
         working-directory: ${{ env.BUILD_DIR }}
         run: docker compose build web frontend
