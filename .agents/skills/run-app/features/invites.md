@@ -39,6 +39,8 @@ The page (`frontend/js/views/AcceptInviteView.vue`) shows the first of these tha
 | Someone signed out | "You're Invited!" | "Create an Account to Join", "I Already Have an Account" (both keep `?next=`) |
 | Anyone else signed in, the invitee or not | "You're Invited!" | "Accept Invitation", "Decline" |
 
+Someone signed in under another address who isn't a member, such as Ron, still gets "Accept Invitation" and "Decline": the lookup doesn't compare emails. Either button returns 403, and the page shows "Invitation Unavailable" with the server's reason, "This invitation was sent to a different email address." A member who isn't the invitee would get the same 403 from the API, but the page shows them "Already a Member" instead of the buttons.
+
 ## Sending an Invite
 
 As the owner, on Dunder Mifflin's Members tab:
@@ -58,7 +60,6 @@ The form has no role field, so an invite sent from the page always makes a membe
 Tracked in the template's [django-base-site#1424](https://github.com/epicserve/django-base-site/issues/1424), item 3.
 
 - **Signup is closed by default** (`ACCOUNT_SIGNUP_OPEN` off), so someone invited without an account follows "Create an Account to Join" to "Sign up is currently closed." and can't join. To drive that path, open signup ([sign-in-and-sign-up.md](sign-in-and-sign-up.md)).
-- **"HTTP 403" for a signed-in user who isn't the invitee.** The lookup doesn't compare emails, so someone signed in under another address who isn't a member, such as Ron, gets "Accept Invitation" and "Decline". Either one returns 403 ("This invitation was sent to a different email address."), but the page shows "Invitation Unavailable" with "HTTP 403", because it displays `ApiError.message` (`frontend/js/utils/api.ts`). Read the server's message in the network log. A member who isn't the invitee would get the same 403 from the API, but the page shows them "Already a Member" instead of the buttons.
 
 ## Cleanup
 
@@ -66,12 +67,13 @@ Tracked in the template's [django-base-site#1424](https://github.com/epicserve/d
 - **Declined:** `just seed` recreates it.
 - **A recreated invite has a new key,** so use the accept URL `just seed` prints after it, not the old one.
 - **Sent from the page:** "Cancel" on its row under "Pending Invitations", then "OK". The invitee's cancellation email goes to Mailpit. Seeding never removes an invite.
-- **Ron's attempts** change nothing: the 403 comes before anything is deleted.
+- **Ron's attempts** change nothing: the 403 comes before anything is deleted, so the same accept URL works again.
 
 ## Source and Tests
 
 - The page: `frontend/js/views/AcceptInviteView.vue`. The public lookup, accept and decline: `apps/organizations/api.py`. Sending and cancelling: `frontend/js/apps/ManageOrganizationApp.vue`.
 - `e2e/test_invite_flow.py`: signed out, an unknown key, an expired invite, accepting, declining, and "I Already Have an Account" keeping `?next=`.
 - `e2e/test_org_settings.py::TestMembersTab::test_invites`: the "Pending Invitations" list. No e2e test sends or cancels an invite; `e2e/test_form_errors.py` checks the invite form's errors.
+- Vitest: `frontend/js/views/AcceptInviteView.test.ts`, the server's reason (or a fallback) when accepting or declining fails.
 - pytest: `apps/organizations/tests/test_api.py`, `apps/organizations/tests/test_invite_throttle.py`
 - The whole journey, email included: [cross-cutting-flows.md](cross-cutting-flows.md).
