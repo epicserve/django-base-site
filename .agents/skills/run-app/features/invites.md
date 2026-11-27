@@ -18,6 +18,7 @@ Run `just seed` first: seeded invites expire 7 days after the last run, and it p
 - **Signed in as someone else:** `ron.swanson@pawnee.example` on that invite. He's only in Pawnee. Don't use `member@example.com`: he's in Dunder Mifflin, so he gets "Already a Member".
 - **Already a member:** `owner@example.com` on that invite.
 - **Expired:** the `todd.packer@dundermifflin.example` invite.
+- **No account:** the `holly.flax@dundermifflin.example` invite. `just seed` makes it with a recipe, not the API, so it exists even though the page would now refuse it while signup is closed (see Sending an Invite). Signed out, "Create an Account to Join" leads to "Sign up is currently closed.", so Holly can't join until signup is open ([sign-in-and-sign-up.md](sign-in-and-sign-up.md)).
 
 ## Accepting an Invite
 
@@ -39,13 +40,17 @@ The page (`frontend/js/views/AcceptInviteView.vue`) shows the first of these tha
 | Someone signed out | "You're Invited!" | "Create an Account to Join", "I Already Have an Account" (both keep `?next=`) |
 | Anyone else signed in, the invitee or not | "You're Invited!" | "Accept Invitation", "Decline" |
 
+Someone signed in under another address who isn't a member, such as Ron, still gets "Accept Invitation" and "Decline": the lookup doesn't compare emails. Either button returns 403, and the page shows "Invitation Unavailable" with the server's reason, "This invitation was sent to a different email address." A member who isn't the invitee would get the same 403 from the API, but the page shows them "Already a Member" instead of the buttons.
+
 ## Sending an Invite
 
 As the owner, on Dunder Mifflin's Members tab:
 
-1. Click "Invite by Email", fill "Email Address" with an address no one uses, and click "Send Invite".
+1. Click "Invite by Email", fill "Email Address" with the address of an account that isn't in Dunder Mifflin and has no invite, such as `ron.swanson@pawnee.example`, and click "Send Invite".
 2. Wait for the toast "Invitation sent.". The address appears under "Pending Invitations".
 3. The `worker` sends the email to Mailpit, "Invite from Michael Scott". Its "Join Dunder Mifflin Paper Company, Inc." link opens the accept page.
+
+While signup is closed (`ACCOUNT_SIGNUP_OPEN` off, the default), an address that no account has as its email is refused: the modal stays open with "Sign-up is closed, so only someone with an account can accept an invite. Turn on sign-up (ACCOUNT_SIGNUP_OPEN) to invite someone who doesn't have an account." under "Email Address", and nothing is sent. An account matches by its email in any case, the same way accepting does; another address on the account doesn't count. To invite a new address, open signup ([sign-in-and-sign-up.md](sign-in-and-sign-up.md)).
 
 The form has no role field, so an invite sent from the page always makes a member. Sending is throttled to 30 invites an hour and 100 a day per user.
 
@@ -53,25 +58,19 @@ The form has no role field, so an invite sent from the page always makes a membe
 
 - **Never invite a seeded invitee's address from the page.** A second invite to `user@example.com` makes `just seed` fail with `MultipleObjectsReturned`. Cancel the extra invite to fix it. Tracked in [django-base-site#1424](https://github.com/epicserve/django-base-site/issues/1424), item 3.
 
-## Known Issues
-
-Tracked in the template's [django-base-site#1424](https://github.com/epicserve/django-base-site/issues/1424), item 3.
-
-- **Signup is closed by default** (`ACCOUNT_SIGNUP_OPEN` off), so someone invited without an account follows "Create an Account to Join" to "Sign up is currently closed." and can't join. To drive that path, open signup ([sign-in-and-sign-up.md](sign-in-and-sign-up.md)).
-- **"HTTP 403" for a signed-in user who isn't the invitee.** The lookup doesn't compare emails, so someone signed in under another address who isn't a member, such as Ron, gets "Accept Invitation" and "Decline". Either one returns 403 ("This invitation was sent to a different email address."), but the page shows "Invitation Unavailable" with "HTTP 403", because it displays `ApiError.message` (`frontend/js/utils/api.ts`). Read the server's message in the network log. A member who isn't the invitee would get the same 403 from the API, but the page shows them "Already a Member" instead of the buttons.
-
 ## Cleanup
 
 - **Accepted as `user@example.com`:** sign in as the owner, remove Ryan Howard on the Members tab, then run `just seed` to recreate the invite. Seeding skips an invite whose invitee has joined.
 - **Declined:** `just seed` recreates it.
 - **A recreated invite has a new key,** so use the accept URL `just seed` prints after it, not the old one.
 - **Sent from the page:** "Cancel" on its row under "Pending Invitations", then "OK". The invitee's cancellation email goes to Mailpit. Seeding never removes an invite.
-- **Ron's attempts** change nothing: the 403 comes before anything is deleted.
+- **Ron's attempts** change nothing: the 403 comes before anything is deleted, so the same accept URL works again.
 
 ## Source and Tests
 
 - The page: `frontend/js/views/AcceptInviteView.vue`. The public lookup, accept and decline: `apps/organizations/api.py`. Sending and cancelling: `frontend/js/apps/ManageOrganizationApp.vue`.
 - `e2e/test_invite_flow.py`: signed out, an unknown key, an expired invite, accepting, declining, and "I Already Have an Account" keeping `?next=`.
 - `e2e/test_org_settings.py::TestMembersTab::test_invites`: the "Pending Invitations" list. No e2e test sends or cancels an invite; `e2e/test_form_errors.py` checks the invite form's errors.
-- pytest: `apps/organizations/tests/test_api.py`, `apps/organizations/tests/test_invite_throttle.py`
+- Vitest: `frontend/js/views/AcceptInviteView.test.ts`, the server's reason (or a fallback) when accepting or declining fails.
+- pytest: `apps/organizations/tests/test_api.py` (`TestCreateInviteWhileSignupIsClosed`: refusing an address without an account while signup is closed), `apps/organizations/tests/test_invite_throttle.py`
 - The whole journey, email included: [cross-cutting-flows.md](cross-cutting-flows.md).

@@ -1,8 +1,10 @@
+from django.contrib.auth import get_user_model
 from django.core.exceptions import PermissionDenied, ValidationError
 from django.db import IntegrityError, models, transaction
 from django.db.models import Q
 from django.shortcuts import get_object_or_404
 
+from allauth.account.adapter import get_adapter
 from ninja import Query, Router, Status
 from ninja.errors import HttpError
 from ninja.pagination import paginate
@@ -254,17 +256,44 @@ def list_invites(request):
     return _invites_qs(request)
 
 
+def _require_invitee_can_join(request, invite: OrganizationInvite) -> None:
+    """
+    Raise a field error if the invitee has no account and sign-up is closed, so they couldn't accept the invite.
+
+    An account matches the way accepting does: its `User.email`, in any case. An address that's only one of its other
+    `EmailAddress` rows couldn't accept, so it doesn't count.
+    """
+    email = invite.invitee_email
+    if not email or get_adapter(request).is_open_for_signup(request):
+        return
+    if not get_user_model().objects.filter(email__iexact=email).exists():
+        raise ValidationError(
+            {
+                "invitee_email": [
+                    "Sign-up is closed, so only someone with an account can accept an invite. Turn on sign-up"
+                    " (ACCOUNT_SIGNUP_OPEN) to invite someone who doesn't have an account."
+                ]
+            }
+        )
+
+
 @invites_router.post("/", response={201: InviteOut}, throttle=INVITE_THROTTLES)
 def create_invite(request, payload: InviteIn):
     org = require_org_perm(request, OrgPerm.MANAGE_MEMBERS)
     _require_assignable(request, org, payload.role)
+    invite = OrganizationInvite(
+        organization=org,
+        sender=request.user,
+        invitee_email=payload.invitee_email,
+        role=payload.role,
+    )
+    # Check the address's format first, so a typo isn't told that sign-up is closed.
+    invite.clean_fields(
+        exclude=[field.name for field in OrganizationInvite._meta.fields if field.name != "invitee_email"]
+    )
+    _require_invitee_can_join(request, invite)
     with transaction.atomic():
-        invite = OrganizationInvite.objects.create(
-            organization=org,
-            sender=request.user,
-            invitee_email=payload.invitee_email,
-            role=payload.role,
-        )
+        invite.save()
         transaction.on_commit(invite.send_invite)
     return Status(201, invite)
 

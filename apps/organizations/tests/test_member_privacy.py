@@ -5,9 +5,15 @@ Any signed-in user can create an organization and manage its members, so these r
 Member search matched any active user's name, username or email and returned their email. Adding a member by user id
 put that user in the organization without an invite and returned their email. So did inviting by user id. Counting
 through ids got every email.
+
+One exception is on purpose: while sign-up is closed, inviting an address without an account is refused, since they
+couldn't join, so the answer says whether the address has one. The invite throttle caps how many addresses one user can
+try.
 """
 
 import json
+
+from django.test import override_settings
 
 from apps.accounts.recipes import make_user
 from apps.base.tests import BaseTest
@@ -59,6 +65,9 @@ class TestMembersApiTellsNothingAboutOutsiders(BaseTest):
         self._assert_says_nothing_about_the_outsider(response)
         assert not OrganizationInvite.objects.exists()
 
+    # While sign-up is closed, an invite to an address without an account is refused, which does say so. That's on
+    # purpose: they couldn't join (see `TestCreateInviteWhileSignupIsClosed` in test_api.py).
+    @override_settings(ACCOUNT_SIGNUP_OPEN=True)
     def test_an_email_invite_doesnt_say_whether_the_address_has_an_account(self):
         has_account = self._post("/api/organization-invites/", {"invitee_email": OUTSIDER_EMAIL})
         no_account = self._post("/api/organization-invites/", {"invitee_email": "nobody@corporate.example"})

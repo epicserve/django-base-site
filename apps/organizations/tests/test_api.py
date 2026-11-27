@@ -1,8 +1,10 @@
 import json
 
 from django.core import mail
+from django.test import override_settings
 
 import pytest
+from allauth.account.models import EmailAddress
 
 from apps.accounts.recipes import make_user
 from apps.base.tests import BaseTest
@@ -92,6 +94,8 @@ class TestOrganizationMemberViewSet(OrganizationAPITestBase):
         assert not OrganizationMember.objects.filter(pk=membership.pk).exists()
 
 
+# Open, so inviting an address without an account isn't refused (see `TestCreateInviteWhileSignupIsClosed`).
+@override_settings(ACCOUNT_SIGNUP_OPEN=True)
 class TestOrganizationInviteViewSet(OrganizationAPITestBase):
     def test_list(self):
         invite = make_invite(self.org, self.owner, email="guest@example.com")
@@ -172,6 +176,7 @@ class TestInviteList(OrganizationAPITestBase):
         }
 
 
+@override_settings(ACCOUNT_SIGNUP_OPEN=True)
 class TestCreateInviteEmail(OrganizationAPITestBase):
     @pytest.fixture(autouse=True)
     def _pytest_fixtures(self, monkeypatch, settings):
@@ -195,6 +200,68 @@ class TestCreateInviteEmail(OrganizationAPITestBase):
         [message] = queued
         assert message["to"] == ["guest@example.com"]
         assert "/organizations/invite/" in message["body"]
+
+
+SIGNUP_CLOSED = (
+    "Sign-up is closed, so only someone with an account can accept an invite. Turn on sign-up (ACCOUNT_SIGNUP_OPEN) to"
+    " invite someone who doesn't have an account."
+)
+
+
+@override_settings(ACCOUNT_SIGNUP_OPEN=False)
+class TestCreateInviteWhileSignupIsClosed(OrganizationAPITestBase):
+    """Someone without an account can't sign up to accept an invite, so an invite to them is refused."""
+
+    @classmethod
+    def setUpTestData(cls):
+        super().setUpTestData()
+        make_user("jim@example.com")
+        make_user("pam@example.com")
+        # On Toby's account, but accepting compares the invite with `User.email` only, so he couldn't accept it either.
+        toby = make_user("toby@example.com")
+        EmailAddress.objects.create(user=toby, email="toby.flenderson@example.com", verified=True, primary=False)
+
+    def _invite(self, email):
+        with self.captureOnCommitCallbacks(execute=True):
+            return self.client.post(
+                "/api/organization-invites/", data=json.dumps({"invitee_email": email}), content_type="application/json"
+            )
+
+    def test_refuses_an_address_without_an_account(self):
+        for email in ["guest@example.com", "toby.flenderson@example.com"]:
+            with self.subTest(email=email):
+                resp = self._invite(email)
+
+                assert resp.status_code == 400
+                assert resp.json() == {"invitee_email": [SIGNUP_CLOSED]}
+        assert not OrganizationInvite.objects.exists()
+        assert mail.outbox == []
+
+    def test_a_malformed_address_gets_the_format_error(self):
+        resp = self._invite("not-an-email")
+
+        assert resp.status_code == 400
+        assert resp.json() == {"invitee_email": ["Enter a valid email address."]}
+
+    def test_invites_an_existing_account(self):
+        # Any case, as accepting compares them.
+        for email in ["jim@example.com", "Pam@Example.com"]:
+            with self.subTest(email=email):
+                resp = self._invite(email)
+
+                assert resp.status_code == 201
+        assert sorted(OrganizationInvite.objects.values_list("invitee_email", flat=True)) == [
+            "Pam@Example.com",
+            "jim@example.com",
+        ]
+        assert sorted(message.to[0] for message in mail.outbox) == ["Pam@Example.com", "jim@example.com"]
+
+    @override_settings(ACCOUNT_SIGNUP_OPEN=True)
+    def test_invites_anyone_while_signup_is_open(self):
+        resp = self._invite("guest@example.com")
+
+        assert resp.status_code == 201
+        assert OrganizationInvite.objects.filter(invitee_email="guest@example.com").exists()
 
 
 class TestCreateOrganization(BaseTest):

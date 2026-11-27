@@ -3,7 +3,7 @@ import { ref, onMounted } from 'vue';
 import { useRoute, useRouter, RouterLink } from 'vue-router';
 import type { components } from '@/api/schema';
 import { useAppStore } from '@/stores/app';
-import { api, ApiError, unwrap } from '@/utils/api';
+import { api, ApiError, parseErrors, unwrap } from '@/utils/api';
 import { sentencePeriod } from '@/utils/format';
 import AuthLayout from '@/layouts/AuthLayout.vue';
 
@@ -45,7 +45,7 @@ async function accept() {
     await appStore.fetchContext();
     result.value = 'accepted';
   } catch (e) {
-    error.value = (e instanceof Error && e.message) || 'Failed to accept the invitation.';
+    error.value = parseErrors(e).detail?.[0] || 'Failed to accept the invitation.';
   } finally {
     submitting.value = false;
   }
@@ -57,7 +57,7 @@ async function decline() {
     await unwrap(api.POST('/api/invite-by-key/{key}/decline/', inviteKeyParams()));
     result.value = 'declined';
   } catch (e) {
-    error.value = (e instanceof Error && e.message) || 'Failed to decline the invitation.';
+    error.value = parseErrors(e).detail?.[0] || 'Failed to decline the invitation.';
   } finally {
     submitting.value = false;
   }

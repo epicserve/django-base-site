@@ -37,17 +37,21 @@ On Email Addresses:
 
 Making an address primary takes selecting its row, then "Make Primary".
 
+## Changing the Password
+
+On Change Password:
+
+1. Fill "Current Password", "New Password" and "New Password (Again)", and click "Change Password".
+2. Expect the toast "Your password has been changed." and the fields cleared. The new password signs in; `just seed` puts back `dev-password`.
+
+When the two new passwords differ, "New Password (Again)" shows "The passwords don't match." and nothing is sent: allauth's API takes only the new password, so the page compares them itself.
+
 ## Pitfalls
 
 - **Timezone** is a search box whose value is a label such as "Central Time (US & Canada)". Type part of a name, then click the option by its text: the options are list items with no option role.
 - **Changing the timezone** away from America/Chicago makes the "Your Timezone Has Changed" modal open in every new browser session set to America/Chicago ([app-shell.md](app-shell.md)), until it's changed back. "Keep Current" silences it only for the rest of that session.
 - **Removing an address** asks in a browser `confirm()`; accept it before clicking.
-
-## Known Issues
-
-Tracked in the template's [django-base-site#1424](https://github.com/epicserve/django-base-site/issues/1424), item 3.
-
-- **"New Password (Again)" is never sent or compared**, so a mismatch still changes the password to the first field's value.
+- **Failed sign-ins are rate limited.** A few wrong passwords for one login in a row, as when checking which password now works, get "Too many failed login attempts. Try again later." for a while, even with the right one.
 
 ## Cleanup
 
@@ -62,5 +66,5 @@ Tracked in the template's [django-base-site#1424](https://github.com/epicserve/d
 - Views in `frontend/js/accounts/views/`: `AccountGeneralView.vue`, `AccountEmailView.vue`, `AccountPasswordChangeView.vue`. The tabs: `frontend/js/layouts/AccountLayout.vue`.
 - `e2e/test_avatar.py::TestAvatar::test_upload_and_remove`, `e2e/test_avatar.py::TestAvatar::test_choose_an_image_with_the_keyboard`
 - `e2e/test_form_labels.py`, `e2e/test_form_errors.py`: the general and add-email forms.
-- No e2e test changes the password.
+- No e2e test changes the password. Vitest: `frontend/js/accounts/views/AccountPasswordChangeView.test.ts` (the new passwords must match).
 - pytest: `apps/accounts/tests/test_api.py`, `apps/accounts/tests/test_avatar_api.py`

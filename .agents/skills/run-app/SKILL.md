@@ -45,7 +45,7 @@ Then check the stack:
 just doctor
 ```
 
-It changes nothing. It confirms the stack belongs to this checkout, then checks every service is running and healthy, the app and Vite answer, no migrations are pending, and the seeded logins exist. It exits non-zero and says how to fix whatever is wrong. Don't drive the app until it passes, and run it again first whenever something looks off: a blank page, a missing email, a login that fails.
+It changes nothing. It confirms the stack belongs to this checkout, then checks every service is running and healthy, the app and Vite answer, the images have every package in `uv.lock` and `package.json`, no migrations are pending, and the seeded logins exist. It exits non-zero and says how to fix whatever is wrong. Don't drive the app until it passes, and run it again first whenever something looks off: a blank page, a missing email, a login that fails, or a test run that can't find a package or a pytest flag.
 
 `just seed` prints the logins and each seeded invite's accept URL. It's safe to rerun: it restores the seeded rows, resets the seeded passwords, removes any MFA (TOTP, passkeys) from the seeded logins so the password alone signs in, and gives each pending invite its 7 days again. Apart from that it never deletes anything created by hand, so it isn't a reset: the feature map's [cleanup notes](features/README.md#cleaning-up) say what it leaves. It refuses unless `DEBUG` is on in `.env`, against a database that isn't local, when `DJANGO_SUPERUSER_USERNAME` / `_EMAIL` / `_PASSWORD` aren't set in `.env`, and while migrations are still running (wait for step 1, then retry). Its error says which.
 

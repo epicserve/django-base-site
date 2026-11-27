@@ -4,7 +4,7 @@ from unittest.mock import patch
 from django.contrib.auth.models import AnonymousUser
 from django.core import mail
 from django.core.exceptions import PermissionDenied
-from django.test import RequestFactory
+from django.test import RequestFactory, override_settings
 
 import pytest
 from ninja.errors import HttpError
@@ -275,6 +275,8 @@ class TestRoleGrantsAreBounded(DunderMifflinTest):
         membership.refresh_from_db()
         assert membership.role == OrgRole.OWNER
 
+    # Open, so inviting an address without an account isn't refused for that (see test_api.py).
+    @override_settings(ACCOUNT_SIGNUP_OPEN=True)
     def test_invites_a_member_but_not_an_owner(self):
         self.sign_in(self.member, self.org)
 
