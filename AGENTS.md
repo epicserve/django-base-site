@@ -50,7 +50,7 @@ Use Just for all development tasks. Common ones:
 - `just test` - pytest (Django + ninja API tests)
 - `just test_js` - Vitest for the SPA's unit and component tests (`frontend/js/**/*.test.ts`)
 - `just test_with_coverage` - pytest --cov, opens HTML report
-- `just test_e2e [args]` - `bun run build` then pytest e2e/ with `--ds=config.settings.e2e`. Excluded from `just test` via `--ignore=e2e` in `pyproject.toml`.
+- `just test_e2e [args]` - `bun run build` then pytest with `--ds=config.settings.e2e` on the test paths or node IDs given (`e2e/test_auth.py`, `e2e/test_auth.py::test_login`), else all of `e2e/`; other options (`-n 4`, `-k name`) pass through. `scripts/pytest_e2e` picks the paths. Excluded from `just test` via `--ignore=e2e` in `pyproject.toml`.
 
 **Database:**
 - `just db_dump` - pg_dump to `~/Downloads/`

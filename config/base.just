@@ -318,11 +318,12 @@ pre_commit: format lint test test_js test_e2e
     {{ python_cmd_prefix }} pytest --cov --ds=config.settings.test_runner
     {{ python_cmd_prefix }} coverage html && open htmlcov/index.html
 
-# Run Playwright e2e tests against pre-built frontend assets.
+# Run Playwright e2e tests against pre-built frontend assets: the test paths or node IDs given, else all of e2e/
+[positional-arguments]
 @test_e2e *args:
     just _start_msg "Running Playwright e2e tests"
     just build_frontend
-    {{ python_cmd_prefix }} pytest e2e/ --ds=config.settings.e2e {{ args }}
+    PYTHON_CMD_PREFIX="{{ python_cmd_prefix }}" scripts/pytest_e2e "$@"
 
 # Upgrade frontend (bun) requirements based on `package.json` file
 @upgrade_node_packages:

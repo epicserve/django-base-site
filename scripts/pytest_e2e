@@ -1,0 +1,29 @@
+#!/usr/bin/env bash
+# Run the Playwright e2e tests (`just test_e2e`): the test files, directories or node IDs among the arguments, or all of
+# e2e/ when there are none. Every argument goes on to pytest, so options like `-n 4`, `-k name` and `-x` work either way.
+#
+# An argument counts as a test path when it isn't an option and names a file or directory, ignoring any `::TestX::test`
+# node ID suffix. The value of `--deselect`, `--ignore` or `--ignore-glob` never counts, in either spelling.
+set -euo pipefail
+cd "$(dirname "$0")/.."
+
+paths_given=false
+skip_next=false
+for arg; do
+    if [ "$skip_next" = true ]; then
+        skip_next=false
+        continue
+    fi
+    case "$arg" in
+        --deselect | --ignore | --ignore-glob) skip_next=true ;;
+        -*) ;;
+        *) if [ -e "${arg%%::*}" ]; then paths_given=true; fi ;;
+    esac
+done
+
+# shellcheck disable=SC2086 # PYTHON_CMD_PREFIX is a command and its arguments, or empty on CI
+if [ "$paths_given" = true ]; then
+    exec ${PYTHON_CMD_PREFIX:-} pytest --ds=config.settings.e2e ${1+"$@"}
+else
+    exec ${PYTHON_CMD_PREFIX:-} pytest e2e/ --ds=config.settings.e2e ${1+"$@"}
+fi

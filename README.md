@@ -257,7 +257,7 @@ lint                         # Lint ruff/djLint/oxlint natively; ty, migrations,
 generate_api_types           # Regenerate the SPA's TypeScript API types from the ninja + allauth OpenAPI specs
 test                         # pytest (Django + ninja API tests)
 test_with_coverage           # pytest --cov, then open the HTML report
-test_e2e [args]              # Build the frontend, then run the Playwright e2e suite
+test_e2e [args]              # Build the frontend, then run the Playwright e2e tests given (default: all of e2e/)
 db_dump                      # pg_dump to ~/Downloads
 db_restore [dump_file]       # Restore from the latest dump (or a specific file)
 upgrade_python_packages      # uv sync --all-packages --all-extras
