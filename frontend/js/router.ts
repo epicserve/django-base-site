@@ -213,7 +213,7 @@ export function createRouter(appStore: AppStore): Router {
         meta: { requiresAuth: true },
       },
 
-      // Public pricing page (uses MarketingLayout)
+      // Public pricing page, which draws its own header rather than AppLayout's
       {
         path: '/pricing/',
         name: 'pricing',
