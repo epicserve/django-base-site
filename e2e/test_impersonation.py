@@ -52,7 +52,7 @@ class TestImpersonationBanner:
         expect(page.get_by_role("heading", level=1)).to_be_visible()
         expect(_banner(page)).to_have_count(0)
 
-        page.locator('nav .relative[data-dropdown="nav"]').last.locator("button").first.click()
+        page.get_by_role("button", name="User Menu", exact=True).click()
         page.get_by_role("button", name="Stop Impersonating").click()
         page.wait_for_url(f"{live_server.url}/")
         _impersonate(page, live_server, "Michael Scott")
