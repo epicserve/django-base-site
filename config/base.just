@@ -11,6 +11,7 @@ bun_cmd_prefix := env_var_or_default('BUN_CMD_PREFIX', 'docker compose run --no-
 # Native (uvx/bunx) tool versions, read from the lockfiles so they match Docker + CI
 ruff_version := `grep -A1 '^name = "ruff"$' uv.lock | grep -m1 '^version = ' | sed -E 's/version = "([^"]+)"/\1/'`
 djlint_version := `grep -A1 '^name = "djlint"$' uv.lock | grep -m1 '^version = ' | sed -E 's/version = "([^"]+)"/\1/'`
+import_linter_version := `grep -A1 '^name = "import-linter"$' uv.lock | grep -m1 '^version = ' | sed -E 's/version = "([^"]+)"/\1/'`
 oxfmt_version := `grep -m1 '"oxfmt":' package.json | sed -E 's/.*"oxfmt": *"([^"]+)".*/\1/'`
 oxlint_version := `grep -m1 '"oxlint":' package.json | sed -E 's/.*"oxlint": *"([^"]+)".*/\1/'`
 
@@ -209,7 +210,7 @@ _generate_api_types out_dir:
     {{ bun_cmd_prefix }} bun frontend/config/generate-api-types.mjs "$spec_dir/allauth.json" "{{ out_dir }}/allauth.d.ts"
 
 # Lint everything
-lint: lint_js lint_html lint_py lint_migrations lint_deploy lint_types lint_api_types lint_ts
+lint: lint_js lint_html lint_py lint_imports lint_migrations lint_deploy lint_types lint_api_types lint_ts
 
 # Fail if the checked-in API types in frontend/js/api/ don't match the backend's schemas
 lint_api_types: _require_native_tools _require_node_modules
@@ -256,6 +257,12 @@ lint_api_types: _require_native_tools _require_node_modules
     just _start_msg "Checking code using ruff {{ ruff_version }}"
     uvx "ruff@{{ ruff_version }}" check
     uvx "ruff@{{ ruff_version }}" format --check
+
+# Check which apps each app may import: the contracts under [tool.importlinter] in pyproject.toml (AGENTS.md's "App
+# Layers"). import-linter reads the source without importing it, so it needs no project dependencies.
+@lint_imports: _require_native_tools
+    just _start_msg "Checking app imports using import-linter {{ import_linter_version }}"
+    uvx --from "import-linter@{{ import_linter_version }}" lint-imports
 
 # Type-check the SPA's TypeScript and Vue files with vue-tsc
 @lint_ts: _require_native_tools _require_node_modules
