@@ -5,7 +5,7 @@
     "dev": "vite --config frontend/config/vite.config.mjs",
     "build": "vite build --config frontend/config/vite.config.mjs",
     "preview": "vite preview --config frontend/config/vite.config.mjs",
-    "lint-js": "oxfmt --check ./frontend/ && oxlint ./frontend/",
+    "lint-js": "oxfmt --check ./frontend/ && oxlint --report-unused-disable-directives-severity=error ./frontend/",
     "format-js": "oxfmt ./frontend/ && oxlint --fix ./frontend/",
     "test": "NODE_ENV=test vitest run --config frontend/config/vite.config.mjs"
   },

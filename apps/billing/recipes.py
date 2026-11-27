@@ -43,8 +43,8 @@ BILLING_SETTINGS = {
     "BILLING_ENABLED": True,
     "BILLING_PLANS": BILLING_PLANS,
     "BILLING_FEATURES": BILLING_FEATURES,
-    "STRIPE_SECRET_KEY": "sk_test_dummy",  # noqa: S105
-    "STRIPE_WEBHOOK_SECRET": "whsec_dummy",  # noqa: S105
+    "STRIPE_SECRET_KEY": "sk_test_dummy",
+    "STRIPE_WEBHOOK_SECRET": "whsec_dummy",
 }
 
 _numbers = count(1)

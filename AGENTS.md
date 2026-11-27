@@ -154,6 +154,23 @@ These exist only in the Django Base Site template. `scripts/start_new_project` r
 - **Line Length**: 120 characters for Python and HTML.
 - **UI copy**: Labels are Title Case. That covers headings, page and modal titles, buttons (including an icon button's `aria-label` and its loading text), action links, nav and tab items, form labels, table headers, chips, badges, and select options. Keep articles, coordinating conjunctions, and prepositions of four letters or fewer (a, an, the, and, but, or, of, in, on, to, for, at, by, with, from) lowercase unless they come first or last. Capitalize the particle of a phrasal verb ("Sign In", "Set Up") and both halves of a hyphenated compound ("Two-Factor", "In-App"). Package and product names keep their own casing (`django-allauth`, `bun`, `Tailwind v4`). Examples: "Sign In with a Passkey", "Read the Docs", "Teams Aren't Included on Your Current Plan". Sentence case is for sentences and hints: descriptions, subtitles, help text, placeholders, tooltips, empty states, toasts, confirmations, error messages, greetings, and checkbox labels that read as a sentence. Django admin strings (model `verbose_name`s and choice labels) follow Django's own sentence-case convention.
 
+## Fixes and Pull Requests
+
+- **A bug fix comes with its regression test**, in the same pull request: a test or CI check that fails on the old code and passes with the fix. Run it against the old code to see it fail. The `fix-bug` skill ([.agents/skills/fix-bug/SKILL.md](.agents/skills/fix-bug/SKILL.md)) walks through it.
+- **When a linter flags code, change the code.** That includes a linter upgrade that adds rules: rewrite what it flags rather than add an ignore to make it pass. A suppression that's still needed names its rule and says why on the same line: `# noqa: S105 (a placeholder, never sent anywhere)`, `// oxlint-disable-next-line no-console -- logs the origin and RP ID ...`, `# ty: ignore[rule]`. Ruff fails on a `noqa` or `type: ignore` with no rule code (`PGH004`, `PGH003`) and on a `noqa` that suppresses nothing (`RUF100`); Oxlint fails on an unused disable comment.
+- **One logical change per pull request.** Its description says what changed and why, and names the regression test. A pull request that moves or deletes a test names the test that covers it now (see Testing).
+
+### When a Review Comment Repeats, Make It a Check
+
+A rule that's only written here gets applied unevenly; a red CI run doesn't. When the same comment comes up in review twice, turn it into the cheapest check that can catch it:
+
+- **A Ruff or Oxlint rule**, when one exists: add it to `select` in `pyproject.toml` or to `.oxlintrc.json`, and fix what it flags.
+- **A guard test in `apps/base/tests/`** for a project rule no linter knows, reading the code or config it guards. `test_frontend_typescript.py`, `test_env_schema.py`, `test_compose_file.py` and `test_app_context_api.py` are examples.
+- **A `@ts-expect-error` line in `frontend/js/utils/api.type-test.ts`** for an API call the types should reject.
+- **An e2e test** for what only shows in a browser, such as `e2e/test_content_security_policy.py` and `e2e/test_form_labels.py`.
+
+Then shorten the prose here to the rule and the check that enforces it. Don't write a test that greps a CI workflow's YAML: say what the workflow does in this file instead.
+
 ## Debugging
 
 The project supports remote debugging with VS Code, PyCharm, LazyVim/Neovim, or any DAP-compatible editor.

@@ -125,6 +125,9 @@ select = [
     "S",  # bandit
     "PT009",  # unittest-style assertions (`self.assertEqual`): use a bare `assert`
     "PT027",  # `self.assertRaises`: use `pytest.raises`
+    "RUF100",  # a `noqa` that suppresses nothing
+    "PGH003",  # a `type: ignore` with no rule code
+    "PGH004",  # a `noqa` with no rule code
 ]
 ignore = ["D100", "D101", "D102", "D103", "D104", "D106", "D107", "D203", "D212", ]
 

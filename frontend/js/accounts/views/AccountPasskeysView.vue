@@ -41,7 +41,7 @@ async function add() {
     const optsResp = await authApi.beginAddPasskey(passwordless.value);
     const options = optsResp.data.creation_options;
     const rpId = decodeCreationOptions(options).rp.id;
-    // oxlint-disable-next-line no-console
+    // oxlint-disable-next-line no-console -- logs the origin and RP ID, which must match, to debug a failed enrollment
     console.info('[passkey enroll] page origin:', window.location.origin, '/ rp.id:', rpId);
     const credential = await createPasskeyCredential(options);
 

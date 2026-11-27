@@ -1,4 +1,4 @@
-from ._base import *  # noqa: F403, F401
+from ._base import *  # noqa: F403
 from ._base import BASE_DIR, content_security_policy
 
 PASSWORD_HASHERS = ("django.contrib.auth.hashers.MD5PasswordHasher",)
