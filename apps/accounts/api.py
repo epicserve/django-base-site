@@ -42,7 +42,7 @@ def _users_qs(request):
         filter_kwargs["organizationmember__organization"] = request.org.pk
     return (
         User.objects.filter(**filter_kwargs)
-        .only("id", "username", "first_name", "last_name", "timezone")
+        .only("id", "username", "first_name", "last_name", "timezone", "avatar_thumbnail")
         .order_by("first_name")
     )
 
