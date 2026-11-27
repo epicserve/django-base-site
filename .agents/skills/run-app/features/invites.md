@@ -18,6 +18,7 @@ Run `just seed` first: seeded invites expire 7 days after the last run, and it p
 - **Signed in as someone else:** `ron.swanson@pawnee.example` on that invite. He's only in Pawnee. Don't use `member@example.com`: he's in Dunder Mifflin, so he gets "Already a Member".
 - **Already a member:** `owner@example.com` on that invite.
 - **Expired:** the `todd.packer@dundermifflin.example` invite.
+- **No account:** the `holly.flax@dundermifflin.example` invite. `just seed` makes it with a recipe, not the API, so it exists even though the page would now refuse it while signup is closed (see Sending an Invite). Signed out, "Create an Account to Join" leads to "Sign up is currently closed.", so Holly can't join until signup is open ([sign-in-and-sign-up.md](sign-in-and-sign-up.md)).
 
 ## Accepting an Invite
 
@@ -45,21 +46,17 @@ Someone signed in under another address who isn't a member, such as Ron, still g
 
 As the owner, on Dunder Mifflin's Members tab:
 
-1. Click "Invite by Email", fill "Email Address" with an address no one uses, and click "Send Invite".
+1. Click "Invite by Email", fill "Email Address" with the address of an account that isn't in Dunder Mifflin and has no invite, such as `ron.swanson@pawnee.example`, and click "Send Invite".
 2. Wait for the toast "Invitation sent.". The address appears under "Pending Invitations".
 3. The `worker` sends the email to Mailpit, "Invite from Michael Scott". Its "Join Dunder Mifflin Paper Company, Inc." link opens the accept page.
+
+While signup is closed (`ACCOUNT_SIGNUP_OPEN` off, the default), an address that no account has as its email is refused: the modal stays open with "Sign-up is closed, so only someone with an account can accept an invite. Turn on sign-up (ACCOUNT_SIGNUP_OPEN) to invite someone who doesn't have an account." under "Email Address", and nothing is sent. An account matches by its email in any case, the same way accepting does; another address on the account doesn't count. To invite a new address, open signup ([sign-in-and-sign-up.md](sign-in-and-sign-up.md)).
 
 The form has no role field, so an invite sent from the page always makes a member. Sending is throttled to 30 invites an hour and 100 a day per user.
 
 ## Pitfalls
 
 - **Never invite a seeded invitee's address from the page.** A second invite to `user@example.com` makes `just seed` fail with `MultipleObjectsReturned`. Cancel the extra invite to fix it. Tracked in [django-base-site#1424](https://github.com/epicserve/django-base-site/issues/1424), item 3.
-
-## Known Issues
-
-Tracked in the template's [django-base-site#1424](https://github.com/epicserve/django-base-site/issues/1424), item 3.
-
-- **Signup is closed by default** (`ACCOUNT_SIGNUP_OPEN` off), so someone invited without an account follows "Create an Account to Join" to "Sign up is currently closed." and can't join. To drive that path, open signup ([sign-in-and-sign-up.md](sign-in-and-sign-up.md)).
 
 ## Cleanup
 
@@ -75,5 +72,5 @@ Tracked in the template's [django-base-site#1424](https://github.com/epicserve/d
 - `e2e/test_invite_flow.py`: signed out, an unknown key, an expired invite, accepting, declining, and "I Already Have an Account" keeping `?next=`.
 - `e2e/test_org_settings.py::TestMembersTab::test_invites`: the "Pending Invitations" list. No e2e test sends or cancels an invite; `e2e/test_form_errors.py` checks the invite form's errors.
 - Vitest: `frontend/js/views/AcceptInviteView.test.ts`, the server's reason (or a fallback) when accepting or declining fails.
-- pytest: `apps/organizations/tests/test_api.py`, `apps/organizations/tests/test_invite_throttle.py`
+- pytest: `apps/organizations/tests/test_api.py` (`TestCreateInviteWhileSignupIsClosed`: refusing an address without an account while signup is closed), `apps/organizations/tests/test_invite_throttle.py`
 - The whole journey, email included: [cross-cutting-flows.md](cross-cutting-flows.md).

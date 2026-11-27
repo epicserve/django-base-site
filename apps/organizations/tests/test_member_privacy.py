@@ -9,6 +9,8 @@ through ids got every email.
 
 import json
 
+from django.test import override_settings
+
 from apps.accounts.recipes import make_user
 from apps.base.tests import BaseTest
 from apps.organizations.models import OrganizationInvite, OrganizationMember
@@ -59,6 +61,9 @@ class TestMembersApiTellsNothingAboutOutsiders(BaseTest):
         self._assert_says_nothing_about_the_outsider(response)
         assert not OrganizationInvite.objects.exists()
 
+    # While sign-up is closed, an invite to an address without an account is refused, which does say so. That's on
+    # purpose: they couldn't join (see `TestCreateInviteWhileSignupIsClosed` in test_api.py).
+    @override_settings(ACCOUNT_SIGNUP_OPEN=True)
     def test_an_email_invite_doesnt_say_whether_the_address_has_an_account(self):
         has_account = self._post("/api/organization-invites/", {"invitee_email": OUTSIDER_EMAIL})
         no_account = self._post("/api/organization-invites/", {"invitee_email": "nobody@corporate.example"})
