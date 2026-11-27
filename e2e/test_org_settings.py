@@ -106,8 +106,12 @@ class TestNonOwner:
 
         page.get_by_role("button", name="Dunder Mifflin").click()
 
-        expect(page.get_by_role("link", name="Switch Company")).to_be_visible()
+        # The UI calls it an organization everywhere, as in "Create Organization".
+        switch = page.get_by_role("link", name="Switch Organization", exact=True)
+        expect(switch).to_be_visible()
         expect(page.get_by_role("link", name="Settings", exact=True)).to_have_count(0)
+        switch.click()
+        expect(page.get_by_role("heading", name="Switch Organization", exact=True)).to_be_visible()
 
     def test_settings_redirect_home(self, page: Page, live_server, sign_in, dwight):
         # The settings APIs are owner-only; a member who types the URL used to get "No members." and an invite form.

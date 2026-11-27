@@ -28,7 +28,7 @@ async function signOutOrg() {
 
 async function setPrimary(slug: string) {
   const result = await unwrap(api.POST('/api/organizations/{slug}/set-primary/', { params: { path: { slug } } }));
-  showToast(result.is_primary ? 'Primary company updated.' : 'Primary company removed.');
+  showToast(result.is_primary ? 'Primary organization updated.' : 'Primary organization removed.');
   orgs.value = await unwrap(api.GET('/api/organizations/switch-list/'));
 }
 </script>
@@ -36,7 +36,7 @@ async function setPrimary(slug: string) {
 <template>
   <div class="mx-auto max-w-md">
     <div class="border-b border-gray-200 dark:border-gray-700 pb-3 mb-4">
-      <h2 class="text-2xl font-semibold text-gray-900 dark:text-white">Switch Company</h2>
+      <h2 class="text-2xl font-semibold text-gray-900 dark:text-white">Switch Organization</h2>
     </div>
     <div v-if="loading" class="text-center py-8 text-gray-400">Loading...</div>
     <div
