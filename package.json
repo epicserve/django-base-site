@@ -27,7 +27,7 @@
     "openapi-fetch": "^0.17.0",
     "reka-ui": "^2.11.0",
     "tailwindcss": "^4.3.5",
-    "vue": "^3.5.45",
+    "vue": "^3.5.46",
     "vue-advanced-cropper": "^2.8.9",
     "vue-router": "^5.5.1"
   },
